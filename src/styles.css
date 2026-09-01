@@ -33,10 +33,175 @@
   }
 }
 
+@keyframes educraftHighlight {
+  0% {
+    box-shadow: 0 0 0 0 rgba(232, 101, 74, 0.7);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(232, 101, 74, 0.4);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(232, 101, 74, 0);
+  }
+}
+
 .educraft-panel-in {
   animation: educraftPanelIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 .educraft-modal-in {
   animation: educraftModalIn 0.24s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.educraft-highlight {
+  animation: educraftHighlight 1.5s ease-out 2;
+}
+
+/* =================================================================
+   THIQA (ثِقة) A4 PLATE & BOX STYLES — The 60 Blades
+================================================================== */
+.plate {
+  background: var(--PageBG, #F8F5F0);
+  color: var(--BodyText, #000000);
+  width: 210mm;
+  min-height: 297mm;
+  box-sizing: border-box;
+  padding: 16mm 14mm;
+  margin: 0 auto;
+  font-family: 'Amiri', 'Noto Naskh Arabic', 'Cairo', 'Traditional Arabic', serif;
+  font-size: 16px;
+  line-height: 1.8;
+  position: relative;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+@media screen {
+  .plate {
+    margin: 16px auto;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12);
+    border-radius: 6px;
+  }
+}
+
+.plate h1 {
+  text-align: center;
+  color: var(--HeaderColor, #2E4060);
+  font-size: 1.6rem;
+  font-weight: 800;
+  margin: 0.5rem 0 1.2rem;
+}
+
+.plate h1 .num {
+  color: var(--SectionBG, #E8874A);
+  font-family: 'Space Mono', sans-serif;
+  margin-inline-end: 6px;
+}
+
+.plate p {
+  margin: 0.7em 0;
+}
+
+.box {
+  border-radius: 14px;
+  padding: 0.85rem 1.15rem;
+  margin: 0.85rem 0;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+  border-width: 1.5px;
+  border-style: solid;
+  transition: all 0.2s ease;
+}
+
+.box.section-title {
+  background: var(--SectionBG);
+  border-color: var(--SectionFrame);
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 1.15rem;
+}
+
+.box.keyterm {
+  background: var(--KeyBG);
+  border-color: var(--KeyFrame);
+  color: var(--KeyText);
+}
+
+.box.note {
+  background: var(--NoteBG);
+  border-color: var(--NoteFrame);
+  color: var(--NoteText);
+}
+
+.box.warning {
+  background: var(--WarningBG);
+  border-color: var(--WarningFrame);
+  color: var(--WarningText);
+  border-width: 2px;
+}
+
+.box.important {
+  background: var(--HighlightBG);
+  border-color: var(--ImportantText);
+  color: var(--ImportantText);
+  border-width: 2px;
+  font-weight: 700;
+}
+
+bdi.en {
+  direction: ltr;
+  unicode-bidi: isolate;
+  font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+}
+
+.hl {
+  color: var(--ImportantText);
+  font-weight: 800;
+}
+
+.warnhl {
+  color: var(--WarningFrame);
+  font-weight: 700;
+}
+
+table.thiqa-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+  border-radius: 10px;
+  overflow: hidden;
+  font-size: 0.95em;
+}
+
+table.thiqa-table th {
+  background: var(--SectionBG);
+  color: #ffffff;
+  padding: 0.5rem 0.8rem;
+  border: 1px solid var(--SectionFrame);
+  text-align: inherit;
+}
+
+table.thiqa-table td {
+  padding: 0.45rem 0.8rem;
+  border: 1px solid var(--SectionFrame);
+}
+
+table.thiqa-table tr:nth-child(even) td {
+  background: var(--KeyBG);
+}
+
+@media print {
+  .plate {
+    break-after: page;
+    page-break-after: always;
+    box-shadow: none;
+    margin: 0;
+  }
+  .plate:last-child {
+    break-after: auto;
+    page-break-after: auto;
+  }
+}
+
+@page {
+  size: A4;
+  margin: 0;
 }

@@ -54,19 +54,1409 @@ import {
   TrendingUp,
   TrendingDown,
   Minus,
+  Briefcase,
+  BookCopy,
+  FolderPlus,
+  Link2,
+  ExternalLink,
+  Table as TableIcon,
+  Plus,
+  Search,
 } from "lucide-react";
 
 /* =================================================================
-   THEME — one warm system shared by every screen. Untouched from
-   the original brief; question-type colors below are untouchable.
+   60 THIQA (ثِقة) PALETTES (BLADES) — The 60 A4 Color Systems
 ================================================================== */
+const THIQA_PALETTES = [
+  {
+    "id": 1,
+    "num": 1,
+    "name": "كلاسيك أكاديمي",
+    "vars": {
+      "--PageBG": "#F8F5F0",
+      "--HeaderColor": "#2E4060",
+      "--SectionBG": "#E8874A",
+      "--SectionFrame": "#C96B2F",
+      "--KeyBG": "#E8F7F9",
+      "--KeyFrame": "#4C9DB0",
+      "--KeyText": "#1A6B7A",
+      "--NoteBG": "#F0EDF7",
+      "--NoteFrame": "#655A7C",
+      "--NoteText": "#3B3050",
+      "--BodyText": "#000000",
+      "--WarningBG": "#F2F4E6",
+      "--WarningFrame": "#84922A",
+      "--WarningText": "#626D17",
+      "--ImportantText": "#14428F",
+      "--HighlightBG": "#D9E0F2"
+    }
+  },
+  {
+    "id": 2,
+    "num": 2,
+    "name": "أزرق محايد",
+    "vars": {
+      "--PageBG": "#F5F8FA",
+      "--HeaderColor": "#1B3A5C",
+      "--SectionBG": "#2E6F9E",
+      "--SectionFrame": "#1F4F73",
+      "--KeyBG": "#E6F2F8",
+      "--KeyFrame": "#3E8FBF",
+      "--KeyText": "#14506E",
+      "--NoteBG": "#EAEFF5",
+      "--NoteFrame": "#52688A",
+      "--NoteText": "#2A3A52",
+      "--BodyText": "#000000",
+      "--WarningBG": "#E8E6F4",
+      "--WarningFrame": "#4934B2",
+      "--WarningText": "#26176D",
+      "--ImportantText": "#8F4514",
+      "--HighlightBG": "#F2ECD9"
+    }
+  },
+  {
+    "id": 3,
+    "num": 3,
+    "name": "رمادي أنيق",
+    "vars": {
+      "--PageBG": "#F7F7F6",
+      "--HeaderColor": "#33363B",
+      "--SectionBG": "#6E5046",
+      "--SectionFrame": "#4F3A33",
+      "--KeyBG": "#EDEDEA",
+      "--KeyFrame": "#8A8580",
+      "--KeyText": "#3A3833",
+      "--NoteBG": "#F1ECEA",
+      "--NoteFrame": "#8C6F62",
+      "--NoteText": "#4A3A32",
+      "--BodyText": "#000000",
+      "--WarningBG": "#F4F4E6",
+      "--WarningFrame": "#92922A",
+      "--WarningText": "#6D6D17",
+      "--ImportantText": "#14148F",
+      "--HighlightBG": "#D9E3F2"
+    }
+  },
+  {
+    "id": 4,
+    "num": 4,
+    "name": "باستيل وردي",
+    "vars": {
+      "--PageBG": "#FDF6F5",
+      "--HeaderColor": "#8C4B5A",
+      "--SectionBG": "#E8A0AC",
+      "--SectionFrame": "#C97584",
+      "--KeyBG": "#FCEDEF",
+      "--KeyFrame": "#D98A9A",
+      "--KeyText": "#8A3D4C",
+      "--NoteBG": "#FBF0E9",
+      "--NoteFrame": "#C99E84",
+      "--NoteText": "#6E4A36",
+      "--BodyText": "#000000",
+      "--WarningBG": "#F4EEE6",
+      "--WarningFrame": "#B27D34",
+      "--WarningText": "#6D4917",
+      "--ImportantText": "#127481",
+      "--HighlightBG": "#D9EEF2"
+    }
+  },
+  {
+    "id": 5,
+    "num": 5,
+    "name": "باستيل نعناعي",
+    "vars": {
+      "--PageBG": "#F4FAF7",
+      "--HeaderColor": "#2F6B57",
+      "--SectionBG": "#6FBFA0",
+      "--SectionFrame": "#409478",
+      "--KeyBG": "#E7F7F1",
+      "--KeyFrame": "#52B399",
+      "--KeyText": "#1F6B53",
+      "--NoteBG": "#EEF6F8",
+      "--NoteFrame": "#6FA8B5",
+      "--NoteText": "#2C5A66",
+      "--BodyText": "#000000",
+      "--WarningBG": "#E6EFF4",
+      "--WarningFrame": "#3484B2",
+      "--WarningText": "#174E6D",
+      "--ImportantText": "#8F1452",
+      "--HighlightBG": "#F2D9DA"
+    }
+  },
+  {
+    "id": 6,
+    "num": 6,
+    "name": "باستيل لافندر",
+    "vars": {
+      "--PageBG": "#F8F6FB",
+      "--HeaderColor": "#4A3F73",
+      "--SectionBG": "#9A8AC7",
+      "--SectionFrame": "#6F5DA3",
+      "--KeyBG": "#EFEAF8",
+      "--KeyFrame": "#8470B8",
+      "--KeyText": "#4B3A7A",
+      "--NoteBG": "#EAF0F6",
+      "--NoteFrame": "#7E93B0",
+      "--NoteText": "#354A66",
+      "--BodyText": "#000000",
+      "--WarningBG": "#F4E6F4",
+      "--WarningFrame": "#B234B0",
+      "--WarningText": "#6D176C",
+      "--ImportantText": "#4C7411",
+      "--HighlightBG": "#E3F2D9"
+    }
+  },
+  {
+    "id": 7,
+    "num": 7,
+    "name": "باستيل خوخي",
+    "vars": {
+      "--PageBG": "#FDF8F1",
+      "--HeaderColor": "#8A5A2E",
+      "--SectionBG": "#EFA85E",
+      "--SectionFrame": "#D1873A",
+      "--KeyBG": "#FCEFE0",
+      "--KeyFrame": "#E0A05C",
+      "--KeyText": "#7A4C20",
+      "--NoteBG": "#FAF3E6",
+      "--NoteFrame": "#C9A06A",
+      "--NoteText": "#6B4E2A",
+      "--BodyText": "#000000",
+      "--WarningBG": "#F1F4E6",
+      "--WarningFrame": "#7E9A2D",
+      "--WarningText": "#576D17",
+      "--ImportantText": "#14478F",
+      "--HighlightBG": "#D9DDF2"
+    }
+  },
+  {
+    "id": 8,
+    "num": 8,
+    "name": "ليلي أزرق",
+    "vars": {
+      "--PageBG": "#1B1F2A",
+      "--HeaderColor": "#E8ECF2",
+      "--SectionBG": "#3D6FB4",
+      "--SectionFrame": "#6E9CDB",
+      "--KeyBG": "#223240",
+      "--KeyFrame": "#5EC3D6",
+      "--KeyText": "#8FE3F0",
+      "--NoteBG": "#282235",
+      "--NoteFrame": "#9E8FD6",
+      "--NoteText": "#C9BBF5",
+      "--BodyText": "#E6E8EC",
+      "--WarningBG": "#31244C",
+      "--WarningFrame": "#774DCB",
+      "--WarningText": "#BBA5E9",
+      "--ImportantText": "#8999E6",
+      "--HighlightBG": "#403D1C"
+    }
+  },
+  {
+    "id": 9,
+    "num": 9,
+    "name": "ليلي بنفسجي",
+    "vars": {
+      "--PageBG": "#201A2B",
+      "--HeaderColor": "#F0E9F7",
+      "--SectionBG": "#8A5FBF",
+      "--SectionFrame": "#AE8AE0",
+      "--KeyBG": "#271F38",
+      "--KeyFrame": "#4FB3A8",
+      "--KeyText": "#8FE0D4",
+      "--NoteBG": "#2A2230",
+      "--NoteFrame": "#C99A6B",
+      "--NoteText": "#EAC79A",
+      "--BodyText": "#EDE7F4",
+      "--WarningBG": "#4C2444",
+      "--WarningFrame": "#CB4DB2",
+      "--WarningText": "#E9A5DB",
+      "--ImportantText": "#CA89E6",
+      "--HighlightBG": "#24401C"
+    }
+  },
+  {
+    "id": 10,
+    "num": 10,
+    "name": "ليلي أخضر",
+    "vars": {
+      "--PageBG": "#16201C",
+      "--HeaderColor": "#E6F0EA",
+      "--SectionBG": "#3E8E68",
+      "--SectionFrame": "#63B58A",
+      "--KeyBG": "#1C2A24",
+      "--KeyFrame": "#5BAFA0",
+      "--KeyText": "#9FE3D4",
+      "--NoteBG": "#20251F",
+      "--NoteFrame": "#A9A45E",
+      "--NoteText": "#E1DC9E",
+      "--BodyText": "#E7EDE9",
+      "--WarningBG": "#24414C",
+      "--WarningFrame": "#4DA9CB",
+      "--WarningText": "#A5D6E9",
+      "--ImportantText": "#89E6D1",
+      "--HighlightBG": "#401C21"
+    }
+  },
+  {
+    "id": 11,
+    "num": 11,
+    "name": "طبي إكلينيكي",
+    "vars": {
+      "--PageBG": "#FAFCFD",
+      "--HeaderColor": "#0E5C73",
+      "--SectionBG": "#1C8FA8",
+      "--SectionFrame": "#146C82",
+      "--KeyBG": "#E3F6F4",
+      "--KeyFrame": "#2BA89A",
+      "--KeyText": "#0E6B5F",
+      "--NoteBG": "#EAF4FB",
+      "--NoteFrame": "#4A8FBF",
+      "--NoteText": "#1B4F75",
+      "--BodyText": "#000000",
+      "--WarningBG": "#E6E7F4",
+      "--WarningFrame": "#343DB2",
+      "--WarningText": "#171D6D",
+      "--ImportantText": "#8F3D14",
+      "--HighlightBG": "#F2E6D9"
+    }
+  },
+  {
+    "id": 12,
+    "num": 12,
+    "name": "هندسي تقني",
+    "vars": {
+      "--PageBG": "#F6F7F8",
+      "--HeaderColor": "#22272E",
+      "--SectionBG": "#E0A12C",
+      "--SectionFrame": "#B8821B",
+      "--KeyBG": "#E9EEF2",
+      "--KeyFrame": "#4A6B8A",
+      "--KeyText": "#1F3A52",
+      "--NoteBG": "#EEEDEA",
+      "--NoteFrame": "#8C8275",
+      "--NoteText": "#4A4338",
+      "--BodyText": "#000000",
+      "--WarningBG": "#EFF4E6",
+      "--WarningFrame": "#6E9A2D",
+      "--WarningText": "#4B6D17",
+      "--ImportantText": "#8F5214",
+      "--HighlightBG": "#D9D9F2"
+    }
+  },
+  {
+    "id": 13,
+    "num": 13,
+    "name": "طبيعي ترابي",
+    "vars": {
+      "--PageBG": "#F7F5EE",
+      "--HeaderColor": "#4A4520",
+      "--SectionBG": "#8A9B5E",
+      "--SectionFrame": "#677A3E",
+      "--KeyBG": "#EFF1E3",
+      "--KeyFrame": "#7E9460",
+      "--KeyText": "#435228",
+      "--NoteBG": "#F1E9DE",
+      "--NoteFrame": "#A07D52",
+      "--NoteText": "#5C4327",
+      "--BodyText": "#000000",
+      "--WarningBG": "#E6F4E6",
+      "--WarningFrame": "#2FA232",
+      "--WarningText": "#176D1A",
+      "--ImportantText": "#14308F",
+      "--HighlightBG": "#E8D9F2"
+    }
+  },
+  {
+    "id": 14,
+    "num": 14,
+    "name": "ملكي ذهبي",
+    "vars": {
+      "--PageBG": "#F9F7F1",
+      "--HeaderColor": "#1F2A4A",
+      "--SectionBG": "#B68A3E",
+      "--SectionFrame": "#8C6A26",
+      "--KeyBG": "#F3EEE0",
+      "--KeyFrame": "#A9842F",
+      "--KeyText": "#6B4F18",
+      "--NoteBG": "#EFEAF1",
+      "--NoteFrame": "#7A4F5E",
+      "--NoteText": "#5A2E3C",
+      "--BodyText": "#000000",
+      "--WarningBG": "#EFF4E6",
+      "--WarningFrame": "#709A2D",
+      "--WarningText": "#4C6D17",
+      "--ImportantText": "#14338F",
+      "--HighlightBG": "#D9DAF2"
+    }
+  },
+  {
+    "id": 15,
+    "num": 15,
+    "name": "عصري جريء",
+    "vars": {
+      "--PageBG": "#FBFBFA",
+      "--HeaderColor": "#1A2E35",
+      "--SectionBG": "#EB5E55",
+      "--SectionFrame": "#C73E36",
+      "--KeyBG": "#E3F4F2",
+      "--KeyFrame": "#1FA39A",
+      "--KeyText": "#0E6760",
+      "--NoteBG": "#FDF1E3",
+      "--NoteFrame": "#E0A23A",
+      "--NoteText": "#7A4E12",
+      "--BodyText": "#000000",
+      "--WarningBG": "#F4F2E6",
+      "--WarningFrame": "#A69030",
+      "--WarningText": "#6D5D17",
+      "--ImportantText": "#14148F",
+      "--HighlightBG": "#D9E8F2"
+    }
+  },
+  {
+    "id": 16,
+    "num": 16,
+    "name": "أحمر مرجاني",
+    "vars": {
+      "--PageBG": "#F7F3F3",
+      "--HeaderColor": "#511F1F",
+      "--SectionBG": "#C84141",
+      "--SectionFrame": "#9D2525",
+      "--KeyBG": "#E5F5ED",
+      "--KeyFrame": "#3B9B6B",
+      "--KeyText": "#1F6B45",
+      "--NoteBG": "#EEEAF5",
+      "--NoteFrame": "#654B9B",
+      "--NoteText": "#3E2B64",
+      "--BodyText": "#000000",
+      "--WarningBG": "#F4F1E6",
+      "--WarningFrame": "#A68930",
+      "--WarningText": "#6D5817",
+      "--ImportantText": "#117474",
+      "--HighlightBG": "#D9EAF2"
+    }
+  },
+  {
+    "id": 17,
+    "num": 17,
+    "name": "أخضر زمردي",
+    "vars": {
+      "--PageBG": "#F3F7F4",
+      "--HeaderColor": "#1F512E",
+      "--SectionBG": "#268241",
+      "--SectionFrame": "#124E24",
+      "--KeyBG": "#F2E5F5",
+      "--KeyFrame": "#9B43B1",
+      "--KeyText": "#5B1F6B",
+      "--NoteBG": "#F5F1EA",
+      "--NoteFrame": "#9B7D4B",
+      "--NoteText": "#644F2B",
+      "--BodyText": "#000000",
+      "--WarningBG": "#E6F4F4",
+      "--WarningFrame": "#2F9DA2",
+      "--WarningText": "#176A6D",
+      "--ImportantText": "#8F1470",
+      "--HighlightBG": "#F2D9E2"
+    }
+  },
+  {
+    "id": 18,
+    "num": 18,
+    "name": "أرجواني",
+    "vars": {
+      "--PageBG": "#F5F3F7",
+      "--HeaderColor": "#3C1F51",
+      "--SectionBG": "#9041C8",
+      "--SectionFrame": "#6B259D",
+      "--KeyBG": "#F4F5E5",
+      "--KeyFrame": "#899037",
+      "--KeyText": "#646B1F",
+      "--NoteBG": "#EAF5F4",
+      "--NoteFrame": "#499791",
+      "--NoteText": "#2B645F",
+      "--BodyText": "#000000",
+      "--WarningBG": "#F4E6F0",
+      "--WarningFrame": "#B23488",
+      "--WarningText": "#6D1751",
+      "--ImportantText": "#427411",
+      "--HighlightBG": "#DBF2D9"
+    }
+  },
+  {
+    "id": 19,
+    "num": 19,
+    "name": "ذهبي فاتح",
+    "vars": {
+      "--PageBG": "#F7F6F3",
+      "--HeaderColor": "#514B1F",
+      "--SectionBG": "#7E7325",
+      "--SectionFrame": "#4A4311",
+      "--KeyBG": "#E5EFF5",
+      "--KeyFrame": "#4388B1",
+      "--KeyText": "#1F4E6B",
+      "--NoteBG": "#F5EAF3",
+      "--NoteFrame": "#9B4B8A",
+      "--NoteText": "#642B58",
+      "--BodyText": "#000000",
+      "--WarningBG": "#EBF4E6",
+      "--WarningFrame": "#589E2E",
+      "--WarningText": "#376D17",
+      "--ImportantText": "#14338F",
+      "--HighlightBG": "#DED9F2"
+    }
+  },
+  {
+    "id": 20,
+    "num": 20,
+    "name": "سماوي",
+    "vars": {
+      "--PageBG": "#F3F6F7",
+      "--HeaderColor": "#1F4951",
+      "--SectionBG": "#297D8E",
+      "--SectionFrame": "#154F5B",
+      "--KeyBG": "#F5E5EA",
+      "--KeyFrame": "#B14368",
+      "--KeyText": "#6B1F38",
+      "--NoteBG": "#F0F5EA",
+      "--NoteFrame": "#709749",
+      "--NoteText": "#47642B",
+      "--BodyText": "#000000",
+      "--WarningBG": "#E6E7F4",
+      "--WarningFrame": "#343EB2",
+      "--WarningText": "#171E6D",
+      "--ImportantText": "#8F3314",
+      "--HighlightBG": "#F2E6D9"
+    }
+  },
+  {
+    "id": 21,
+    "num": 21,
+    "name": "فوشيا",
+    "vars": {
+      "--PageBG": "#F7F3F5",
+      "--HeaderColor": "#511F3A",
+      "--SectionBG": "#C73D88",
+      "--SectionFrame": "#992463",
+      "--KeyBG": "#E6F5E5",
+      "--KeyFrame": "#409F3C",
+      "--KeyText": "#226B1F",
+      "--NoteBG": "#EAEDF5",
+      "--NoteFrame": "#4B5B9B",
+      "--NoteText": "#2B3764",
+      "--BodyText": "#000000",
+      "--WarningBG": "#F4E9E6",
+      "--WarningFrame": "#B24E34",
+      "--WarningText": "#6D2917",
+      "--ImportantText": "#117845",
+      "--HighlightBG": "#D9F2ED"
+    }
+  },
+  {
+    "id": 22,
+    "num": 22,
+    "name": "أخضر ربيعي",
+    "vars": {
+      "--PageBG": "#F4F7F3",
+      "--HeaderColor": "#2B511F",
+      "--SectionBG": "#3D8226",
+      "--SectionFrame": "#214E12",
+      "--KeyBG": "#E9E5F5",
+      "--KeyFrame": "#5F43B1",
+      "--KeyText": "#321F6B",
+      "--NoteBG": "#F5EBEA",
+      "--NoteFrame": "#9B514B",
+      "--NoteText": "#64302B",
+      "--BodyText": "#000000",
+      "--WarningBG": "#E6F4ED",
+      "--WarningFrame": "#2E9E66",
+      "--WarningText": "#176D42",
+      "--ImportantText": "#70148F",
+      "--HighlightBG": "#F2D9F0"
+    }
+  },
+  {
+    "id": 23,
+    "num": 23,
+    "name": "أزرق نيلي",
+    "vars": {
+      "--PageBG": "#F3F3F7",
+      "--HeaderColor": "#211F51",
+      "--SectionBG": "#4741C8",
+      "--SectionFrame": "#2A259D",
+      "--KeyBG": "#F5EEE5",
+      "--KeyFrame": "#B17F43",
+      "--KeyText": "#6B481F",
+      "--NoteBG": "#EAF5EE",
+      "--NoteFrame": "#4B9B69",
+      "--NoteText": "#2B6440",
+      "--BodyText": "#000000",
+      "--WarningBG": "#F1E6F4",
+      "--WarningFrame": "#9834B2",
+      "--WarningText": "#5C176D",
+      "--ImportantText": "#6B6B0F",
+      "--HighlightBG": "#E9F2D9"
+    }
+  },
+  {
+    "id": 24,
+    "num": 24,
+    "name": "برتقالي دافئ",
+    "vars": {
+      "--PageBG": "#F7F4F3",
+      "--HeaderColor": "#51301F",
+      "--SectionBG": "#B25E34",
+      "--SectionFrame": "#803F1E",
+      "--KeyBG": "#E5F5F3",
+      "--KeyFrame": "#3B9B8B",
+      "--KeyText": "#1F6B5E",
+      "--NoteBG": "#F1EAF5",
+      "--NoteFrame": "#804B9B",
+      "--NoteText": "#512B64",
+      "--BodyText": "#000000",
+      "--WarningBG": "#F3F4E6",
+      "--WarningFrame": "#8A922A",
+      "--WarningText": "#666D17",
+      "--ImportantText": "#14708F",
+      "--HighlightBG": "#D9E1F2"
+    }
+  },
+  {
+    "id": 25,
+    "num": 25,
+    "name": "نعناعي غامق",
+    "vars": {
+      "--PageBG": "#F3F7F5",
+      "--HeaderColor": "#1F513E",
+      "--SectionBG": "#268260",
+      "--SectionFrame": "#124E38",
+      "--KeyBG": "#F5E5F3",
+      "--KeyFrame": "#B143A4",
+      "--KeyText": "#6B1F61",
+      "--NoteBG": "#F5F5EA",
+      "--NoteFrame": "#949147",
+      "--NoteText": "#64622B",
+      "--BodyText": "#000000",
+      "--WarningBG": "#E6EFF4",
+      "--WarningFrame": "#3482B2",
+      "--WarningText": "#174D6D",
+      "--ImportantText": "#8F1452",
+      "--HighlightBG": "#F2D9DA"
+    }
+  },
+  {
+    "id": 26,
+    "num": 26,
+    "name": "موف",
+    "vars": {
+      "--PageBG": "#F7F3F7",
+      "--HeaderColor": "#4D1F51",
+      "--SectionBG": "#BA39C6",
+      "--SectionFrame": "#8B2395",
+      "--KeyBG": "#EEF5E5",
+      "--KeyFrame": "#70983A",
+      "--KeyText": "#4B6B1F",
+      "--NoteBG": "#EAF2F5",
+      "--NoteFrame": "#4B879B",
+      "--NoteText": "#2B5664",
+      "--BodyText": "#000000",
+      "--WarningBG": "#F4E6EB",
+      "--WarningFrame": "#B2345E",
+      "--WarningText": "#6D1734",
+      "--ImportantText": "#117811",
+      "--HighlightBG": "#D9F2DF"
+    }
+  },
+  {
+    "id": 27,
+    "num": 27,
+    "name": "ليموني",
+    "vars": {
+      "--PageBG": "#F6F7F3",
+      "--HeaderColor": "#47511F",
+      "--SectionBG": "#687B24",
+      "--SectionFrame": "#3B4610",
+      "--KeyBG": "#E5EAF5",
+      "--KeyFrame": "#4363B1",
+      "--KeyText": "#1F356B",
+      "--NoteBG": "#F5EAEF",
+      "--NoteFrame": "#9B4B6F",
+      "--NoteText": "#642B45",
+      "--BodyText": "#000000",
+      "--WarningBG": "#E6F4E6",
+      "--WarningFrame": "#33A22F",
+      "--WarningText": "#1A6D17",
+      "--ImportantText": "#33148F",
+      "--HighlightBG": "#E7D9F2"
+    }
+  },
+  {
+    "id": 28,
+    "num": 28,
+    "name": "أزرق سماء",
+    "vars": {
+      "--PageBG": "#F3F5F7",
+      "--HeaderColor": "#1F3851",
+      "--SectionBG": "#3678BA",
+      "--SectionFrame": "#205488",
+      "--KeyBG": "#F5E5E5",
+      "--KeyFrame": "#B14343",
+      "--KeyText": "#6B1F1F",
+      "--NoteBG": "#ECF5EA",
+      "--NoteFrame": "#589B4B",
+      "--NoteText": "#34642B",
+      "--BodyText": "#000000",
+      "--WarningBG": "#EAE6F4",
+      "--WarningFrame": "#5334B2",
+      "--WarningText": "#2D176D",
+      "--ImportantText": "#8F5214",
+      "--HighlightBG": "#F2EED9"
+    }
+  },
+  {
+    "id": 29,
+    "num": 29,
+    "name": "توتي فروتي",
+    "vars": {
+      "--PageBG": "#F7F3F3",
+      "--HeaderColor": "#511F29",
+      "--SectionBG": "#C8415D",
+      "--SectionFrame": "#9D253E",
+      "--KeyBG": "#E5F5EA",
+      "--KeyFrame": "#3C9F59",
+      "--KeyText": "#1F6B35",
+      "--NoteBG": "#ECEAF5",
+      "--NoteFrame": "#554B9B",
+      "--NoteText": "#322B64",
+      "--BodyText": "#000000",
+      "--WarningBG": "#F4EEE6",
+      "--WarningFrame": "#B27834",
+      "--WarningText": "#6D4617",
+      "--ImportantText": "#117474",
+      "--HighlightBG": "#D9EFF2"
+    }
+  },
+  {
+    "id": 30,
+    "num": 30,
+    "name": "أخضر زمردي 2",
+    "vars": {
+      "--PageBG": "#F3F7F3",
+      "--HeaderColor": "#1F5123",
+      "--SectionBG": "#27862F",
+      "--SectionFrame": "#135319",
+      "--KeyBG": "#EFE5F5",
+      "--KeyFrame": "#8443B1",
+      "--KeyText": "#4B1F6B",
+      "--NoteBG": "#F5EFEA",
+      "--NoteFrame": "#9B6C4B",
+      "--NoteText": "#64432B",
+      "--BodyText": "#000000",
+      "--WarningBG": "#E6F4F2",
+      "--WarningFrame": "#2E9E8B",
+      "--WarningText": "#176D5F",
+      "--ImportantText": "#8F148F",
+      "--HighlightBG": "#F2D9E8"
+    }
+  },
+  {
+    "id": 31,
+    "num": 31,
+    "name": "بنفسجي ملكي",
+    "vars": {
+      "--PageBG": "#F4F3F7",
+      "--HeaderColor": "#321F51",
+      "--SectionBG": "#7441C8",
+      "--SectionFrame": "#52259D",
+      "--KeyBG": "#F5F3E5",
+      "--KeyFrame": "#988C3A",
+      "--KeyText": "#6B611F",
+      "--NoteBG": "#EAF5F2",
+      "--NoteFrame": "#4B9B84",
+      "--NoteText": "#2B6453",
+      "--BodyText": "#000000",
+      "--WarningBG": "#F4E6F2",
+      "--WarningFrame": "#B234A2",
+      "--WarningText": "#6D1762",
+      "--ImportantText": "#587010",
+      "--HighlightBG": "#E0F2D9"
+    }
+  },
+  {
+    "id": 32,
+    "num": 32,
+    "name": "كهرماني",
+    "vars": {
+      "--PageBG": "#F7F6F3",
+      "--HeaderColor": "#51411F",
+      "--SectionBG": "#8E6D29",
+      "--SectionFrame": "#5B4415",
+      "--KeyBG": "#E5F2F5",
+      "--KeyFrame": "#4198AA",
+      "--KeyText": "#1F5E6B",
+      "--NoteBG": "#F5EAF5",
+      "--NoteFrame": "#9B4B9B",
+      "--NoteText": "#642B64",
+      "--BodyText": "#000000",
+      "--WarningBG": "#EEF4E6",
+      "--WarningFrame": "#6C9A2D",
+      "--WarningText": "#496D17",
+      "--ImportantText": "#14338F",
+      "--HighlightBG": "#D9D9F2"
+    }
+  },
+  {
+    "id": 33,
+    "num": 33,
+    "name": "تركواز",
+    "vars": {
+      "--PageBG": "#F3F7F7",
+      "--HeaderColor": "#1F514F",
+      "--SectionBG": "#257E7B",
+      "--SectionFrame": "#114A48",
+      "--KeyBG": "#F5E5EE",
+      "--KeyFrame": "#B1437F",
+      "--KeyText": "#6B1F48",
+      "--NoteBG": "#F2F5EA",
+      "--NoteFrame": "#809749",
+      "--NoteText": "#53642B",
+      "--BodyText": "#000000",
+      "--WarningBG": "#E6EAF4",
+      "--WarningFrame": "#3457B2",
+      "--WarningText": "#17306D",
+      "--ImportantText": "#8F1414",
+      "--HighlightBG": "#F2E0D9"
+    }
+  },
+  {
+    "id": 34,
+    "num": 34,
+    "name": "فوشيا 2",
+    "vars": {
+      "--PageBG": "#F7F3F6",
+      "--HeaderColor": "#511F45",
+      "--SectionBG": "#C639A2",
+      "--SectionFrame": "#952378",
+      "--KeyBG": "#E9F5E5",
+      "--KeyFrame": "#539B3B",
+      "--KeyText": "#326B1F",
+      "--NoteBG": "#EAEFF5",
+      "--NoteFrame": "#4B6C9B",
+      "--NoteText": "#2B4364",
+      "--BodyText": "#000000",
+      "--WarningBG": "#F4E6E6",
+      "--WarningFrame": "#B23434",
+      "--WarningText": "#6D1817",
+      "--ImportantText": "#11782B",
+      "--HighlightBG": "#D9F2E8"
+    }
+  },
+  {
+    "id": 35,
+    "num": 35,
+    "name": "أخضر ربيعي 2",
+    "vars": {
+      "--PageBG": "#F5F7F3",
+      "--HeaderColor": "#36511F",
+      "--SectionBG": "#508226",
+      "--SectionFrame": "#2E4E12",
+      "--KeyBG": "#E6E5F5",
+      "--KeyFrame": "#4843B1",
+      "--KeyText": "#221F6B",
+      "--NoteBG": "#F5EAEC",
+      "--NoteFrame": "#9B4B54",
+      "--NoteText": "#642B32",
+      "--BodyText": "#000000",
+      "--WarningBG": "#E6F4EA",
+      "--WarningFrame": "#2FA251",
+      "--WarningText": "#176D30",
+      "--ImportantText": "#52148F",
+      "--HighlightBG": "#EFD9F2"
+    }
+  },
+  {
+    "id": 36,
+    "num": 36,
+    "name": "أزرق نيلي 2",
+    "vars": {
+      "--PageBG": "#F3F3F7",
+      "--HeaderColor": "#1F2751",
+      "--SectionBG": "#4157C8",
+      "--SectionFrame": "#25399D",
+      "--KeyBG": "#F5EBE5",
+      "--KeyFrame": "#B16843",
+      "--KeyText": "#6B381F",
+      "--NoteBG": "#EAF5EC",
+      "--NoteFrame": "#4B9B58",
+      "--NoteText": "#2B6435",
+      "--BodyText": "#000000",
+      "--WarningBG": "#EEE6F4",
+      "--WarningFrame": "#7E34B2",
+      "--WarningText": "#4A176D",
+      "--ImportantText": "#6B6B0F",
+      "--HighlightBG": "#EEF2D9"
+    }
+  },
+  {
+    "id": 37,
+    "num": 37,
+    "name": "أحمر مرجاني 2",
+    "vars": {
+      "--PageBG": "#F7F3F3",
+      "--HeaderColor": "#51251F",
+      "--SectionBG": "#C64B39",
+      "--SectionFrame": "#953123",
+      "--KeyBG": "#E5F5EF",
+      "--KeyFrame": "#3B9B77",
+      "--KeyText": "#1F6B4F",
+      "--NoteBG": "#EFEAF5",
+      "--NoteFrame": "#704B9B",
+      "--NoteText": "#452B64",
+      "--BodyText": "#000000",
+      "--WarningBG": "#F4F3E6",
+      "--WarningFrame": "#9A8D2D",
+      "--WarningText": "#6D6317",
+      "--ImportantText": "#117474",
+      "--HighlightBG": "#D9E6F2"
+    }
+  },
+  {
+    "id": 38,
+    "num": 38,
+    "name": "أخضر زمردي 3",
+    "vars": {
+      "--PageBG": "#F3F7F4",
+      "--HeaderColor": "#1F5134",
+      "--SectionBG": "#26824D",
+      "--SectionFrame": "#124E2C",
+      "--KeyBG": "#F4E5F5",
+      "--KeyFrame": "#A943B1",
+      "--KeyText": "#651F6B",
+      "--NoteBG": "#F5F2EA",
+      "--NoteFrame": "#9B874B",
+      "--NoteText": "#64562B",
+      "--BodyText": "#000000",
+      "--WarningBG": "#E6F2F4",
+      "--WarningFrame": "#3298AE",
+      "--WarningText": "#175E6D",
+      "--ImportantText": "#8F1470",
+      "--HighlightBG": "#F2D9DF"
+    }
+  },
+  {
+    "id": 39,
+    "num": 39,
+    "name": "أرجواني 2",
+    "vars": {
+      "--PageBG": "#F6F3F7",
+      "--HeaderColor": "#431F51",
+      "--SectionBG": "#A141C8",
+      "--SectionFrame": "#7A259D",
+      "--KeyBG": "#F2F5E5",
+      "--KeyFrame": "#809438",
+      "--KeyText": "#5B6B1F",
+      "--NoteBG": "#EAF5F5",
+      "--NoteFrame": "#4B979B",
+      "--NoteText": "#2B6164",
+      "--BodyText": "#000000",
+      "--WarningBG": "#F4E6EE",
+      "--WarningFrame": "#B23478",
+      "--WarningText": "#6D1746",
+      "--ImportantText": "#2B7811",
+      "--HighlightBG": "#D9F2DA"
+    }
+  },
+  {
+    "id": 40,
+    "num": 40,
+    "name": "ذهبي فاتح 2",
+    "vars": {
+      "--PageBG": "#F7F7F3",
+      "--HeaderColor": "#51511F",
+      "--SectionBG": "#767722",
+      "--SectionFrame": "#424210",
+      "--KeyBG": "#E5EDF5",
+      "--KeyFrame": "#437AB1",
+      "--KeyText": "#1F456B",
+      "--NoteBG": "#F5EAF1",
+      "--NoteFrame": "#9B4B80",
+      "--NoteText": "#642B51",
+      "--BodyText": "#000000",
+      "--WarningBG": "#E9F4E6",
+      "--WarningFrame": "#4AA22F",
+      "--WarningText": "#2C6D17",
+      "--ImportantText": "#14148F",
+      "--HighlightBG": "#E2D9F2"
+    }
+  },
+  {
+    "id": 41,
+    "num": 41,
+    "name": "سماوي 2",
+    "vars": {
+      "--PageBG": "#F3F6F7",
+      "--HeaderColor": "#1F4251",
+      "--SectionBG": "#2E7D9E",
+      "--SectionFrame": "#19536B",
+      "--KeyBG": "#F5E5E8",
+      "--KeyFrame": "#B1435A",
+      "--KeyText": "#6B1F2F",
+      "--NoteBG": "#EEF5EA",
+      "--NoteFrame": "#689B4B",
+      "--NoteText": "#40642B",
+      "--BodyText": "#000000",
+      "--WarningBG": "#E7E6F4",
+      "--WarningFrame": "#3934B2",
+      "--WarningText": "#1B176D",
+      "--ImportantText": "#8F3314",
+      "--HighlightBG": "#F2E9D9"
+    }
+  },
+  {
+    "id": 42,
+    "num": 42,
+    "name": "وردي غامق",
+    "vars": {
+      "--PageBG": "#F7F3F4",
+      "--HeaderColor": "#511F34",
+      "--SectionBG": "#C84179",
+      "--SectionFrame": "#9D2556",
+      "--KeyBG": "#E5F5E7",
+      "--KeyFrame": "#3C9F45",
+      "--KeyText": "#1F6B26",
+      "--NoteBG": "#EAEBF5",
+      "--NoteFrame": "#4B519B",
+      "--NoteText": "#2B2F64",
+      "--BodyText": "#000000",
+      "--WarningBG": "#F4EBE6",
+      "--WarningFrame": "#B25E34",
+      "--WarningText": "#6D3417",
+      "--ImportantText": "#11745B",
+      "--HighlightBG": "#D9F2F0"
+    }
+  },
+  {
+    "id": 43,
+    "num": 43,
+    "name": "أخضر ربيعي 3",
+    "vars": {
+      "--PageBG": "#F3F7F3",
+      "--HeaderColor": "#25511F",
+      "--SectionBG": "#318226",
+      "--SectionFrame": "#1A4E12",
+      "--KeyBG": "#EBE5F5",
+      "--KeyFrame": "#6D43B1",
+      "--KeyText": "#3C1F6B",
+      "--NoteBG": "#F5EDEA",
+      "--NoteFrame": "#9B5C4B",
+      "--NoteText": "#64372B",
+      "--BodyText": "#000000",
+      "--WarningBG": "#E6F4EF",
+      "--WarningFrame": "#2E9E75",
+      "--WarningText": "#176D4E",
+      "--ImportantText": "#8F148F",
+      "--HighlightBG": "#F2D9ED"
+    }
+  },
+  {
+    "id": 44,
+    "num": 44,
+    "name": "بنفسجي ملكي 2",
+    "vars": {
+      "--PageBG": "#F3F3F7",
+      "--HeaderColor": "#271F51",
+      "--SectionBG": "#5841C8",
+      "--SectionFrame": "#39259D",
+      "--KeyBG": "#F5F0E5",
+      "--KeyFrame": "#AA8741",
+      "--KeyText": "#6B521F",
+      "--NoteBG": "#EAF5F0",
+      "--NoteFrame": "#4B9B73",
+      "--NoteText": "#2B6448",
+      "--BodyText": "#000000",
+      "--WarningBG": "#F3E6F4",
+      "--WarningFrame": "#A834B2",
+      "--WarningText": "#67176D",
+      "--ImportantText": "#6B6B0F",
+      "--HighlightBG": "#E5F2D9"
+    }
+  },
+  {
+    "id": 45,
+    "num": 45,
+    "name": "برتقالي دافئ 2",
+    "vars": {
+      "--PageBG": "#F7F5F3",
+      "--HeaderColor": "#51361F",
+      "--SectionBG": "#A2642F",
+      "--SectionFrame": "#70421A",
+      "--KeyBG": "#E5F5F5",
+      "--KeyFrame": "#3B9B98",
+      "--KeyText": "#1F6B68",
+      "--NoteBG": "#F3EAF5",
+      "--NoteFrame": "#8A4B9B",
+      "--NoteText": "#582B64",
+      "--BodyText": "#000000",
+      "--WarningBG": "#F1F4E6",
+      "--WarningFrame": "#80962C",
+      "--WarningText": "#5B6D17",
+      "--ImportantText": "#14528F",
+      "--HighlightBG": "#D9DEF2"
+    }
+  },
+  {
+    "id": 46,
+    "num": 46,
+    "name": "نعناعي غامق 2",
+    "vars": {
+      "--PageBG": "#F3F7F6",
+      "--HeaderColor": "#1F5145",
+      "--SectionBG": "#26826C",
+      "--SectionFrame": "#124E40",
+      "--KeyBG": "#F5E5F1",
+      "--KeyFrame": "#B14395",
+      "--KeyText": "#6B1F57",
+      "--NoteBG": "#F4F5EA",
+      "--NoteFrame": "#8D9447",
+      "--NoteText": "#5F642B",
+      "--BodyText": "#000000",
+      "--WarningBG": "#E6EDF4",
+      "--WarningFrame": "#3471B2",
+      "--WarningText": "#17416D",
+      "--ImportantText": "#8F1433",
+      "--HighlightBG": "#F2DBD9"
+    }
+  },
+  {
+    "id": 47,
+    "num": 47,
+    "name": "موف 2",
+    "vars": {
+      "--PageBG": "#F7F3F7",
+      "--HeaderColor": "#511F4F",
+      "--SectionBG": "#BE37B8",
+      "--SectionFrame": "#8C2188",
+      "--KeyBG": "#ECF5E5",
+      "--KeyFrame": "#679B3B",
+      "--KeyText": "#416B1F",
+      "--NoteBG": "#EAF1F5",
+      "--NoteFrame": "#4B7C9B",
+      "--NoteText": "#2B4E64",
+      "--BodyText": "#000000",
+      "--WarningBG": "#F4E6E9",
+      "--WarningFrame": "#B2344E",
+      "--WarningText": "#6D1729",
+      "--ImportantText": "#117811",
+      "--HighlightBG": "#D9F2E2"
+    }
+  },
+  {
+    "id": 48,
+    "num": 48,
+    "name": "ليموني 2",
+    "vars": {
+      "--PageBG": "#F6F7F3",
+      "--HeaderColor": "#40511F",
+      "--SectionBG": "#607E25",
+      "--SectionFrame": "#374A11",
+      "--KeyBG": "#E5E8F5",
+      "--KeyFrame": "#4355B1",
+      "--KeyText": "#1F2B6B",
+      "--NoteBG": "#F5EAEE",
+      "--NoteFrame": "#9B4B65",
+      "--NoteText": "#642B3E",
+      "--BodyText": "#000000",
+      "--WarningBG": "#E6F4E7",
+      "--WarningFrame": "#2FA239",
+      "--WarningText": "#176D1F",
+      "--ImportantText": "#33148F",
+      "--HighlightBG": "#EAD9F2"
+    }
+  },
+  {
+    "id": 49,
+    "num": 49,
+    "name": "أزرق سماء 2",
+    "vars": {
+      "--PageBG": "#F3F4F7",
+      "--HeaderColor": "#1F3251",
+      "--SectionBG": "#4173C8",
+      "--SectionFrame": "#25519D",
+      "--KeyBG": "#F5E7E5",
+      "--KeyFrame": "#B15243",
+      "--KeyText": "#6B291F",
+      "--NoteBG": "#EBF5EA",
+      "--NoteFrame": "#4E9B4B",
+      "--NoteText": "#2D642B",
+      "--BodyText": "#000000",
+      "--WarningBG": "#EBE6F4",
+      "--WarningFrame": "#6434B2",
+      "--WarningText": "#38176D",
+      "--ImportantText": "#7D6212",
+      "--HighlightBG": "#F2F1D9"
+    }
+  },
+  {
+    "id": 50,
+    "num": 50,
+    "name": "توتي فروتي 2",
+    "vars": {
+      "--PageBG": "#F7F3F3",
+      "--HeaderColor": "#511F23",
+      "--SectionBG": "#C8414C",
+      "--SectionFrame": "#9D252E",
+      "--KeyBG": "#E5F5EC",
+      "--KeyFrame": "#3C9F66",
+      "--KeyText": "#1F6B3F",
+      "--NoteBG": "#EDEAF5",
+      "--NoteFrame": "#5F4B9B",
+      "--NoteText": "#392B64",
+      "--BodyText": "#000000",
+      "--WarningBG": "#F4F0E6",
+      "--WarningFrame": "#AE8532",
+      "--WarningText": "#6D5117",
+      "--ImportantText": "#117474",
+      "--HighlightBG": "#D9ECF2"
+    }
+  },
+  {
+    "id": 51,
+    "num": 51,
+    "name": "أخضر زمردي 4",
+    "vars": {
+      "--PageBG": "#F3F7F4",
+      "--HeaderColor": "#1F512A",
+      "--SectionBG": "#27863B",
+      "--SectionFrame": "#135321",
+      "--KeyBG": "#F1E5F5",
+      "--KeyFrame": "#9243B1",
+      "--KeyText": "#551F6B",
+      "--NoteBG": "#F5F0EA",
+      "--NoteFrame": "#9B764B",
+      "--NoteText": "#644A2B",
+      "--BodyText": "#000000",
+      "--WarningBG": "#E6F4F4",
+      "--WarningFrame": "#2E9E9A",
+      "--WarningText": "#176D6A",
+      "--ImportantText": "#8F1470",
+      "--HighlightBG": "#F2D9E4"
+    }
+  },
+  {
+    "id": 52,
+    "num": 52,
+    "name": "أرجواني 3",
+    "vars": {
+      "--PageBG": "#F5F3F7",
+      "--HeaderColor": "#381F51",
+      "--SectionBG": "#8541C8",
+      "--SectionFrame": "#61259D",
+      "--KeyBG": "#F5F5E5",
+      "--KeyFrame": "#909037",
+      "--KeyText": "#6A6B1F",
+      "--NoteBG": "#EAF5F3",
+      "--NoteFrame": "#49978B",
+      "--NoteText": "#2B645B",
+      "--BodyText": "#000000",
+      "--WarningBG": "#F4E6F1",
+      "--WarningFrame": "#B23492",
+      "--WarningText": "#6D1758",
+      "--ImportantText": "#427411",
+      "--HighlightBG": "#DDF2D9"
+    }
+  },
+  {
+    "id": 53,
+    "num": 53,
+    "name": "كهرماني 2",
+    "vars": {
+      "--PageBG": "#F7F6F3",
+      "--HeaderColor": "#51471F",
+      "--SectionBG": "#867327",
+      "--SectionFrame": "#534613",
+      "--KeyBG": "#E5F0F5",
+      "--KeyFrame": "#4391B1",
+      "--KeyText": "#1F546B",
+      "--NoteBG": "#F5EAF4",
+      "--NoteFrame": "#9B4B90",
+      "--NoteText": "#642B5D",
+      "--BodyText": "#000000",
+      "--WarningBG": "#ECF4E6",
+      "--WarningFrame": "#609E2E",
+      "--WarningText": "#3E6D17",
+      "--ImportantText": "#14338F",
+      "--HighlightBG": "#DCD9F2"
+    }
+  },
+  {
+    "id": 54,
+    "num": 54,
+    "name": "تركواز 2",
+    "vars": {
+      "--PageBG": "#F3F7F7",
+      "--HeaderColor": "#1F4D51",
+      "--SectionBG": "#277E86",
+      "--SectionFrame": "#134D53",
+      "--KeyBG": "#F5E5EC",
+      "--KeyFrame": "#B14371",
+      "--KeyText": "#6B1F3E",
+      "--NoteBG": "#F1F5EA",
+      "--NoteFrame": "#769749",
+      "--NoteText": "#4C642B",
+      "--BodyText": "#000000",
+      "--WarningBG": "#E6E8F4",
+      "--WarningFrame": "#3449B2",
+      "--WarningText": "#17256D",
+      "--ImportantText": "#8F1414",
+      "--HighlightBG": "#F2E3D9"
+    }
+  },
+  {
+    "id": 55,
+    "num": 55,
+    "name": "فوشيا 3",
+    "vars": {
+      "--PageBG": "#F7F3F5",
+      "--HeaderColor": "#511F3E",
+      "--SectionBG": "#C73D93",
+      "--SectionFrame": "#99246C",
+      "--KeyBG": "#E7F5E5",
+      "--KeyFrame": "#489F3C",
+      "--KeyText": "#286B1F",
+      "--NoteBG": "#EAEDF5",
+      "--NoteFrame": "#4B629B",
+      "--NoteText": "#2B3B64",
+      "--BodyText": "#000000",
+      "--WarningBG": "#F4E8E6",
+      "--WarningFrame": "#B24434",
+      "--WarningText": "#6D2217",
+      "--ImportantText": "#117845",
+      "--HighlightBG": "#D9F2EB"
+    }
+  },
+  {
+    "id": 56,
+    "num": 56,
+    "name": "أخضر ربيعي 4",
+    "vars": {
+      "--PageBG": "#F4F7F3",
+      "--HeaderColor": "#2F511F",
+      "--SectionBG": "#448226",
+      "--SectionFrame": "#264E12",
+      "--KeyBG": "#E8E5F5",
+      "--KeyFrame": "#5643B1",
+      "--KeyText": "#2C1F6B",
+      "--NoteBG": "#F5EAEA",
+      "--NoteFrame": "#9B4B4B",
+      "--NoteText": "#642B2B",
+      "--BodyText": "#000000",
+      "--WarningBG": "#E6F4EC",
+      "--WarningFrame": "#2FA260",
+      "--WarningText": "#176D3C",
+      "--ImportantText": "#70148F",
+      "--HighlightBG": "#F2D9F2"
+    }
+  },
+  {
+    "id": 57,
+    "num": 57,
+    "name": "أزرق نيلي 3",
+    "vars": {
+      "--PageBG": "#F3F3F7",
+      "--HeaderColor": "#1F2151",
+      "--SectionBG": "#4146C8",
+      "--SectionFrame": "#25299D",
+      "--KeyBG": "#F5EDE5",
+      "--KeyFrame": "#B17643",
+      "--KeyText": "#6B421F",
+      "--NoteBG": "#EAF5EE",
+      "--NoteFrame": "#4B9B62",
+      "--NoteText": "#2B643C",
+      "--BodyText": "#000000",
+      "--WarningBG": "#F0E6F4",
+      "--WarningFrame": "#8E34B2",
+      "--WarningText": "#55176D",
+      "--ImportantText": "#6B6B0F",
+      "--HighlightBG": "#EBF2D9"
+    }
+  },
+  {
+    "id": 58,
+    "num": 58,
+    "name": "برتقالي دافئ 3",
+    "vars": {
+      "--PageBG": "#F7F4F3",
+      "--HeaderColor": "#512C1F",
+      "--SectionBG": "#BA5836",
+      "--SectionFrame": "#883B20",
+      "--KeyBG": "#E5F5F1",
+      "--KeyFrame": "#3B9B84",
+      "--KeyText": "#1F6B58",
+      "--NoteBG": "#F1EAF5",
+      "--NoteFrame": "#7A4B9B",
+      "--NoteText": "#4C2B64",
+      "--BodyText": "#000000",
+      "--WarningBG": "#F4F4E6",
+      "--WarningFrame": "#91922A",
+      "--WarningText": "#6D6D17",
+      "--ImportantText": "#14708F",
+      "--HighlightBG": "#D9E3F2"
+    }
+  },
+  {
+    "id": 59,
+    "num": 59,
+    "name": "نعناعي غامق 3",
+    "vars": {
+      "--PageBG": "#F3F7F5",
+      "--HeaderColor": "#1F513A",
+      "--SectionBG": "#268259",
+      "--SectionFrame": "#124E33",
+      "--KeyBG": "#F5E5F4",
+      "--KeyFrame": "#B143AC",
+      "--KeyText": "#6B1F67",
+      "--NoteBG": "#F5F4EA",
+      "--NoteFrame": "#978E49",
+      "--NoteText": "#645D2B",
+      "--BodyText": "#000000",
+      "--WarningBG": "#E6F0F4",
+      "--WarningFrame": "#348BB2",
+      "--WarningText": "#17536D",
+      "--ImportantText": "#8F1452",
+      "--HighlightBG": "#F2D9DC"
+    }
+  },
+  {
+    "id": 60,
+    "num": 60,
+    "name": "موف 3",
+    "vars": {
+      "--PageBG": "#F6F3F7",
+      "--HeaderColor": "#491F51",
+      "--SectionBG": "#B241C8",
+      "--SectionFrame": "#8A259D",
+      "--KeyBG": "#F0F5E5",
+      "--KeyFrame": "#78983A",
+      "--KeyText": "#516B1F",
+      "--NoteBG": "#EAF3F5",
+      "--NoteFrame": "#4B8D9B",
+      "--NoteText": "#2B5A64",
+      "--BodyText": "#000000",
+      "--WarningBG": "#F4E6EC",
+      "--WarningFrame": "#B23468",
+      "--WarningText": "#6D173B",
+      "--ImportantText": "#2B7811",
+      "--HighlightBG": "#D9F2DD"
+    }
+  }
+];
+
+function getPalette(paletteId) {
+  const num = Number(paletteId) || 1;
+  return THIQA_PALETTES.find((p) => p.num === num) || THIQA_PALETTES[0];
+}
+
 /* =================================================================
-   FLAVORS — color palettes ("tastes") the reader can pick in
-   Settings, independent of skin (shape) and independent of the
-   light/dark toggle: every flavor ships both a light and a dark
-   variant so day/night mode keeps working no matter which flavor
-   is active. "normal" is the original warm-paper palette; the rest
-   are alternate moods curated from color-palette references.
+   THEME FLAVORS & SKINS
 ================================================================== */
 const FLAVORS = {
   normal: {
@@ -187,13 +1577,6 @@ const FLAVORS = {
   },
 };
 
-/* =================================================================
-   SKINS — three interchangeable "shape languages" layered on top of
-   THEME's colors. Switching skin never touches a color token above
-   (and never touches the untouchable question-type palette below);
-   it only changes radius / border / shadow / blur / type so the
-   same data can look "normal", "liquid glass", or "pixel art".
-================================================================== */
 const SKINS = {
   normal: {
     id: "normal",
@@ -239,25 +1622,14 @@ const SKINS = {
   },
 };
 
-/* Border color used by glass/pixel where THEME.hairline is too faint
-   (glass wants a bright hairline over blur; pixel wants pure ink). */
 function skinBorderColor(skin, theme) {
   if (skin.id === "glass") return theme.hairlineStrong;
   if (skin.id === "pixel") return theme.ink;
   return theme.hairline;
 }
-function hexToRgba(hex, alpha) {
-  const h = hex.replace("#", "");
-  if (h.length !== 6) return hex;
-  const r = parseInt(h.slice(0, 2), 16);
-  const g = parseInt(h.slice(2, 4), 16);
-  const b = parseInt(h.slice(4, 6), 16);
-  return `rgba(${r},${g},${b},${alpha})`;
-}
 function skinSurface(skin, theme, soft) {
   const base = soft ? theme.surfaceSoft : theme.surface;
   if (skin.surfaceAlpha >= 1) return base;
-  // hex or rgb -> translucent surface for the glass skin
   const hex = base.replace("#", "");
   if (hex.length === 6) {
     const r = parseInt(hex.slice(0, 2), 16);
@@ -267,8 +1639,6 @@ function skinSurface(skin, theme, soft) {
   }
   return base;
 }
-/* Shared panel style — feed this to any container (header, card,
-   modal, tree panel, deck shell...) so it re-skins automatically. */
 function panelStyle(skin, theme, { soft = false, radius = "lg" } = {}) {
   const r = radius === "sm" ? skin.radiusSm : radius === "md" ? skin.radiusMd : skin.radiusLg;
   return {
@@ -282,8 +1652,7 @@ function panelStyle(skin, theme, { soft = false, radius = "lg" } = {}) {
 }
 
 /* =================================================================
-   Question-type palette — ported verbatim from the legacy book
-   engine. Thirteen types, one color each. Do not restyle these.
+   Question-type palette — 13 types, one color each.
 ================================================================== */
 const CORRECT = { bg: "#9BE8C4", border: "#0B2318" };
 const INCORRECT = { bg: "#FFD9CE", border: "#7A2A12" };
@@ -309,14 +1678,9 @@ const DIFF = {
   en: { Beginner: "Beginner", Intermediate: "Intermediate", Advanced: "Advanced", Reflection: "Reflection" },
   ar: { Beginner: "مبتدئ", Intermediate: "متوسط", Advanced: "متقدم", Reflection: "تأمّل" },
 };
-const TIER = {
-  en: { core: "core", extra: "extra", advanced: "advanced tier" },
-  ar: { core: "أساسي", extra: "إضافي", advanced: "مستوى متقدم" },
-};
 
 /* =================================================================
-   Chrome copy — brand strings, nav, and every label that lives
-   outside the question engine itself.
+   Chrome copy
 ================================================================== */
 const UI = {
   en: {
@@ -326,19 +1690,31 @@ const UI = {
     bodyFont: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
     brand: "EDUcraft",
     langToggle: "AR",
-    navLibrary: "Books",
+    navLibrary: "Library",
     navTree: "Tree",
     navEditor: "Editor",
-    editorSoon: "Editor — coming soon",
-    libraryKicker: "Your library",
-    libraryTitle: "Every book grows its own tree.",
-    librarySub: "Open a book to see its knowledge tree — branches split into smaller branches, and a few of them link straight across to one another.",
+    navBags: "Bags",
+    allBags: "All Bags",
+    newBag: "New Bag",
+    typeAll: "All Items",
+    typeBook: "Books",
+    typeEncyclopedia: "Encyclopedias",
+    palettePicker: "60 Blades (Palettes)",
+    relatedQuestion: "Related Question",
+    relatedInfo: "Related Info",
+    importedFrom: "Imported from",
+    jumpTo: "Jump to",
+    addTable: "Add Table",
+    createItem: "Create Book / Encyclopedia",
+    libraryKicker: "Your Educational Bags & Shelf",
+    libraryTitle: "Books, Encyclopedias & Bags.",
+    librarySub: "Organize knowledge into Bags, explore knowledge trees, and edit structured A4 learning plates.",
     branchesLabel: "branches",
     questionsLabel: "questions",
     openBook: "Open tree",
     backToLibrary: "Library",
     treeEyebrow: "Knowledge tree",
-    treeSub: "Branches split into sub-branches, and a leaf sitting under one can still link straight to a leaf under another. Select a leaf to open its card.",
+    treeSub: "Branches split into sub-branches. Select a leaf to open its question card or edit its A4 plate.",
     legendBranch: "Branch",
     legendLink: "Cross-branch link",
     legendLeaf: "Leaf · tap to open",
@@ -386,7 +1762,7 @@ const UI = {
     settingsDataLabel: "Data",
     settingsDataSub: "Your progress, plans, covers, and preferences are saved on this device automatically.",
     settingsResetLabel: "Reset everything",
-    settingsResetConfirm: "This clears all saved progress, to-do/calendar plans, covers, and preferences on this device. This can't be undone. Continue?",
+    settingsResetConfirm: "This clears all saved progress, plans, covers, and preferences on this device. Continue?",
     browseCta: "Browse & practice all questions",
     browseTitle: "All questions",
     browseSub: "Every question in this book, in one place — filter by type, or just scroll.",
@@ -397,37 +1773,8 @@ const UI = {
     filterAll: "All",
     fromLeaf: "From",
     settingsFlavorLabel: "Taste",
-    settingsFlavorSub: "The color mood — works with any of the themes above, in light or dark.",
-    navPlanner: "Planner",
-    plannerTitle: "Plan this book.",
-    plannerSub: "Set a goal, check off leaves as you go, and see whether you're on pace",
-    plannerNoGoalTitle: "No goal set yet",
-    plannerNoGoalSub: "Pick a finish date and how much of the book you want done — we'll work out the daily pace for you.",
-    plannerGoalDateLabel: "Finish by",
-    plannerGoalCountLabel: "Leaves to finish",
-    plannerSetGoal: "Set goal",
-    plannerEditGoal: "Edit goal",
-    plannerClearGoal: "Clear goal",
-    plannerCancel: "Cancel",
-    plannerTargetLabel: "Goal",
-    plannerLeavesUnit: "leaves by",
-    plannerStatusAhead: "Ahead of schedule",
-    plannerStatusOnTrack: "On track",
-    plannerStatusBehind: "Behind schedule",
-    plannerStatusNoGoal: "Set a goal to track your status",
-    plannerStatusDone: "Goal complete",
-    plannerDaysLeft: "Days left",
-    plannerRequiredPace: "Needed / day",
-    plannerActualPace: "Your pace / day",
-    plannerStreakLabel: "Day streak",
-    plannerCompletionLabel: "Complete",
-    plannerTodoTitle: "To-do",
-    plannerTodoSub: "Check off leaves as you finish them — this feeds your calendar and pace above.",
-    plannerCalendarTitle: "Activity calendar",
-    plannerAllDone: "Every leaf in this book is checked off. Nice work.",
-    treePlannerCta: "To-do & calendar",
+    settingsFlavorSub: "The color mood — works with any theme.",
     treeExportCta: "Export as HTML",
-    exportToast: "Downloaded — open the file in any browser, it works fully offline.",
   },
   ar: {
     dir: "rtl",
@@ -436,19 +1783,31 @@ const UI = {
     bodyFont: "'IBM Plex Sans Arabic', 'Tajawal', sans-serif",
     brand: "EDUcraft",
     langToggle: "EN",
-    navLibrary: "الكتب",
+    navLibrary: "المكتبة",
     navTree: "الشجرة",
     navEditor: "المحرر",
-    editorSoon: "المحرر — قريبًا",
-    libraryKicker: "مكتبتك",
-    libraryTitle: "لكل كتاب شجرته الخاصة.",
-    librarySub: "افتح كتاب عشان تشوف شجرة معرفته — الفروع بتتفرّع لفروع أصغر، وبعضها بيترابط مباشرة مع بعضه.",
+    navBags: "الشنط",
+    allBags: "كل الشنط",
+    newBag: "شنطة جديدة",
+    typeAll: "كل العناصر",
+    typeBook: "الكتب",
+    typeEncyclopedia: "الموسوعات",
+    palettePicker: "الباليتات الستين (ثِقة)",
+    relatedQuestion: "سؤال مرتبط",
+    relatedInfo: "معلومة مرتبطة",
+    importedFrom: "مستورد من",
+    jumpTo: "انتقل إلى",
+    addTable: "إضافة جدول",
+    createItem: "إنشاء كتاب / موسوعة",
+    libraryKicker: "بيئاتك وشنطك التعليمية",
+    libraryTitle: "كتب، موسوعات، وشنط تعليمية.",
+    librarySub: "نظّم كتبك وموسوعاتك داخل شنط، استكشف أشجار المعرفة، وحرر صفحات A4 الملوّنة بالباليتات الستين.",
     branchesLabel: "فروع",
     questionsLabel: "أسئلة",
     openBook: "افتح الشجرة",
     backToLibrary: "المكتبة",
     treeEyebrow: "شجرة المعرفة",
-    treeSub: "الفروع بتتفرّع لفروع فرعية، وورقة تحت فرع معيّن ممكن تترابط مباشرة مع ورقة تحت فرع تاني. اختار ورقة عشان تفتح كارتها.",
+    treeSub: "الفروع تتفرّع لفروع أصغر. اختار ورقة عشان تفتح كارد أسئلتها أو تحرر صفحتها المطبوعة A4.",
     legendBranch: "فرع",
     legendLink: "رابط شبكي",
     legendLeaf: "ورقة · دوس تفتح",
@@ -494,9 +1853,9 @@ const UI = {
     coverReset: "رجّع الغلاف الافتراضي",
     settingsClose: "إغلاق",
     settingsDataLabel: "البيانات",
-    settingsDataSub: "تقدمك وخططك (المهام والتقويم) والأغلفة وتفضيلاتك بتتحفظ أوتوماتيك على الجهاز ده.",
+    settingsDataSub: "بياناتك وتفضيلاتك بتتحفظ أوتوماتيك على الجهاز ده.",
     settingsResetLabel: "إعادة ضبط كل حاجة",
-    settingsResetConfirm: "ده هيمسح كل التقدم المحفوظ، خطط المهام والتقويم، الأغلفة، والتفضيلات على الجهاز ده. مينفعش ترجع فيه. تكمل؟",
+    settingsResetConfirm: "ده هيمسح كل التقدم المحفوظ والتفضيلات على الجهاز ده. تكمل؟",
     browseCta: "تصفح وتدرّب على كل الأسئلة",
     browseTitle: "كل الأسئلة",
     browseSub: "كل سؤال في الكتاب ده في مكان واحد — فلتر حسب النوع، أو اسكرول عادي.",
@@ -508,56 +1867,27 @@ const UI = {
     fromLeaf: "من",
     settingsFlavorLabel: "النكهة",
     settingsFlavorSub: "مزاج الألوان — بتشتغل مع أي ثيم فوق، فاتح أو غامق.",
-    navPlanner: "الخطة",
-    plannerTitle: "خطّط للكتاب ده.",
-    plannerSub: "حدّد هدف، اعلّم على الأوراق اللي بتخلّصها، وشوف ماشي على الخطة ولا لأ",
-    plannerNoGoalTitle: "لسه مفيش هدف محدد",
-    plannerNoGoalSub: "اختار تاريخ عايز تخلّص فيه، وقد ايه من الكتاب عايز تخلّصه — وإحنا هنحسبلك الوتيرة اليومية.",
-    plannerGoalDateLabel: "تخلّص قبل",
-    plannerGoalCountLabel: "عدد الأوراق اللي هتخلّصها",
-    plannerSetGoal: "حدّد الهدف",
-    plannerEditGoal: "عدّل الهدف",
-    plannerClearGoal: "امسح الهدف",
-    plannerCancel: "إلغاء",
-    plannerTargetLabel: "الهدف",
-    plannerLeavesUnit: "ورقة، تخلص قبل",
-    plannerStatusAhead: "قدام الخطة",
-    plannerStatusOnTrack: "ماشي زي ما اتفقنا",
-    plannerStatusBehind: "متأخر عن الخطة",
-    plannerStatusNoGoal: "حدّد هدف عشان تشوف أداءك",
-    plannerStatusDone: "خلّصت الهدف",
-    plannerDaysLeft: "الأيام المتبقية",
-    plannerRequiredPace: "المطلوب / يوم",
-    plannerActualPace: "وتيرتك / يوم",
-    plannerStreakLabel: "أيام متتالية",
-    plannerCompletionLabel: "نسبة الإنجاز",
-    plannerTodoTitle: "قائمة المهام",
-    plannerTodoSub: "علّم على كل ورقة تخلّصها — بتتحسب في التقويم وفي وتيرتك فوق.",
-    plannerCalendarTitle: "تقويم النشاط",
-    plannerAllDone: "خلّصت كل أوراق الكتاب ده. تسلم إيدك.",
-    treePlannerCta: "المهام والتقويم",
     treeExportCta: "صدّر كملف HTML",
-    exportToast: "اتحمّل — افتح الملف بأي متصفح، وهيشتغل من غير نت خالص.",
   },
 };
 
-/* =================================================================
-   BOOKS — this is the merge point of the two source files.
-   Each book has a cover, and a knowledge tree *inside* it. Tree
-   nodes come in three levels (branch → sub-branch → leaf); a leaf
-   holds one *or more* questions, rendered as one card the reader
-   pages through. A few leaves cross-link into a parallel branch to
-   show this is a network, not a strict hierarchy.
-================================================================== */
+const DEFAULT_BAGS = [
+  { id: "bag-frontend", en: "Web Development Bag", ar: "شنطة تطوير الويب", icon: "code" },
+  { id: "bag-science", en: "Computer Science Bag", ar: "شنطة علوم الحاسوب", icon: "cpu" },
+];
+
 const VB_W = 800;
 const VB_H = 300;
 const BRANCH_Y = 44;
 const SUB_Y = 156;
 const LEAF_Y = 262;
 
-const BOOKS = [
+const INITIAL_BOOKS = [
   {
     id: "web-foundations",
+    type: "book",
+    bagId: "bag-frontend",
+    paletteId: 1,
     cover: { from: "#F2C879", to: "#E8654A", icon: "code" },
     en: { title: "HTML & CSS Foundations", tagline: "Structure the page, then dress it." },
     ar: { title: "أساسيات HTML و CSS", tagline: "ابني الصفحة، وبعدين لبّسها." },
@@ -582,22 +1912,32 @@ const BOOKS = [
         y: LEAF_Y,
         en: "Lists",
         ar: "القوائم",
+        paletteId: 1,
+        pageBlocks: [
+          { id: "a1a-b1", kind: "sectionTitle", text: "قوائم HTML وتنسيقها" },
+          { id: "a1a-b2", kind: "keyterm", title: "عنصر القائمة المرقّمة <ol>", text: "يُستخدم عنصر <ol> لإنشاء قوائم مرتبة تلقائيًا بأرقام أو أحرف.", linkedQuestionId: "a1a-q0" },
+          { id: "a1a-b3", kind: "note", title: "ملاحظة هامة", text: "يمكن التحكم في لون النص عبر خاصية CSS color المباشرة.", linkedQuestionId: "a1a-q1" },
+        ],
         questions: [
           {
+            id: "a1a-q0",
             type: "single",
             subject: "HTML",
             difficulty: "Beginner",
             tier: "core",
             dir: "ltr",
+            linkedBlockId: "a1a-b2",
             en: { prompt: "Which HTML element defines an ordered list?", options: ["<ul>", "<ol>", "<li>", "<dl>"], correct: 1 },
             ar: { prompt: "أنهي عنصر HTML بيعرّف قائمة مرقّمة؟", options: ["<ul>", "<ol>", "<li>", "<dl>"], correct: 1 },
           },
           {
+            id: "a1a-q1",
             type: "short",
             subject: "CSS",
             difficulty: "Beginner",
             tier: "core",
             dir: "ltr",
+            linkedBlockId: "a1a-b3",
             en: { prompt: "Which CSS property changes the color of text?", accepted: ["color"] },
             ar: { prompt: "أنهي خاصية CSS بتغيّر لون النص؟", accepted: ["color"] },
           },
@@ -611,13 +1951,20 @@ const BOOKS = [
         y: LEAF_Y,
         en: "Links",
         ar: "الروابط",
+        paletteId: 1,
+        pageBlocks: [
+          { id: "a1b-b1", kind: "sectionTitle", text: "الروابط التشعبية Hyperlinks" },
+          { id: "a1b-b2", kind: "keyterm", title: "الوسم <a> والخاصية href", text: "الوسم <a> يُعرّف رابط تشعبي، وتُحدد الخاصية href عنوان الوجهة المقصود.", linkedQuestionId: "a1b-q0" },
+        ],
         questions: [
           {
+            id: "a1b-q0",
             type: "fill",
             subject: "HTML",
             difficulty: "Beginner",
             tier: "core",
             dir: "ltr",
+            linkedBlockId: "a1b-b2",
             en: { template: "The ___ tag defines a hyperlink, and its ___ attribute specifies the destination URL.", blanks: ["a", "href"] },
             ar: { template: "الوسم ___ بيعرّف رابط تشعبي، وخاصية ___ بتحدد رابط الوجهة.", blanks: ["a", "href"] },
           },
@@ -631,8 +1978,10 @@ const BOOKS = [
         y: LEAF_Y,
         en: "Tag roles",
         ar: "أدوار الوسوم",
+        paletteId: 1,
         questions: [
           {
+            id: "a2a-q0",
             type: "sort",
             subject: "HTML",
             difficulty: "Beginner",
@@ -651,6 +2000,7 @@ const BOOKS = [
         y: LEAF_Y,
         en: "Flexbox",
         ar: "فلكس بوكس",
+        paletteId: 1,
         cards: [
           {
             id: "b1a-card1",
@@ -658,6 +2008,7 @@ const BOOKS = [
             imagePosition: "top",
             questions: [
               {
+                id: "b1a-q0",
                 type: "single",
                 subject: "CSS",
                 difficulty: "Intermediate",
@@ -667,6 +2018,7 @@ const BOOKS = [
                 ar: { prompt: "أنهي خاصية بتتحكم في المسافة بين عناصر الـ flex container؟", options: ["gap", "margin", "align-items", "justify-content"], correct: 0 },
               },
               {
+                id: "b1a-q1",
                 type: "tf",
                 subject: "CSS",
                 difficulty: "Intermediate",
@@ -688,8 +2040,10 @@ const BOOKS = [
         y: LEAF_Y,
         en: "Box model",
         ar: "نموذج الصندوق",
+        paletteId: 1,
         questions: [
           {
+            id: "b1b-q0",
             type: "order",
             subject: "CSS",
             difficulty: "Intermediate",
@@ -708,8 +2062,10 @@ const BOOKS = [
         y: LEAF_Y,
         en: "Units",
         ar: "الوحدات",
+        paletteId: 1,
         questions: [
           {
+            id: "b1c-q0",
             type: "multi",
             subject: "CSS",
             difficulty: "Intermediate",
@@ -728,8 +2084,10 @@ const BOOKS = [
         y: LEAF_Y,
         en: "Matching",
         ar: "التوصيل",
+        paletteId: 1,
         questions: [
           {
+            id: "b2a-q0",
             type: "match",
             subject: "CSS",
             difficulty: "Intermediate",
@@ -754,9 +2112,12 @@ const BOOKS = [
   },
   {
     id: "js-deep-dive",
+    type: "encyclopedia",
+    bagId: "bag-science",
+    paletteId: 2,
     cover: { from: "#6EE7B7", to: "#1F6B47", icon: "brackets" },
-    en: { title: "JavaScript Deep Dive", tagline: "Arrays, async, and a gut check." },
-    ar: { title: "جافاسكريبت بعمق", tagline: "مصفوفات، برمجة غير متزامنة، وتقييم ذاتي." },
+    en: { title: "JavaScript Deep Dive Encyclopedia", tagline: "Arrays, async, and a gut check." },
+    ar: { title: "موسوعة جافاسكريبت بعمق", tagline: "مصفوفات، برمجة غير متزامنة، وتقييم ذاتي." },
     crossLinks: [["a1a", "b1a"]],
     nodes: [
       { id: "a", level: "branch", x: 267, y: BRANCH_Y, en: "Fundamentals", ar: "الأساسيات" },
@@ -774,6 +2135,12 @@ const BOOKS = [
         y: LEAF_Y,
         en: "Array methods",
         ar: "دوال المصفوفات",
+        paletteId: 2,
+        pageBlocks: [
+          { id: "a1a-b1", kind: "sectionTitle", text: "دوال المصفوفات في JavaScript" },
+          { id: "a1a-b2", kind: "keyterm", title: "الدالة Array.find()", text: "تُرجع دالة find أول عنصر في المصفوفة يُحقق شرط دالة الاختبار المُمررة.", linkedQuestionId: "a1a-q0" },
+          { id: "a1a-b3", kind: "important", title: "باراميترات reduce", text: "يقبل callback دالة reduce أربعة باراميترات كحد أقصى: accumulator, currentValue, currentIndex, array.", linkedQuestionId: "a1a-q1" },
+        ],
         cards: [
           {
             id: "a1a-card1",
@@ -781,20 +2148,24 @@ const BOOKS = [
             imagePosition: "right",
             questions: [
               {
+                id: "a1a-q0",
                 type: "cloze",
                 subject: "JavaScript",
                 difficulty: "Intermediate",
                 tier: "extra",
                 dir: "rtl",
+                linkedBlockId: "a1a-b2",
                 en: { template: "The ___ method returns the first array element that satisfies a condition.", bank: ["find", "filter", "map", "reduce"], correct: "find" },
                 ar: { template: "الدالة ___ بترجع أول عنصر في المصفوفة بيحقق شرط معيّن.", bank: ["find", "filter", "map", "reduce"], correct: "find" },
               },
               {
+                id: "a1a-q1",
                 type: "numeric",
                 subject: "JavaScript",
                 difficulty: "Advanced",
                 tier: "advanced",
                 dir: "ltr",
+                linkedBlockId: "a1a-b3",
                 en: { prompt: "At most how many parameters can the callback passed to Array.prototype.reduce receive?", correct: 4, tolerance: 0 },
                 ar: { prompt: "أد ايه أقصى عدد باراميترات ممكن الـ callback بتاع reduce ياخدها؟", correct: 4, tolerance: 0 },
               },
@@ -811,8 +2182,10 @@ const BOOKS = [
         y: LEAF_Y,
         en: "Promises",
         ar: "الـ Promises",
+        paletteId: 2,
         questions: [
           {
+            id: "a2a-q0",
             type: "essay",
             subject: "JavaScript",
             difficulty: "Advanced",
@@ -837,8 +2210,10 @@ const BOOKS = [
         y: LEAF_Y,
         en: "Confidence",
         ar: "الثقة",
+        paletteId: 2,
         questions: [
           {
+            id: "b1a-q0",
             type: "rating",
             subject: "Self-check",
             difficulty: "Reflection",
@@ -848,6 +2223,7 @@ const BOOKS = [
             ar: { prompt: "أد ايه إحساسك بالثقة في CSS Grid دلوقتي؟" },
           },
           {
+            id: "b1a-q1",
             type: "slider",
             subject: "CSS",
             difficulty: "Intermediate",
@@ -862,9 +2238,6 @@ const BOOKS = [
   },
 ];
 
-/* =================================================================
-   Correctness check — mirrors the legacy engine's switch, unchanged.
-================================================================== */
 function isCorrect(q, c, value) {
   switch (q.type) {
     case "single":
@@ -875,17 +2248,17 @@ function isCorrect(q, c, value) {
     case "tf":
       return value === c.correct;
     case "short":
-      return c.accepted.includes(String(value || "").trim().toLowerCase());
+      return (c.accepted || []).includes(String(value || "").trim().toLowerCase());
     case "fill":
-      return c.blanks.every((b, i) => (value[i] || "").trim().toLowerCase() === b.toLowerCase());
+      return (c.blanks || []).every((b, i) => (value[i] || "").trim().toLowerCase() === b.toLowerCase());
     case "cloze":
       return value === c.correct;
     case "match":
       return c.left.every((_, i) => value[i] === c.correct[i]);
     case "order":
-      return c.correct.every((v, i) => value[i] === v);
+      return (c.correct || []).every((v, i) => value[i] === v);
     case "sort":
-      return c.items.every((it, i) => value[i] === it[1]);
+      return (c.items || []).every((it, i) => value[i] === it[1]);
     case "numeric":
       return Math.abs(Number(value) - c.correct) <= (c.tolerance ?? 0);
     case "slider":
@@ -895,17 +2268,10 @@ function isCorrect(q, c, value) {
   }
 }
 
-/* =================================================================
-   leafCards — turns a leaf's questions into the "bundle" cards a
-   deck actually pages through. A leaf can define its own `cards`
-   array explicitly (mixed-type bundles of any size, each with an
-   optional image pinned top/left/right). Leaves that don't define
-   `cards` fall back to one question per card (today's behavior),
-   so nothing changes for a leaf until it opts into bundling.
-================================================================== */
 function leafCards(leaf) {
-  if (leaf.cards) return leaf.cards;
-  return leaf.questions.map((q, i) => ({
+  if (leaf.cards && leaf.cards.length > 0) return leaf.cards;
+  const questions = leaf.questions || [];
+  return questions.map((q, i) => ({
     id: `${leaf.id}-auto-${i}`,
     image: (q.en && q.en.image) || (q.ar && q.ar.image) || q.image || null,
     imagePosition: "top",
@@ -913,40 +2279,6 @@ function leafCards(leaf) {
   }));
 }
 
-/* =================================================================
-   Planner helpers — goal/date math + a lightweight month-grid
-   builder for the activity calendar. Plans live outside BOOKS
-   (App-level state keyed by book id), same pattern as `covers`.
-================================================================== */
-function defaultPlan() {
-  return { targetCount: null, targetDate: null, startDate: null, doneLeafIds: [], log: {} };
-}
-function toDateStr(d) {
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return `${y}-${m}-${day}`;
-}
-function fromDateStr(s) {
-  const [y, m, d] = s.split("-").map(Number);
-  return new Date(y, m - 1, d);
-}
-function daysBetweenStr(a, b) {
-  return Math.round((fromDateStr(b) - fromDateStr(a)) / 86400000);
-}
-function buildMonthMatrix(cursorDate) {
-  const year = cursorDate.getFullYear();
-  const month = cursorDate.getMonth();
-  const first = new Date(year, month, 1);
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-  const cells = [];
-  for (let i = 0; i < first.getDay(); i++) cells.push(null);
-  for (let d = 1; d <= daysInMonth; d++) cells.push(new Date(year, month, d));
-  while (cells.length % 7 !== 0) cells.push(null);
-  const weeks = [];
-  for (let i = 0; i < cells.length; i += 7) weeks.push(cells.slice(i, i + 7));
-  return weeks;
-}
 function groupLeavesByBranch(book) {
   const leaves = book.nodes.filter((n) => n.level === "leaf");
   const branchOf = (leaf) => {
@@ -981,484 +2313,140 @@ function faviconDataUri(cover, letter) {
 }
 
 /* =================================================================
-   buildBookExportHTML — serializes one book (all leaves/cards/
-   questions, code boxes, images) plus its own to-do list + activity
-   calendar into a single self-contained offline HTML file. No React,
-   no build step: a small vanilla-JS runtime re-implements just
-   enough of the reader + planner to study and check answers, saving
-   its own progress to localStorage (scoped to this exported file)
-   with its own reset button and a light/dark toggle.
+   Pill Tab Button (Matches uploaded reference design)
 ================================================================== */
-function buildBookExportHTML({ book, lang, theme, ui }) {
-  const flavorId = Object.keys(FLAVORS).find((k) => FLAVORS[k].light === theme || FLAVORS[k].dark === theme) || "normal";
-  const flavor = FLAVORS[flavorId];
-  const title = book[lang].title;
-  const tagline = book[lang].tagline;
-  const groups = groupLeavesByBranch(book).map(({ branch, leaves }) => ({
-    branchTitle: branch[lang],
-    leaves: leaves.map((leaf) => ({
-      id: leaf.id,
-      title: leaf[lang],
-      cards: leafCards(leaf).map((card) => ({
-        image: card.image || null,
-        imagePosition: card.imagePosition || "top",
-        questions: card.questions.map((q) => ({
-          type: q.type,
-          subject: q.subject || "",
-          difficulty: (DIFF[lang] && DIFF[lang][q.difficulty]) || q.difficulty || "",
-          code: q.code && q.code.enabled ? { lang: q.code.lang || "", src: q.code.src || "" } : null,
-          d: q[lang] || {},
-        })),
-      })),
-    })),
-  }));
-  const totalLeaves = book.nodes.filter((n) => n.level === "leaf").length;
-  const dataJson = JSON.stringify({ id: book.id, title, tagline, totalLeaves, groups, lang, dir: ui.dir, cover: book.cover }).replace(/</g, "\\u003c");
-  const favicon = faviconDataUri(book.cover, title);
-  const L = flavor.light;
-  const D = flavor.dark;
-  const csp = `
-    :root{ --canvas:${L.canvas}; --header:${L.header}; --surface:${L.surface}; --surfaceSoft:${L.surfaceSoft}; --ink:${L.ink}; --inkSoft:${L.inkSoft}; --hairline:${L.hairline}; --accent:${L.accent}; --accentInk:${L.accentInk}; --accentSoft:${L.accentSoft}; }
-    html[data-mode="dark"]{ --canvas:${D.canvas}; --header:${D.header}; --surface:${D.surface}; --surfaceSoft:${D.surfaceSoft}; --ink:${D.ink}; --inkSoft:${D.inkSoft}; --hairline:${D.hairline}; --accent:${D.accent}; --accentInk:${D.accentInk}; --accentSoft:${D.accentSoft}; }
-  `;
-  return `<!DOCTYPE html>
-<html lang="${lang}" dir="${ui.dir}" data-mode="light">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>${title}</title>
-<link rel="icon" href="${favicon}">
-<style>
-${csp}
-*{box-sizing:border-box;}
-body{margin:0;background:var(--canvas);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Tahoma,Arial,sans-serif;transition:background .2s,color .2s;}
-.wrap{max-width:840px;margin:0 auto;padding:20px 18px 64px;}
-header.top{display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--header);border-radius:20px;padding:14px 18px;margin-bottom:22px;flex-wrap:wrap;}
-header.top h1{font-size:16px;margin:0;}
-.tabs{display:flex;gap:6px;}
-.tab-btn{border:none;background:transparent;color:var(--ink);font-weight:700;font-size:13px;padding:8px 12px;border-radius:999px;cursor:pointer;}
-.tab-btn.active{background:var(--accent);color:var(--accentInk);}
-.iconbtn{border:1px solid var(--hairline);background:transparent;color:var(--ink);border-radius:10px;padding:8px;cursor:pointer;font-size:13px;}
-h1.title{font-size:26px;margin:0 0 2px;}
-.tagline{color:var(--inkSoft);font-size:14px;margin:0 0 22px;}
-.panel{background:var(--surface);border:1px solid var(--hairline);border-radius:20px;padding:18px 20px;margin-bottom:16px;}
-.panel.soft{background:var(--surfaceSoft);}
-.branch-label{font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.04em;color:var(--inkSoft);margin:22px 0 8px;}
-.leaf-title{font-size:16px;font-weight:800;margin:0 0 10px;display:flex;align-items:center;gap:8px;}
-.card{border:1px solid var(--hairline);border-radius:16px;padding:14px;margin-bottom:12px;}
-.card img{width:100%;border-radius:12px;margin-bottom:10px;display:block;}
-pre.codebox{background:#161616;color:#e6e6e6;border-radius:12px;padding:12px 14px;overflow-x:auto;font-size:12.5px;margin:0 0 12px;}
-pre.codebox .lang{display:block;color:#9a9a9a;font-size:10px;text-transform:uppercase;margin-bottom:6px;}
-.q{margin-bottom:14px;}
-.q:last-child{margin-bottom:0;}
-.q .prompt{font-weight:700;font-size:14px;margin-bottom:8px;}
-.q .meta{font-size:10.5px;color:var(--inkSoft);font-weight:700;text-transform:uppercase;margin-bottom:6px;}
-.opt{display:block;width:100%;text-align:start;border:1.5px solid var(--hairline);background:transparent;color:var(--ink);border-radius:10px;padding:8px 12px;margin-bottom:6px;cursor:pointer;font-size:13.5px;}
-.opt.sel{border-color:var(--accent);background:var(--accentSoft);}
-input[type=text],textarea{width:100%;border:1.5px solid var(--hairline);background:var(--surface);color:var(--ink);border-radius:10px;padding:8px 12px;font-size:13.5px;font-family:inherit;}
-textarea{min-height:70px;resize:vertical;}
-.checkbtn{border:none;background:var(--ink);color:var(--canvas);font-weight:700;font-size:12.5px;padding:7px 14px;border-radius:999px;cursor:pointer;margin-top:4px;}
-.feedback{font-size:12.5px;font-weight:700;margin-top:6px;}
-.feedback.ok{color:#0B7A3E;}
-.feedback.no{color:#B33A1E;}
-.todo-row{display:flex;align-items:center;gap:10px;border:1.5px solid var(--hairline);border-radius:12px;padding:10px 12px;margin-bottom:6px;cursor:pointer;}
-.todo-row.done{border-color:var(--accent);background:var(--accentSoft);}
-.todo-row .box{width:18px;height:18px;border-radius:5px;border:1.5px solid var(--inkSoft);flex-shrink:0;display:flex;align-items:center;justify-content:center;}
-.todo-row.done .box{background:var(--accent);border-color:var(--accent);color:var(--accentInk);}
-.todo-row .lbl{flex:1;font-size:13.5px;font-weight:600;}
-.todo-row.done .lbl{text-decoration:line-through;opacity:.6;}
-.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;margin-bottom:16px;}
-.stat{background:var(--surfaceSoft);border-radius:14px;padding:12px;}
-.stat .l{font-size:10px;font-weight:900;text-transform:uppercase;color:var(--inkSoft);margin-bottom:4px;}
-.stat .v{font-size:22px;font-weight:900;}
-.cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
-.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-bottom:5px;}
-.cal-cell{aspect-ratio:1;border-radius:8px;border:1px solid var(--hairline);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;}
-.goal-row{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;}
-.field{display:flex;flex-direction:column;gap:5px;font-size:11px;font-weight:700;color:var(--inkSoft);}
-.field input{padding:8px 10px;border-radius:10px;border:1.5px solid var(--hairline);background:var(--surface);color:var(--ink);font-size:13px;font-family:inherit;}
-.status-banner{display:flex;align-items:center;gap:10px;padding:12px 16px;border-radius:16px;margin-bottom:16px;font-weight:800;font-size:13.5px;}
-.hidden{display:none !important;}
-footer.foot{text-align:center;color:var(--inkSoft);font-size:11px;margin-top:30px;}
-</style>
-</head>
-<body>
-<div class="wrap">
-  <header class="top">
-    <h1>${title}</h1>
-    <div class="tabs">
-      <button class="tab-btn active" data-tab="book">📖</button>
-      <button class="tab-btn" data-tab="planner">🗓️</button>
-    </div>
-    <div style="display:flex;gap:6px;">
-      <button class="iconbtn" id="modeBtn">☾</button>
-      <button class="iconbtn" id="resetBtn">↺</button>
-    </div>
-  </header>
-
-  <section id="view-book">
-    <h1 class="title">${title}</h1>
-    <p class="tagline">${tagline}</p>
-    <div id="bookContent"></div>
-  </section>
-
-  <section id="view-planner" class="hidden">
-    <h1 class="title">${ui.plannerTitle}</h1>
-    <p class="tagline">${ui.plannerSub}</p>
-    <div class="panel" id="goalPanel"></div>
-    <div class="status-banner" id="statusBanner"></div>
-    <div class="stat-grid" id="statGrid"></div>
-    <div class="panel">
-      <div class="cal-head">
-        <strong>${ui.plannerCalendarTitle}</strong>
-        <div>
-          <button class="iconbtn" id="calPrev">‹</button>
-          <span id="calLabel" style="font-size:12px;font-weight:700;margin:0 6px;"></span>
-          <button class="iconbtn" id="calNext">›</button>
-        </div>
-      </div>
-      <div class="cal-grid" id="calHead"></div>
-      <div id="calBody"></div>
-    </div>
-    <div class="panel">
-      <strong style="display:block;margin-bottom:10px;">${ui.plannerTodoTitle}</strong>
-      <div id="todoList"></div>
-    </div>
-  </section>
-
-  <footer class="foot">${title} · EDUcraft export</footer>
-</div>
-
-<script>
-const DATA = ${dataJson};
-const STORE_KEY = "educraft-export-" + DATA.id;
-const LOC = DATA.lang === "ar" ? "ar-EG" : "en-US";
-const STR = ${JSON.stringify({
-    plannerGoalDateLabel: ui.plannerGoalDateLabel,
-    plannerGoalCountLabel: ui.plannerGoalCountLabel,
-    plannerSetGoal: ui.plannerSetGoal,
-    plannerEditGoal: ui.plannerEditGoal,
-    plannerClearGoal: ui.plannerClearGoal,
-    plannerTargetLabel: ui.plannerTargetLabel,
-    plannerLeavesUnit: ui.plannerLeavesUnit,
-    plannerStatusAhead: ui.plannerStatusAhead,
-    plannerStatusOnTrack: ui.plannerStatusOnTrack,
-    plannerStatusBehind: ui.plannerStatusBehind,
-    plannerStatusNoGoal: ui.plannerStatusNoGoal,
-    plannerStatusDone: ui.plannerStatusDone,
-    plannerDaysLeft: ui.plannerDaysLeft,
-    plannerRequiredPace: ui.plannerRequiredPace,
-    plannerActualPace: ui.plannerActualPace,
-    plannerStreakLabel: ui.plannerStreakLabel,
-    plannerCompletionLabel: ui.plannerCompletionLabel,
-    plannerAllDone: ui.plannerAllDone,
-    settingsResetConfirm: ui.settingsResetConfirm,
-    checkAnswer: lang === "ar" ? "تأكد من الإجابة" : "Check answer",
-    correctMsg: ui.correctMsg,
-    incorrectMsg: ui.incorrectMsg,
-    selfGraded: ui.selfGraded,
-    modelAnswer: lang === "ar" ? "إجابة نموذجية" : "Model answer",
-  })};
-
-function todayStr(){ const d=new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
-function fromDateStr(s){ const p=s.split("-").map(Number); return new Date(p[0],p[1]-1,p[2]); }
-function toDateStr(d){ return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
-function daysBetween(a,b){ return Math.round((fromDateStr(b)-fromDateStr(a))/86400000); }
-function esc(s){ return (s==null?"":String(s)).replace(/&/g,"&amp;").replace(/</g,"&lt;"); }
-
-function loadState(){
-  try { return Object.assign({ mode:"light", targetCount:null, targetDate:null, startDate:null, doneLeafIds:[], log:{} }, JSON.parse(localStorage.getItem(STORE_KEY)) || {}); }
-  catch(e){ return { mode:"light", targetCount:null, targetDate:null, startDate:null, doneLeafIds:[], log:{} }; }
-}
-let state = loadState();
-function save(){ try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){} }
-
-document.documentElement.setAttribute("data-mode", state.mode || "light");
-document.getElementById("modeBtn").textContent = state.mode === "dark" ? "☀" : "☾";
-document.getElementById("modeBtn").onclick = function(){
-  state.mode = state.mode === "dark" ? "light" : "dark";
-  document.documentElement.setAttribute("data-mode", state.mode);
-  document.getElementById("modeBtn").textContent = state.mode === "dark" ? "☀" : "☾";
-  save();
-};
-document.getElementById("resetBtn").onclick = function(){
-  if (!confirm(STR.settingsResetConfirm)) return;
-  localStorage.removeItem(STORE_KEY);
-  location.reload();
-};
-
-document.querySelectorAll(".tab-btn").forEach(function(b){ b.onclick = function(){
-  document.querySelectorAll(".tab-btn").forEach(function(x){ x.classList.remove("active"); });
-  b.classList.add("active");
-  document.getElementById("view-book").classList.toggle("hidden", b.dataset.tab !== "book");
-  document.getElementById("view-planner").classList.toggle("hidden", b.dataset.tab !== "planner");
-  if (b.dataset.tab === "planner") renderPlanner();
-}; });
-
-function isCorrect(q, given){
-  const d = q.d;
-  switch(q.type){
-    case "single": return given === d.correct;
-    case "multi": return Array.isArray(given) && given.length===d.correct.length && given.every(function(i){ return d.correct.includes(i); });
-    case "tf": return given === d.correct;
-    case "short": return (d.accepted||[]).some(function(a){ return (given||"").trim().toLowerCase() === a.trim().toLowerCase(); });
-    case "fill": return Array.isArray(given) && (d.blanks||[]).every(function(b,i){ return (given[i]||"").trim().toLowerCase()===b.trim().toLowerCase(); });
-    case "cloze": return (given||"").trim().toLowerCase() === (d.correct||"").trim().toLowerCase();
-    case "numeric": return Math.abs(Number(given)-Number(d.correct)) <= (d.tolerance||0);
-    case "slider": return Math.abs(Number(given)-Number(d.correct)) <= (d.tolerance||0);
-    default: return null;
-  }
-}
-
-const QMAP = {};
-let qCounter = 0;
-function renderQuestion(q, qid){
-  const d = q.d;
-  let html = '<div class="q" data-qid="'+qid+'">';
-  if (q.code) html += '<pre class="codebox"><span class="lang">'+esc(q.code.lang)+'</span>'+esc(q.code.src)+'</pre>';
-  html += '<div class="meta">'+esc(q.subject)+' · '+esc(q.difficulty)+'</div>';
-  html += '<div class="prompt">'+esc(d.prompt || d.template || "")+'</div>';
-
-  if (q.type==="single" || q.type==="multi"){
-    (d.options||[]).forEach(function(opt,i){ html += '<button type="button" class="opt" data-i="'+i+'" onclick="optClick(this,\\''+q.type+'\\')">'+esc(opt)+'</button>'; });
-    html += '<div><button class="checkbtn" onclick="checkOpt(this,\\''+qid+'\\')">'+STR.checkAnswer+'</button><div class="feedback"></div></div>';
-  } else if (q.type==="tf"){
-    html += '<button type="button" class="opt" data-v="true" onclick="optClick(this,\\'tf\\')">True</button>';
-    html += '<button type="button" class="opt" data-v="false" onclick="optClick(this,\\'tf\\')">False</button>';
-    html += '<div><button class="checkbtn" onclick="checkOpt(this,\\''+qid+'\\')">'+STR.checkAnswer+'</button><div class="feedback"></div></div>';
-  } else if (q.type==="short"){
-    html += '<input type="text" class="shortin">';
-    html += '<div><button class="checkbtn" onclick="checkShort(this,\\''+qid+'\\')">'+STR.checkAnswer+'</button><div class="feedback"></div></div>';
-  } else if (q.type==="fill"){
-    const parts = (d.template||"").split("___");
-    html += '<div style="line-height:2.1;">';
-    parts.forEach(function(p,i){ html += esc(p); if(i<parts.length-1) html += '<input type="text" class="blankin" data-i="'+i+'" style="width:110px;display:inline-block;margin:0 4px;padding:3px 8px;border-radius:8px;border:1.5px solid var(--hairline);background:var(--surface);color:var(--ink);">'; });
-    html += '</div>';
-    html += '<div><button class="checkbtn" onclick="checkFill(this,\\''+qid+'\\')">'+STR.checkAnswer+'</button><div class="feedback"></div></div>';
-  } else if (q.type==="cloze"){
-    html += '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;">'+(d.bank||[]).map(function(w){ return '<span class="opt" style="display:inline-block;width:auto;cursor:default;">'+esc(w)+'</span>'; }).join("")+'</div>';
-    html += '<input type="text" class="clozein" placeholder="'+esc((d.bank||[]).join(" / "))+'">';
-    html += '<div><button class="checkbtn" onclick="checkCloze(this,\\''+qid+'\\')">'+STR.checkAnswer+'</button><div class="feedback"></div></div>';
-  } else if (q.type==="order"){
-    html += '<ol style="padding-inline-start:20px;">'+(d.items||[]).map(function(it){ return '<li>'+esc(it)+'</li>'; }).join("")+'</ol>';
-    html += '<div class="feedback ok" style="display:block;">'+ (d.correct||[]).join(" → ") +'</div>';
-  } else if (q.type==="sort"){
-    html += '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;">'+(d.items||[]).map(function(it){ return '<span class="opt" style="display:inline-block;width:auto;cursor:default;">'+esc(it[0])+' → '+esc(it[1])+'</span>'; }).join("")+'</div>';
-  } else if (q.type==="match"){
-    html += '<ul style="padding-inline-start:20px;">'+(d.left||[]).map(function(l,i){ return '<li>'+esc(l)+' — '+esc(d.right[d.correct[i]])+'</li>'; }).join("")+'</ul>';
-  } else if (q.type==="numeric" || q.type==="slider"){
-    html += '<input type="text" class="numin" placeholder="'+ (q.type==="slider" ? (d.min+" – "+d.max) : "") +'">';
-    html += '<div><button class="checkbtn" onclick="checkNumeric(this,\\''+qid+'\\')">'+STR.checkAnswer+'</button><div class="feedback"></div></div>';
-  } else if (q.type==="essay"){
-    html += '<textarea placeholder="'+STR.selfGraded+'"></textarea>';
-    if (d.model) html += '<details style="margin-top:8px;font-size:12.5px;color:var(--inkSoft);"><summary style="cursor:pointer;font-weight:700;">'+STR.modelAnswer+'</summary>'+esc(d.model)+'</details>';
-  } else if (q.type==="rating"){
-    html += '<div style="display:flex;gap:6px;">'+[1,2,3,4,5].map(function(n){ return '<button type="button" class="opt" style="width:auto;" onclick="this.parentElement.querySelectorAll(\\'.opt\\').forEach(function(x){x.classList.remove(\\'sel\\');});this.classList.add(\\'sel\\')">'+n+'</button>'; }).join("")+'</div>';
-  }
-  html += '</div>';
-  return html;
-}
-function feedbackEl(btn){ return btn.parentElement.querySelector(".feedback"); }
-function showFeedback(btn, ok){
-  const f = feedbackEl(btn);
-  f.textContent = ok ? STR.correctMsg : STR.incorrectMsg;
-  f.className = "feedback " + (ok ? "ok" : "no");
-}
-window.optClick = function(el, type){
-  const group = el.parentElement;
-  if (type==="single" || type==="tf") group.querySelectorAll(".opt").forEach(function(o){ o.classList.remove("sel"); });
-  el.classList.toggle("sel");
-};
-window.checkOpt = function(btn, qid){
-  const card = document.querySelector('[data-qid="'+qid+'"]');
-  const q = QMAP[qid];
-  let given;
-  if (q.type==="tf") given = card.querySelector(".opt.sel") ? card.querySelector(".opt.sel").dataset.v === "true" : null;
-  else if (q.type==="multi") given = Array.from(card.querySelectorAll(".opt.sel")).map(function(o){ return Number(o.dataset.i); });
-  else given = card.querySelector(".opt.sel") ? Number(card.querySelector(".opt.sel").dataset.i) : null;
-  showFeedback(btn, isCorrect(q, given));
-};
-window.checkShort = function(btn, qid){ const card=document.querySelector('[data-qid="'+qid+'"]'); showFeedback(btn, isCorrect(QMAP[qid], card.querySelector(".shortin").value)); };
-window.checkFill = function(btn, qid){ const card=document.querySelector('[data-qid="'+qid+'"]'); const vals=Array.from(card.querySelectorAll(".blankin")).map(function(i){ return i.value; }); showFeedback(btn, isCorrect(QMAP[qid], vals)); };
-window.checkCloze = function(btn, qid){ const card=document.querySelector('[data-qid="'+qid+'"]'); showFeedback(btn, isCorrect(QMAP[qid], card.querySelector(".clozein").value)); };
-window.checkNumeric = function(btn, qid){ const card=document.querySelector('[data-qid="'+qid+'"]'); showFeedback(btn, isCorrect(QMAP[qid], card.querySelector(".numin").value)); };
-
-function renderBook(){
-  let out = "";
-  DATA.groups.forEach(function(g){
-    out += '<div class="branch-label">'+esc(g.branchTitle)+'</div>';
-    g.leaves.forEach(function(leaf){
-      out += '<div class="panel">';
-      out += '<div class="leaf-title">'+esc(leaf.title)+'</div>';
-      leaf.cards.forEach(function(card){
-        out += '<div class="card">';
-        if (card.image) out += '<img src="'+card.image+'" alt="">';
-        card.questions.forEach(function(q){
-          const qid = "q"+(qCounter++);
-          QMAP[qid] = q;
-          out += renderQuestion(q, qid);
-        });
-        out += '</div>';
-      });
-      out += '</div>';
-    });
-  });
-  document.getElementById("bookContent").innerHTML = out;
-}
-renderBook();
-
-/* ---- planner ---- */
-let calCursor = new Date();
-calCursor.setDate(1);
-let editingGoal = false;
-function renderGoalPanel(){
-  const has = !!state.targetDate;
-  const el = document.getElementById("goalPanel");
-  if (!has || editingGoal){
-    el.innerHTML =
-      '<div class="goal-row">' +
-        '<label class="field">'+STR.plannerGoalDateLabel+'<input type="date" id="gDate" min="'+todayStr()+'" value="'+(state.targetDate||"")+'"></label>' +
-        '<label class="field">'+STR.plannerGoalCountLabel+' /'+DATA.totalLeaves+'<input type="number" id="gCount" min="1" max="'+DATA.totalLeaves+'" value="'+(state.targetCount||DATA.totalLeaves)+'"></label>' +
-        '<button class="checkbtn" id="gSave">'+STR.plannerSetGoal+'</button>' +
-      '</div>';
-    document.getElementById("gSave").onclick = function(){
-      const dv = document.getElementById("gDate").value;
-      if (!dv) return;
-      state.targetDate = dv;
-      state.targetCount = Math.max(1, Math.min(DATA.totalLeaves, Number(document.getElementById("gCount").value)||DATA.totalLeaves));
-      state.startDate = state.startDate || todayStr();
-      editingGoal = false;
-      save(); renderPlanner();
-    };
-  } else {
-    el.innerHTML =
-      '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">' +
-        '<div><div style="font-size:11px;font-weight:900;color:var(--inkSoft);text-transform:uppercase;margin-bottom:3px;">'+STR.plannerTargetLabel+'</div>' +
-        '<div style="font-size:16px;font-weight:800;">'+state.targetCount+' '+STR.plannerLeavesUnit+' '+fromDateStr(state.targetDate).toLocaleDateString(LOC,{day:"numeric",month:"long",year:"numeric"})+'</div></div>' +
-        '<div><button class="iconbtn" id="gEdit">'+STR.plannerEditGoal+'</button> <button class="iconbtn" id="gClear">'+STR.plannerClearGoal+'</button></div>' +
-      '</div>';
-    document.getElementById("gEdit").onclick = function(){ editingGoal = true; renderGoalPanel(); };
-    document.getElementById("gClear").onclick = function(){ state.targetDate=null; state.targetCount=null; state.startDate=null; editingGoal=false; save(); renderPlanner(); };
-  }
-}
-function buildMonthMatrixJS(cursor){
-  const year=cursor.getFullYear(), month=cursor.getMonth();
-  const first=new Date(year,month,1);
-  const daysInMonth=new Date(year,month+1,0).getDate();
-  const cells=[];
-  for(let i=0;i<first.getDay();i++) cells.push(null);
-  for(let d=1;d<=daysInMonth;d++) cells.push(new Date(year,month,d));
-  while(cells.length%7!==0) cells.push(null);
-  const weeks=[];
-  for(let i=0;i<cells.length;i+=7) weeks.push(cells.slice(i,i+7));
-  return weeks;
-}
-function renderPlanner(){
-  const validIds = {}; DATA.groups.forEach(function(g){ g.leaves.forEach(function(l){ validIds[l.id]=true; }); });
-  const doneIds = (state.doneLeafIds||[]).filter(function(id){ return validIds[id]; });
-  const doneCount = doneIds.length;
-  const totalLeaves = DATA.totalLeaves;
-  const today = new Date();
-  const ts = todayStr();
-  const hasGoal = !!state.targetDate;
-  const targetCount = Math.max(1, Math.min(totalLeaves||1, state.targetCount||totalLeaves||1));
-  const remaining = Math.max(0, targetCount-doneCount);
-  const totalDaysPlan = hasGoal ? Math.max(1, daysBetween(state.startDate||ts, state.targetDate)) : null;
-  const elapsedDays = state.startDate ? Math.max(1, daysBetween(state.startDate, ts)+1) : 1;
-  const daysLeft = hasGoal ? Math.max(0, daysBetween(ts, state.targetDate)) : null;
-  const idealPerDay = hasGoal ? targetCount/totalDaysPlan : null;
-  const expectedByToday = hasGoal ? Math.min(targetCount, idealPerDay*elapsedDays) : null;
-  const actualPerDay = doneCount/elapsedDays;
-  const requiredPerDayNow = hasGoal ? (daysLeft>0 ? remaining/daysLeft : remaining) : null;
-  let status="no-goal";
-  if (hasGoal){ if (remaining===0) status="done"; else { const diff=doneCount-expectedByToday; status = diff>=0.5?"ahead":diff<=-0.5?"behind":"on-track"; } }
-  const statusMeta = {
-    "no-goal": {t: STR.plannerStatusNoGoal, bg:"var(--surfaceSoft)", ink:"var(--inkSoft)"},
-    "ahead": {t: STR.plannerStatusAhead, bg:"#9BE8C4", ink:"#0B2318"},
-    "on-track": {t: STR.plannerStatusOnTrack, bg:"var(--accentSoft)", ink:"var(--ink)"},
-    "behind": {t: STR.plannerStatusBehind, bg:"#FFD9CE", ink:"#7A2A12"},
-    "done": {t: STR.plannerStatusDone, bg:"#9BE8C4", ink:"#0B2318"}
-  }[status];
-  document.getElementById("statusBanner").style.background = statusMeta.bg;
-  document.getElementById("statusBanner").style.color = statusMeta.ink;
-  document.getElementById("statusBanner").textContent = statusMeta.t;
-
-  let streak=0; let cur=new Date(today.getFullYear(),today.getMonth(),today.getDate());
-  if(!(state.log[toDateStr(cur)]>0)) cur.setDate(cur.getDate()-1);
-  while((state.log[toDateStr(cur)]||0)>0){ streak++; cur.setDate(cur.getDate()-1); }
-
-  const pct = totalLeaves ? Math.round(doneCount/totalLeaves*100) : 0;
-  document.getElementById("statGrid").innerHTML =
-    '<div class="stat"><div class="l">'+STR.plannerCompletionLabel+'</div><div class="v">'+pct+'%</div></div>' +
-    '<div class="stat"><div class="l">'+STR.plannerDaysLeft+'</div><div class="v">'+(hasGoal?daysLeft:"—")+'</div></div>' +
-    '<div class="stat"><div class="l">'+STR.plannerRequiredPace+'</div><div class="v">'+(hasGoal?requiredPerDayNow.toFixed(1):"—")+'</div></div>' +
-    '<div class="stat"><div class="l">'+STR.plannerActualPace+'</div><div class="v">'+actualPerDay.toFixed(1)+'</div></div>' +
-    '<div class="stat"><div class="l">'+STR.plannerStreakLabel+'</div><div class="v">'+streak+'</div></div>';
-
-  renderGoalPanel();
-
-  document.getElementById("calLabel").textContent = calCursor.toLocaleDateString(LOC,{month:"long",year:"numeric"});
-  const ref = new Date(2023,0,1);
-  document.getElementById("calHead").innerHTML = Array.from({length:7}).map(function(_,i){ const d=new Date(ref); d.setDate(ref.getDate()+i); return '<div style="text-align:center;font-size:10px;font-weight:700;color:var(--inkSoft);">'+d.toLocaleDateString(LOC,{weekday:"narrow"})+'</div>'; }).join("");
-  const weeks = buildMonthMatrixJS(calCursor);
-  document.getElementById("calBody").innerHTML = weeks.map(function(week){ return '<div class="cal-grid">' + week.map(function(day){
-    if (!day) return '<div></div>';
-    const ds = toDateStr(day);
-    const count = state.log[ds]||0;
-    const isToday = ds===ts;
-    const isFuture = day > today;
-    const alpha = count>0 ? Math.min(0.24*count+0.22,1) : 0;
-    const bg = count>0 ? 'color-mix(in srgb, var(--accent) '+Math.round(alpha*100)+'%, transparent)' : 'transparent';
-    return '<div class="cal-cell" style="background:'+bg+';border-color:'+(isToday?'var(--accent)':'var(--hairline)')+';opacity:'+(isFuture?0.4:1)+';" title="'+ds+': '+count+'">'+day.getDate()+'</div>';
-  }).join("") + '</div>'; }).join("");
-
-  let todoHtml = "";
-  if (totalLeaves>0 && doneCount===totalLeaves) todoHtml += '<div class="stat" style="background:#9BE8C4;color:#0B2318;margin-bottom:10px;">'+STR.plannerAllDone+'</div>';
-  DATA.groups.forEach(function(g){
-    todoHtml += '<div class="branch-label">'+esc(g.branchTitle)+'</div>';
-    g.leaves.forEach(function(leaf){
-      const done = doneIds.indexOf(leaf.id) !== -1;
-      todoHtml += '<div class="todo-row'+(done?' done':'')+'" onclick="toggleLeaf(\\''+leaf.id+'\\')"><span class="box">'+(done?'✓':'')+'</span><span class="lbl">'+esc(leaf.title)+'</span></div>';
-    });
-  });
-  document.getElementById("todoList").innerHTML = todoHtml;
-}
-window.toggleLeaf = function(leafId){
-  const ts = todayStr();
-  state.doneLeafIds = state.doneLeafIds || [];
-  const isDone = state.doneLeafIds.indexOf(leafId) !== -1;
-  state.doneLeafIds = isDone ? state.doneLeafIds.filter(function(id){ return id!==leafId; }) : state.doneLeafIds.concat([leafId]);
-  state.log = state.log || {};
-  state.log[ts] = Math.max(0, (state.log[ts]||0) + (isDone?-1:1));
-  save();
-  renderPlanner();
-};
-document.getElementById("calPrev").onclick = function(){ calCursor = new Date(calCursor.getFullYear(), calCursor.getMonth()-1, 1); renderPlanner(); };
-document.getElementById("calNext").onclick = function(){ calCursor = new Date(calCursor.getFullYear(), calCursor.getMonth()+1, 1); renderPlanner(); };
-</script>
-</body>
-</html>`;
-}
-function downloadBookHTML(book, lang, theme, ui) {
-  const html = buildBookExportHTML({ book, lang, theme, ui });
-  const blob = new Blob([html], { type: "text/html" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `${slugify(book[lang].title)}.html`;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 4000);
+function PillTabButton({ active, onClick, icon: Icon, children, theme }) {
+  return (
+    <button
+      onClick={onClick}
+      className={`inline-flex items-center gap-2 px-4 py-2 text-sm font-bold transition-all duration-200 rounded-full ${
+        active
+          ? "bg-[#E8654A] text-white shadow-sm scale-105"
+          : "bg-transparent hover:bg-black/5 text-current opacity-70 hover:opacity-100"
+      }`}
+      style={active ? { background: theme?.accent || "#E8654A", color: theme?.accentInk || "#ffffff" } : undefined}
+    >
+      {Icon && <Icon size={15} />}
+      <span>{children}</span>
+    </button>
+  );
 }
 
 /* =================================================================
-   Shared bits
+   PaletteSelectorModal — 60 Blades Picker
+================================================================== */
+function PaletteSelectorModal({ currentPaletteId, onSelectPalette, onClose, ui, theme, dir, skin }) {
+  const [search, setSearch] = useState("");
+  const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return THIQA_PALETTES;
+    return THIQA_PALETTES.filter((p) => String(p.num).includes(q) || p.name.toLowerCase().includes(q));
+  }, [search]);
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      style={{ background: "rgba(20,16,10,0.55)", backdropFilter: "blur(4px)" }}
+      onClick={onClose}
+      role="dialog"
+      aria-modal="true"
+    >
+      <div
+        dir={dir}
+        className="educraft-modal-in w-full max-w-2xl max-h-[88vh] overflow-y-auto p-6"
+        style={{ ...panelStyle(skin, theme), boxShadow: "0 24px 60px rgba(0,0,0,0.25)" }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between gap-3 mb-4">
+          <div className="flex items-center gap-2.5">
+            <Palette size={20} color={theme.accent} />
+            <div>
+              <h2 className="text-lg font-bold" style={{ color: theme.ink }}>
+                {ui.palettePicker} (60 Blades)
+              </h2>
+              <p className="text-xs" style={{ color: theme.inkSoft }}>
+                {dir === "rtl" ? "اختر من باليتات ثِقة الستين لصفحات A4" : "Select from the 60 Thiqa palettes for A4 plates"}
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            className="w-8 h-8 grid place-items-center rounded-full hover:bg-black/10 transition-colors"
+            style={{ color: theme.ink }}
+          >
+            <X size={16} />
+          </button>
+        </div>
+
+        <div className="relative mb-4">
+          <Search size={15} className="absolute top-3 start-3 opacity-50" />
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder={dir === "rtl" ? "ابحث بالرقم أو الاسم (مثلاً: 12، أزرق، كلاسيك...)" : "Search by number or name..."}
+            className="w-full text-sm ps-9 pe-3 py-2 rounded-xl outline-none"
+            style={{
+              background: theme.canvas,
+              color: theme.ink,
+              border: `1px solid ${theme.hairlineStrong}`,
+            }}
+          />
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5 max-h-[58vh] overflow-y-auto pe-1">
+          {filtered.map((p) => {
+            const isSelected = (currentPaletteId || 1) === p.num;
+            const v = p.vars;
+            return (
+              <button
+                key={p.num}
+                type="button"
+                onClick={() => {
+                  onSelectPalette(p.num);
+                  onClose();
+                }}
+                className={`flex flex-col text-start p-2.5 rounded-xl transition-all border ${
+                  isSelected ? "ring-2 ring-offset-1 border-transparent scale-[1.02]" : "border-black/10 hover:border-black/25"
+                }`}
+                style={{
+                  background: v["--PageBG"],
+                  borderColor: isSelected ? theme.accent : undefined,
+                  boxShadow: isSelected ? `0 0 0 2px ${theme.accent}` : "0 1px 4px rgba(0,0,0,0.05)",
+                }}
+              >
+                <div className="flex items-center justify-between w-full mb-2">
+                  <span className="text-xs font-bold font-mono px-1.5 py-0.5 rounded" style={{ background: v["--SectionBG"], color: "#fff" }}>
+                    #{p.num}
+                  </span>
+                  <span className="text-xs font-bold truncate max-w-[120px]" style={{ color: v["--HeaderColor"] }}>
+                    {p.name}
+                  </span>
+                </div>
+
+                <div className="flex h-4 w-full rounded overflow-hidden shadow-inner border border-black/10">
+                  <span className="flex-1" style={{ background: v["--SectionBG"] }} title="Section" />
+                  <span className="flex-1" style={{ background: v["--KeyBG"] }} title="Keyterm" />
+                  <span className="flex-1" style={{ background: v["--NoteBG"] }} title="Note" />
+                  <span className="flex-1" style={{ background: v["--WarningBG"] }} title="Warning" />
+                  <span className="flex-1" style={{ background: v["--HighlightBG"] }} title="Important" />
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* =================================================================
+   SHARED FEEDBACK & BUTTONS (Frosted Full-Card Harmonized)
 ================================================================== */
 function FeedbackBanner({ ok, ui, onRetry, skin = SKINS.normal }) {
   return (
     <div
-      className="flex flex-wrap items-center gap-3 border-2 px-4 py-3 text-sm font-semibold"
+      className="flex flex-wrap items-center gap-3 border-2 px-4 py-3 text-sm font-semibold shadow-sm"
       style={{
         borderRadius: skin.radiusLg,
         ...(ok ? { background: CORRECT.bg, borderColor: CORRECT.border, color: CORRECT.border } : { background: INCORRECT.bg, borderColor: INCORRECT.border, color: INCORRECT.border }),
@@ -1468,8 +2456,8 @@ function FeedbackBanner({ ok, ui, onRetry, skin = SKINS.normal }) {
       <span className="flex-1">{ok ? ui.correctMsg : ui.incorrectMsg}</span>
       <button
         onClick={onRetry}
-        className="flex items-center gap-1 border-2 border-current px-3 py-1.5 text-xs font-bold"
-        style={{ minHeight: 32, borderRadius: skin.radiusSm }}
+        className="flex items-center gap-1 border-2 border-current px-3 py-1.5 text-xs font-bold transition-transform hover:scale-105"
+        style={{ minHeight: 32, borderRadius: skin.radiusSm, background: "rgba(255,255,255,0.4)" }}
       >
         <RotateCcw size={12} /> {ui.tryAgain}
       </button>
@@ -1478,16 +2466,21 @@ function FeedbackBanner({ ok, ui, onRetry, skin = SKINS.normal }) {
 }
 
 function OptionBtn({ children, state, onClick, theme, dir, disabled, skin = SKINS.normal }) {
-  let style = { borderColor: theme.hairlineStrong, background: theme.canvas, color: theme.ink };
+  let style = {
+    borderColor: "rgba(0,0,0,0.15)",
+    background: "rgba(255,255,255,0.72)",
+    color: "inherit",
+    boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
+  };
   if (state === "correct") style = { background: CORRECT.bg, borderColor: CORRECT.border, color: CORRECT.border };
   else if (state === "incorrect") style = { background: INCORRECT.bg, borderColor: INCORRECT.border, color: INCORRECT.border };
-  else if (state === "selected") style = { background: theme.ink, borderColor: theme.ink, color: theme.canvas };
+  else if (state === "selected") style = { background: "rgba(20,21,26,0.92)", borderColor: "rgba(20,21,26,0.92)", color: "#ffffff" };
   return (
     <button
       dir={dir}
       onClick={onClick}
       disabled={disabled}
-      className="w-full text-start border-2 px-4 py-3 text-sm font-medium transition-colors disabled:cursor-not-allowed"
+      className="w-full text-start border-2 px-4 py-3 text-sm font-medium transition-all hover:brightness-95 disabled:cursor-not-allowed"
       style={{ ...style, minHeight: 44, borderRadius: skin.radiusMd }}
     >
       {children}
@@ -1496,16 +2489,12 @@ function OptionBtn({ children, state, onClick, theme, dir, disabled, skin = SKIN
 }
 
 /* =================================================================
-   Per-type bodies — ported from the legacy engine, with two fixes:
-   1) Order questions now start pre-filled with the given sequence,
-      so "check" works even before the reader drags anything.
-   2) The "can I check yet" gate (see canCheck in TypeCard) no longer
-      lets an empty multi-select or empty text through.
+   Question Bodies
 ================================================================== */
 function SingleBody({ c, dir, value, setValue, checked, theme, skin = SKINS.normal }) {
   return (
     <div className="flex flex-col gap-2.5">
-      {c.options.map((opt, i) => {
+      {c.options?.map((opt, i) => {
         let state;
         if (checked) state = i === c.correct ? "correct" : i === value ? "incorrect" : undefined;
         else state = i === value ? "selected" : undefined;
@@ -1523,10 +2512,10 @@ function MultiBody({ c, dir, value = [], setValue, checked, theme, skin = SKINS.
   const toggle = (i) => !checked && setValue(value.includes(i) ? value.filter((x) => x !== i) : [...value, i]);
   return (
     <div className="flex flex-col gap-2.5">
-      {c.options.map((opt, i) => {
+      {c.options?.map((opt, i) => {
         let state;
         const chosen = value.includes(i);
-        const correctChoice = c.correct.includes(i);
+        const correctChoice = c.correct?.includes(i);
         if (checked && (chosen || correctChoice)) state = correctChoice && chosen ? "correct" : "incorrect";
         else if (chosen) state = "selected";
         return (
@@ -1567,17 +2556,17 @@ function ShortBody({ c, dir, value = "", setValue, checked, ui, theme }) {
         value={value}
         onChange={(e) => setValue(e.target.value)}
         placeholder="…"
-        className="w-full rounded-2xl border-2 px-4 py-3 text-sm font-medium outline-none"
+        className="w-full rounded-2xl border-2 px-4 py-3 text-sm font-medium outline-none shadow-sm"
         style={{
-          borderColor: checked ? (ok ? CORRECT.border : INCORRECT.border) : theme.hairlineStrong,
-          background: checked ? (ok ? CORRECT.bg : INCORRECT.bg) : theme.canvas,
-          color: theme.ink,
+          borderColor: checked ? (ok ? CORRECT.border : INCORRECT.border) : "rgba(0,0,0,0.18)",
+          background: checked ? (ok ? CORRECT.bg : INCORRECT.bg) : "rgba(255,255,255,0.85)",
+          color: "inherit",
           minHeight: 44,
         }}
       />
       {checked && !ok && (
-        <p className="mt-2 text-sm" style={{ color: theme.inkSoft }}>
-          {ui.accepted}: {c.accepted.join(", ")}
+        <p className="mt-2 text-sm font-bold opacity-80">
+          {ui.accepted}: {c.accepted?.join(", ")}
         </p>
       )}
     </div>
@@ -1594,22 +2583,22 @@ function EssayBody({ c, dir, value = "", setValue, ui, theme }) {
         onChange={(e) => setValue(e.target.value)}
         rows={4}
         placeholder="…"
-        className="w-full resize-none rounded-2xl border-2 px-4 py-3 text-sm outline-none"
-        style={{ borderColor: theme.hairlineStrong, background: theme.canvas, color: theme.ink }}
+        className="w-full resize-none rounded-2xl border-2 px-4 py-3 text-sm outline-none shadow-sm"
+        style={{ borderColor: "rgba(0,0,0,0.18)", background: "rgba(255,255,255,0.85)", color: "inherit" }}
       />
       <button
         onClick={() => setReveal((r) => !r)}
-        className="self-start rounded-full border-2 px-4 py-2 text-xs font-bold"
-        style={{ borderColor: theme.hairlineStrong, color: theme.ink, minHeight: 40 }}
+        className="self-start rounded-full border-2 px-4 py-2 text-xs font-bold transition-all hover:bg-black/5"
+        style={{ borderColor: "rgba(0,0,0,0.25)", color: "inherit", minHeight: 40 }}
       >
         {reveal ? ui.hideModel : ui.revealModel}
       </button>
       {reveal && (
-        <div dir={dir} className="rounded-2xl border-2 px-4 py-3 text-sm leading-relaxed" style={{ background: ESSAY_BOX.bg, borderColor: ESSAY_BOX.border, color: ESSAY_BOX.ink }}>
+        <div dir={dir} className="rounded-2xl border-2 px-4 py-3 text-sm leading-relaxed shadow-sm" style={{ background: ESSAY_BOX.bg, borderColor: ESSAY_BOX.border, color: ESSAY_BOX.ink }}>
           {c.model}
         </div>
       )}
-      <p className="text-xs" style={{ color: theme.inkSoft }}>
+      <p className="text-xs font-semibold opacity-75">
         {ui.selfGraded}
       </p>
     </div>
@@ -1617,14 +2606,14 @@ function EssayBody({ c, dir, value = "", setValue, ui, theme }) {
 }
 
 function FillBody({ c, dir, value = [], setValue, checked, theme }) {
-  const parts = c.template.split("___");
+  const parts = (c.template || "").split("___");
   const set = (i, v) => {
     const next = [...value];
     next[i] = v;
     setValue(next);
   };
   return (
-    <p dir={dir} className="flex flex-wrap items-center gap-2 text-base leading-loose" style={{ color: theme.ink }}>
+    <p dir={dir} className="flex flex-wrap items-center gap-2 text-base leading-loose font-medium">
       {parts.map((seg, i) => (
         <span key={i} className="contents">
           <span>{seg}</span>
@@ -1634,11 +2623,11 @@ function FillBody({ c, dir, value = [], setValue, checked, theme }) {
               disabled={checked}
               value={value[i] || ""}
               onChange={(e) => set(i, e.target.value)}
-              className="mx-1 w-24 rounded-lg border-2 px-2 py-1 text-center font-mono text-sm outline-none"
+              className="mx-1 w-24 rounded-lg border-2 px-2 py-1 text-center font-mono text-sm outline-none shadow-sm"
               style={{
-                borderColor: checked ? ((value[i] || "").trim().toLowerCase() === c.blanks[i].toLowerCase() ? CORRECT.border : INCORRECT.border) : theme.hairlineStrong,
-                background: checked ? ((value[i] || "").trim().toLowerCase() === c.blanks[i].toLowerCase() ? CORRECT.bg : INCORRECT.bg) : theme.canvas,
-                color: theme.ink,
+                borderColor: checked ? ((value[i] || "").trim().toLowerCase() === (c.blanks?.[i] || "").toLowerCase() ? CORRECT.border : INCORRECT.border) : "rgba(0,0,0,0.2)",
+                background: checked ? ((value[i] || "").trim().toLowerCase() === (c.blanks?.[i] || "").toLowerCase() ? CORRECT.bg : INCORRECT.bg) : "rgba(255,255,255,0.85)",
+                color: "inherit",
                 minHeight: 36,
               }}
             />
@@ -1650,11 +2639,11 @@ function FillBody({ c, dir, value = [], setValue, checked, theme }) {
 }
 
 function ClozeBody({ c, dir, value, setValue, checked, ui, theme }) {
-  const parts = c.template.split("___");
+  const parts = (c.template || "").split("___");
   const ok = checked ? value === c.correct : null;
   return (
     <div className="flex flex-col gap-4">
-      <p dir={dir} className="flex flex-wrap items-center gap-2 text-base leading-loose" style={{ color: theme.ink }}>
+      <p dir={dir} className="flex flex-wrap items-center gap-2 text-base leading-loose font-medium">
         {parts.map((seg, i) => (
           <span key={i} className="contents">
             <span>{seg}</span>
@@ -1662,11 +2651,11 @@ function ClozeBody({ c, dir, value, setValue, checked, ui, theme }) {
               <button
                 onClick={() => !checked && setValue(undefined)}
                 disabled={checked}
-                className="mx-1 min-w-[80px] rounded-lg border-2 border-dashed px-3 py-1 font-mono text-sm"
+                className="mx-1 min-w-[80px] rounded-lg border-2 border-dashed px-3 py-1 font-mono text-sm font-bold shadow-sm"
                 style={{
-                  borderColor: checked ? (ok ? CORRECT.border : INCORRECT.border) : theme.hairlineStrong,
-                  background: checked ? (ok ? CORRECT.bg : INCORRECT.bg) : theme.canvas,
-                  color: theme.ink,
+                  borderColor: checked ? (ok ? CORRECT.border : INCORRECT.border) : "rgba(0,0,0,0.25)",
+                  background: checked ? (ok ? CORRECT.bg : INCORRECT.bg) : "rgba(255,255,255,0.85)",
+                  color: "inherit",
                 }}
               >
                 {value || "?"}
@@ -1675,18 +2664,18 @@ function ClozeBody({ c, dir, value, setValue, checked, ui, theme }) {
           </span>
         ))}
       </p>
-      <p className="text-xs" style={{ color: theme.inkSoft }}>
+      <p className="text-xs font-semibold opacity-75">
         {ui.bankHint}
       </p>
       <div className="flex flex-wrap gap-2">
-        {c.bank.map((w) => (
+        {(c.bank || []).map((w) => (
           <button
             key={w}
             dir="ltr"
             disabled={checked || value === w}
             onClick={() => setValue(w)}
-            className="rounded-full border-2 px-4 py-2 font-mono text-sm font-semibold disabled:opacity-30"
-            style={{ borderColor: theme.hairlineStrong, background: theme.canvas, color: theme.ink, minHeight: 40 }}
+            className="rounded-full border-2 px-4 py-2 font-mono text-sm font-bold shadow-sm disabled:opacity-30 transition-transform hover:scale-105"
+            style={{ borderColor: "rgba(0,0,0,0.2)", background: "rgba(255,255,255,0.75)", color: "inherit", minHeight: 40 }}
           >
             {w}
           </button>
@@ -1716,32 +2705,32 @@ function MatchBody({ c, value = {}, setValue, checked, ui, theme }) {
   };
   return (
     <div className="flex flex-col gap-3">
-      <p className="text-xs" style={{ color: theme.inkSoft }}>
+      <p className="text-xs font-semibold opacity-75">
         {ui.matchHint}
       </p>
       <div className="grid grid-cols-2 gap-3">
         <div className="flex flex-col gap-2">
-          {c.left.map((l, i) => {
-            let style = { borderColor: theme.hairlineStrong, background: theme.canvas, color: theme.ink };
-            if (checked) style = c.correct[i] === value[i] ? { background: CORRECT.bg, borderColor: CORRECT.border, color: CORRECT.border } : { background: INCORRECT.bg, borderColor: INCORRECT.border, color: INCORRECT.border };
-            else if (active === i) style = { background: theme.ink, borderColor: theme.ink, color: theme.canvas };
-            else if (value[i] !== undefined) style = { borderColor: theme.accent, background: theme.canvas, color: theme.ink };
+          {c.left?.map((l, i) => {
+            let style = { borderColor: "rgba(0,0,0,0.18)", background: "rgba(255,255,255,0.75)", color: "inherit" };
+            if (checked) style = c.correct?.[i] === value[i] ? { background: CORRECT.bg, borderColor: CORRECT.border, color: CORRECT.border } : { background: INCORRECT.bg, borderColor: INCORRECT.border, color: INCORRECT.border };
+            else if (active === i) style = { background: "rgba(20,21,26,0.9)", borderColor: "rgba(20,21,26,0.9)", color: "#ffffff" };
+            else if (value[i] !== undefined) style = { borderColor: theme.accent, background: "rgba(255,255,255,0.9)", color: "inherit" };
             return (
-              <button key={i} onClick={() => pickLeft(i)} className="rounded-2xl border-2 px-3 py-2.5 text-start font-mono text-sm font-bold" style={{ ...style, minHeight: 44 }}>
+              <button key={i} onClick={() => pickLeft(i)} className="rounded-2xl border-2 px-3 py-2.5 text-start font-mono text-sm font-bold shadow-sm" style={{ ...style, minHeight: 44 }}>
                 {l}
-                {value[i] !== undefined && <span className="block text-xs font-normal opacity-70 mt-0.5">→ {c.right[value[i]]}</span>}
+                {value[i] !== undefined && <span className="block text-xs font-normal opacity-75 mt-0.5">→ {c.right?.[value[i]]}</span>}
               </button>
             );
           })}
         </div>
         <div className="flex flex-col gap-2">
-          {c.right.map((r, j) => (
+          {c.right?.map((r, j) => (
             <button
               key={j}
               disabled={checked || placedRight.includes(j)}
               onClick={() => pickRight(j)}
-              className="rounded-2xl border-2 px-3 py-2.5 text-start text-sm disabled:opacity-40"
-              style={{ borderColor: theme.hairlineStrong, background: theme.canvas, color: theme.ink, minHeight: 44 }}
+              className="rounded-2xl border-2 px-3 py-2.5 text-start text-sm font-medium disabled:opacity-40 shadow-sm"
+              style={{ borderColor: "rgba(0,0,0,0.18)", background: "rgba(255,255,255,0.75)", color: "inherit", minHeight: 44 }}
             >
               {r}
             </button>
@@ -1753,7 +2742,7 @@ function MatchBody({ c, value = {}, setValue, checked, ui, theme }) {
 }
 
 function OrderBody({ c, value, setValue, checked, ui, theme }) {
-  const list = value || c.items;
+  const list = value || c.items || [];
   const move = (i, dir2) => {
     if (checked) return;
     const j = i + dir2;
@@ -1764,24 +2753,24 @@ function OrderBody({ c, value, setValue, checked, ui, theme }) {
   };
   return (
     <div className="flex flex-col gap-3">
-      <p className="text-xs" style={{ color: theme.inkSoft }}>
+      <p className="text-xs font-semibold opacity-75">
         {ui.orderHint}
       </p>
       <div className="flex flex-col gap-2">
         {list.map((item, i) => {
-          const state = checked ? (c.correct[i] === item ? "correct" : "incorrect") : null;
-          const style = state === "correct" ? { background: CORRECT.bg, borderColor: CORRECT.border } : state === "incorrect" ? { background: INCORRECT.bg, borderColor: INCORRECT.border } : { background: theme.canvas, borderColor: theme.hairlineStrong };
+          const state = checked ? (c.correct?.[i] === item ? "correct" : "incorrect") : null;
+          const style = state === "correct" ? { background: CORRECT.bg, borderColor: CORRECT.border, color: CORRECT.border } : state === "incorrect" ? { background: INCORRECT.bg, borderColor: INCORRECT.border, color: INCORRECT.border } : { background: "rgba(255,255,255,0.8)", borderColor: "rgba(0,0,0,0.15)", color: "inherit" };
           return (
-            <div key={item} className="flex items-center gap-3 rounded-2xl border-2 px-3 py-2.5" style={{ ...style, color: theme.ink }}>
-              <span className="grid h-6 w-6 flex-shrink-0 place-items-center rounded-full text-xs font-bold" style={{ background: theme.ink, color: theme.canvas }}>
+            <div key={item} className="flex items-center gap-3 rounded-2xl border-2 px-3 py-2.5 shadow-sm" style={style}>
+              <span className="grid h-6 w-6 flex-shrink-0 place-items-center rounded-full text-xs font-bold" style={{ background: "rgba(20,21,26,0.9)", color: "#ffffff" }}>
                 {i + 1}
               </span>
               <span className="flex-1 font-mono text-sm font-semibold">{item}</span>
               <div className="flex flex-col">
-                <button aria-label={ui.prev} disabled={checked || i === 0} onClick={() => move(i, -1)} className="disabled:opacity-20" style={{ color: theme.inkSoft }}>
+                <button aria-label={ui.prev} disabled={checked || i === 0} onClick={() => move(i, -1)} className="disabled:opacity-20 hover:scale-110">
                   <ArrowUp size={15} />
                 </button>
-                <button aria-label={ui.next} disabled={checked || i === list.length - 1} onClick={() => move(i, 1)} className="disabled:opacity-20" style={{ color: theme.inkSoft }}>
+                <button aria-label={ui.next} disabled={checked || i === list.length - 1} onClick={() => move(i, 1)} className="disabled:opacity-20 hover:scale-110">
                   <ArrowDown size={15} />
                 </button>
               </div>
@@ -1795,7 +2784,8 @@ function OrderBody({ c, value, setValue, checked, ui, theme }) {
 
 function SortBody({ c, value = {}, setValue, checked, ui, theme }) {
   const [active, setActive] = useState(null);
-  const unsorted = c.items.filter((_, i) => value[i] === undefined);
+  const items = c.items || [];
+  const unsorted = items.filter((_, i) => value[i] === undefined);
   const placeIn = (bin) => {
     if (checked || active === null) return;
     setValue({ ...value, [active]: bin });
@@ -1809,22 +2799,22 @@ function SortBody({ c, value = {}, setValue, checked, ui, theme }) {
   };
   return (
     <div className="flex flex-col gap-4">
-      <p className="text-xs" style={{ color: theme.inkSoft }}>
+      <p className="text-xs font-semibold opacity-75">
         {ui.sortHint}
       </p>
-      <div className="flex flex-wrap gap-2 rounded-2xl border-2 border-dashed p-3 min-h-[52px]" style={{ borderColor: theme.hairlineStrong }}>
+      <div className="flex flex-wrap gap-2 rounded-2xl border-2 border-dashed p-3 min-h-[52px]" style={{ borderColor: "rgba(0,0,0,0.25)", background: "rgba(255,255,255,0.3)" }}>
         {unsorted.length === 0 && (
-          <span className="text-xs" style={{ color: theme.inkSoft }}>
+          <span className="text-xs opacity-60">
             —
           </span>
         )}
-        {c.items.map(([label], i) =>
+        {items.map(([label], i) =>
           value[i] === undefined ? (
             <button
               key={i}
               onClick={() => setActive(active === i ? null : i)}
-              className="rounded-full border-2 px-3 py-1.5 font-mono text-sm font-semibold"
-              style={active === i ? { background: theme.ink, color: theme.canvas, borderColor: theme.ink } : { borderColor: theme.hairlineStrong, color: theme.ink }}
+              className="rounded-full border-2 px-3 py-1.5 font-mono text-sm font-bold shadow-sm transition-transform hover:scale-105"
+              style={active === i ? { background: "rgba(20,21,26,0.9)", color: "#ffffff", borderColor: "rgba(20,21,26,0.9)" } : { borderColor: "rgba(0,0,0,0.2)", color: "inherit", background: "rgba(255,255,255,0.8)" }}
             >
               {label}
             </button>
@@ -1832,16 +2822,16 @@ function SortBody({ c, value = {}, setValue, checked, ui, theme }) {
         )}
       </div>
       <div className="grid grid-cols-2 gap-3">
-        {c.bins.map((bin) => (
-          <button key={bin} onClick={() => placeIn(bin)} className="flex min-h-[100px] flex-col gap-2 rounded-2xl border-2 p-3 text-start" style={{ borderColor: theme.hairlineStrong, background: theme.canvas }}>
-            <span className="text-xs font-bold uppercase tracking-wide" style={{ color: theme.inkSoft }}>
+        {c.bins?.map((bin) => (
+          <button key={bin} onClick={() => placeIn(bin)} className="flex min-h-[100px] flex-col gap-2 rounded-2xl border-2 p-3 text-start shadow-sm" style={{ borderColor: "rgba(0,0,0,0.2)", background: "rgba(255,255,255,0.7)" }}>
+            <span className="text-xs font-black uppercase tracking-wide opacity-80">
               {bin}
             </span>
             <div className="flex flex-wrap gap-1.5">
-              {c.items.map(([label, correctBin], i) => {
+              {items.map(([label, correctBin], i) => {
                 if (value[i] !== bin) return null;
                 const state = checked ? (correctBin === bin ? "correct" : "incorrect") : null;
-                const style = state === "correct" ? { background: CORRECT.bg, borderColor: CORRECT.border } : state === "incorrect" ? { background: INCORRECT.bg, borderColor: INCORRECT.border } : { background: "transparent", borderColor: theme.hairlineStrong };
+                const style = state === "correct" ? { background: CORRECT.bg, borderColor: CORRECT.border, color: CORRECT.border } : state === "incorrect" ? { background: INCORRECT.bg, borderColor: INCORRECT.border, color: INCORRECT.border } : { background: "rgba(255,255,255,0.9)", borderColor: "rgba(0,0,0,0.2)", color: "inherit" };
                 return (
                   <span
                     key={i}
@@ -1849,8 +2839,8 @@ function SortBody({ c, value = {}, setValue, checked, ui, theme }) {
                       e.stopPropagation();
                       remove(i);
                     }}
-                    className="rounded-full border-2 px-2.5 py-1 font-mono text-xs font-semibold"
-                    style={{ ...style, color: theme.ink }}
+                    className="rounded-full border-2 px-2.5 py-1 font-mono text-xs font-bold shadow-sm"
+                    style={style}
                   >
                     {label}
                   </span>
@@ -1874,11 +2864,11 @@ function NumericBody({ c, value = "", setValue, checked, theme }) {
       value={value}
       onChange={(e) => setValue(e.target.value)}
       placeholder="0"
-      className="w-32 rounded-2xl border-2 px-4 py-3 text-center font-mono text-lg font-bold outline-none"
+      className="w-36 rounded-2xl border-2 px-4 py-3 text-center font-mono text-lg font-black outline-none shadow-sm"
       style={{
-        borderColor: checked ? (ok ? CORRECT.border : INCORRECT.border) : theme.hairlineStrong,
-        background: checked ? (ok ? CORRECT.bg : INCORRECT.bg) : theme.canvas,
-        color: theme.ink,
+        borderColor: checked ? (ok ? CORRECT.border : INCORRECT.border) : "rgba(0,0,0,0.2)",
+        background: checked ? (ok ? CORRECT.bg : INCORRECT.bg) : "rgba(255,255,255,0.85)",
+        color: "inherit",
         minHeight: 44,
       }}
     />
@@ -1889,8 +2879,8 @@ function RatingBody({ value = 0, setValue }) {
   return (
     <div className="flex gap-2">
       {[1, 2, 3, 4, 5].map((n) => (
-        <button key={n} aria-label={String(n)} onClick={() => setValue(n)} style={{ minHeight: 40, minWidth: 40 }}>
-          <Star size={28} fill={n <= value ? "#FCD34D" : "none"} stroke={n <= value ? "#a8790c" : "#14151A55"} strokeWidth={1.5} />
+        <button key={n} aria-label={String(n)} onClick={() => setValue(n)} className="transition-transform hover:scale-110" style={{ minHeight: 40, minWidth: 40 }}>
+          <Star size={30} fill={n <= value ? "#FCD34D" : "none"} stroke={n <= value ? "#996a00" : "rgba(0,0,0,0.3)"} strokeWidth={1.75} />
         </button>
       ))}
     </div>
@@ -1904,20 +2894,20 @@ function SliderBody({ c, value, setValue, checked, theme }) {
     <div className="flex flex-col gap-3">
       <input type="range" min={c.min} max={c.max} step={c.step} disabled={checked} value={v} onChange={(e) => setValue(parseFloat(e.target.value))} className="w-full" style={{ accentColor: theme.accent, minHeight: 24 }} />
       <div className="flex items-center justify-between text-sm">
-        <span className="font-mono" style={{ color: theme.inkSoft }}>
+        <span className="font-mono font-bold opacity-75">
           {c.min}
         </span>
         <span
-          className="rounded-full border-2 px-3 py-1 font-mono text-sm font-bold"
+          className="rounded-full border-2 px-3 py-1 font-mono text-sm font-bold shadow-sm"
           style={{
-            borderColor: checked ? (ok ? CORRECT.border : INCORRECT.border) : theme.hairlineStrong,
-            background: checked ? (ok ? CORRECT.bg : INCORRECT.bg) : theme.canvas,
-            color: theme.ink,
+            borderColor: checked ? (ok ? CORRECT.border : INCORRECT.border) : "rgba(0,0,0,0.2)",
+            background: checked ? (ok ? CORRECT.bg : INCORRECT.bg) : "rgba(255,255,255,0.85)",
+            color: "inherit",
           }}
         >
           {v}
         </span>
-        <span className="font-mono" style={{ color: theme.inkSoft }}>
+        <span className="font-mono font-bold opacity-75">
           {c.max}
         </span>
       </div>
@@ -1926,22 +2916,11 @@ function SliderBody({ c, value, setValue, checked, theme }) {
 }
 
 /* =================================================================
-   TypeCard — the fixed anatomy: header (type / subject / difficulty
-   · tier, RTL/LTR chip) + a body that switches on type + footer
-   (check / feedback). This is the single-question unit; the deck
-   below pages through one or more of these inside one outer card.
+   Full-Card Colored Question Components (with Linking Support)
 ================================================================== */
-/* =================================================================
-   QuestionItem — the compact, "many-in-one-card" sibling of TypeCard.
-   Same body components and grading logic, but no colored background
-   and no per-question image (a QuestionGroupCard owns one shared
-   image for the whole bundle) — just a thin left accent bar in the
-   question-type color, so several different types can sit inside
-   one neutral card without fighting each other visually.
-================================================================== */
-function QuestionItem({ q, lang, ui, theme, skin = SKINS.normal, onAnswered }) {
-  const c = q[lang];
-  const meta = TYPE_META[q.type];
+function QuestionItem({ q, lang, ui, theme, skin = SKINS.normal, onAnswered, onJumpToBlock, bookId, leafId }) {
+  const c = q[lang] || {};
+  const meta = TYPE_META[q.type] || TYPE_META.single;
   const initialValue = q.type === "multi" ? [] : q.type === "match" || q.type === "sort" ? {} : q.type === "order" ? c.items : undefined;
   const [value, setValue] = useState(initialValue);
   const [checked, setChecked] = useState(false);
@@ -1956,7 +2935,6 @@ function QuestionItem({ q, lang, ui, theme, skin = SKINS.normal, onAnswered }) {
       answeredRef.current = true;
       onAnswered(null);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value]);
 
   const handleCheck = () => {
@@ -2010,23 +2988,44 @@ function QuestionItem({ q, lang, ui, theme, skin = SKINS.normal, onAnswered }) {
 
   return (
     <div
-      className="p-4 sm:p-5 flex flex-col gap-3.5"
+      id={`q-item-${q.id}`}
+      className="p-5 sm:p-6 flex flex-col gap-4 shadow-md transition-all"
       style={{
         background: meta.color.bg,
         color: meta.color.ink,
-        borderRadius: skin.radiusMd,
-        border: skin.pixel ? `${skin.borderW}px solid ${meta.color.ink}` : "none",
-        boxShadow: skin.pixel ? skin.shadow : "none",
+        borderRadius: skin.radiusLg,
+        border: `1.5px solid rgba(0,0,0,0.12)`,
+        boxShadow: skin.pixel ? skin.shadow : "0 4px 14px rgba(0,0,0,0.06)",
       }}
     >
-      <div className="flex items-center gap-2">
-        <meta.Icon size={14} strokeWidth={2.25} style={{ opacity: 0.75 }} />
-        <span className="text-[0.68rem] font-black uppercase tracking-wider" style={{ opacity: 0.75, letterSpacing: skin.letterSpacing }}>
-          {meta[lang]} · {DIFF[lang][q.difficulty]}
-        </span>
+      <div className="flex items-center justify-between gap-2 flex-wrap">
+        <div className="flex items-center gap-2">
+          <meta.Icon size={16} strokeWidth={2.25} />
+          <span className="text-xs font-black uppercase tracking-wider" style={{ letterSpacing: skin.letterSpacing }}>
+            {meta[lang]} · {DIFF[lang][q.difficulty] || q.difficulty}
+          </span>
+        </div>
+
+        {/* Linking Badges */}
+        <div className="flex items-center gap-1.5 flex-wrap">
+          {q.linkedBlockId && onJumpToBlock && (
+            <button
+              onClick={() => onJumpToBlock(bookId, leafId, q.linkedBlockId)}
+              className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-bold rounded-full bg-white/80 hover:bg-white text-slate-900 border border-black/10 shadow-sm transition-transform hover:scale-105"
+              title={ui.relatedInfo}
+            >
+              <BookOpen size={11} /> {ui.relatedInfo} <ExternalLink size={10} />
+            </button>
+          )}
+          {q.importMeta && (
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-bold rounded-full bg-black/10 text-inherit">
+              {ui.importedFrom}: {q.importMeta}
+            </span>
+          )}
+        </div>
       </div>
 
-      <p dir={q.dir} className="text-base font-semibold leading-relaxed">
+      <p dir={q.dir} className="text-base font-bold leading-relaxed">
         {c.prompt || c.template}
       </p>
 
@@ -2038,8 +3037,8 @@ function QuestionItem({ q, lang, ui, theme, skin = SKINS.normal, onAnswered }) {
         <button
           onClick={handleCheck}
           disabled={!canCheck}
-          className="self-start px-5 py-2.5 text-sm font-bold text-white disabled:opacity-40 disabled:cursor-not-allowed"
-          style={{ borderRadius: skin.radiusSm, background: "rgba(20,21,26,0.88)", minHeight: 44 }}
+          className="self-start px-5 py-2.5 text-sm font-bold text-white disabled:opacity-40 disabled:cursor-not-allowed shadow transition-transform hover:scale-105 active:scale-95"
+          style={{ borderRadius: skin.radiusSm, background: "rgba(20,21,26,0.92)", minHeight: 44 }}
         >
           {ui.checkAnswer}
         </button>
@@ -2048,36 +3047,27 @@ function QuestionItem({ q, lang, ui, theme, skin = SKINS.normal, onAnswered }) {
   );
 }
 
-/* =================================================================
-   QuestionGroupCard — a bundle of 1..N questions (any mix of types)
-   sharing one card and, optionally, one image pinned to the top,
-   left, or right of the bundle. This is the real unit of navigation
-   inside a leaf's deck now — a "card" can hold 10 questions, or 5,
-   or just 1 — not necessarily one question each.
-================================================================== */
-function QuestionGroupCard({ group, lang, ui, theme, skin = SKINS.normal, onAnswered }) {
+function QuestionGroupCard({ group, lang, ui, theme, skin = SKINS.normal, onAnswered, onJumpToBlock, bookId, leafId }) {
   const pos = group.imagePosition || "top";
   const hasImage = !!group.image;
-  // The card itself is tinted with the active flavor's header color (so
-  // switching flavors visibly recolors the card) — individual questions
-  // stay transparent on top of it and keep their own type color only as
-  // a thin left accent bar, per "keep the questions' old colors".
-  const cardBg = skin.surfaceAlpha >= 1 ? theme.header : hexToRgba(theme.header, skin.surfaceAlpha);
-  const cardStyle = { ...panelStyle(skin, theme), background: cardBg };
+  const cardStyle = { ...panelStyle(skin, theme, { soft: true }) };
 
   const list = (
     <div
-      className="flex flex-col gap-5 p-5 sm:p-6 flex-1 min-w-0"
-      style={{ maxHeight: "min(60vh, 540px)", overflowY: "auto", WebkitOverflowScrolling: "touch" }}
+      className="flex flex-col gap-4 p-4 sm:p-5 flex-1 min-w-0"
+      style={{ maxHeight: "min(68vh, 600px)", overflowY: "auto", WebkitOverflowScrolling: "touch" }}
     >
-      {group.questions.map((q, i) => (
+      {group.questions?.map((q, i) => (
         <QuestionItem
-          key={i}
+          key={q.id || i}
           q={q}
           lang={lang}
           ui={ui}
           theme={theme}
           skin={skin}
+          bookId={bookId}
+          leafId={leafId}
+          onJumpToBlock={onJumpToBlock}
           onAnswered={onAnswered ? (result) => onAnswered(group.id, i, result) : undefined}
         />
       ))}
@@ -2098,7 +3088,7 @@ function QuestionGroupCard({ group, lang, ui, theme, skin = SKINS.normal, onAnsw
       style={
         fullWidth
           ? { width: "100%", aspectRatio: "16/9" }
-          : { width: "38%", minWidth: 110, alignSelf: "stretch" }
+          : { width: "38%", minWidth: 120, alignSelf: "stretch" }
       }
     >
       <img src={group.image} alt="" className="w-full h-full" style={{ objectFit: "cover", objectPosition: "center", display: "block" }} />
@@ -2114,9 +3104,6 @@ function QuestionGroupCard({ group, lang, ui, theme, skin = SKINS.normal, onAnsw
     );
   }
 
-  // left / right: an explicit physical side, regardless of reading
-  // direction — the reader picked "left" or "right" in Settings/data
-  // meaning screen-left or screen-right, not "start" or "end".
   return (
     <div className="overflow-hidden flex flex-col sm:flex-row" style={cardStyle}>
       {pos === "left" && imageBlock(false)}
@@ -2126,145 +3113,14 @@ function QuestionGroupCard({ group, lang, ui, theme, skin = SKINS.normal, onAnsw
   );
 }
 
-
-function TypeCard({ q, lang, ui, theme, skin = SKINS.normal, onAnswered }) {
-  const c = q[lang];
-  const meta = TYPE_META[q.type];
-  const initialValue = q.type === "multi" ? [] : q.type === "match" || q.type === "sort" ? {} : q.type === "order" ? c.items : undefined;
-  const [value, setValue] = useState(initialValue);
-  const [checked, setChecked] = useState(false);
-  const selfGraded = q.type === "essay" || q.type === "rating";
-  const ok = checked && !selfGraded ? isCorrect(q, c, value) : null;
-  const image = c.image || q.image;
-  const answeredRef = useRef(false);
-
-  // Self-graded questions (essay / self-rating) have no "check" button,
-  // so completion is marked the first time the reader puts something in —
-  // typing an essay answer, or moving the rating slider.
-  useEffect(() => {
-    if (!selfGraded || answeredRef.current || !onAnswered) return;
-    const touched = q.type === "rating" ? value !== undefined && value !== null : typeof value === "string" && value.trim().length > 0;
-    if (touched) {
-      answeredRef.current = true;
-      onAnswered(null);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [value]);
-
-  const handleCheck = () => {
-    setChecked(true);
-    if (!selfGraded && onAnswered && !answeredRef.current) {
-      answeredRef.current = true;
-      onAnswered(isCorrect(q, c, value));
-    }
-  };
-
-  const body = (() => {
-    switch (q.type) {
-      case "single":
-        return <SingleBody c={c} dir={c.dir || q.dir} value={value} setValue={setValue} checked={checked} theme={theme} skin={skin} />;
-      case "multi":
-        return <MultiBody c={c} dir={q.dir} value={value} setValue={setValue} checked={checked} theme={theme} skin={skin} />;
-      case "tf":
-        return <TFBody c={c} value={value} setValue={setValue} checked={checked} lang={lang} theme={theme} skin={skin} />;
-      case "short":
-        return <ShortBody c={c} dir={q.dir} value={value} setValue={setValue} checked={checked} ui={ui} theme={theme} />;
-      case "essay":
-        return <EssayBody c={c} dir={q.dir} value={value} setValue={setValue} ui={ui} theme={theme} />;
-      case "fill":
-        return <FillBody c={c} dir={q.dir} value={value} setValue={setValue} checked={checked} theme={theme} />;
-      case "cloze":
-        return <ClozeBody c={c} dir={q.dir} value={value} setValue={setValue} checked={checked} ui={ui} theme={theme} />;
-      case "match":
-        return <MatchBody c={c} value={value} setValue={setValue} checked={checked} ui={ui} theme={theme} />;
-      case "order":
-        return <OrderBody c={c} value={value} setValue={setValue} checked={checked} ui={ui} theme={theme} />;
-      case "sort":
-        return <SortBody c={c} value={value} setValue={setValue} checked={checked} ui={ui} theme={theme} />;
-      case "numeric":
-        return <NumericBody c={c} value={value} setValue={setValue} checked={checked} theme={theme} />;
-      case "rating":
-        return <RatingBody value={value} setValue={setValue} />;
-      case "slider":
-        return <SliderBody c={c} value={value} setValue={setValue} checked={checked} theme={theme} />;
-      default:
-        return null;
-    }
-  })();
-
-  const canCheck = (() => {
-    if (value === undefined) return false;
-    if (Array.isArray(value)) return value.length > 0;
-    if (typeof value === "object") return Object.keys(value).length > 0;
-    if (typeof value === "string") return value.trim().length > 0;
-    return true;
-  })();
-
-  return (
-    <div
-      className="p-5 sm:p-6 flex flex-col gap-4"
-      style={{
-        background: meta.color.bg,
-        color: meta.color.ink,
-        borderRadius: skin.radiusLg,
-        border: skin.pixel ? `${skin.borderW}px solid ${meta.color.ink}` : "none",
-        boxShadow: skin.pixel ? skin.shadow : "none",
-      }}
-    >
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="flex items-center gap-2">
-          <meta.Icon size={16} strokeWidth={2.25} style={{ opacity: 0.75 }} />
-          <div className="flex flex-col leading-tight">
-            <span className="text-xs font-black uppercase tracking-wider" style={{ opacity: 0.75, letterSpacing: skin.letterSpacing }}>
-              {meta[lang]} // {q.subject}
-            </span>
-            <span className="text-[0.7rem] font-bold uppercase tracking-wide" style={{ opacity: 0.55 }}>
-              {DIFF[lang][q.difficulty]} · {TIER[lang][q.tier]}
-            </span>
-          </div>
-        </div>
-        <span dir="ltr" className="flex items-center gap-1 px-2 py-1 text-[0.65rem] font-bold" style={{ borderRadius: skin.radiusSm, background: "rgba(255,255,255,0.5)" }}>
-          <ArrowLeftRight size={11} /> {q.dir === "rtl" ? "RTL" : "LTR"}
-        </span>
-      </div>
-
-      <p dir={q.dir} className="text-base font-semibold leading-relaxed">
-        {c.prompt || c.template}
-      </p>
-
-      {image && (
-        <div
-          className="w-full overflow-hidden shrink-0"
-          style={{ borderRadius: skin.radiusMd, aspectRatio: "16/9", border: skin.pixel ? `${skin.borderW}px solid ${meta.color.ink}` : "none" }}
-        >
-          <img src={image} alt="" className="w-full h-full" style={{ objectFit: "cover", objectPosition: "center", display: "block" }} />
-        </div>
-      )}
-
-      {body}
-
-      {checked && !selfGraded && <FeedbackBanner ok={ok} ui={ui} skin={skin} onRetry={() => setChecked(false)} />}
-
-      {!selfGraded && !checked && (
-        <button
-          onClick={handleCheck}
-          disabled={!canCheck}
-          className="self-start px-5 py-2.5 text-sm font-bold text-white disabled:opacity-40 disabled:cursor-not-allowed"
-          style={{ borderRadius: skin.radiusSm, background: "rgba(20,21,26,0.88)", minHeight: 44 }}
-        >
-          {ui.checkAnswer}
-        </button>
-      )}
-    </div>
-  );
+function TypeCard({ q, lang, ui, theme, skin = SKINS.normal, onAnswered, onJumpToBlock, bookId, leafId }) {
+  return <QuestionItem q={q} lang={lang} ui={ui} theme={theme} skin={skin} onAnswered={onAnswered} onJumpToBlock={onJumpToBlock} bookId={bookId} leafId={leafId} />;
 }
 
 /* =================================================================
-   NodeQuestionDeck — "the card that holds more than one question."
-   One leaf can carry several questions; this pages through them
-   inside a single outer shell instead of stacking separate cards.
+   NodeQuestionDeck
 ================================================================== */
-function NodeQuestionDeck({ node, book, lang, ui, theme, dir, skin, cardMode = "paged", scrollDir = "vertical" }) {
+function NodeQuestionDeck({ node, book, lang, ui, theme, dir, skin, cardMode = "paged", scrollDir = "vertical", onJumpToBlock }) {
   const [index, setIndex] = useState(0);
   const cards = useMemo(() => leafCards(node), [node]);
   const multi = cards.length > 1;
@@ -2277,19 +3133,16 @@ function NodeQuestionDeck({ node, book, lang, ui, theme, dir, skin, cardMode = "
   useEffect(() => setIndex(0), [node.id]);
 
   return (
-    <div
-      className="overflow-hidden educraft-panel-in"
-      style={panelStyle(skin, theme)}
-    >
+    <div className="overflow-hidden educraft-panel-in" style={panelStyle(skin, theme)}>
       <div className="flex items-center justify-between gap-3 px-5 py-3.5 flex-wrap" style={{ borderBottom: `1px solid ${skinBorderColor(skin, theme)}`, background: skinSurface(skin, theme, true) }}>
         <div className="flex items-center gap-2 min-w-0">
           <Layers size={16} color={theme.accent} strokeWidth={2} />
           <div className="flex flex-col leading-tight min-w-0">
             <span className="text-xs font-semibold truncate" style={{ color: theme.inkSoft }}>
-              {book[lang].title}
+              {book[lang]?.title || book.en?.title}
             </span>
             <span className="text-sm font-bold truncate" style={{ color: theme.ink }}>
-              {node[lang]}
+              {node[lang] || node.en}
             </span>
           </div>
         </div>
@@ -2302,7 +3155,7 @@ function NodeQuestionDeck({ node, book, lang, ui, theme, dir, skin, cardMode = "
               aria-label={ui.prev}
               onClick={() => setIndex((i) => Math.max(0, i - 1))}
               disabled={index === 0}
-              className="grid place-items-center disabled:opacity-30"
+              className="grid place-items-center disabled:opacity-30 hover:bg-black/5"
               style={{ width: 32, height: 32, borderRadius: skin.radiusSm, border: `1px solid ${skinBorderColor(skin, theme)}`, color: theme.ink }}
             >
               <PrevIcon size={15} />
@@ -2311,7 +3164,7 @@ function NodeQuestionDeck({ node, book, lang, ui, theme, dir, skin, cardMode = "
               aria-label={ui.next}
               onClick={() => setIndex((i) => Math.min(cards.length - 1, i + 1))}
               disabled={index === cards.length - 1}
-              className="grid place-items-center disabled:opacity-30"
+              className="grid place-items-center disabled:opacity-30 hover:bg-black/5"
               style={{ width: 32, height: 32, borderRadius: skin.radiusSm, border: `1px solid ${skinBorderColor(skin, theme)}`, color: theme.ink }}
             >
               <NextIcon size={15} />
@@ -2328,7 +3181,7 @@ function NodeQuestionDeck({ node, book, lang, ui, theme, dir, skin, cardMode = "
 
       {scrolling ? (
         <div
-          className="p-2.5 sm:p-3.5 flex gap-3"
+          className="p-3 sm:p-4 flex gap-3"
           style={{
             flexDirection: horizontal ? "row" : "column",
             overflowX: horizontal ? "auto" : "visible",
@@ -2340,13 +3193,13 @@ function NodeQuestionDeck({ node, book, lang, ui, theme, dir, skin, cardMode = "
         >
           {cards.map((group, i) => (
             <div key={group.id || `${node.id}-${i}`} style={horizontal ? { flex: "0 0 min(88vw, 420px)", scrollSnapAlign: "start" } : undefined}>
-              <QuestionGroupCard group={group} lang={lang} ui={ui} theme={theme} skin={skin} />
+              <QuestionGroupCard group={group} lang={lang} ui={ui} theme={theme} skin={skin} bookId={book.id} leafId={node.id} onJumpToBlock={onJumpToBlock} />
             </div>
           ))}
         </div>
       ) : (
-        <div className="p-2.5 sm:p-3.5">
-          <QuestionGroupCard key={cards[index].id || `${node.id}-${index}`} group={cards[index]} lang={lang} ui={ui} theme={theme} skin={skin} />
+        <div className="p-3 sm:p-4">
+          <QuestionGroupCard key={cards[index]?.id || `${node.id}-${index}`} group={cards[index] || { id: "empty", questions: [] }} lang={lang} ui={ui} theme={theme} skin={skin} bookId={book.id} leafId={node.id} onJumpToBlock={onJumpToBlock} />
         </div>
       )}
 
@@ -2373,20 +3226,15 @@ function NodeQuestionDeck({ node, book, lang, ui, theme, dir, skin, cardMode = "
 }
 
 /* =================================================================
-   KnowledgeTree — three rendered levels (branch → sub-branch →
-   leaf). Edges are derived generically from each node's `parent`,
-   so the same renderer works for any depth. Cross-branch links are
-   a second, dashed edge set declared per book. Leaves are keyboard-
-   focusable and tap-friendly (not hover-only), and carry a small
-   badge when their card holds more than one question.
+   KnowledgeTree
 ================================================================== */
 function KnowledgeTree({ book, lang, dir, theme, ui, skin, selected, onSelect }) {
   const [hovered, setHovered] = useState(null);
-  const nodes = book.nodes;
+  const nodes = book.nodes || [];
 
   const edges = useMemo(() => {
     const branchEdges = nodes.filter((n) => n.parent).map((n) => ({ from: n.parent, to: n.id, type: "branch" }));
-    const linkEdges = book.crossLinks.map(([from, to]) => ({ from, to, type: "link" }));
+    const linkEdges = (book.crossLinks || []).map(([from, to]) => ({ from, to, type: "link" }));
     return [...branchEdges, ...linkEdges];
   }, [book]);
 
@@ -2404,8 +3252,8 @@ function KnowledgeTree({ book, lang, dir, theme, ui, skin, selected, onSelect })
     <div>
       <svg viewBox={`0 0 ${VB_W} ${VB_H}`} className="w-full" style={{ overflow: "visible" }} role="img" aria-label={ui.treeEyebrow}>
         {edges.map((e, i) => {
-          const a = posFor(nodeById[e.from]);
-          const b = posFor(nodeById[e.to]);
+          const a = nodeById[e.from] ? posFor(nodeById[e.from]) : { x: 0, y: 0 };
+          const b = nodeById[e.to] ? posFor(nodeById[e.to]) : { x: 0, y: 0 };
           const edgeActive = isEdgeActive(e);
           const dimmed = active && !edgeActive;
           if (e.type === "branch") {
@@ -2439,7 +3287,7 @@ function KnowledgeTree({ book, lang, dir, theme, ui, skin, selected, onSelect })
 
         {nodes.map((n) => {
           const { x, y } = posFor(n);
-          const d = dims[n.level];
+          const d = dims[n.level] || dims.leaf;
           const nodeActive = isNodeActive(n.id);
           const isHovered = hovered === n.id;
           const isSelected = selected === n.id;
@@ -2468,7 +3316,7 @@ function KnowledgeTree({ book, lang, dir, theme, ui, skin, selected, onSelect })
               key={n.id}
               role={isLeaf ? "button" : undefined}
               tabIndex={isLeaf ? 0 : -1}
-              aria-label={isLeaf ? `${n[lang]} — ${count > 1 ? ui.multiCardBadge(count) : ""}` : n[lang]}
+              aria-label={isLeaf ? `${n[lang] || n.en} — ${count > 1 ? ui.multiCardBadge(count) : ""}` : (n[lang] || n.en)}
               onMouseEnter={() => setHovered(n.id)}
               onMouseLeave={() => setHovered(null)}
               onFocus={() => setHovered(n.id)}
@@ -2510,7 +3358,7 @@ function KnowledgeTree({ book, lang, dir, theme, ui, skin, selected, onSelect })
                 fill={textFill}
                 style={{ fontFamily: "inherit", opacity: active && !nodeActive ? 0.5 : 1, transition: "opacity .18s ease", pointerEvents: "none" }}
               >
-                {n[lang]}
+                {n[lang] || n.en}
               </text>
               {count > 1 && (
                 <g style={{ opacity: active && !nodeActive ? 0.5 : 1, transition: "opacity .18s ease", pointerEvents: "none" }}>
@@ -2552,12 +3400,10 @@ function KnowledgeTree({ book, lang, dir, theme, ui, skin, selected, onSelect })
 }
 
 /* =================================================================
-   BookCover — a small illustrated cover (gradient field, a simple
-   graphic mark, and a bookmark-ribbon tab) instead of a flat swatch,
-   echoing the library reference: every book gets a face of its own.
+   BookCover & EditableCover
 ================================================================== */
 function BookCover({ book, theme }) {
-  const { from, to, icon } = book.cover;
+  const { from = "#F2C879", to = "#E8654A", icon = "code" } = book.cover || {};
   const gid = `grad-${book.id}`;
   return (
     <svg viewBox="0 0 160 210" className="w-full h-full" role="img" aria-hidden="true">
@@ -2588,15 +3434,6 @@ function BookCover({ book, theme }) {
   );
 }
 
-/* =================================================================
-   EditableCover — wraps BookCover so the reader can replace it with
-   their own image. The image is sized with object-fit: cover, so it
-   always fills the exact cover box (no stretching, no letterboxing),
-   and the corner "bookmark" ribbon still reads on top of it. A small
-   pencil button (hover on desktop, always-on on touch) opens a file
-   picker; once a custom cover is set, an X lets the reader go back
-   to the generated art.
-================================================================== */
 function EditableCover({ book, theme, skin, ui, coverUrl, onChangeCover, onClearCover, editable = true, radius = 14 }) {
   const inputId = `cover-input-${book.id}`;
   const handleFile = (e) => {
@@ -2630,7 +3467,7 @@ function EditableCover({ book, theme, skin, ui, coverUrl, onChangeCover, onClear
           <label
             htmlFor={inputId}
             onClick={(e) => e.stopPropagation()}
-            className="flex items-center justify-center rounded-full cursor-pointer"
+            className="flex items-center justify-center rounded-full cursor-pointer hover:scale-110 transition-transform"
             style={{ width: 30, height: 30, background: "rgba(255,255,255,0.92)", color: "#241B13" }}
             aria-label={ui.coverEdit}
             title={ui.coverEdit}
@@ -2644,7 +3481,7 @@ function EditableCover({ book, theme, skin, ui, coverUrl, onChangeCover, onClear
                 e.stopPropagation();
                 onClearCover(book.id);
               }}
-              className="flex items-center justify-center rounded-full"
+              className="flex items-center justify-center rounded-full hover:scale-110 transition-transform"
               style={{ width: 30, height: 30, background: "rgba(255,255,255,0.92)", color: "#241B13" }}
               aria-label={ui.coverReset}
               title={ui.coverReset}
@@ -2659,40 +3496,169 @@ function EditableCover({ book, theme, skin, ui, coverUrl, onChangeCover, onClear
 }
 
 /* =================================================================
-   LibraryView — the shelf. Each card is the cover + title + a
-   quick tally of branches / questions inside that book's tree.
+   LibraryView (With Bags & Item Type Filters)
 ================================================================== */
-function LibraryView({ lang, ui, theme, dir, onOpen, skin, covers, onChangeCover, onClearCover }) {
+function LibraryView({ lang, ui, theme, dir, onOpen, skin, covers, onChangeCover, onClearCover, books, bags, onAddBag, onMoveBookBag, onAddBook }) {
+  const [selectedBagId, setSelectedBagId] = useState("all");
+  const [selectedType, setSelectedType] = useState("all"); // "all" | "book" | "encyclopedia"
+  const [newBagName, setNewBagName] = useState("");
+  const [showNewBagInput, setShowNewBagInput] = useState(false);
+
+  const filteredBooks = useMemo(() => {
+    return books.filter((b) => {
+      const matchBag = selectedBagId === "all" || b.bagId === selectedBagId;
+      const matchType = selectedType === "all" || (b.type || "book") === selectedType;
+      return matchBag && matchType;
+    });
+  }, [books, selectedBagId, selectedType]);
+
+  const handleCreateBag = (e) => {
+    e.preventDefault();
+    if (!newBagName.trim()) return;
+    const newBag = {
+      id: `bag-${Date.now()}`,
+      en: newBagName.trim(),
+      ar: newBagName.trim(),
+      icon: "briefcase",
+    };
+    onAddBag(newBag);
+    setSelectedBagId(newBag.id);
+    setNewBagName("");
+    setShowNewBagInput(false);
+  };
+
   return (
     <section>
-      <div className="text-center pt-4 pb-10 max-w-xl mx-auto">
-        <p className="text-sm mb-3" style={{ color: theme.inkSoft }}>
+      <div className="text-center pt-2 pb-8 max-w-2xl mx-auto">
+        <p className="text-xs font-black uppercase tracking-wider mb-2" style={{ color: theme.accent }}>
           {ui.libraryKicker}
         </p>
-        <h1 className="text-3xl sm:text-4xl font-bold mb-4" style={{ fontFamily: ui.displayFont, color: theme.ink, lineHeight: 1.3 }}>
+        <h1 className="text-3xl sm:text-4xl font-bold mb-3" style={{ fontFamily: ui.displayFont, color: theme.ink, lineHeight: 1.3 }}>
           {ui.libraryTitle}
         </h1>
-        <p className="text-base" style={{ color: theme.inkSoft, lineHeight: 1.7 }}>
+        <p className="text-sm leading-relaxed" style={{ color: theme.inkSoft }}>
           {ui.librarySub}
         </p>
       </div>
 
+      {/* Bags & Environments Bar */}
+      <div className="mb-6 p-3 rounded-2xl flex flex-col gap-3" style={{ background: skinSurface(skin, theme, true), border: `1px solid ${skinBorderColor(skin, theme)}` }}>
+        <div className="flex items-center justify-between gap-2 flex-wrap">
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <span className="text-xs font-bold px-2 flex items-center gap-1" style={{ color: theme.inkSoft }}>
+              <Briefcase size={13} /> {ui.navBags}:
+            </span>
+            <button
+              onClick={() => setSelectedBagId("all")}
+              className={`px-3 py-1.5 text-xs font-bold rounded-full transition-all ${
+                selectedBagId === "all" ? "bg-[#E8654A] text-white shadow-sm" : "bg-white/60 hover:bg-white text-slate-800"
+              }`}
+              style={selectedBagId === "all" ? { background: theme.accent, color: theme.accentInk } : undefined}
+            >
+              {ui.allBags} ({books.length})
+            </button>
+            {bags.map((bag) => {
+              const count = books.filter((b) => b.bagId === bag.id).length;
+              const isSel = selectedBagId === bag.id;
+              return (
+                <button
+                  key={bag.id}
+                  onClick={() => setSelectedBagId(bag.id)}
+                  className={`px-3 py-1.5 text-xs font-bold rounded-full transition-all flex items-center gap-1.5 ${
+                    isSel ? "bg-[#E8654A] text-white shadow-sm" : "bg-white/60 hover:bg-white text-slate-800"
+                  }`}
+                  style={isSel ? { background: theme.accent, color: theme.accentInk } : undefined}
+                >
+                  <span>🎒 {bag[lang] || bag.en}</span>
+                  <span className="opacity-70 text-[10px]">({count})</span>
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="flex items-center gap-2">
+            {!showNewBagInput ? (
+              <button
+                onClick={() => setShowNewBagInput(true)}
+                className="text-xs font-bold px-3 py-1.5 rounded-full border border-dashed hover:bg-black/5 flex items-center gap-1"
+                style={{ borderColor: theme.hairlineStrong, color: theme.accent }}
+              >
+                <Plus size={12} /> {ui.newBag}
+              </button>
+            ) : (
+              <form onSubmit={handleCreateBag} className="flex items-center gap-1.5">
+                <input
+                  type="text"
+                  value={newBagName}
+                  onChange={(e) => setNewBagName(e.target.value)}
+                  placeholder={dir === "rtl" ? "اسم الشنطة..." : "Bag name..."}
+                  className="text-xs px-2.5 py-1 rounded-full outline-none border"
+                  style={{ background: theme.surface, color: theme.ink, borderColor: theme.accent }}
+                  autoFocus
+                />
+                <button type="submit" className="text-xs font-bold px-2.5 py-1 rounded-full text-white" style={{ background: theme.accent }}>
+                  {dir === "rtl" ? "إضافة" : "Add"}
+                </button>
+                <button type="button" onClick={() => setShowNewBagInput(false)} className="text-xs px-1.5" style={{ color: theme.inkSoft }}>
+                  <X size={12} />
+                </button>
+              </form>
+            )}
+          </div>
+        </div>
+
+        {/* Item Type Filter & Create Item */}
+        <div className="flex items-center justify-between gap-3 pt-2 border-t border-black/5 flex-wrap">
+          <div className="flex items-center gap-1.5">
+            <span className="text-[11px] font-bold px-1" style={{ color: theme.inkSoft }}>
+              {dir === "rtl" ? "النوع:" : "Type:"}
+            </span>
+            {[
+              ["all", ui.typeAll],
+              ["book", `📚 ${ui.typeBook}`],
+              ["encyclopedia", `🏛️ ${ui.typeEncyclopedia}`],
+            ].map(([t, label]) => (
+              <button
+                key={t}
+                onClick={() => setSelectedType(t)}
+                className={`px-2.5 py-1 text-xs font-semibold rounded-lg transition-all ${
+                  selectedType === t ? "bg-black/10 text-slate-900 font-bold" : "hover:bg-black/5 text-slate-600"
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+
+          <button
+            onClick={onAddBook}
+            className="text-xs font-bold px-3 py-1.5 rounded-full flex items-center gap-1.5 text-white shadow-sm transition-transform hover:scale-105"
+            style={{ background: theme.accent }}
+          >
+            <Plus size={13} /> {ui.createItem}
+          </button>
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-        {BOOKS.map((book) => {
-          const branchCount = book.nodes.filter((n) => n.level === "branch").length;
-          const questionCount = book.nodes.reduce((sum, n) => sum + (n.level === "leaf" ? leafCards(n).reduce((s, g) => s + g.questions.length, 0) : 0), 0);
+        {filteredBooks.map((book) => {
+          const branchCount = (book.nodes || []).filter((n) => n.level === "branch").length;
+          const questionCount = (book.nodes || []).reduce((sum, n) => sum + (n.level === "leaf" ? leafCards(n).reduce((s, g) => s + g.questions.length, 0) : 0), 0);
           const ArrowIcon = dir === "rtl" ? ArrowLeft : ArrowRight;
+          const isEncyclopedia = book.type === "encyclopedia";
+          const bagObj = bags.find((g) => g.id === book.bagId);
+
           return (
             <div
               key={book.id}
-              className="group flex gap-4 p-4 text-start transition-transform"
+              className="group flex gap-4 p-4 text-start transition-transform hover:scale-[1.01]"
               style={{ ...panelStyle(skin, theme), cursor: "pointer" }}
               onClick={() => onOpen(book.id)}
               role="button"
               tabIndex={0}
               onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && onOpen(book.id)}
             >
-              <div className="shrink-0" style={{ width: 96, height: 126, borderRadius: skin.radiusMd * 0.7, overflow: "hidden" }}>
+              <div className="shrink-0" style={{ width: 100, height: 132, borderRadius: skin.radiusMd * 0.7, overflow: "hidden" }}>
                 <EditableCover
                   book={book}
                   theme={theme}
@@ -2706,19 +3672,37 @@ function LibraryView({ lang, ui, theme, dir, onOpen, skin, covers, onChangeCover
               </div>
               <div className="flex flex-1 min-w-0 flex-col justify-between py-1">
                 <div>
+                  <div className="flex items-center gap-1.5 mb-1 flex-wrap">
+                    <span
+                      className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full"
+                      style={{
+                        background: isEncyclopedia ? "rgba(110,231,183,0.3)" : "rgba(232,101,74,0.18)",
+                        color: isEncyclopedia ? "#065f46" : theme.accent,
+                      }}
+                    >
+                      {isEncyclopedia ? `🏛️ ${ui.typeEncyclopedia}` : `📚 ${ui.typeBook}`}
+                    </span>
+                    {bagObj && (
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-black/5" style={{ color: theme.inkSoft }}>
+                        🎒 {bagObj[lang] || bagObj.en}
+                      </span>
+                    )}
+                  </div>
+
                   <h3 className="text-lg font-bold leading-snug mb-1" style={{ color: theme.ink }}>
-                    {book[lang].title}
+                    {book[lang]?.title || book.en?.title}
                   </h3>
-                  <p className="text-sm" style={{ color: theme.inkSoft, lineHeight: 1.5 }}>
-                    {book[lang].tagline}
+                  <p className="text-xs line-clamp-2" style={{ color: theme.inkSoft, lineHeight: 1.5 }}>
+                    {book[lang]?.tagline || book.en?.tagline}
                   </p>
                 </div>
-                <div className="flex items-center justify-between gap-2 mt-3">
-                  <span className="text-xs font-semibold" style={{ color: theme.inkSoft }}>
+
+                <div className="flex items-center justify-between gap-2 mt-3 pt-2 border-t border-black/5">
+                  <span className="text-[11px] font-semibold" style={{ color: theme.inkSoft }}>
                     {branchCount} {ui.branchesLabel} · {questionCount} {ui.questionsLabel}
                   </span>
                   <span
-                    className="flex items-center gap-1 text-xs font-bold px-2.5 py-1.5 rounded-full transition-colors"
+                    className="flex items-center gap-1 text-xs font-bold px-3 py-1.5 rounded-full transition-colors group-hover:brightness-95"
                     style={{ background: theme.accentSoft, color: theme.accent }}
                   >
                     {ui.openBook}
@@ -2735,16 +3719,15 @@ function LibraryView({ lang, ui, theme, dir, onOpen, skin, covers, onChangeCover
 }
 
 /* =================================================================
-   TreeView — breadcrumb back to the library, the book's own mini
-   cover + title, its knowledge tree, and — once a leaf is picked —
-   the question deck for that leaf.
+   TreeView
 ================================================================== */
-function TreeView({ book, lang, ui, theme, dir, onBack, skin, selectedLeaf, onSelectLeaf, onBrowse, onPlanner, onExport, covers, onChangeCover, onClearCover }) {
+function TreeView({ book, lang, ui, theme, dir, onBack, skin, selectedLeaf, onSelectLeaf, onBrowse, onExport, covers, onChangeCover, onClearCover }) {
   const BackIcon = dir === "rtl" ? ArrowRight : ArrowLeft;
+  const isEncyclopedia = book.type === "encyclopedia";
 
   return (
     <section>
-      <button onClick={onBack} className="flex items-center gap-1.5 text-sm font-semibold mb-5" style={{ color: theme.inkSoft, minHeight: 40 }}>
+      <button onClick={onBack} className="flex items-center gap-1.5 text-sm font-semibold mb-5 hover:opacity-80" style={{ color: theme.inkSoft, minHeight: 40 }}>
         <BackIcon size={15} />
         {ui.backToLibrary}
       </button>
@@ -2755,17 +3738,23 @@ function TreeView({ book, lang, ui, theme, dir, onBack, skin, selectedLeaf, onSe
             <EditableCover book={book} theme={theme} skin={skin} ui={ui} coverUrl={covers[book.id]} onChangeCover={onChangeCover} onClearCover={onClearCover} radius={skin.radiusMd * 0.55} />
           </div>
           <div>
+            <div className="flex items-center gap-2 mb-1">
+              <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-black/5" style={{ color: theme.accent }}>
+                {isEncyclopedia ? `🏛️ ${ui.typeEncyclopedia}` : `📚 ${ui.typeBook}`}
+              </span>
+            </div>
             <h1 className="text-2xl sm:text-3xl font-bold" style={{ fontFamily: ui.displayFont, color: theme.ink, lineHeight: 1.25 }}>
-              {book[lang].title}
+              {book[lang]?.title || book.en?.title}
             </h1>
             <p className="text-sm" style={{ color: theme.inkSoft }}>
-              {book[lang].tagline}
+              {book[lang]?.tagline || book.en?.tagline}
             </p>
           </div>
         </div>
+
         <button
           onClick={onBrowse}
-          className="flex items-center gap-1.5 text-sm font-bold px-4 py-2.5 shrink-0"
+          className="flex items-center gap-1.5 text-sm font-bold px-4 py-2.5 shrink-0 shadow-sm transition-transform hover:scale-105"
           style={{ borderRadius: skin.radiusSm, background: theme.accent, color: theme.accentInk, minHeight: 44 }}
         >
           <ListFilter size={15} />
@@ -2775,16 +3764,8 @@ function TreeView({ book, lang, ui, theme, dir, onBack, skin, selectedLeaf, onSe
 
       <div className="flex items-center gap-2 mb-6 flex-wrap">
         <button
-          onClick={onPlanner}
-          className="flex items-center gap-1.5 text-xs font-bold px-3.5 py-2"
-          style={{ borderRadius: skin.radiusSm, border: `1.5px solid ${skinBorderColor(skin, theme)}`, color: theme.ink, minHeight: 36 }}
-        >
-          <CalendarDays size={13} />
-          {ui.treePlannerCta}
-        </button>
-        <button
           onClick={onExport}
-          className="flex items-center gap-1.5 text-xs font-bold px-3.5 py-2"
+          className="flex items-center gap-1.5 text-xs font-bold px-3.5 py-2 hover:bg-black/5 transition-colors"
           style={{ borderRadius: skin.radiusSm, border: `1.5px solid ${skinBorderColor(skin, theme)}`, color: theme.ink, minHeight: 36 }}
         >
           <FileDown size={13} />
@@ -2792,10 +3773,6 @@ function TreeView({ book, lang, ui, theme, dir, onBack, skin, selectedLeaf, onSe
         </button>
       </div>
 
-      {/* The tree is navigation only: it maps how branches, sub-branches
-          and leaves relate to one another (including the dashed cross-
-          branch links). Tapping a leaf never shows questions here — it
-          takes you to a dedicated question-deck screen (see DeckView). */}
       <div className="p-6 sm:p-8" style={panelStyle(skin, theme)}>
         <p className="text-xs font-semibold mb-2" style={{ color: theme.accent }}>
           {ui.treeEyebrow}
@@ -2810,40 +3787,32 @@ function TreeView({ book, lang, ui, theme, dir, onBack, skin, selectedLeaf, onSe
 }
 
 /* =================================================================
-   DeckView — the destination the tree points to. Full-screen home
-   for one leaf's question card(s): a breadcrumb back to that book's
-   tree, the leaf's name, and the NodeQuestionDeck itself (paged or
-   scroll, per Settings). The tree never renders here — this screen
-   is reached only by tapping a leaf.
+   DeckView
 ================================================================== */
-function DeckView({ node, book, lang, ui, theme, dir, skin, cardMode, scrollDir, onBack }) {
+function DeckView({ node, book, lang, ui, theme, dir, skin, cardMode, scrollDir, onBack, onJumpToBlock }) {
   const BackIcon = dir === "rtl" ? ArrowRight : ArrowLeft;
   return (
     <section>
-      <button onClick={onBack} className="flex items-center gap-1.5 text-sm font-semibold mb-5" style={{ color: theme.inkSoft, minHeight: 40 }}>
+      <button onClick={onBack} className="flex items-center gap-1.5 text-sm font-semibold mb-5 hover:opacity-80" style={{ color: theme.inkSoft, minHeight: 40 }}>
         <BackIcon size={15} />
-        {book[lang].title}
+        {book[lang]?.title || book.en?.title}
       </button>
-      <NodeQuestionDeck node={node} book={book} lang={lang} ui={ui} theme={theme} dir={dir} skin={skin} cardMode={cardMode} scrollDir={scrollDir} />
+      <NodeQuestionDeck node={node} book={book} lang={lang} ui={ui} theme={theme} dir={dir} skin={skin} cardMode={cardMode} scrollDir={scrollDir} onJumpToBlock={onJumpToBlock} />
     </section>
   );
 }
 
 /* =================================================================
-   BrowseView — every question in the book in one flat, filterable,
-   scrollable list, with a small score / streak / completion header.
-   Reached from a CTA on the tree ("browse & practice"); the tree
-   itself never shows this. Score & streak reset when you leave this
-   screen — this is a session practice pass, not a saved gradebook.
+   BrowseView
 ================================================================== */
-function BrowseView({ book, lang, ui, theme, dir, skin, onBack }) {
+function BrowseView({ book, lang, ui, theme, dir, skin, onBack, onJumpToBlock }) {
   const allQuestions = useMemo(() => {
     const list = [];
-    book.nodes
+    (book.nodes || [])
       .filter((n) => n.level === "leaf")
       .forEach((leaf) => {
         leafCards(leaf).forEach((group) => {
-          group.questions.forEach((q, i) => list.push({ q, leaf, key: `${group.id}-${i}` }));
+          group.questions?.forEach((q, i) => list.push({ q, leaf, key: `${group.id}-${i}` }));
         });
       });
     return list;
@@ -2876,7 +3845,7 @@ function BrowseView({ book, lang, ui, theme, dir, skin, onBack }) {
   const BackIcon = dir === "rtl" ? ArrowRight : ArrowLeft;
 
   const statCard = (bg, ink, label, Icon, content) => (
-    <div className="flex flex-col gap-2 p-4" style={{ background: bg, color: ink, borderRadius: skin.radiusLg, border: skin.pixel ? `${skin.borderW}px solid ${ink}` : "none", boxShadow: skin.pixel ? skin.shadow : "none" }}>
+    <div className="flex flex-col gap-2 p-4 shadow-sm" style={{ background: bg, color: ink, borderRadius: skin.radiusLg, border: skin.pixel ? `${skin.borderW}px solid ${ink}` : "none", boxShadow: skin.pixel ? skin.shadow : "0 2px 8px rgba(0,0,0,0.06)" }}>
       <div className="flex items-center gap-1.5 text-xs font-black uppercase tracking-wider" style={{ opacity: 0.75 }}>
         <Icon size={13} strokeWidth={2.5} />
         {label}
@@ -2887,9 +3856,9 @@ function BrowseView({ book, lang, ui, theme, dir, skin, onBack }) {
 
   return (
     <section>
-      <button onClick={onBack} className="flex items-center gap-1.5 text-sm font-semibold mb-5" style={{ color: theme.inkSoft, minHeight: 40 }}>
+      <button onClick={onBack} className="flex items-center gap-1.5 text-sm font-semibold mb-5 hover:opacity-80" style={{ color: theme.inkSoft, minHeight: 40 }}>
         <BackIcon size={15} />
-        {book[lang].title}
+        {book[lang]?.title || book.en?.title}
       </button>
 
       <h1 className="text-2xl font-bold mb-1" style={{ fontFamily: ui.displayFont, color: theme.ink }}>
@@ -2913,7 +3882,7 @@ function BrowseView({ book, lang, ui, theme, dir, skin, onBack }) {
         {statCard(TYPE_META.multi.color.bg, TYPE_META.multi.color.ink, ui.streakLabel, Flame, <span className="text-3xl font-black">{streak}</span>)}
       </div>
 
-      <div className="p-4 mb-6" style={{ background: TYPE_META.tf.color.bg, color: TYPE_META.tf.color.ink, borderRadius: skin.radiusLg, border: skin.pixel ? `${skin.borderW}px solid ${TYPE_META.tf.color.ink}` : "none", boxShadow: skin.pixel ? skin.shadow : "none" }}>
+      <div className="p-4 mb-6 shadow-sm" style={{ background: TYPE_META.tf.color.bg, color: TYPE_META.tf.color.ink, borderRadius: skin.radiusLg, border: skin.pixel ? `${skin.borderW}px solid ${TYPE_META.tf.color.ink}` : "none" }}>
         <div className="flex items-center justify-between gap-3 mb-2">
           <span className="text-xs font-black uppercase tracking-wider" style={{ opacity: 0.75 }}>
             {ui.completionLabel}
@@ -2931,7 +3900,7 @@ function BrowseView({ book, lang, ui, theme, dir, skin, onBack }) {
       <div className="flex items-center gap-2 mb-6 overflow-x-auto pb-1" style={{ WebkitOverflowScrolling: "touch" }}>
         <button
           onClick={() => setFilterType("all")}
-          className="shrink-0 flex items-center gap-1.5 px-3.5 py-2 text-sm font-bold"
+          className="shrink-0 flex items-center gap-1.5 px-3.5 py-2 text-sm font-bold shadow-sm"
           style={{
             borderRadius: skin.radiusSm,
             border: `1.5px solid ${filterType === "all" ? theme.ink : skinBorderColor(skin, theme)}`,
@@ -2948,7 +3917,7 @@ function BrowseView({ book, lang, ui, theme, dir, skin, onBack }) {
             <button
               key={t}
               onClick={() => setFilterType(t)}
-              className="shrink-0 flex items-center gap-1.5 px-3.5 py-2 text-sm font-bold"
+              className="shrink-0 flex items-center gap-1.5 px-3.5 py-2 text-sm font-bold shadow-sm"
               style={{
                 borderRadius: skin.radiusSm,
                 border: `1.5px solid ${active ? theme.accent : skinBorderColor(skin, theme)}`,
@@ -2967,9 +3936,9 @@ function BrowseView({ book, lang, ui, theme, dir, skin, onBack }) {
         {filtered.map(({ q, leaf, key }) => (
           <div key={key} className="flex flex-col gap-1.5">
             <span className="text-xs font-semibold px-1" style={{ color: theme.inkSoft }}>
-              {ui.fromLeaf} {leaf[lang]}
+              {ui.fromLeaf} {leaf[lang] || leaf.en}
             </span>
-            <TypeCard q={q} lang={lang} ui={ui} theme={theme} skin={skin} onAnswered={handleAnswered(key)} />
+            <TypeCard q={q} lang={lang} ui={ui} theme={theme} skin={skin} bookId={book.id} leafId={leaf.id} onJumpToBlock={onJumpToBlock} onAnswered={handleAnswered(key)} />
           </div>
         ))}
       </div>
@@ -2978,13 +3947,10 @@ function BrowseView({ book, lang, ui, theme, dir, skin, onBack }) {
 }
 
 /* =================================================================
-   SettingsPanel — a centered modal reachable from the gear icon in
-   the header. Two independent controls: the visual skin (Normal /
-   Liquid glass / Pixel art) and how the question deck moves (Paged
-   vs Scroll, with a direction sub-choice once Scroll is picked).
+   SettingsPanel
 ================================================================== */
 function SettingsPanel({ ui, theme, dir, skinId, onSkinChange, flavorId, onFlavorChange, mode, cardMode, onCardModeChange, scrollDir, onScrollDirChange, voiceEnabled, onVoiceEnabledChange, onClose, onReset }) {
-  const skin = SKINS[skinId];
+  const skin = SKINS[skinId] || SKINS.normal;
   const themeOptions = [
     { id: "normal", label: ui.themeNormal, desc: ui.themeNormalDesc, Icon: Sun },
     { id: "glass", label: ui.themeGlass, desc: ui.themeGlassDesc, Icon: Sparkles },
@@ -3023,7 +3989,7 @@ function SettingsPanel({ ui, theme, dir, skinId, onSkinChange, flavorId, onFlavo
           </div>
           <button
             onClick={onClose}
-            className="grid place-items-center shrink-0"
+            className="grid place-items-center shrink-0 hover:bg-black/10 transition-colors"
             style={{ width: 32, height: 32, borderRadius: skin.radiusSm, border: `1px solid ${skinBorderColor(skin, theme)}`, color: theme.ink }}
             aria-label={ui.settingsClose}
           >
@@ -3045,7 +4011,7 @@ function SettingsPanel({ ui, theme, dir, skinId, onSkinChange, flavorId, onFlavo
               <button
                 key={opt.id}
                 onClick={() => onSkinChange(opt.id)}
-                className="flex items-center gap-3 text-start px-3.5 py-3"
+                className="flex items-center gap-3 text-start px-3.5 py-3 transition-transform hover:scale-[1.01]"
                 style={{
                   borderRadius: skin.radiusMd,
                   border: `${active ? 2 : 1}px solid ${active ? theme.accent : skinBorderColor(skin, theme)}`,
@@ -3069,7 +4035,7 @@ function SettingsPanel({ ui, theme, dir, skinId, onSkinChange, flavorId, onFlavo
           })}
         </div>
 
-        {/* Flavor / taste — a color mood, independent of theme + light/dark */}
+        {/* Flavor / taste */}
         <p className="text-xs font-bold uppercase tracking-wide mb-1" style={{ color: theme.inkSoft }}>
           {ui.settingsFlavorLabel}
         </p>
@@ -3085,7 +4051,7 @@ function SettingsPanel({ ui, theme, dir, skinId, onSkinChange, flavorId, onFlavo
               <button
                 key={id}
                 onClick={() => onFlavorChange(id)}
-                className="flex flex-col items-center gap-1.5 p-1.5"
+                className="flex flex-col items-center gap-1.5 p-1.5 transition-transform hover:scale-105"
                 title={label}
                 aria-label={label}
                 style={{
@@ -3112,7 +4078,7 @@ function SettingsPanel({ ui, theme, dir, skinId, onSkinChange, flavorId, onFlavo
           })}
         </div>
 
-        {/* Question card navigation */}
+        {/* Card Mode */}
         <p className="text-xs font-bold uppercase tracking-wide mb-2.5" style={{ color: theme.inkSoft }}>
           {ui.settingsCardModeLabel}
         </p>
@@ -3123,7 +4089,7 @@ function SettingsPanel({ ui, theme, dir, skinId, onSkinChange, flavorId, onFlavo
               <button
                 key={opt.id}
                 onClick={() => onCardModeChange(opt.id)}
-                className="flex items-center gap-3 text-start px-3.5 py-3"
+                className="flex items-center gap-3 text-start px-3.5 py-3 transition-transform hover:scale-[1.01]"
                 style={{
                   borderRadius: skin.radiusMd,
                   border: `${active ? 2 : 1}px solid ${active ? theme.accent : skinBorderColor(skin, theme)}`,
@@ -3159,7 +4125,7 @@ function SettingsPanel({ ui, theme, dir, skinId, onSkinChange, flavorId, onFlavo
                   <button
                     key={opt.id}
                     onClick={() => onScrollDirChange(opt.id)}
-                    className="flex flex-col items-center gap-1.5 px-3 py-3"
+                    className="flex flex-col items-center gap-1.5 px-3 py-3 transition-transform hover:scale-105"
                     style={{
                       borderRadius: skin.radiusMd,
                       border: `${active ? 2 : 1}px solid ${active ? theme.accent : skinBorderColor(skin, theme)}`,
@@ -3178,20 +4144,6 @@ function SettingsPanel({ ui, theme, dir, skinId, onSkinChange, flavorId, onFlavo
         )}
 
         <div className="mt-6 pt-5" style={{ borderTop: `1px solid ${theme.hairline}` }}>
-          <label className="flex items-start gap-3 cursor-pointer">
-            <input type="checkbox" checked={voiceEnabled} onChange={(e) => onVoiceEnabledChange(e.target.checked)} className="mt-0.5" />
-            <span>
-              <span className="block text-sm font-bold" style={{ color: theme.ink }}>
-                {EDITOR_STR[dir === "rtl" ? "ar" : "en"].voiceFeature}
-              </span>
-              <span className="block text-xs" style={{ color: theme.inkSoft }}>
-                {EDITOR_STR[dir === "rtl" ? "ar" : "en"].voiceFeatureSub}
-              </span>
-            </span>
-          </label>
-        </div>
-
-        <div className="mt-6 pt-5" style={{ borderTop: `1px solid ${theme.hairline}` }}>
           <p className="text-xs font-bold uppercase tracking-wide mb-1" style={{ color: theme.inkSoft }}>
             {ui.settingsDataLabel}
           </p>
@@ -3202,7 +4154,7 @@ function SettingsPanel({ ui, theme, dir, skinId, onSkinChange, flavorId, onFlavo
             onClick={() => {
               if (window.confirm(ui.settingsResetConfirm)) onReset();
             }}
-            className="flex items-center gap-2 px-3.5 py-2.5 text-sm font-bold"
+            className="flex items-center gap-2 px-3.5 py-2.5 text-sm font-bold hover:bg-red-50 transition-colors"
             style={{ borderRadius: skin.radiusSm, border: `1.5px solid ${INCORRECT.border}`, color: INCORRECT.border, minHeight: 40 }}
           >
             <RotateCcw size={14} />
@@ -3215,31 +4167,22 @@ function SettingsPanel({ ui, theme, dir, skinId, onSkinChange, flavorId, onFlavo
 }
 
 /* =================================================================
-   EDITOR MODE v2 — a leaf holds one or more CARDS (leaf.cards), and
-   each card holds one or more questions of any type/mix. This
-   mirrors the reader engine's own grouping model (leafCards()):
-   { id, image, imagePosition, questions:[...] }. Card colors reuse
-   TYPE_META natively; nothing about the reader-side palette changes.
-
-   Also: an A4 page-builder (leaf.pageBlocks) with plate types
-   (section title / key term / note / warning / important / image /
-   manual page-break), and real height-based auto-pagination so long
-   content flows onto new A4 pages the way a simple word processor
-   would.
+   EDITOR MODE (With Frosted Tools & Question ↔ A4 Linking)
 ================================================================== */
 const EDITOR_STR = {
   en: {
     editorTitle: "Editor",
-    editorSub: "Pick a leaf, then build its cards or its printed pages.",
+    editorSub: "Pick a leaf, then build its question cards or its printed A4 pages.",
     addQuestion: "Add question",
     noLeaf: "Pick a leaf on the left to start editing.",
     prompt: "Prompt",
     voice: "Voice", voiceOn: "Voice enabled",
     code: "Code box", codeLang: "Language",
-    linked: "Related to",
+    linked: "Link to Leaf",
+    linkedBlock: "Link to A4 Plate Block",
     linkedHint: "Search a leaf to link…",
     delete: "Delete question",
-    tabCards: "Cards", tabPages: "A4 pages",
+    tabCards: "Cards", tabPages: "A4 Pages",
     options: "Options", correct: "Correct", addOption: "Add option",
     accepted: "Accepted answers (comma separated)",
     modelAnswer: "Model answer",
@@ -3250,7 +4193,7 @@ const EDITOR_STR = {
     left: "Left side", right: "Right side",
     items: "Items (in correct order)",
     bins: "Bins (comma separated)",
-    sortItems: "Items — one \"label:bin\" per line",
+    sortItems: 'Items — one "label:bin" per line',
     min: "Min", max: "Max", step: "Step", tolerance: "Tolerance",
     trueLabel: "True", falseLabel: "False",
     voiceFeature: "Voice feature",
@@ -3258,32 +4201,30 @@ const EDITOR_STR = {
     card: "Card", newCard: "New card", deleteCard: "Delete card",
     cardImage: "Card image", posTop: "Top", posRight: "Right", posLeft: "Left", posNone: "None",
     noQuestionsInCard: "This card is empty — add a question.",
-    pagesSub: "Build the printed A4 version — plates, images, and page breaks.",
+    pagesSub: "Build the printed A4 version using the 60 Thiqa palettes.",
     addBlock: "Add block",
-    genFromCards: "Generate from this leaf's cards",
-    blockSectionTitle: "Section title", blockKeyterm: "Key term", blockNote: "Note", blockWarning: "Warning", blockImportant: "Important", blockImage: "Image", blockPagebreak: "Page break",
+    genFromCards: "Generate from this leaf's cards (Auto-Link)",
+    changePalette: "Change Palette",
+    blockSectionTitle: "Section title", blockKeyterm: "Key term", blockNote: "Note", blockWarning: "Warning", blockImportant: "Important", blockImage: "Image", blockTable: "Thiqa Table", blockPagebreak: "Page break",
     blockTitle: "Title", blockText: "Text", imageUrl: "Image URL", imageCaption: "Caption",
     pageOf: (n, total) => `Page ${n} of ${total}`,
     moveUp: "Move up", moveDown: "Move down", removeBlock: "Remove",
     files: "Files",
     importBookJson: "Import book (JSON)",
     exportBookJson: "Export book (JSON)",
-    importOrderedImages: "Import a folder of images — sorted 0,1,2… and assigned to cards in order",
-    importManifestFolder: "Import a folder containing a manifest.json + its images",
-    importDone: (n) => `Imported ${n} image(s).`,
-    importNoManifest: "No manifest.json found in that folder.",
-    importSkipped: (n) => `${n} item(s) pointed to a leaf id that doesn't exist in this book.`,
     cardNote: "Note",
+    linkToQuestion: "Link to Question",
   },
   ar: {
     editorTitle: "المحرر",
-    editorSub: "اختار ورقة، وابني كاردات أسئلتها أو صفحاتها المطبوعة.",
+    editorSub: "اختار ورقة، وابني كاردات أسئلتها الملوّنة أو صفحاتها المطبوعة A4.",
     addQuestion: "إضافة سؤال",
     noLeaf: "اختار ورقة من الشمال عشان تبدأ التحرير.",
     prompt: "نص السؤال",
     voice: "صوت", voiceOn: "الصوت مفعّل",
     code: "صندوق كود", codeLang: "اللغة",
-    linked: "مرتبط بـ",
+    linked: "ربط بورقة شجرة",
+    linkedBlock: "ربط بصندوق معلومة A4",
     linkedHint: "دوّر على ورقة تربطها…",
     delete: "احذف السؤال",
     tabCards: "الكاردات", tabPages: "صفحات A4",
@@ -3297,7 +4238,7 @@ const EDITOR_STR = {
     left: "العمود الأول", right: "العمود التاني",
     items: "العناصر (بالترتيب الصح)",
     bins: "الصناديق (افصل بفاصلة)",
-    sortItems: "العناصر — \"العنصر:الصندوق\" كل سطر لوحده",
+    sortItems: 'العناصر — "العنصر:الصندوق" كل سطر لوحده',
     min: "أقل قيمة", max: "أعلى قيمة", step: "الخطوة", tolerance: "هامش الخطأ",
     trueLabel: "صح", falseLabel: "غلط",
     voiceFeature: "ميزة الصوت",
@@ -3305,22 +4246,19 @@ const EDITOR_STR = {
     card: "كارد", newCard: "كارد جديد", deleteCard: "احذف الكارد",
     cardImage: "صورة الكارد", posTop: "فوق", posRight: "يمين", posLeft: "شمال", posNone: "بدون",
     noQuestionsInCard: "الكارد ده فاضي — ضيف سؤال.",
-    pagesSub: "ابني النسخة المطبوعة A4 — بلايتس وصور وفواصل صفحات.",
+    pagesSub: "ابني النسخة المطبوعة A4 باستخدام الباليتات الستين (ثِقة).",
     addBlock: "إضافة عنصر",
-    genFromCards: "ولّد من كاردات الورقة دي",
-    blockSectionTitle: "عنوان قسم", blockKeyterm: "مصطلح مفتاحي", blockNote: "ملاحظة", blockWarning: "تحذير", blockImportant: "مهم", blockImage: "صورة", blockPagebreak: "فاصل صفحة",
+    genFromCards: "ولّد من كاردات الورقة دي (ربط تلقائي)",
+    changePalette: "تغيير الباليتة",
+    blockSectionTitle: "عنوان قسم", blockKeyterm: "مصطلح مفتاحي", blockNote: "ملاحظة", blockWarning: "تحذير", blockImportant: "مهم", blockImage: "صورة", blockTable: "جدول ثِقة", blockPagebreak: "فاصل صفحة",
     blockTitle: "العنوان", blockText: "النص", imageUrl: "رابط الصورة", imageCaption: "التعليق",
     pageOf: (n, total) => `صفحة ${n} من ${total}`,
     moveUp: "لأعلى", moveDown: "لأسفل", removeBlock: "إزالة",
     files: "ملفات",
     importBookJson: "استيراد الكتاب (JSON)",
     exportBookJson: "تصدير الكتاب (JSON)",
-    importOrderedImages: "استيراد فولدر صور — مرتبة 0،1،2… وتتوزع على الكاردات بالترتيب",
-    importManifestFolder: "استيراد فولدر فيه manifest.json + الصور بتاعته",
-    importDone: (n) => `تم استيراد ${n} صورة.`,
-    importNoManifest: "مافيش ملف manifest.json جوا الفولدر ده.",
-    importSkipped: (n) => `${n} عنصر بيشاور على ورقة مش موجودة في الكتاب ده.`,
     cardNote: "ملاحظة",
+    linkToQuestion: "ربط بسؤال",
   },
 };
 
@@ -3342,19 +4280,16 @@ function TextInput({ value, onChange, theme, skin, placeholder, type = "text" })
       value={value ?? ""}
       onChange={(e) => onChange(type === "number" ? e.target.valueAsNumber : e.target.value)}
       placeholder={placeholder}
-      className="w-full text-sm px-3 py-2"
+      className="w-full text-sm px-3 py-2 outline-none shadow-sm"
       style={{ borderRadius: skin.radiusSm, border: `1px solid ${theme.hairline}`, background: theme.surface, color: theme.ink }}
     />
   );
 }
 
-/* Rich text field: Bold, text color, font, and BDI/direction wrapping
-   on the current selection — a minimal but real toolbar. */
 function RichField({ value, onChange, theme, skin, placeholder, minHeight = 76 }) {
   const ref = useRef(null);
   useEffect(() => {
     if (ref.current) ref.current.innerHTML = value || "";
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   const exec = (cmd, val) => {
     ref.current?.focus();
@@ -3373,15 +4308,15 @@ function RichField({ value, onChange, theme, skin, placeholder, minHeight = 76 }
     onChange(ref.current.innerHTML);
   };
   const COLORS = ["#241B13", "#E8654A", "#0E7C79", "#8B5CF6", "#D97706", "#E11D48"];
-  const btnStyle = { borderRadius: 6, color: theme.ink, background: theme.surface, border: `1px solid ${theme.hairline}` };
+  const btnStyle = { borderRadius: 6, color: theme.ink, background: "rgba(255,255,255,0.75)", border: `1px solid ${theme.hairline}` };
   return (
     <div>
-      <div className="flex flex-wrap items-center gap-1.5 mb-1.5 p-1.5" style={{ borderRadius: skin.radiusSm, background: theme.surfaceSoft, border: `1px solid ${theme.hairline}` }}>
-        <button type="button" onClick={() => exec("bold")} className="w-7 h-7 grid place-items-center font-black text-xs" style={btnStyle} title="Bold">
+      <div className="flex flex-wrap items-center gap-1.5 mb-1.5 p-1.5 rounded-lg" style={{ background: "rgba(0,0,0,0.04)", border: `1px solid ${theme.hairline}` }}>
+        <button type="button" onClick={() => exec("bold")} className="w-7 h-7 grid place-items-center font-black text-xs hover:bg-white" style={btnStyle} title="Bold">
           B
         </button>
         {COLORS.map((c) => (
-          <button key={c} type="button" onClick={() => exec("foreColor", c)} className="w-5 h-5 rounded-full shrink-0" style={{ background: c, border: `1px solid ${theme.hairlineStrong}` }} title={c} />
+          <button key={c} type="button" onClick={() => exec("foreColor", c)} className="w-5 h-5 rounded-full shrink-0 shadow-sm" style={{ background: c, border: `1px solid ${theme.hairlineStrong}` }} title={c} />
         ))}
         <select onChange={(e) => e.target.value && exec("fontName", e.target.value)} className="text-xs px-1.5 py-1" style={{ ...btnStyle, maxWidth: 84 }} defaultValue="">
           <option value="" disabled>
@@ -3392,13 +4327,13 @@ function RichField({ value, onChange, theme, skin, placeholder, minHeight = 76 }
           <option value="sans-serif">Sans</option>
         </select>
         <span className="w-px h-5 mx-0.5" style={{ background: theme.hairlineStrong }} />
-        <button type="button" onClick={() => wrapBdi("auto")} className="text-[10px] font-bold px-2 py-1" style={btnStyle} title="BDI — auto isolate">
+        <button type="button" onClick={() => wrapBdi("auto")} className="text-[10px] font-bold px-2 py-1 hover:bg-white" style={btnStyle} title="BDI — auto isolate">
           bdi
         </button>
-        <button type="button" onClick={() => wrapBdi("ltr")} className="text-[10px] font-bold px-2 py-1" style={btnStyle}>
+        <button type="button" onClick={() => wrapBdi("ltr")} className="text-[10px] font-bold px-2 py-1 hover:bg-white" style={btnStyle}>
           LTR
         </button>
-        <button type="button" onClick={() => wrapBdi("rtl")} className="text-[10px] font-bold px-2 py-1" style={btnStyle}>
+        <button type="button" onClick={() => wrapBdi("rtl")} className="text-[10px] font-bold px-2 py-1 hover:bg-white" style={btnStyle}>
           RTL
         </button>
       </div>
@@ -3408,16 +4343,14 @@ function RichField({ value, onChange, theme, skin, placeholder, minHeight = 76 }
         suppressContentEditableWarning
         dir="auto"
         onInput={() => onChange(ref.current.innerHTML)}
-        className="w-full text-sm px-3 py-2.5 outline-none"
-        style={{ minHeight, borderRadius: skin.radiusSm, border: `1px solid ${theme.hairline}`, background: theme.surface, color: theme.ink, lineHeight: 1.7 }}
+        className="w-full text-sm px-3 py-2.5 outline-none shadow-sm rounded-lg"
+        style={{ minHeight, border: `1px solid ${theme.hairline}`, background: theme.surface, color: theme.ink, lineHeight: 1.7 }}
         data-placeholder={placeholder}
       />
     </div>
   );
 }
 
-/* Per-type answer fields — mirrors the exact shape each reader-side
-   Body component expects. */
 function QuestionFields({ q, lang, onChangeLang, theme, skin, t }) {
   const c = q[lang] || {};
   const set = (patch) => onChangeLang({ ...c, ...patch });
@@ -3453,7 +4386,7 @@ function QuestionFields({ q, lang, onChangeLang, theme, skin, t }) {
                     n[i] = e.target.value;
                     set({ options: n });
                   }}
-                  className="flex-1 text-sm px-2.5 py-1.5"
+                  className="flex-1 text-sm px-2.5 py-1.5 shadow-sm"
                   style={{ borderRadius: skin.radiusSm, border: `1px solid ${theme.hairline}`, background: theme.surface, color: theme.ink }}
                 />
                 <button type="button" onClick={() => set({ options: opts.filter((_, x) => x !== i) })} style={{ color: theme.inkSoft }}>
@@ -3465,8 +4398,8 @@ function QuestionFields({ q, lang, onChangeLang, theme, skin, t }) {
           <button
             type="button"
             onClick={() => set({ options: [...opts, ""] })}
-            className="text-xs font-bold px-2.5 py-1.5"
-            style={{ borderRadius: skin.radiusSm, border: `1px dashed ${theme.hairlineStrong}`, color: theme.accent }}
+            className="text-xs font-bold px-2.5 py-1.5 rounded-lg"
+            style={{ border: `1px dashed ${theme.hairlineStrong}`, color: theme.accent }}
           >
             + {t.addOption}
           </button>
@@ -3482,7 +4415,7 @@ function QuestionFields({ q, lang, onChangeLang, theme, skin, t }) {
                 key={String(v)}
                 type="button"
                 onClick={() => set({ correct: v })}
-                className="flex-1 text-sm font-bold py-2"
+                className="flex-1 text-sm font-bold py-2 shadow-sm"
                 style={{ borderRadius: skin.radiusSm, background: c.correct === v ? theme.accent : theme.surface, color: c.correct === v ? theme.accentInk : theme.ink, border: `1px solid ${theme.hairline}` }}
               >
                 {v ? t.trueLabel : t.falseLabel}
@@ -3504,7 +4437,7 @@ function QuestionFields({ q, lang, onChangeLang, theme, skin, t }) {
             value={c.model || ""}
             onChange={(e) => set({ model: e.target.value })}
             rows={3}
-            className="w-full text-sm px-3 py-2"
+            className="w-full text-sm px-3 py-2 shadow-sm"
             style={{ borderRadius: skin.radiusSm, border: `1px solid ${theme.hairline}`, background: theme.surface, color: theme.ink }}
           />
         </FieldRow>
@@ -3567,10 +4500,10 @@ function QuestionFields({ q, lang, onChangeLang, theme, skin, t }) {
           </FieldRow>
           <FieldRow label={t.sortItems} theme={theme}>
             <textarea
-              value={(c.items || []).map((p) => p.join(":")).join("\n")}
+              value={(c.items || []).map((p) => (Array.isArray(p) ? p.join(":") : p)).join("\n")}
               onChange={(e) => set({ items: e.target.value.split("\n").filter(Boolean).map((l) => l.split(":").map((s) => s.trim())) })}
               rows={4}
-              className="w-full text-sm px-3 py-2"
+              className="w-full text-sm px-3 py-2 shadow-sm"
               style={{ borderRadius: skin.radiusSm, border: `1px solid ${theme.hairline}`, background: theme.surface, color: theme.ink, fontFamily: "monospace" }}
             />
           </FieldRow>
@@ -3614,7 +4547,6 @@ function QuestionFields({ q, lang, onChangeLang, theme, skin, t }) {
   }
 }
 
-/* Simple search-to-link combobox — replaces a wall of buttons. */
 function LinkPicker({ allLeaves, currentLeafId, linkedTo, lang, theme, skin, t, onChange }) {
   const [query, setQuery] = useState("");
   const list = linkedTo || [];
@@ -3627,7 +4559,7 @@ function LinkPicker({ allLeaves, currentLeafId, linkedTo, lang, theme, skin, t, 
             const l = allLeaves.find((x) => x.id === id);
             if (!l) return null;
             return (
-              <span key={id} className="flex items-center gap-1 text-[11px] font-bold px-2.5 py-1" style={{ borderRadius: 999, background: theme.accent, color: theme.accentInk }}>
+              <span key={id} className="flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-full shadow-sm" style={{ background: theme.accent, color: theme.accentInk }}>
                 {lang === "ar" ? l.ar : l.en}
                 <button type="button" onClick={() => onChange(list.filter((x) => x !== id))}>
                   <X size={11} />
@@ -3640,7 +4572,7 @@ function LinkPicker({ allLeaves, currentLeafId, linkedTo, lang, theme, skin, t, 
       <div className="relative">
         <TextInput theme={theme} skin={skin} value={query} onChange={setQuery} placeholder={t.linkedHint} />
         {query && options.length > 0 && (
-          <div className="absolute z-10 mt-1 w-full max-h-40 overflow-y-auto" style={{ borderRadius: skin.radiusSm, background: theme.surface, border: `1px solid ${theme.hairlineStrong}`, boxShadow: skin.shadow }}>
+          <div className="absolute z-10 mt-1 w-full max-h-40 overflow-y-auto shadow-lg" style={{ borderRadius: skin.radiusSm, background: theme.surface, border: `1px solid ${theme.hairlineStrong}` }}>
             {options.slice(0, 8).map((l) => (
               <button
                 key={l.id}
@@ -3649,7 +4581,7 @@ function LinkPicker({ allLeaves, currentLeafId, linkedTo, lang, theme, skin, t, 
                   onChange([...list, l.id]);
                   setQuery("");
                 }}
-                className="w-full text-start text-xs px-3 py-2"
+                className="w-full text-start text-xs px-3 py-2 hover:bg-black/5"
                 style={{ color: theme.ink }}
               >
                 {lang === "ar" ? l.ar : l.en}
@@ -3662,33 +4594,48 @@ function LinkPicker({ allLeaves, currentLeafId, linkedTo, lang, theme, skin, t, 
   );
 }
 
-/* One question inside a card: prompt (rich), type fields, voice,
-   code, links. Image now lives on the card, not the question. */
-function QuestionEditorRow({ q, lang, theme, skin, t, onUpdate, onDelete, allLeaves, currentLeafId, voiceEnabled }) {
-  const meta = TYPE_META[q.type];
+function QuestionEditorRow({ q, lang, theme, skin, t, onUpdate, onDelete, allLeaves, currentLeafId, voiceEnabled, pageBlocks = [] }) {
+  const meta = TYPE_META[q.type] || TYPE_META.single;
   const c = q[lang] || {};
   const textKey = c.template !== undefined ? "template" : "prompt";
   const setLangObj = (patch) => onUpdate({ [lang]: { ...c, ...patch } });
   const setText = (html) => setLangObj({ [textKey]: html });
 
   return (
-    <div style={{ borderRadius: 12, border: `1px solid ${theme.hairline}`, overflow: "hidden" }}>
-      <div className="flex items-center justify-between gap-2 px-3.5 py-2.5" style={{ background: meta.color.bg, color: meta.color.ink }}>
+    <div style={{ borderRadius: 12, border: `1.5px solid rgba(0,0,0,0.12)`, overflow: "hidden", background: meta.color.bg }}>
+      <div className="flex items-center justify-between gap-2 px-3.5 py-2.5" style={{ color: meta.color.ink }}>
         <div className="flex items-center gap-2">
           <meta.Icon size={14} />
-          <span className="text-xs font-bold">{lang === "ar" ? meta.ar : meta.en}</span>
+          <span className="text-xs font-black">{lang === "ar" ? meta.ar : meta.en}</span>
         </div>
-        <button onClick={onDelete} className="w-6 h-6 grid place-items-center" style={{ borderRadius: 999, background: "rgba(0,0,0,0.12)" }} title={t.delete}>
+        <button onClick={onDelete} className="w-6 h-6 grid place-items-center rounded-full bg-black/10 hover:bg-black/20" title={t.delete}>
           <Trash2 size={12} />
         </button>
       </div>
 
-      <div className="p-3.5" style={{ background: theme.surface }}>
+      <div className="p-3.5 flex flex-col gap-2" style={{ background: "rgba(255,255,255,0.7)", color: meta.color.ink }}>
         <FieldRow label={t.prompt} theme={theme}>
           <RichField key={q.id + lang} value={c[textKey] || ""} onChange={setText} theme={theme} skin={skin} placeholder={t.prompt} />
         </FieldRow>
 
         <QuestionFields q={q} lang={lang} onChangeLang={setLangObj} theme={theme} skin={skin} t={t} />
+
+        {/* Link to A4 Plate Block */}
+        <FieldRow label={t.linkedBlock} theme={theme}>
+          <select
+            value={q.linkedBlockId || ""}
+            onChange={(e) => onUpdate({ linkedBlockId: e.target.value || null })}
+            className="w-full text-xs px-2.5 py-2 rounded-lg outline-none shadow-sm"
+            style={{ background: theme.surface, color: theme.ink, border: `1px solid ${theme.hairline}` }}
+          >
+            <option value="">{lang === "ar" ? "— بدون ربط بصندوق معلومة —" : "— None (No A4 plate linked) —"}</option>
+            {pageBlocks.map((b) => (
+              <option key={b.id} value={b.id}>
+                [{b.kind}] {b.title || b.text?.slice(0, 30) || b.id}
+              </option>
+            ))}
+          </select>
+        </FieldRow>
 
         {voiceEnabled && (
           <FieldRow label={t.voice} theme={theme}>
@@ -3727,8 +4674,7 @@ function QuestionEditorRow({ q, lang, theme, skin, t, onUpdate, onDelete, allLea
   );
 }
 
-/* A CARD: one image slot + any number of mixed-type questions. */
-function CardEditor({ card, lang, theme, skin, t, onUpdateCard, onDeleteCard, allLeaves, currentLeafId, voiceEnabled }) {
+function CardEditor({ card, lang, theme, skin, t, onUpdateCard, onDeleteCard, allLeaves, currentLeafId, voiceEnabled, pageBlocks = [] }) {
   const pos = card.imagePosition || "top";
   const qRefs = useRef({});
   const updateQ = (i, patch) => onUpdateCard({ questions: card.questions.map((qq, idx) => (idx === i ? { ...qq, ...patch } : qq)) });
@@ -3739,17 +4685,15 @@ function CardEditor({ card, lang, theme, skin, t, onUpdateCard, onDeleteCard, al
   };
   const jumpTo = (id) => qRefs.current[id]?.scrollIntoView({ behavior: "smooth", block: "center" });
 
-  // union of every linked leaf across this card's questions, plus any
-  // card-wide links (e.g. set by a manifest import) — shown as tag chips
   const linkedIds = Array.from(new Set([...(card.cardLinkedTo || []), ...card.questions.flatMap((q) => q.linkedTo || [])]));
 
   return (
-    <div className="educraft-panel-in" style={{ borderRadius: skin.radiusLg, border: `1px solid ${theme.hairlineStrong}`, background: theme.surfaceSoft, padding: 14 }}>
+    <div className="educraft-panel-in shadow-sm" style={{ borderRadius: skin.radiusLg, border: `1px solid ${theme.hairlineStrong}`, background: theme.surfaceSoft, padding: 14 }}>
       <div className="flex items-start justify-between gap-3 mb-3">
         <p className="text-xs font-bold" style={{ color: theme.inkSoft }}>
           {t.cardImage}
         </p>
-        <button onClick={onDeleteCard} className="text-xs font-bold px-2.5 py-1.5 shrink-0" style={{ borderRadius: 8, color: "#7A2A12", background: "#FFD9CE" }}>
+        <button onClick={onDeleteCard} className="text-xs font-bold px-2.5 py-1.5 shrink-0 rounded-lg hover:brightness-95 transition-all" style={{ color: "#7A2A12", background: "#FFD9CE" }}>
           {t.deleteCard}
         </button>
       </div>
@@ -3786,8 +4730,8 @@ function CardEditor({ card, lang, theme, skin, t, onUpdateCard, onDeleteCard, al
             key={p}
             type="button"
             onClick={() => onUpdateCard({ imagePosition: p })}
-            className="text-[11px] font-bold px-2 py-1"
-            style={{ borderRadius: 6, background: pos === p ? theme.accent : theme.surface, color: pos === p ? theme.accentInk : theme.ink }}
+            className="text-[11px] font-bold px-2.5 py-1 rounded-md transition-colors"
+            style={{ background: pos === p ? theme.accent : theme.surface, color: pos === p ? theme.accentInk : theme.ink }}
           >
             {label}
           </button>
@@ -3799,20 +4743,19 @@ function CardEditor({ card, lang, theme, skin, t, onUpdateCard, onDeleteCard, al
         onChange={(e) => onUpdateCard({ note: e.target.value })}
         placeholder={t.cardNote}
         dir="auto"
-        className="w-full text-xs px-3 py-2 mb-3"
-        style={{ borderRadius: skin.radiusSm, border: `1px solid ${theme.hairline}`, background: theme.surface, color: theme.inkSoft }}
+        className="w-full text-xs px-3 py-2 mb-3 rounded-lg outline-none"
+        style={{ border: `1px solid ${theme.hairline}`, background: theme.surface, color: theme.inkSoft }}
       />
 
-      {/* chip strip: questions + aggregated knowledge-link tags, mixed like the sketch */}
       <div className="flex items-center gap-1.5 overflow-x-auto pb-1 mb-3">
         {card.questions.map((q, i) => {
-          const meta = TYPE_META[q.type];
+          const meta = TYPE_META[q.type] || TYPE_META.single;
           return (
             <button
               key={q.id || i}
               onClick={() => jumpTo(q.id)}
-              className="shrink-0 flex items-center gap-1.5 text-[11px] font-bold px-3 py-1.5"
-              style={{ borderRadius: 999, background: meta.color.bg, color: meta.color.ink }}
+              className="shrink-0 flex items-center gap-1.5 text-[11px] font-bold px-3 py-1.5 rounded-full shadow-sm hover:scale-105 transition-transform"
+              style={{ background: meta.color.bg, color: meta.color.ink }}
             >
               <meta.Icon size={12} />
               {lang === "ar" ? meta.ar : meta.en}
@@ -3825,8 +4768,8 @@ function CardEditor({ card, lang, theme, skin, t, onUpdateCard, onDeleteCard, al
           return (
             <span
               key={id}
-              className="shrink-0 flex items-center gap-1.5 text-[11px] font-bold px-3 py-1.5"
-              style={{ borderRadius: 999, background: "transparent", border: `1.5px dashed ${theme.accent}`, color: theme.accent }}
+              className="shrink-0 flex items-center gap-1.5 text-[11px] font-bold px-3 py-1.5 rounded-full border border-dashed shadow-sm"
+              style={{ borderColor: theme.accent, color: theme.accent }}
             >
               <GitBranch size={11} />
               {lang === "ar" ? l.ar : l.en}
@@ -3834,15 +4777,15 @@ function CardEditor({ card, lang, theme, skin, t, onUpdateCard, onDeleteCard, al
           );
         })}
         <div className="relative group shrink-0">
-          <button className="w-7 h-7 grid place-items-center" style={{ borderRadius: 999, border: `1.5px dashed ${theme.hairlineStrong}`, color: theme.ink }} title={t.addQuestion}>
+          <button className="w-7 h-7 grid place-items-center rounded-full border border-dashed hover:bg-white transition-colors" style={{ borderColor: theme.hairlineStrong, color: theme.ink }} title={t.addQuestion}>
             +
           </button>
           <div
-            className="hidden group-hover:grid absolute z-10 mt-1 grid-cols-4 gap-1 p-2"
-            style={{ borderRadius: skin.radiusSm, background: theme.surface, border: `1px solid ${theme.hairlineStrong}`, boxShadow: skin.shadow }}
+            className="hidden group-hover:grid absolute z-10 mt-1 grid-cols-4 gap-1 p-2 shadow-lg"
+            style={{ borderRadius: skin.radiusSm, background: theme.surface, border: `1px solid ${theme.hairlineStrong}` }}
           >
             {Object.entries(TYPE_META).map(([key, meta]) => (
-              <button key={key} onClick={() => addQ(key)} className="w-7 h-7 grid place-items-center" style={{ borderRadius: 999, background: meta.color.bg, color: meta.color.ink }} title={lang === "ar" ? meta.ar : meta.en}>
+              <button key={key} onClick={() => addQ(key)} className="w-7 h-7 grid place-items-center rounded-full shadow-sm hover:scale-110 transition-transform" style={{ background: meta.color.bg, color: meta.color.ink }} title={lang === "ar" ? meta.ar : meta.en}>
                 <meta.Icon size={12} />
               </button>
             ))}
@@ -3862,13 +4805,14 @@ function CardEditor({ card, lang, theme, skin, t, onUpdateCard, onDeleteCard, al
               voiceEnabled={voiceEnabled}
               allLeaves={allLeaves}
               currentLeafId={currentLeafId}
+              pageBlocks={pageBlocks}
               onUpdate={(patch) => updateQ(i, patch)}
               onDelete={() => deleteQ(i)}
             />
           </div>
         ))}
         {card.questions.length === 0 && (
-          <p className="text-xs" style={{ color: theme.inkSoft }}>
+          <p className="text-xs font-semibold opacity-60">
             {t.noQuestionsInCard}
           </p>
         )}
@@ -3877,11 +4821,10 @@ function CardEditor({ card, lang, theme, skin, t, onUpdateCard, onDeleteCard, al
   );
 }
 
-/* Geometric branch -> sub-branch -> leaf list. */
 function EditorLeafNav({ book, lang, theme, selectedLeafId, onSelect }) {
-  const branches = book.nodes.filter((n) => n.level === "branch");
-  const subOf = (bid) => book.nodes.filter((n) => n.level === "sub" && n.parent === bid);
-  const leavesOf = (sid) => book.nodes.filter((n) => n.level === "leaf" && n.parent === sid);
+  const branches = (book.nodes || []).filter((n) => n.level === "branch");
+  const subOf = (bid) => (book.nodes || []).filter((n) => n.level === "sub" && n.parent === bid);
+  const leavesOf = (sid) => (book.nodes || []).filter((n) => n.level === "leaf" && n.parent === sid);
   return (
     <div className="flex flex-col gap-3">
       {branches.map((b) => (
@@ -3900,12 +4843,12 @@ function EditorLeafNav({ book, lang, theme, selectedLeafId, onSelect }) {
                     <button
                       key={l.id}
                       onClick={() => onSelect(l.id)}
-                      className="text-start text-xs font-semibold px-2.5 py-1.5 flex items-center justify-between gap-2"
-                      style={{ borderRadius: 8, background: selectedLeafId === l.id ? theme.accentSoft : "transparent", color: theme.ink, border: `1px solid ${selectedLeafId === l.id ? theme.accent : "transparent"}` }}
+                      className="text-start text-xs font-semibold px-2.5 py-1.5 flex items-center justify-between gap-2 transition-colors rounded-lg"
+                      style={{ background: selectedLeafId === l.id ? theme.accentSoft : "transparent", color: theme.ink, border: `1px solid ${selectedLeafId === l.id ? theme.accent : "transparent"}` }}
                     >
                       <span>{lang === "ar" ? l.ar : l.en}</span>
-                      <span className="text-[10px]" style={{ color: theme.inkSoft }}>
-                        {(l.questions || []).length}
+                      <span className="text-[10px] font-bold opacity-60">
+                        {((l.questions || []).length) + (l.cards ? l.cards.reduce((s, g) => s + g.questions.length, 0) : 0)}
                       </span>
                     </button>
                   ))}
@@ -3919,54 +4862,80 @@ function EditorLeafNav({ book, lang, theme, selectedLeafId, onSelect }) {
   );
 }
 
-/* ---------------- A4 page builder ---------------- */
-const PLATE_KINDS = {
-  sectionTitle: { bg: "#E8654A", fg: "#FFFFFF", border: "#E8654A", bar: true },
-  keyterm: { bg: "#FFF6DC", fg: "#5B4408", border: "#E8B84B" },
-  note: { bg: "#E6F5F2", fg: "#0B3D3A", border: "#0E7C79" },
-  warning: { bg: "#FDECEA", fg: "#7A2418", border: "#C0392B", strong: true },
-  important: { bg: "#F3ECFB", fg: "#3A215E", border: "#7C4FD1", strong: true },
-};
-
-function BlockRow({ block, t, theme, skin, onUpdate, onDelete, onMove }) {
+/* =================================================================
+   A4 PAGE BUILDER (60 Palettes / Thiqa Plates & Tables)
+================================================================== */
+function BlockRow({ block, t, theme, skin, onUpdate, onDelete, onMove, allQuestions = [], onJumpToQuestion, bookId, leafId }) {
   const kind = block.kind;
   return (
-    <div className="p-2.5 mb-2" style={{ borderRadius: 10, border: `1px solid ${theme.hairline}`, background: theme.surface }}>
-      <div className="flex items-center gap-1.5 mb-2">
+    <div id={`block-editor-${block.id}`} className="p-3 mb-2.5 rounded-xl shadow-sm border transition-all" style={{ borderColor: theme.hairline, background: theme.surface }}>
+      <div className="flex items-center gap-1.5 mb-2 flex-wrap">
         <select
           value={kind}
           onChange={(e) => onUpdate({ kind: e.target.value })}
-          className="text-xs font-bold px-2 py-1.5"
-          style={{ borderRadius: 6, border: `1px solid ${theme.hairline}`, background: theme.surfaceSoft, color: theme.ink }}
+          className="text-xs font-bold px-2 py-1.5 rounded-lg outline-none"
+          style={{ border: `1px solid ${theme.hairline}`, background: theme.surfaceSoft, color: theme.ink }}
         >
           <option value="sectionTitle">{t.blockSectionTitle}</option>
           <option value="keyterm">{t.blockKeyterm}</option>
           <option value="note">{t.blockNote}</option>
           <option value="warning">{t.blockWarning}</option>
           <option value="important">{t.blockImportant}</option>
+          <option value="table">{t.blockTable}</option>
           <option value="image">{t.blockImage}</option>
           <option value="pagebreak">{t.blockPagebreak}</option>
         </select>
+
+        {/* Link to Question selector */}
+        <select
+          value={block.linkedQuestionId || ""}
+          onChange={(e) => onUpdate({ linkedQuestionId: e.target.value || null })}
+          className="text-xs px-2 py-1.5 rounded-lg outline-none max-w-[140px] truncate"
+          style={{ border: `1px solid ${theme.hairline}`, background: theme.surfaceSoft, color: theme.ink }}
+          title={t.linkToQuestion}
+        >
+          <option value="">{t.linkToQuestion} (—)</option>
+          {allQuestions.map((q, idx) => (
+            <option key={q.id || idx} value={q.id}>
+              Q: {q.ar?.prompt || q.en?.prompt || q.type}
+            </option>
+          ))}
+        </select>
+
         <div className="flex items-center gap-1 ms-auto">
-          <button onClick={onMove(-1)} className="w-6 h-6 grid place-items-center" style={{ borderRadius: 6, color: theme.ink }} title={t.moveUp}>
+          <button onClick={onMove(-1)} className="w-6 h-6 grid place-items-center rounded hover:bg-black/5" style={{ color: theme.ink }} title={t.moveUp}>
             <ArrowUp size={13} />
           </button>
-          <button onClick={onMove(1)} className="w-6 h-6 grid place-items-center" style={{ borderRadius: 6, color: theme.ink }} title={t.moveDown}>
+          <button onClick={onMove(1)} className="w-6 h-6 grid place-items-center rounded hover:bg-black/5" style={{ color: theme.ink }} title={t.moveDown}>
             <ArrowDown size={13} />
           </button>
-          <button onClick={onDelete} className="w-6 h-6 grid place-items-center" style={{ borderRadius: 6, color: "#C0392B" }} title={t.removeBlock}>
+          <button onClick={onDelete} className="w-6 h-6 grid place-items-center rounded hover:bg-red-50" style={{ color: "#C0392B" }} title={t.removeBlock}>
             <Trash2 size={13} />
           </button>
         </div>
       </div>
+
       {kind === "pagebreak" ? (
-        <p className="text-[11px]" style={{ color: theme.inkSoft }}>
-          — {t.blockPagebreak} —
+        <p className="text-[11px] font-mono text-center opacity-60">
+          — {t.blockPagebreak} (A4 Page Break) —
         </p>
       ) : kind === "image" ? (
         <div className="grid grid-cols-2 gap-1.5">
           <TextInput theme={theme} skin={skin} value={block.imageUrl} onChange={(v) => onUpdate({ imageUrl: v })} placeholder={t.imageUrl} />
           <TextInput theme={theme} skin={skin} value={block.caption} onChange={(v) => onUpdate({ caption: v })} placeholder={t.imageCaption} />
+        </div>
+      ) : kind === "table" ? (
+        <div className="flex flex-col gap-1.5">
+          <TextInput theme={theme} skin={skin} value={block.title} onChange={(v) => onUpdate({ title: v })} placeholder={t.blockTitle} />
+          <textarea
+            value={block.tableData || "عمود 1, عمود 2\nقيمة أ, قيمة ب\nقيمة ج, قيمة د"}
+            onChange={(e) => onUpdate({ tableData: e.target.value })}
+            rows={3}
+            dir="auto"
+            className="w-full text-xs px-2.5 py-1.5 rounded-lg outline-none font-mono"
+            style={{ border: `1px solid ${theme.hairline}`, background: theme.surfaceSoft, color: theme.ink }}
+            placeholder="Headers: Col 1, Col 2\nRow 1: Val A, Val B"
+          />
         </div>
       ) : (
         <div className="flex flex-col gap-1.5">
@@ -3976,8 +4945,8 @@ function BlockRow({ block, t, theme, skin, onUpdate, onDelete, onMove }) {
             onChange={(e) => onUpdate({ text: e.target.value })}
             rows={2}
             dir="auto"
-            className="w-full text-sm px-2.5 py-1.5"
-            style={{ borderRadius: 6, border: `1px solid ${theme.hairline}`, background: theme.surfaceSoft, color: theme.ink }}
+            className="w-full text-sm px-2.5 py-1.5 rounded-lg outline-none"
+            style={{ border: `1px solid ${theme.hairline}`, background: theme.surfaceSoft, color: theme.ink }}
             placeholder={t.blockText}
           />
         </div>
@@ -3986,48 +4955,97 @@ function BlockRow({ block, t, theme, skin, onUpdate, onDelete, onMove }) {
   );
 }
 
-function PlateBlock({ block, style }) {
-  const kind = PLATE_KINDS[block.kind];
-  if (block.kind === "image") {
-    return (
-      <div style={{ margin: "10px 0", ...style }}>
-        {block.imageUrl && <img src={block.imageUrl} alt="" style={{ width: "100%", borderRadius: 8, display: "block" }} />}
-        {block.caption && <p style={{ fontSize: 11, color: "#8a7c6a", textAlign: "center", margin: "4px 0 0" }}>{block.caption}</p>}
-      </div>
-    );
-  }
-  if (block.kind === "sectionTitle") {
-    return (
-      <div style={{ background: kind.bg, color: kind.fg, borderRadius: 10, padding: "10px 16px", margin: "14px 0 10px", fontWeight: 800, fontSize: 15, ...style }}>
-        {block.text}
-      </div>
-    );
-  }
-  return (
-    <div
-      style={{
-        background: kind.bg,
-        color: kind.fg,
-        borderRadius: 12,
-        border: `${kind.strong ? 2 : 1.5}px solid ${kind.border}`,
-        padding: "10px 14px",
-        margin: "10px 0",
-        boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
-        ...style,
+function PlateBlock({ block, style, onJumpToQuestion, bookId, leafId, ui }) {
+  const isTable = block.kind === "table";
+  const isImage = block.kind === "image";
+  const isSection = block.kind === "sectionTitle";
+
+  const linkedBadge = block.linkedQuestionId && onJumpToQuestion ? (
+    <button
+      type="button"
+      onClick={(e) => {
+        e.stopPropagation();
+        onJumpToQuestion(bookId, leafId, block.linkedQuestionId);
       }}
+      className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-black/10 hover:bg-black/20 text-inherit border border-black/10 shadow-xs ms-2 transition-transform hover:scale-105"
+      title={ui?.relatedQuestion || "Jump to linked question"}
     >
-      {block.title && <p style={{ fontWeight: 800, fontSize: 12, margin: "0 0 4px" }}>{block.title}</p>}
-      <p style={{ margin: 0, fontSize: 13.5, lineHeight: 1.7 }} dir="auto">
+      <Link2 size={10} /> {ui?.relatedQuestion || "Related Question"} <ExternalLink size={9} />
+    </button>
+  ) : null;
+
+  if (isImage) {
+    return (
+      <div id={`plate-block-${block.id}`} style={{ margin: "12px 0", ...style }}>
+        {block.imageUrl && <img src={block.imageUrl} alt="" style={{ width: "100%", borderRadius: 10, display: "block" }} />}
+        {block.caption && <p style={{ fontSize: 11, textAlign: "center", margin: "4px 0 0", opacity: 0.75 }}>{block.caption}</p>}
+        {linkedBadge}
+      </div>
+    );
+  }
+
+  if (isSection) {
+    return (
+      <div id={`plate-block-${block.id}`} className="box section-title" style={style}>
+        <div className="flex items-center justify-between">
+          <span>{block.text}</span>
+          {linkedBadge}
+        </div>
+      </div>
+    );
+  }
+
+  if (isTable) {
+    const lines = (block.tableData || "عمود 1, عمود 2\nقيمة أ, قيمة ب").split("\n").filter(Boolean);
+    const headers = lines[0] ? lines[0].split(",").map((s) => s.trim()) : [];
+    const rows = lines.slice(1).map((l) => l.split(",").map((s) => s.trim()));
+
+    return (
+      <div id={`plate-block-${block.id}`} style={{ margin: "12px 0", ...style }}>
+        {block.title && <p style={{ fontWeight: 800, fontSize: 13, marginBottom: 4 }}>{block.title} {linkedBadge}</p>}
+        <table className="thiqa-table">
+          <thead>
+            <tr>
+              {headers.map((h, i) => (
+                <th key={i}>{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((row, ri) => (
+              <tr key={ri}>
+                {row.map((cell, ci) => (
+                  <td key={ci}>{cell}</td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    );
+  }
+
+  const boxKindClass = {
+    keyterm: "keyterm",
+    note: "note",
+    warning: "warning",
+    important: "important",
+  }[block.kind] || "note";
+
+  return (
+    <div id={`plate-block-${block.id}`} className={`box ${boxKindClass}`} style={style}>
+      <div className="flex items-center justify-between mb-1">
+        {block.title && <span style={{ fontWeight: 800, fontSize: "0.85rem" }}>{block.title}</span>}
+        {linkedBadge}
+      </div>
+      <p style={{ margin: 0, fontSize: "0.95rem", lineHeight: 1.7 }} dir="auto">
         {block.text}
       </p>
     </div>
   );
 }
 
-/* Measures each block's real rendered height, then buckets blocks
-   into A4 pages — a manual "page break" block always forces a new
-   page, like Word. */
-const A4_CONTENT_HEIGHT_MM = 265; // 297mm - 2*16mm margin approx
+const A4_CONTENT_HEIGHT_MM = 265;
 function usePagedBlocks(blocks) {
   const measureRef = useRef(null);
   const [pages, setPages] = useState([]);
@@ -4046,7 +5064,7 @@ function usePagedBlocks(blocks) {
         acc = 0;
         return;
       }
-      const h = children[i] ? children[i].getBoundingClientRect().height + 4 : 40;
+      const h = children[i] ? children[i].getBoundingClientRect().height + 6 : 40;
       if (acc + h > capacityPx && cur.length) {
         result.push(cur);
         cur = [];
@@ -4061,8 +5079,12 @@ function usePagedBlocks(blocks) {
   return { pages: pages.length ? pages : [blocks], measureRef };
 }
 
-function A4PageBuilder({ leaf, lang, theme, skin, t, onUpdateLeaf, allLeavesCards }) {
+function A4PageBuilder({ leaf, book, lang, theme, skin, t, ui, onUpdateLeaf, allLeavesCards, allQuestions, onJumpToQuestion }) {
   const blocks = leaf.pageBlocks || [];
+  const [paletteModalOpen, setPaletteModalOpen] = useState(false);
+  const currentPaletteNum = leaf.paletteId || book.paletteId || 1;
+  const activePalette = getPalette(currentPaletteNum);
+
   const setBlocks = (next) => onUpdateLeaf({ pageBlocks: next });
   const updateBlock = (i, patch) => setBlocks(blocks.map((b, idx) => (idx === i ? { ...b, ...patch } : b)));
   const deleteBlock = (i) => setBlocks(blocks.filter((_, idx) => idx !== i));
@@ -4073,15 +5095,22 @@ function A4PageBuilder({ leaf, lang, theme, skin, t, onUpdateLeaf, allLeavesCard
     [next[i], next[j]] = [next[j], next[i]];
     setBlocks(next);
   };
-  const addBlock = (kind) => setBlocks([...blocks, { id: `${leaf.id}-b-${Date.now()}`, kind, title: "", text: "", imageUrl: "", caption: "" }]);
+  const addBlock = (kind) => setBlocks([...blocks, { id: `${leaf.id}-b-${Date.now()}`, kind, title: "", text: "", imageUrl: "", caption: "", tableData: "" }]);
+
   const generateFromCards = () => {
     const cards = allLeavesCards;
     const gen = [{ id: `${leaf.id}-b-title`, kind: "sectionTitle", text: lang === "ar" ? leaf.ar : leaf.en }];
     cards.forEach((card) => {
       if (card.image) gen.push({ id: `${card.id}-img`, kind: "image", imageUrl: card.image, caption: "" });
-      card.questions.forEach((q) => {
+      card.questions?.forEach((q) => {
         const c = q[lang] || {};
-        gen.push({ id: `${q.id}-b`, kind: "note", title: (TYPE_META[q.type] || {})[lang] || q.type, text: c.prompt || c.template || "" });
+        gen.push({
+          id: `${q.id}-b`,
+          kind: "note",
+          title: (TYPE_META[q.type] || {})[lang] || q.type,
+          text: c.prompt || c.template || "",
+          linkedQuestionId: q.id,
+        });
       });
     });
     setBlocks(gen);
@@ -4090,15 +5119,36 @@ function A4PageBuilder({ leaf, lang, theme, skin, t, onUpdateLeaf, allLeavesCard
   const { pages, measureRef } = usePagedBlocks(blocks);
 
   return (
-    <div className="grid lg:grid-cols-[280px_1fr] gap-5">
-      <div className="p-3" style={{ borderRadius: skin.radiusLg, border: `1px solid ${theme.hairline}`, background: theme.surface, alignSelf: "start" }}>
+    <div className="grid lg:grid-cols-[300px_1fr] gap-5">
+      <div className="p-3.5 rounded-2xl shadow-sm border" style={{ borderColor: theme.hairline, background: theme.surface, alignSelf: "start" }}>
+        {/* Palette Selector Button */}
+        <div className="flex items-center justify-between gap-2 p-2.5 mb-3 rounded-xl border border-black/10" style={{ background: activePalette.vars["--PageBG"] }}>
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-bold font-mono px-2 py-0.5 rounded text-white" style={{ background: activePalette.vars["--SectionBG"] }}>
+              #{activePalette.num}
+            </span>
+            <span className="text-xs font-bold truncate max-w-[110px]" style={{ color: activePalette.vars["--HeaderColor"] }}>
+              {activePalette.name}
+            </span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setPaletteModalOpen(true)}
+            className="text-xs font-bold px-2.5 py-1 rounded-lg text-white shadow-xs hover:brightness-95 transition-all"
+            style={{ background: theme.accent }}
+          >
+            {t.changePalette}
+          </button>
+        </div>
+
         <button
           onClick={generateFromCards}
-          className="w-full text-xs font-bold px-3 py-2 mb-3"
-          style={{ borderRadius: 8, background: theme.accentSoft, color: theme.accent }}
+          className="w-full text-xs font-bold px-3 py-2 mb-3 rounded-xl shadow-xs transition-transform hover:scale-[1.01]"
+          style={{ background: theme.accentSoft, color: theme.accent }}
         >
           {t.genFromCards}
         </button>
+
         <div className="grid grid-cols-4 gap-1.5 mb-3">
           {[
             ["sectionTitle", t.blockSectionTitle],
@@ -4106,6 +5156,7 @@ function A4PageBuilder({ leaf, lang, theme, skin, t, onUpdateLeaf, allLeavesCard
             ["note", t.blockNote],
             ["warning", t.blockWarning],
             ["important", t.blockImportant],
+            ["table", t.blockTable],
             ["image", t.blockImage],
             ["pagebreak", t.blockPagebreak],
           ].map(([kind, label]) => (
@@ -4113,39 +5164,70 @@ function A4PageBuilder({ leaf, lang, theme, skin, t, onUpdateLeaf, allLeavesCard
               key={kind}
               onClick={() => addBlock(kind)}
               title={label}
-              className="h-8 grid place-items-center text-[10px] font-bold"
-              style={{ borderRadius: 6, background: PLATE_KINDS[kind]?.bg || theme.surfaceSoft, color: PLATE_KINDS[kind]?.fg || theme.ink, border: `1px solid ${theme.hairline}` }}
+              className="h-8 grid place-items-center text-[10px] font-bold rounded-lg shadow-xs hover:scale-105 transition-transform"
+              style={{ background: theme.surfaceSoft, color: theme.ink, border: `1px solid ${theme.hairline}` }}
             >
-              +
+              + {label.slice(0, 4)}
             </button>
           ))}
         </div>
-        <div className="max-h-[60vh] overflow-y-auto">
+
+        <div className="max-h-[58vh] overflow-y-auto pe-1">
           {blocks.map((b, i) => (
-            <BlockRow key={b.id || i} block={b} t={t} theme={theme} skin={skin} onUpdate={(p) => updateBlock(i, p)} onDelete={() => deleteBlock(i)} onMove={(dir) => moveBlock(i, dir)} />
+            <BlockRow
+              key={b.id || i}
+              block={b}
+              t={t}
+              theme={theme}
+              skin={skin}
+              allQuestions={allQuestions}
+              onUpdate={(p) => updateBlock(i, p)}
+              onDelete={() => deleteBlock(i)}
+              onMove={(dir) => moveBlock(i, dir)}
+              onJumpToQuestion={onJumpToQuestion}
+              bookId={book.id}
+              leafId={leaf.id}
+            />
           ))}
         </div>
       </div>
 
       <div className="overflow-x-auto">
-        {/* hidden measuring pass — same width, invisible */}
+        {/* Hidden measuring pass */}
         <div ref={measureRef} style={{ position: "absolute", visibility: "hidden", pointerEvents: "none", width: "182mm", top: -99999 }}>
           {blocks.map((b, i) => (
-            <PlateBlock key={b.id || i} block={b} />
+            <PlateBlock key={b.id || i} block={b} ui={ui} />
           ))}
         </div>
 
         <div className="flex flex-col gap-6 items-center py-2">
           {pages.map((pageBlocks, pi) => (
-            <div key={pi} style={{ width: "210mm", minHeight: "297mm", background: "#fff", color: "#241B13", padding: "16mm 14mm", boxShadow: "0 4px 24px rgba(0,0,0,0.15)", borderRadius: 4 }}>
+            <section key={pi} className="plate" style={activePalette.vars}>
+              <h1>
+                <span className="num">Blade #{activePalette.num}</span> — {activePalette.name}
+              </h1>
               {pageBlocks.map((b, i) => (
-                <PlateBlock key={b.id || i} block={b} />
+                <PlateBlock key={b.id || i} block={b} ui={ui} bookId={book.id} leafId={leaf.id} onJumpToQuestion={onJumpToQuestion} />
               ))}
-              <p style={{ position: "relative", top: "8mm", textAlign: "center", fontSize: 10, color: "#b3a692" }}>{t.pageOf(pi + 1, pages.length)}</p>
-            </div>
+              <p style={{ textAlign: "center", fontSize: 11, opacity: 0.6, marginTop: "1rem" }}>
+                {t.pageOf(pi + 1, pages.length)} · {book[lang]?.title || book.en?.title}
+              </p>
+            </section>
           ))}
         </div>
       </div>
+
+      {paletteModalOpen && (
+        <PaletteSelectorModal
+          currentPaletteId={currentPaletteNum}
+          onSelectPalette={(pnum) => onUpdateLeaf({ paletteId: pnum })}
+          onClose={() => setPaletteModalOpen(false)}
+          ui={ui}
+          theme={theme}
+          dir={ui.dir}
+          skin={skin}
+        />
+      )}
     </div>
   );
 }
@@ -4162,969 +5244,471 @@ function downloadJSON(filename, data) {
   URL.revokeObjectURL(url);
 }
 
-/* "0, 1, 2…" style ordering by the leading number in the filename,
-   falling back to plain alphabetical. */
-function naturalNameSort(a, b) {
-  const na = a.match(/\d+/);
-  const nb = b.match(/\d+/);
-  if (na && nb) {
-    const diff = parseInt(na[0], 10) - parseInt(nb[0], 10);
-    if (diff !== 0) return diff;
-  }
-  return a.localeCompare(b);
+/* =================================================================
+   buildBookExportHTML — Standalone Offline HTML Export
+================================================================== */
+function buildBookExportHTML({ book, lang, theme, ui }) {
+  const palette = getPalette(book.paletteId || 1);
+  const title = book[lang]?.title || book.en?.title;
+  const tagline = book[lang]?.tagline || book.en?.tagline;
+  const groups = groupLeavesByBranch(book).map(({ branch, leaves }) => ({
+    branchTitle: branch[lang] || branch.en,
+    leaves: leaves.map((leaf) => ({
+      id: leaf.id,
+      title: leaf[lang] || leaf.en,
+      pageBlocks: leaf.pageBlocks || [],
+      cards: leafCards(leaf).map((card) => ({
+        image: card.image || null,
+        imagePosition: card.imagePosition || "top",
+        questions: card.questions?.map((q) => ({
+          id: q.id,
+          type: q.type,
+          subject: q.subject || "",
+          difficulty: (DIFF[lang] && DIFF[lang][q.difficulty]) || q.difficulty || "",
+          code: q.code && q.code.enabled ? { lang: q.code.lang || "", src: q.code.src || "" } : null,
+          linkedBlockId: q.linkedBlockId || null,
+          d: q[lang] || q.en || {},
+        })) || [],
+      })),
+    })),
+  }));
+
+  const totalLeaves = (book.nodes || []).filter((n) => n.level === "leaf").length;
+  const dataJson = JSON.stringify({ id: book.id, title, tagline, totalLeaves, groups, lang, dir: ui.dir, cover: book.cover, palette }).replace(/</g, "\\u003c");
+  const favicon = faviconDataUri(book.cover, title);
+  const vars = Object.entries(palette.vars).map(([k, v]) => `${k}:${v};`).join(" ");
+
+  return `<!DOCTYPE html>
+<html lang="${lang}" dir="${ui.dir}" data-mode="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>${title}</title>
+<link rel="icon" href="${favicon}">
+<style>
+  :root { ${vars} }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--PageBG);color:var(--BodyText);font-family:'Amiri','Cairo',sans-serif;line-height:1.8;}
+  .wrap{max-width:880px;margin:0 auto;padding:20px 18px 64px;}
+  header.top{display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--KeyBG);border:1px solid var(--KeyFrame);border-radius:20px;padding:14px 18px;margin-bottom:22px;flex-wrap:wrap;}
+  .tab-btn{border:none;background:transparent;color:inherit;font-weight:700;font-size:13px;padding:8px 16px;border-radius:999px;cursor:pointer;}
+  .tab-btn.active{background:var(--SectionBG);color:#fff;}
+  .box{border-radius:14px;padding:0.9rem 1.2rem;margin:1rem 0;box-shadow:0 3px 10px rgba(0,0,0,0.08);border-width:1.5px;border-style:solid;}
+  .section-title{background:var(--SectionBG);border-color:var(--SectionFrame);color:#fff;font-weight:800;}
+  .keyterm{background:var(--KeyBG);border-color:var(--KeyFrame);color:var(--KeyText);}
+  .note{background:var(--NoteBG);border-color:var(--NoteFrame);color:var(--NoteText);}
+  .warning{background:var(--WarningBG);border-color:var(--WarningFrame);color:var(--WarningText);border-width:2px;}
+  .important{background:var(--HighlightBG);border-color:var(--ImportantText);color:var(--ImportantText);border-width:2px;font-weight:700;}
+  table.thiqa-table{width:100%;border-collapse:collapse;margin:1rem 0;border-radius:10px;overflow:hidden;}
+  table.thiqa-table th{background:var(--SectionBG);color:#fff;padding:0.5rem 0.8rem;}
+  table.thiqa-table td{padding:0.45rem 0.8rem;border:1px solid var(--SectionFrame);}
+  table.thiqa-table tr:nth-child(even) td{background:var(--KeyBG);}
+  .q-card{padding:16px;border-radius:18px;margin-bottom:14px;border:1.5px solid rgba(0,0,0,0.12);box-shadow:0 3px 8px rgba(0,0,0,0.05);}
+  .opt{display:block;width:100%;text-align:start;border:1.5px solid rgba(0,0,0,0.15);background:rgba(255,255,255,0.75);color:inherit;border-radius:10px;padding:8px 12px;margin-bottom:6px;cursor:pointer;font-size:13.5px;}
+  .opt.sel{background:rgba(20,21,26,0.9);color:#fff;}
+  .checkbtn{border:none;background:rgba(20,21,26,0.9);color:#fff;font-weight:700;font-size:12.5px;padding:8px 16px;border-radius:999px;cursor:pointer;margin-top:6px;}
+  .feedback{font-size:13px;font-weight:700;margin-top:6px;}
+  .feedback.ok{color:#0B7A3E;}
+  .feedback.no{color:#B33A1E;}
+  .hidden{display:none !important;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <h1 style="margin:0;font-size:18px;">${title}</h1>
+    <div style="display:flex;gap:6px;">
+      <button class="tab-btn active" id="tabBook" onclick="showTab('book')">📖 ${lang === "ar" ? "الكتاب والأسئلة" : "Questions"}</button>
+      <button class="tab-btn" id="tabA4" onclick="showTab('a4')">📄 ${lang === "ar" ? "صفحات A4" : "A4 Plates"}</button>
+    </div>
+  </header>
+
+  <section id="view-book">
+    <h2>${title}</h2>
+    <p style="opacity:0.75;">${tagline}</p>
+    <div id="bookContent"></div>
+  </section>
+
+  <section id="view-a4" class="hidden">
+    <div id="a4Content"></div>
+  </section>
+</div>
+
+<script>
+const DATA = ${dataJson};
+function showTab(t){
+  document.getElementById('view-book').classList.toggle('hidden', t !== 'book');
+  document.getElementById('view-a4').classList.toggle('hidden', t !== 'a4');
+  document.getElementById('tabBook').classList.toggle('active', t === 'book');
+  document.getElementById('tabA4').classList.toggle('active', t === 'a4');
 }
 
-function fileToDataURL(file) {
-  return new Promise((resolve, reject) => {
-    const r = new FileReader();
-    r.onload = () => resolve(r.result);
-    r.onerror = reject;
-    r.readAsDataURL(file);
-  });
-}
+function renderExport(){
+  let bOut = "";
+  let aOut = "";
+  DATA.groups.forEach(g => {
+    bOut += '<h3 style="margin-top:24px;border-bottom:1px solid var(--KeyFrame);padding-bottom:6px;">' + g.branchTitle + '</h3>';
+    g.leaves.forEach(l => {
+      bOut += '<h4>' + l.title + '</h4>';
+      l.cards.forEach(c => {
+        c.questions.forEach(q => {
+          bOut += '<div class="q-card" style="background:#FFFDFB;">';
+          bOut += '<div style="font-weight:700;margin-bottom:8px;">' + (q.d.prompt || q.d.template || '') + '</div>';
+          if(q.d.options){
+            q.d.options.forEach((opt, idx) => {
+              bOut += '<button class="opt" onclick="this.parentElement.querySelectorAll(\\'.opt\\').forEach(x=>x.classList.remove(\\'.sel\\'));this.classList.add(\\'.sel\\');">' + opt + '</button>';
+            });
+          }
+          bOut += '</div>';
+        });
+      });
 
-const IMAGE_EXT_RE = /\.(png|jpe?g|gif|webp|svg)$/i;
-
-/* Applies a manifest.json (found inside a selected folder, alongside
-   its images) onto the given book: each item says which image goes
-   to which branch/leaf/card/question, an optional info note, and
-   optional cross-links to other leaves — including in other
-   branches. Unmatched leaf ids are skipped (reported to the caller). */
-function applyImageManifest(book, manifest, dataMap) {
-  let nodes = book.nodes.map((n) => ({ ...n }));
-  const skipped = [];
-  (manifest.items || []).forEach((item) => {
-    const leafIdx = nodes.findIndex((n) => n.id === item.leafId && n.level === "leaf");
-    if (leafIdx === -1) {
-      skipped.push(item.leafId);
-      return;
-    }
-    const leaf = { ...nodes[leafIdx] };
-    let cards = (leaf.cards || leafCards(leaf)).map((c) => ({ ...c, questions: [...c.questions] }));
-    const imageData = item.image ? dataMap[item.image] : null;
-    let cardIdx = item.cardId ? cards.findIndex((c) => c.id === item.cardId) : -1;
-    let card;
-    if (cardIdx === -1) {
-      card = { id: item.cardId || `${leaf.id}-card-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`, image: imageData || null, imagePosition: "top", questions: [], note: item.info || "" };
-      cards = [...cards, card];
-      cardIdx = cards.length - 1;
-    } else {
-      card = { ...cards[cardIdx] };
-      if (imageData) card.image = imageData;
-      if (item.info) card.note = item.info;
-    }
-    const extraLinks = (item.linkedTo || []).map((l) => (typeof l === "string" ? l : l.leafId)).filter(Boolean);
-    if (item.questionId) {
-      const qIdx = card.questions.findIndex((q) => q.id === item.questionId);
-      if (qIdx !== -1 && extraLinks.length) {
-        const q = { ...card.questions[qIdx] };
-        q.linkedTo = Array.from(new Set([...(q.linkedTo || []), ...extraLinks]));
-        card.questions = card.questions.map((qq, i) => (i === qIdx ? q : qq));
+      if(l.pageBlocks && l.pageBlocks.length > 0){
+        aOut += '<div style="background:var(--PageBG);border:1px solid var(--KeyFrame);border-radius:12px;padding:16px;margin-bottom:20px;">';
+        aOut += '<h3 style="color:var(--HeaderColor);margin-top:0;">' + l.title + '</h3>';
+        l.pageBlocks.forEach(b => {
+          if(b.kind === 'sectionTitle') aOut += '<div class="box section-title">' + b.text + '</div>';
+          else if(b.kind === 'keyterm') aOut += '<div class="box keyterm"><b>' + (b.title||'') + ':</b> ' + b.text + '</div>';
+          else if(b.kind === 'note') aOut += '<div class="box note"><b>' + (b.title||'') + ':</b> ' + b.text + '</div>';
+          else if(b.kind === 'warning') aOut += '<div class="box warning"><b>' + (b.title||'') + ':</b> ' + b.text + '</div>';
+          else if(b.kind === 'important') aOut += '<div class="box important"><b>' + (b.title||'') + ':</b> ' + b.text + '</div>';
+        });
+        aOut += '</div>';
       }
-    } else if (extraLinks.length) {
-      card.cardLinkedTo = Array.from(new Set([...(card.cardLinkedTo || []), ...extraLinks]));
-    }
-    cards[cardIdx] = card;
-    leaf.cards = cards;
-    leaf.questions = cards.flatMap((c) => c.questions);
-    nodes[leafIdx] = leaf;
+    });
   });
-  return { book: { ...book, nodes }, skipped };
+  document.getElementById('bookContent').innerHTML = bOut;
+  document.getElementById('a4Content').innerHTML = aOut;
+}
+renderExport();
+</script>
+</body>
+</html>`;
 }
 
-/* Right-side capsule ribbon — "Files" group is real (export/import
-   the current book as JSON); the rest are quick shortcuts into the
-   card being edited. */
-function EditorRibbon({ book, lang, theme, t, onImportBook, addCard, addQuestionOfType, voiceEnabled, onVoiceEnabledChange, onImportOrderedImages, onImportManifestFolder, importStatus }) {
-  const fileRef = useRef(null);
-  const orderedImagesRef = useRef(null);
-  const manifestFolderRef = useRef(null);
-  const onFile = (e) => {
-    const f = e.target.files?.[0];
-    if (!f) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      try {
-        const parsed = JSON.parse(reader.result);
-        onImportBook(parsed);
-      } catch (err) {}
-    };
-    reader.readAsText(f);
-    e.target.value = "";
-  };
-  const groupStyle = { background: theme.surface, borderRadius: 14, border: `1px solid ${theme.hairline}`, padding: 8 };
-  const iconBtn = { height: 28, borderRadius: 8, background: theme.surfaceSoft, display: "grid", placeItems: "center", color: theme.ink };
-  return (
-    <div className="flex flex-col gap-2" style={{ width: 150 }}>
-      <div style={groupStyle}>
-        <p className="text-[9px] font-bold uppercase mb-1.5" style={{ color: theme.inkSoft }}>
-          {t.files}
-        </p>
-        <div className="flex gap-1.5 mb-1.5">
-          <button onClick={() => fileRef.current?.click()} className="flex-1" style={iconBtn} title={t.importBookJson}>
-            <FileUp size={14} />
-          </button>
-          <button onClick={() => downloadJSON(`${book.id}.json`, book)} className="flex-1" style={iconBtn} title={t.exportBookJson}>
-            <FileDown size={14} />
-          </button>
-          <input ref={fileRef} type="file" accept="application/json" onChange={onFile} className="hidden" />
-        </div>
-        <button onClick={() => orderedImagesRef.current?.click()} className="w-full flex items-center justify-center gap-1.5 text-[10px] font-bold py-1.5 mb-1.5" style={{ borderRadius: 8, background: theme.surfaceSoft, color: theme.ink }} title={t.importOrderedImages}>
-          <ImagePlus size={12} /> 0·1·2
-        </button>
-        <input
-          ref={orderedImagesRef}
-          type="file"
-          accept="image/*"
-          multiple
-          webkitdirectory=""
-          directory=""
-          onChange={(e) => {
-            onImportOrderedImages(e.target.files);
-            e.target.value = "";
-          }}
-          className="hidden"
-        />
-        <button onClick={() => manifestFolderRef.current?.click()} className="w-full flex items-center justify-center gap-1.5 text-[10px] font-bold py-1.5" style={{ borderRadius: 8, background: theme.surfaceSoft, color: theme.ink }} title={t.importManifestFolder}>
-          <FolderOpen size={12} /> manifest
-        </button>
-        <input
-          ref={manifestFolderRef}
-          type="file"
-          multiple
-          webkitdirectory=""
-          directory=""
-          onChange={(e) => {
-            onImportManifestFolder(e.target.files);
-            e.target.value = "";
-          }}
-          className="hidden"
-        />
-        {importStatus && (
-          <p className="text-[9px] mt-1.5" style={{ color: importStatus.ok ? theme.accent : "#C0392B" }}>
-            {importStatus.text}
-          </p>
-        )}
-      </div>
-      <div style={groupStyle}>
-        <p className="text-[9px] font-bold uppercase mb-1.5" style={{ color: theme.inkSoft }}>
-          {t.card}
-        </p>
-        <button onClick={addCard} className="w-full text-[10px] font-bold py-1.5" style={{ borderRadius: 8, background: theme.accentSoft, color: theme.accent }}>
-          + {t.newCard}
-        </button>
-      </div>
-      <div style={groupStyle}>
-        <p className="text-[9px] font-bold uppercase mb-1.5" style={{ color: theme.inkSoft }}>
-          {t.addQuestion}
-        </p>
-        <div className="grid grid-cols-3 gap-1 max-h-40 overflow-y-auto">
-          {Object.entries(TYPE_META).map(([key, meta]) => (
-            <button key={key} onClick={() => addQuestionOfType(key)} className="h-7 grid place-items-center" style={{ borderRadius: 7, background: meta.color.bg, color: meta.color.ink }} title={lang === "ar" ? meta.ar : meta.en}>
-              <meta.Icon size={12} />
-            </button>
-          ))}
-        </div>
-      </div>
-      <div style={groupStyle}>
-        <label className="flex items-start gap-1.5 cursor-pointer">
-          <input type="checkbox" checked={voiceEnabled} onChange={(e) => onVoiceEnabledChange(e.target.checked)} className="mt-0.5" />
-          <span className="text-[10px] font-semibold" style={{ color: theme.ink }}>
-            {t.voiceFeature}
-          </span>
-        </label>
-      </div>
-    </div>
-  );
-}
-
-function EditorBreadcrumb({ book, lang, leaf, card, theme }) {
-  const branch = leaf ? book.nodes.find((n) => n.id === book.nodes.find((s) => s.id === leaf.parent)?.parent) : null;
-  const steps = [
-    { n: 1, active: true, label: lang === "ar" ? book.ar?.title : book.en?.title },
-    { n: 2, active: !!leaf, label: branch ? (lang === "ar" ? branch.ar : branch.en) : "" },
-    { n: 3, active: !!leaf, label: leaf ? (lang === "ar" ? leaf.ar : leaf.en) : "" },
-    { n: 4, active: !!card, label: card ? "" : "" },
-  ];
-  return (
-    <div className="flex items-center gap-2 flex-wrap">
-      {steps.map((s, i) => (
-        <span key={s.n} className="flex items-center gap-2">
-          <span
-            className="w-6 h-6 grid place-items-center text-[10px] font-bold shrink-0"
-            style={{ borderRadius: 999, background: s.active ? theme.accent : theme.surface, color: s.active ? theme.accentInk : theme.inkSoft, border: `1px solid ${s.active ? theme.accent : theme.hairline}` }}
-          >
-            {s.n}
-          </span>
-          {s.label && (
-            <span className="text-[11px] font-semibold" style={{ color: theme.inkSoft }}>
-              {s.label}
-            </span>
-          )}
-          {i < steps.length - 1 && (
-            <span style={{ color: theme.hairlineStrong }}>›</span>
-          )}
-        </span>
-      ))}
-    </div>
-  );
-}
-
-function EditorView({ book, lang, theme, skin, voiceEnabled, onVoiceEnabledChange, onUpdateBook }) {
-  const t = EDITOR_STR[lang];
-  const [tab, setTab] = useState("cards");
-  const [selectedLeafId, setSelectedLeafId] = useState(null);
-  const [selectedCardIdx, setSelectedCardIdx] = useState(0);
-
-  const allLeaves = useMemo(() => book.nodes.filter((n) => n.level === "leaf"), [book]);
-  const leaf = allLeaves.find((l) => l.id === selectedLeafId) || null;
-  const cards = leaf ? leafCards(leaf) : [];
-  const card = cards[selectedCardIdx];
-
-  const patchLeaf = (patchFn) => {
-    onUpdateBook((prev) => ({ ...prev, nodes: prev.nodes.map((n) => (n.id === selectedLeafId ? patchFn(n) : n)) }));
-  };
-  const setCards = (nextCards) => patchLeaf((n) => ({ ...n, cards: nextCards, questions: nextCards.flatMap((c) => c.questions) }));
-  const updateCard = (idx, patch) => setCards(cards.map((c, i) => (i === idx ? { ...c, ...patch } : c)));
-  const deleteCard = (idx) => {
-    setCards(cards.filter((_, i) => i !== idx));
-    setSelectedCardIdx(0);
-  };
-  const addCard = () => {
-    const nextCards = [...cards, { id: `${selectedLeafId}-card-${Date.now()}`, image: null, imagePosition: "top", questions: [] }];
-    setCards(nextCards);
-    setSelectedCardIdx(nextCards.length - 1);
-  };
-
-  const addQuestionOfTypeToActiveCard = (type) => {
-    if (!card) return;
-    const base = { id: `${card.id}-${Date.now()}`, type, subject: "", difficulty: "Beginner", tier: "core", dir: "ltr", en: { prompt: "" }, ar: { prompt: "" } };
-    updateCard(selectedCardIdx, { questions: [...card.questions, base] });
-  };
-  const importBook = (parsedBook) => onUpdateBook(() => parsedBook);
-
-  const [importStatus, setImportStatus] = useState(null);
-
-  const importOrderedImages = async (fileList) => {
-    if (!leaf) return;
-    const files = Array.from(fileList).filter((f) => IMAGE_EXT_RE.test(f.name));
-    files.sort((a, b) => naturalNameSort(a.name, b.name));
-    const dataUrls = await Promise.all(files.map(fileToDataURL));
-    const nextCards = [...cards];
-    dataUrls.forEach((url, i) => {
-      if (nextCards[i]) nextCards[i] = { ...nextCards[i], image: url };
-      else nextCards.push({ id: `${selectedLeafId}-card-${Date.now()}-${i}`, image: url, imagePosition: "top", questions: [] });
-    });
-    setCards(nextCards);
-    setImportStatus({ ok: true, text: t.importDone(dataUrls.length) });
-  };
-
-  const importManifestFolder = async (fileList) => {
-    const files = Array.from(fileList);
-    const manifestFile = files.find((f) => /manifest.*\.json$/i.test(f.name) || /\.json$/i.test(f.name));
-    if (!manifestFile) {
-      setImportStatus({ ok: false, text: t.importNoManifest });
-      return;
-    }
-    const manifest = JSON.parse(await manifestFile.text());
-    const imageFiles = files.filter((f) => IMAGE_EXT_RE.test(f.name));
-    const dataMap = {};
-    for (const f of imageFiles) dataMap[f.name] = await fileToDataURL(f);
-    const { book: nextBook, skipped } = applyImageManifest(book, manifest, dataMap);
-    onUpdateBook(() => nextBook);
-    const count = (manifest.items || []).length - skipped.length;
-    setImportStatus({ ok: skipped.length === 0, text: skipped.length ? `${t.importDone(count)} ${t.importSkipped(skipped.length)}` : t.importDone(count) });
-  };
-
-  return (
-    <div className="educraft-panel-in" style={{ background: `linear-gradient(180deg, ${theme.accentSoft} 0%, ${theme.canvas} 55%)`, borderRadius: 20, padding: 16 }}>
-      <div className="flex items-center justify-between flex-wrap gap-3 mb-4">
-        <EditorBreadcrumb book={book} lang={lang} leaf={leaf} card={card} theme={theme} />
-        <div className="flex items-center gap-2">
-          {[
-            ["cards", t.tabCards],
-            ["pages", t.tabPages],
-          ].map(([id, label]) => (
-            <button
-              key={id}
-              onClick={() => setTab(id)}
-              className="text-sm font-bold px-3.5 py-2"
-              style={{ borderRadius: skin.radiusSm, background: tab === id ? theme.accent : theme.surface, color: tab === id ? theme.accentInk : theme.ink }}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div className="grid md:grid-cols-[200px_1fr] gap-4">
-        <div className="p-3" style={{ borderRadius: skin.radiusLg, border: `1px solid ${theme.hairline}`, background: theme.surface, alignSelf: "start" }}>
-          <EditorLeafNav
-            book={book}
-            lang={lang}
-            theme={theme}
-            selectedLeafId={selectedLeafId}
-            onSelect={(id) => {
-              setSelectedLeafId(id);
-              setSelectedCardIdx(0);
-            }}
-          />
-        </div>
-
-        <div>
-          {!leaf ? (
-            <p className="text-sm" style={{ color: theme.inkSoft }}>
-              {t.noLeaf}
-            </p>
-          ) : tab === "pages" ? (
-            <>
-              <p className="text-xs mb-3" style={{ color: theme.inkSoft }}>
-                {t.pagesSub}
-              </p>
-              <A4PageBuilder leaf={leaf} lang={lang} theme={theme} skin={skin} t={t} onUpdateLeaf={(patch) => patchLeaf((n) => ({ ...n, ...patch }))} allLeavesCards={cards} />
-            </>
-          ) : (
-            <div className="flex gap-4 items-start">
-              <div className="flex-1 min-w-0">
-                <div className="flex flex-wrap items-center gap-1.5 mb-3">
-                  {cards.map((c, i) => (
-                    <button
-                      key={c.id || i}
-                      onClick={() => setSelectedCardIdx(i)}
-                      className="text-xs font-bold px-3 py-1.5"
-                      style={{ borderRadius: 999, background: selectedCardIdx === i ? theme.accent : theme.surface, color: selectedCardIdx === i ? theme.accentInk : theme.ink }}
-                    >
-                      {t.card} {i + 1}
-                    </button>
-                  ))}
-                </div>
-
-                {card && (
-                  <CardEditor
-                    card={card}
-                    lang={lang}
-                    theme={theme}
-                    skin={skin}
-                    t={t}
-                    voiceEnabled={voiceEnabled}
-                    allLeaves={allLeaves}
-                    currentLeafId={selectedLeafId}
-                    onUpdateCard={(patch) => updateCard(selectedCardIdx, patch)}
-                    onDeleteCard={() => deleteCard(selectedCardIdx)}
-                  />
-                )}
-              </div>
-
-              <EditorRibbon
-                book={book}
-                lang={lang}
-                theme={theme}
-                t={t}
-                onImportBook={importBook}
-                addCard={addCard}
-                addQuestionOfType={addQuestionOfTypeToActiveCard}
-                voiceEnabled={voiceEnabled}
-                onVoiceEnabledChange={onVoiceEnabledChange}
-                onImportOrderedImages={importOrderedImages}
-                onImportManifestFolder={importManifestFolder}
-                importStatus={importStatus}
-              />
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
-  );
+function downloadBookHTML(book, lang, theme, ui) {
+  const html = buildBookExportHTML({ book, lang, theme, ui });
+  const blob = new Blob([html], { type: "text/html" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `${slugify(book[lang]?.title || book.en?.title)}.html`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 4000);
 }
 
 /* =================================================================
-   Page
+   MAIN EDUcraftApp
 ================================================================== */
-/* =================================================================
-   PlannerView — per-book to-do list + calendar + pace dashboard.
-   Set a finish date (and how much of the book), and this works out
-   the daily pace, tracks a streak, and shows an ahead/on-track/
-   behind status by comparing actual progress to the ideal pace.
-================================================================== */
-function PlannerView({ book, lang, ui, theme, dir, skin, plan, onUpdatePlan }) {
-  const leaves = useMemo(() => book.nodes.filter((n) => n.level === "leaf"), [book]);
-  const totalLeaves = leaves.length;
-  const validIds = useMemo(() => new Set(leaves.map((l) => l.id)), [leaves]);
-  const doneSet = useMemo(() => new Set(plan.doneLeafIds.filter((id) => validIds.has(id))), [plan.doneLeafIds, validIds]);
-  const doneCount = doneSet.size;
-
-  const today = new Date();
-  const todayStr = toDateStr(today);
-  const hasGoal = !!plan.targetDate;
-  const locale = lang === "ar" ? "ar-EG" : "en-US";
-
-  const [editingGoal, setEditingGoal] = useState(!hasGoal);
-  const [draftDate, setDraftDate] = useState(plan.targetDate || "");
-  const [draftCount, setDraftCount] = useState(plan.targetCount || totalLeaves || 1);
-
-  const targetCount = Math.max(1, Math.min(totalLeaves || 1, plan.targetCount || totalLeaves || 1));
-  const remaining = Math.max(0, targetCount - doneCount);
-  const totalDaysPlan = hasGoal ? Math.max(1, daysBetweenStr(plan.startDate || todayStr, plan.targetDate)) : null;
-  const elapsedDays = plan.startDate ? Math.max(1, daysBetweenStr(plan.startDate, todayStr) + 1) : 1;
-  const daysLeft = hasGoal ? Math.max(0, daysBetweenStr(todayStr, plan.targetDate)) : null;
-  const idealPerDay = hasGoal ? targetCount / totalDaysPlan : null;
-  const expectedByToday = hasGoal ? Math.min(targetCount, idealPerDay * elapsedDays) : null;
-  const actualPerDay = doneCount / elapsedDays;
-  const requiredPerDayNow = hasGoal ? (daysLeft > 0 ? remaining / daysLeft : remaining) : null;
-
-  let status = "no-goal";
-  if (hasGoal) {
-    if (remaining === 0) status = "done";
-    else {
-      const diff = doneCount - expectedByToday;
-      if (diff >= 0.5) status = "ahead";
-      else if (diff <= -0.5) status = "behind";
-      else status = "on-track";
-    }
-  }
-  const statusMeta = {
-    "no-goal": { label: ui.plannerStatusNoGoal, bg: theme.surfaceSoft, ink: theme.inkSoft, Icon: Target },
-    ahead: { label: ui.plannerStatusAhead, bg: CORRECT.bg, ink: CORRECT.border, Icon: TrendingUp },
-    "on-track": { label: ui.plannerStatusOnTrack, bg: theme.accentSoft, ink: theme.ink, Icon: Minus },
-    behind: { label: ui.plannerStatusBehind, bg: INCORRECT.bg, ink: INCORRECT.border, Icon: TrendingDown },
-    done: { label: ui.plannerStatusDone, bg: CORRECT.bg, ink: CORRECT.border, Icon: Trophy },
-  }[status];
-
-  const streak = useMemo(() => {
-    let s = 0;
-    let cursor = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-    if (!plan.log[toDateStr(cursor)]) cursor.setDate(cursor.getDate() - 1);
-    while ((plan.log[toDateStr(cursor)] || 0) > 0) {
-      s++;
-      cursor.setDate(cursor.getDate() - 1);
-    }
-    return s;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [plan.log]);
-
-  const pctComplete = totalLeaves ? Math.round((doneCount / totalLeaves) * 100) : 0;
-
-  const toggleLeaf = (leafId) => {
-    onUpdatePlan((p) => {
-      const isDone = p.doneLeafIds.includes(leafId);
-      const nextIds = isDone ? p.doneLeafIds.filter((id) => id !== leafId) : [...p.doneLeafIds, leafId];
-      const nextLog = { ...p.log, [todayStr]: Math.max(0, (p.log[todayStr] || 0) + (isDone ? -1 : 1)) };
-      return { ...p, doneLeafIds: nextIds, log: nextLog };
-    });
-  };
-  const saveGoal = () => {
-    if (!draftDate) return;
-    onUpdatePlan((p) => ({
-      ...p,
-      targetDate: draftDate,
-      targetCount: Math.max(1, Math.min(totalLeaves || 1, Number(draftCount) || totalLeaves || 1)),
-      startDate: p.startDate || todayStr,
-    }));
-    setEditingGoal(false);
-  };
-  const clearGoal = () => {
-    onUpdatePlan((p) => ({ ...p, targetDate: null, targetCount: null, startDate: null }));
-    setDraftDate("");
-    setEditingGoal(true);
-  };
-
-  const groups = useMemo(() => {
-    const branchOf = (leaf) => {
-      const sub = book.nodes.find((n) => n.id === leaf.parent);
-      const branch = sub ? book.nodes.find((n) => n.id === sub.parent) : null;
-      return branch || sub || leaf;
-    };
-    const map = new Map();
-    leaves.forEach((leaf) => {
-      const b = branchOf(leaf);
-      if (!map.has(b.id)) map.set(b.id, { branch: b, leaves: [] });
-      map.get(b.id).leaves.push(leaf);
-    });
-    return Array.from(map.values());
-  }, [leaves, book]);
-
-  const [calCursor, setCalCursor] = useState(() => new Date(today.getFullYear(), today.getMonth(), 1));
-  const monthMatrix = useMemo(() => buildMonthMatrix(calCursor), [calCursor]);
-  const weekdayLabels = useMemo(() => {
-    const ref = new Date(2023, 0, 1); // a Sunday
-    return Array.from({ length: 7 }).map((_, i) => {
-      const d = new Date(ref);
-      d.setDate(ref.getDate() + i);
-      return d.toLocaleDateString(locale, { weekday: "narrow" });
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [lang]);
-
-  const inputStyle = {
-    borderRadius: skin.radiusSm === 9999 ? 10 : skin.radiusSm,
-    border: `1.5px solid ${skinBorderColor(skin, theme)}`,
-    background: theme.surface,
-    color: theme.ink,
-  };
-
-  const tile = (label, value, sub, Icon) => (
-    <div className="flex flex-col gap-1.5 p-4" style={panelStyle(skin, theme, { soft: true })}>
-      <div className="flex items-center gap-1.5 text-[11px] font-black uppercase tracking-wider" style={{ color: theme.inkSoft }}>
-        <Icon size={12} />
-        {label}
-      </div>
-      <span className="text-2xl font-black" style={{ color: theme.ink, fontFamily: ui.displayFont }}>
-        {value}
-      </span>
-      {sub && (
-        <span className="text-[11px] font-semibold" style={{ color: theme.inkSoft }}>
-          {sub}
-        </span>
-      )}
-    </div>
-  );
-
-  return (
-    <section>
-      <h1 className="text-2xl font-bold mb-1" style={{ fontFamily: ui.displayFont, color: theme.ink }}>
-        {ui.plannerTitle}
-      </h1>
-      <p className="text-sm mb-6" style={{ color: theme.inkSoft }}>
-        {ui.plannerSub} — {book[lang].title}
-      </p>
-
-      {/* goal panel */}
-      <div className="p-5 mb-5" style={panelStyle(skin, theme)}>
-        {editingGoal ? (
-          <div>
-            <h3 className="text-sm font-black uppercase tracking-wide mb-1" style={{ color: theme.ink }}>
-              {hasGoal ? ui.plannerEditGoal : ui.plannerNoGoalTitle}
-            </h3>
-            {!hasGoal && (
-              <p className="text-xs mb-4 max-w-md" style={{ color: theme.inkSoft }}>
-                {ui.plannerNoGoalSub}
-              </p>
-            )}
-            <div className="flex flex-wrap items-end gap-4 mt-3">
-              <label className="flex flex-col gap-1.5 text-xs font-bold" style={{ color: theme.inkSoft }}>
-                {ui.plannerGoalDateLabel}
-                <input type="date" value={draftDate} min={todayStr} onChange={(e) => setDraftDate(e.target.value)} className="px-3 py-2 text-sm font-semibold" style={{ ...inputStyle, minHeight: 40 }} />
-              </label>
-              <label className="flex flex-col gap-1.5 text-xs font-bold" style={{ color: theme.inkSoft }}>
-                {ui.plannerGoalCountLabel} <span className="font-normal opacity-70">/{totalLeaves}</span>
-                <input type="number" min={1} max={totalLeaves || 1} value={draftCount} onChange={(e) => setDraftCount(e.target.value)} className="px-3 py-2 text-sm font-semibold w-24" style={{ ...inputStyle, minHeight: 40 }} />
-              </label>
-              <button
-                onClick={saveGoal}
-                disabled={!draftDate}
-                className="flex items-center gap-1.5 px-4 py-2.5 text-sm font-bold"
-                style={{ borderRadius: skin.radiusSm, background: theme.accent, color: theme.accentInk, minHeight: 40, opacity: draftDate ? 1 : 0.5 }}
-              >
-                <Target size={14} />
-                {ui.plannerSetGoal}
-              </button>
-              {hasGoal && (
-                <button onClick={() => setEditingGoal(false)} className="px-3 py-2.5 text-sm font-bold" style={{ color: theme.inkSoft, minHeight: 40 }}>
-                  {ui.plannerCancel}
-                </button>
-              )}
-            </div>
-          </div>
-        ) : (
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <div>
-              <h3 className="text-xs font-black uppercase tracking-wide mb-1.5" style={{ color: theme.inkSoft }}>
-                {ui.plannerTargetLabel}
-              </h3>
-              <p className="text-lg font-bold" style={{ color: theme.ink, fontFamily: ui.displayFont }}>
-                {targetCount} {ui.plannerLeavesUnit} {fromDateStr(plan.targetDate).toLocaleDateString(locale, { day: "numeric", month: "long", year: "numeric" })}
-              </p>
-            </div>
-            <div className="flex gap-2">
-              <button onClick={() => setEditingGoal(true)} className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold" style={{ borderRadius: skin.radiusSm, border: `1.5px solid ${skinBorderColor(skin, theme)}`, color: theme.ink, minHeight: 36 }}>
-                <Pencil size={12} />
-                {ui.plannerEditGoal}
-              </button>
-              <button onClick={clearGoal} className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold" style={{ color: theme.inkSoft, minHeight: 36 }}>
-                <X size={12} />
-                {ui.plannerClearGoal}
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* status banner */}
-      <div
-        className="flex items-center gap-3 px-4 py-3.5 mb-5"
-        style={{ background: statusMeta.bg, color: statusMeta.ink, borderRadius: skin.radiusLg, border: skin.pixel ? `${skin.borderW}px solid ${statusMeta.ink}` : "none", boxShadow: skin.pixel ? skin.shadow : "none" }}
-      >
-        <statusMeta.Icon size={20} strokeWidth={2.5} />
-        <span className="text-sm font-black">{statusMeta.label}</span>
-      </div>
-
-      {/* stat tiles */}
-      <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-6">
-        {tile(ui.plannerCompletionLabel, `${pctComplete}%`, `${doneCount}/${totalLeaves}`, CheckSquare)}
-        {tile(ui.plannerDaysLeft, hasGoal ? daysLeft : "—", null, CalendarDays)}
-        {tile(ui.plannerRequiredPace, hasGoal ? requiredPerDayNow.toFixed(1) : "—", null, Target)}
-        {tile(ui.plannerActualPace, actualPerDay.toFixed(1), null, TrendingUp)}
-        {tile(ui.plannerStreakLabel, streak, null, Flame)}
-      </div>
-
-      {/* calendar */}
-      <div className="p-5 mb-5" style={panelStyle(skin, theme)}>
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-sm font-black uppercase tracking-wide flex items-center gap-1.5" style={{ color: theme.ink }}>
-            <CalendarDays size={14} />
-            {ui.plannerCalendarTitle}
-          </h3>
-          <div className="flex items-center gap-1">
-            <button onClick={() => setCalCursor((c) => new Date(c.getFullYear(), c.getMonth() - 1, 1))} className="p-1.5" style={{ borderRadius: skin.radiusSm, color: theme.inkSoft, minHeight: 32, minWidth: 32 }} aria-label="prev month">
-              <ChevronLeft size={16} />
-            </button>
-            <span className="text-xs font-bold w-32 text-center" style={{ color: theme.ink }}>
-              {calCursor.toLocaleDateString(locale, { month: "long", year: "numeric" })}
-            </span>
-            <button onClick={() => setCalCursor((c) => new Date(c.getFullYear(), c.getMonth() + 1, 1))} className="p-1.5" style={{ borderRadius: skin.radiusSm, color: theme.inkSoft, minHeight: 32, minWidth: 32 }} aria-label="next month">
-              <ChevronRight size={16} />
-            </button>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-7 gap-1.5 mb-1.5">
-          {weekdayLabels.map((w, i) => (
-            <div key={i} className="text-center text-[10px] font-bold" style={{ color: theme.inkSoft }}>
-              {w}
-            </div>
-          ))}
-        </div>
-        {monthMatrix.map((week, wi) => (
-          <div key={wi} className="grid grid-cols-7 gap-1.5 mb-1.5">
-            {week.map((day, di) => {
-              if (!day) return <div key={di} />;
-              const ds = toDateStr(day);
-              const count = plan.log[ds] || 0;
-              const isToday = ds === todayStr;
-              const isFuture = day > today;
-              const alpha = count > 0 ? Math.min(0.24 * count + 0.22, 1) : 0;
-              return (
-                <div
-                  key={di}
-                  className="aspect-square flex items-center justify-center text-[10px] font-bold"
-                  title={`${ds}: ${count}`}
-                  style={{
-                    borderRadius: 8,
-                    background: count > 0 ? hexToRgba(theme.accent, alpha) : isFuture ? "transparent" : hexToRgba(theme.ink, 0.04),
-                    color: theme.ink,
-                    border: isToday ? `1.5px solid ${theme.accent}` : `1px solid ${skinBorderColor(skin, theme)}`,
-                    opacity: isFuture ? 0.4 : 1,
-                  }}
-                >
-                  {day.getDate()}
-                </div>
-              );
-            })}
-          </div>
-        ))}
-      </div>
-
-      {/* to-do list */}
-      <div className="p-5" style={panelStyle(skin, theme)}>
-        <h3 className="text-sm font-black uppercase tracking-wide mb-1 flex items-center gap-1.5" style={{ color: theme.ink }}>
-          <ListChecks size={14} />
-          {ui.plannerTodoTitle}
-        </h3>
-        <p className="text-xs mb-4" style={{ color: theme.inkSoft }}>
-          {ui.plannerTodoSub}
-        </p>
-
-        {totalLeaves > 0 && doneCount === totalLeaves && (
-          <div className="flex items-center gap-2 px-3.5 py-3 mb-4 text-sm font-semibold" style={{ background: CORRECT.bg, color: CORRECT.border, borderRadius: skin.radiusMd }}>
-            <Check size={16} />
-            {ui.plannerAllDone}
-          </div>
-        )}
-
-        <div className="flex flex-col gap-5">
-          {groups.map(({ branch, leaves: gLeaves }) => (
-            <div key={branch.id}>
-              <p className="text-xs font-black uppercase tracking-wide mb-2" style={{ color: theme.inkSoft }}>
-                {branch[lang]}
-              </p>
-              <div className="flex flex-col gap-1.5">
-                {gLeaves.map((leaf) => {
-                  const isDone = doneSet.has(leaf.id);
-                  return (
-                    <button
-                      key={leaf.id}
-                      onClick={() => toggleLeaf(leaf.id)}
-                      className="flex items-center gap-3 px-3.5 py-2.5 w-full text-start transition-colors"
-                      style={{ borderRadius: skin.radiusMd, border: `1.5px solid ${isDone ? theme.accent : skinBorderColor(skin, theme)}`, background: isDone ? theme.accentSoft : "transparent", minHeight: 44 }}
-                    >
-                      <span
-                        className="grid place-items-center shrink-0"
-                        style={{ width: 20, height: 20, borderRadius: skin.radiusSm === 9999 ? 999 : 6, border: `1.5px solid ${isDone ? theme.accent : theme.hairlineStrong}`, background: isDone ? theme.accent : "transparent" }}
-                      >
-                        {isDone && <Check size={12} color={theme.accentInk} strokeWidth={3} />}
-                      </span>
-                      <span className="text-sm font-semibold flex-1" style={{ color: theme.ink, textDecoration: isDone ? "line-through" : "none", opacity: isDone ? 0.6 : 1 }}>
-                        {leaf[lang]}
-                      </span>
-                      <span className="text-[11px] font-bold shrink-0" style={{ color: theme.inkSoft }}>
-                        {leaf.questions.length}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
 export default function EDUcraftApp() {
-  const [lang, setLang] = useState("en");
+  const [lang, setLang] = useState("ar");
   const [mode, setMode] = useState("light");
-  const [view, setView] = useState("library");
-  const [books, setBooks] = useState(BOOKS);
-  const [bookId, setBookId] = useState(BOOKS[0].id);
-  const [leafId, setLeafId] = useState(null);
-  const [skinId, setSkinId] = useState("normal");
   const [flavorId, setFlavorId] = useState("normal");
+  const [skinId, setSkinId] = useState("normal");
   const [cardMode, setCardMode] = useState("paged");
   const [scrollDir, setScrollDir] = useState("vertical");
-  const [covers, setCovers] = useState({});
-  const [plans, setPlans] = useState({});
-  const [settingsOpen, setSettingsOpen] = useState(false);
   const [voiceEnabled, setVoiceEnabled] = useState(true);
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
-  const ui = UI[lang];
-  const theme = FLAVORS[flavorId][mode];
-  const skin = SKINS[skinId];
+  // Bag & Book Data State
+  const [bags, setBags] = useState(() => {
+    try {
+      const saved = localStorage.getItem("educraft_bags");
+      return saved ? JSON.parse(saved) : DEFAULT_BAGS;
+    } catch (e) {
+      return DEFAULT_BAGS;
+    }
+  });
+
+  const [books, setBooks] = useState(() => {
+    try {
+      const saved = localStorage.getItem("educraft_books");
+      return saved ? JSON.parse(saved) : INITIAL_BOOKS;
+    } catch (e) {
+      return INITIAL_BOOKS;
+    }
+  });
+
+  const [covers, setCovers] = useState(() => {
+    try {
+      const saved = localStorage.getItem("educraft_covers");
+      return saved ? JSON.parse(saved) : {};
+    } catch (e) {
+      return {};
+    }
+  });
+
+  const [screen, setScreen] = useState("library"); // "library" | "tree" | "deck" | "browse" | "editor"
+  const [selectedBookId, setSelectedBookId] = useState(null);
+  const [selectedLeafId, setSelectedLeafId] = useState(null);
+  const [editorSubTab, setEditorSubTab] = useState("cards"); // "cards" | "pages"
+
+  // Persistence
+  useEffect(() => {
+    try {
+      localStorage.setItem("educraft_bags", JSON.stringify(bags));
+    } catch (e) {}
+  }, [bags]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem("educraft_books", JSON.stringify(books));
+    } catch (e) {}
+  }, [books]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem("educraft_covers", JSON.stringify(covers));
+    } catch (e) {}
+  }, [covers]);
+
+  const ui = UI[lang] || UI.ar;
   const dir = ui.dir;
-  const currentBook = books.find((b) => b.id === bookId) || books[0];
-  const updateCurrentBook = (fn) => setBooks((prev) => prev.map((b) => (b.id === currentBook.id ? fn(b) : b)));
-  const currentPlan = plans[bookId] || defaultPlan();
-  const updateCurrentPlan = (fn) => setPlans((prev) => ({ ...prev, [bookId]: fn(prev[bookId] || defaultPlan()) }));
+  const theme = FLAVORS[flavorId]?.[mode] || FLAVORS.normal.light;
+  const skin = SKINS[skinId] || SKINS.normal;
 
-  const openBook = (id) => {
-    setBookId(id);
-    setLeafId(null);
-    setView("tree");
-  };
-  const openLeaf = (id) => {
-    setLeafId(id);
-    setView("deck");
-  };
-  const leafById = useMemo(() => Object.fromEntries(currentBook.nodes.filter((n) => n.level === "leaf").map((n) => [n.id, n])), [currentBook]);
-  const currentLeaf = leafId ? leafById[leafId] : null;
-  const setCover = (id, url) => setCovers((c) => ({ ...c, [id]: url }));
-  const clearCover = (id) =>
-    setCovers((c) => {
-      const next = { ...c };
-      delete next[id];
-      return next;
-    });
+  const currentBook = useMemo(() => books.find((b) => b.id === selectedBookId) || books[0], [books, selectedBookId]);
+  const currentLeaf = useMemo(() => (currentBook?.nodes || []).find((n) => n.id === selectedLeafId && n.level === "leaf"), [currentBook, selectedLeafId]);
 
-  const displayFont = skin.displayFontOverride || ui.displayFont;
+  // Jump navigation between Questions and A4 Blocks
+  const handleJumpToBlock = (bId, lId, blockId) => {
+    setSelectedBookId(bId);
+    setSelectedLeafId(lId);
+    setScreen("editor");
+    setEditorSubTab("pages");
+    setTimeout(() => {
+      const el = document.getElementById(`plate-block-${blockId}`) || document.getElementById(`block-editor-${blockId}`);
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
+        el.classList.add("educraft-highlight");
+        setTimeout(() => el.classList.remove("educraft-highlight"), 3000);
+      }
+    }, 150);
+  };
+
+  const handleJumpToQuestion = (bId, lId, questionId) => {
+    setSelectedBookId(bId);
+    setSelectedLeafId(lId);
+    setScreen("deck");
+    setTimeout(() => {
+      const el = document.getElementById(`q-item-${questionId}`);
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
+        el.classList.add("educraft-highlight");
+        setTimeout(() => el.classList.remove("educraft-highlight"), 3000);
+      }
+    }, 150);
+  };
+
+  const handleUpdateBook = (updated) => {
+    setBooks((prev) => prev.map((b) => (b.id === updated.id ? updated : b)));
+  };
+
+  const handleUpdateCurrentLeaf = (patch) => {
+    if (!currentBook || !currentLeaf) return;
+    const updatedNodes = currentBook.nodes.map((n) => (n.id === currentLeaf.id ? { ...n, ...patch } : n));
+    handleUpdateBook({ ...currentBook, nodes: updatedNodes });
+  };
+
+  const handleAddBook = () => {
+    const titlePrompt = window.prompt(dir === "rtl" ? "أدخل عنوان الكتاب أو الموسوعة الجديدة:" : "Enter new book / encyclopedia title:", "");
+    if (!titlePrompt || !titlePrompt.trim()) return;
+    const isEncy = window.confirm(dir === "rtl" ? "هل تريد إنشاءها كـ 'موسوعة'؟ (اضغط Cancel لإنشاء 'كتاب'):" : "Create as Encyclopedia? (Press Cancel for Book):");
+    const newId = `book-${Date.now()}`;
+    const newBook = {
+      id: newId,
+      type: isEncy ? "encyclopedia" : "book",
+      bagId: bags[0]?.id || "bag-frontend",
+      paletteId: 1,
+      cover: { from: "#F2C879", to: "#E8654A", icon: "code" },
+      en: { title: titlePrompt.trim(), tagline: "New Educational Workspace" },
+      ar: { title: titlePrompt.trim(), tagline: "مساحة تعليمية جديدة" },
+      crossLinks: [],
+      nodes: [
+        { id: "b1", level: "branch", x: 400, y: BRANCH_Y, en: "Branch 1", ar: "الفرع 1" },
+        { id: "s1", level: "sub", parent: "b1", x: 400, y: SUB_Y, en: "Sub-branch 1", ar: "الفرع الفرعي 1" },
+        {
+          id: "l1",
+          level: "leaf",
+          parent: "s1",
+          x: 400,
+          y: LEAF_Y,
+          en: "Leaf 1",
+          ar: "الورقة 1",
+          paletteId: 1,
+          pageBlocks: [{ id: "l1-b1", kind: "sectionTitle", text: titlePrompt.trim() }],
+          questions: [
+            {
+              id: `q-${Date.now()}`,
+              type: "single",
+              subject: "General",
+              difficulty: "Beginner",
+              tier: "core",
+              dir: "ltr",
+              en: { prompt: "Sample question?", options: ["Option A", "Option B"], correct: 0 },
+              ar: { prompt: "سؤال تجريبي؟", options: ["اختيار أ", "اختيار ب"], correct: 0 },
+            },
+          ],
+        },
+      ],
+    };
+    setBooks((prev) => [...prev, newBook]);
+    setSelectedBookId(newId);
+    setScreen("tree");
+  };
+
+  const handleResetData = () => {
+    localStorage.clear();
+    setBags(DEFAULT_BAGS);
+    setBooks(INITIAL_BOOKS);
+    setCovers({});
+    setScreen("library");
+    setSettingsOpen(false);
+  };
+
+  const allLeaves = useMemo(() => (currentBook?.nodes || []).filter((n) => n.level === "leaf"), [currentBook]);
+  const allCurrentQuestions = useMemo(() => {
+    if (!currentLeaf) return [];
+    return leafCards(currentLeaf).flatMap((g) => g.questions);
+  }, [currentLeaf]);
 
   return (
     <div
       dir={dir}
-      lang={ui.htmlLang}
-      className="min-h-screen w-full"
-      style={{ background: theme.canvas, color: theme.ink, fontFamily: ui.bodyFont }}
+      className="educraft-root min-h-screen transition-colors duration-200"
+      style={{
+        background: theme.canvas,
+        color: theme.ink,
+        fontFamily: ui.bodyFont,
+      }}
     >
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Inter:wght@400;500;600;700&family=Cairo:wght@500;700;800&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Press+Start+2P&display=swap');
-        /* Fixes the stray white/default strip that used to show above the
-           header: the browser's default body margin let the page's own
-           white background peek through before our canvas color painted. */
-        html, body { margin: 0; padding: 0; background: ${theme.canvas}; }
-        #root, #__next { background: ${theme.canvas}; }
-        .educraft-root * { box-sizing: border-box; }
-        .educraft-root button { font: inherit; cursor: pointer; }
-        .educraft-root button:disabled { cursor: not-allowed; }
-        .educraft-root input, .educraft-root textarea { font: inherit; }
-        .educraft-root button:focus-visible,
-        .educraft-root a:focus-visible,
-        .educraft-root input:focus-visible,
-        .educraft-root textarea:focus-visible,
-        .educraft-root g:focus-visible rect { outline: 2px solid ${theme.accent}; outline-offset: 2px; }
-        @media (prefers-reduced-motion: reduce) {
-          .educraft-root * { animation: none !important; transition: none !important; }
-        }
-        @keyframes educraft-rise {
-          from { opacity: 0; transform: translateY(10px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes educraft-pop {
-          from { opacity: 0; transform: translateY(14px) scale(0.98); }
-          to { opacity: 1; transform: translateY(0) scale(1); }
-        }
-        .educraft-hero-in { animation: educraft-rise .45s ease both; }
-        .educraft-panel-in { animation: educraft-rise .3s ease both; }
-        .educraft-modal-in { animation: educraft-pop .22s ease both; }
-      `}</style>
-
-      <div className="educraft-root max-w-5xl mx-auto px-5 sm:px-8 pb-16">
-        {/* header */}
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex flex-col min-h-screen gap-5">
+        {/* TOP NAVIGATION BAR */}
         <header
-          className="flex items-center justify-between gap-4 mt-6 px-5 py-3.5 flex-wrap"
+          className="flex items-center justify-between gap-3 px-4 py-3 rounded-2xl flex-wrap shadow-xs"
           style={{
-            background: skin.surfaceAlpha >= 1 ? theme.header : hexToRgba(theme.header, skin.surfaceAlpha),
-            borderRadius: skin.radiusLg,
-            border: `${skin.borderW}px solid ${skinBorderColor(skin, theme)}`,
-            boxShadow: skin.shadow,
-            backdropFilter: skin.blur,
-            WebkitBackdropFilter: skin.blur,
+            ...panelStyle(skin, theme, { soft: true }),
           }}
         >
-          <div className="flex items-center gap-2">
-            <BookOpen size={20} color={theme.ink} strokeWidth={2} />
-            <span className="text-lg font-bold" style={{ fontFamily: displayFont, color: theme.ink, letterSpacing: skin.letterSpacing }}>
-              {ui.brand}
-            </span>
+          <div className="flex items-center gap-3">
+            <button onClick={() => setScreen("library")} className="flex items-center gap-2 hover:opacity-85 transition-opacity">
+              <img src="/icon.png" alt="EDUcraft" className="w-8 h-8 rounded-lg object-contain shadow-xs" />
+              <span className="text-lg font-black tracking-tight" style={{ fontFamily: ui.displayFont }}>
+                {ui.brand}
+              </span>
+            </button>
+
+            {/* Pill Navigation Tabs (Orange Pill Reference) */}
+            <nav className="flex items-center gap-1.5 ms-2">
+              <PillTabButton active={screen === "library"} onClick={() => setScreen("library")} icon={Library} theme={theme}>
+                {ui.navLibrary}
+              </PillTabButton>
+
+              {currentBook && (
+                <>
+                  <PillTabButton active={screen === "tree" || screen === "deck" || screen === "browse"} onClick={() => setScreen("tree")} icon={GitBranch} theme={theme}>
+                    {ui.navTree}
+                  </PillTabButton>
+
+                  <PillTabButton active={screen === "editor"} onClick={() => setScreen("editor")} icon={Pencil} theme={theme}>
+                    {ui.navEditor}
+                  </PillTabButton>
+                </>
+              )}
+            </nav>
           </div>
 
-          <nav className="hidden md:flex items-center gap-1">
+          <div className="flex items-center gap-2">
             <button
-              onClick={() => setView("library")}
-              className="flex items-center gap-1.5 text-sm font-semibold px-3 py-2 transition-colors"
-              style={{ borderRadius: skin.radiusSm, color: view === "library" ? theme.accentInk : theme.ink, background: view === "library" ? theme.accent : "transparent" }}
+              onClick={() => setLang((l) => (l === "ar" ? "en" : "ar"))}
+              className="px-2.5 py-1 text-xs font-bold rounded-lg border hover:bg-black/5 transition-colors"
+              style={{ borderColor: theme.hairlineStrong, color: theme.ink }}
             >
-              <Library size={14} />
-              {ui.navLibrary}
-            </button>
-            <button
-              onClick={() => setView("tree")}
-              className="flex items-center gap-1.5 text-sm font-semibold px-3 py-2 transition-colors"
-              style={{ borderRadius: skin.radiusSm, color: view === "tree" ? theme.accentInk : theme.ink, background: view === "tree" ? theme.accent : "transparent" }}
-            >
-              <GitBranch size={14} />
-              {ui.navTree}
-            </button>
-            <button
-              onClick={() => setView("editor")}
-              className="flex items-center gap-1.5 text-sm font-semibold px-3 py-2 transition-colors"
-              style={{ borderRadius: skin.radiusSm, color: view === "editor" ? theme.accentInk : theme.ink, background: view === "editor" ? theme.accent : "transparent" }}
-            >
-              <Settings size={14} />
-              {ui.navEditor}
-            </button>
-            <button
-              onClick={() => setView("planner")}
-              className="flex items-center gap-1.5 text-sm font-semibold px-3 py-2 transition-colors"
-              style={{ borderRadius: skin.radiusSm, color: view === "planner" ? theme.accentInk : theme.ink, background: view === "planner" ? theme.accent : "transparent" }}
-            >
-              <CalendarDays size={14} />
-              {ui.navPlanner}
-            </button>
-          </nav>
-
-          <div className="flex items-center gap-1.5">
-            <button
-              onClick={() => setLang((l) => (l === "en" ? "ar" : "en"))}
-              className="flex items-center gap-1.5 text-xs font-semibold px-2.5 py-2"
-              style={{ borderRadius: skin.radiusSm, color: theme.ink, minHeight: 40 }}
-              aria-label="Toggle language"
-            >
-              <Languages size={16} />
               {ui.langToggle}
             </button>
+
             <button
-              onClick={() => setMode((m) => (m === "light" ? "dark" : "light"))}
-              className="p-2"
-              style={{ borderRadius: skin.radiusSm, color: theme.ink, minHeight: 40, minWidth: 40 }}
-              aria-label="Toggle theme"
+              onClick={() => setMode((m) => (m === "dark" ? "light" : "dark"))}
+              className="w-8 h-8 grid place-items-center rounded-lg border hover:bg-black/5 transition-colors"
+              style={{ borderColor: theme.hairlineStrong, color: theme.ink }}
             >
-              {mode === "light" ? <Moon size={16} /> : <Sun size={16} />}
+              {mode === "dark" ? <Sun size={15} /> : <Moon size={15} />}
             </button>
+
             <button
               onClick={() => setSettingsOpen(true)}
-              className="p-2"
-              style={{ borderRadius: skin.radiusSm, color: theme.ink, minHeight: 40, minWidth: 40 }}
-              aria-label={ui.navSettings}
-              title={ui.navSettings}
+              className="w-8 h-8 grid place-items-center rounded-lg border hover:bg-black/5 transition-colors"
+              style={{ borderColor: theme.hairlineStrong, color: theme.ink }}
             >
-              <Settings size={16} />
+              <Settings size={15} />
             </button>
           </div>
-
-          {/* mobile nav row */}
-          <nav className="flex md:hidden items-center gap-1 w-full justify-center pt-1">
-            <button
-              onClick={() => setView("library")}
-              className="flex items-center gap-1.5 text-xs font-semibold px-3 py-2 transition-colors"
-              style={{ borderRadius: skin.radiusSm, color: view === "library" ? theme.accentInk : theme.ink, background: view === "library" ? theme.accent : "transparent" }}
-            >
-              <Library size={13} />
-              {ui.navLibrary}
-            </button>
-            <button
-              onClick={() => setView("tree")}
-              className="flex items-center gap-1.5 text-xs font-semibold px-3 py-2 transition-colors"
-              style={{ borderRadius: skin.radiusSm, color: view === "tree" ? theme.accentInk : theme.ink, background: view === "tree" ? theme.accent : "transparent" }}
-            >
-              <GitBranch size={13} />
-              {ui.navTree}
-            </button>
-            <button
-              onClick={() => setView("editor")}
-              className="flex items-center gap-1.5 text-xs font-semibold px-3 py-2 transition-colors"
-              style={{ borderRadius: skin.radiusSm, color: view === "editor" ? theme.accentInk : theme.ink, background: view === "editor" ? theme.accent : "transparent" }}
-            >
-              <Settings size={13} />
-              {ui.navEditor}
-            </button>
-            <button
-              onClick={() => setView("planner")}
-              className="flex items-center gap-1.5 text-xs font-semibold px-3 py-2 transition-colors"
-              style={{ borderRadius: skin.radiusSm, color: view === "planner" ? theme.accentInk : theme.ink, background: view === "planner" ? theme.accent : "transparent" }}
-            >
-              <CalendarDays size={13} />
-              {ui.navPlanner}
-            </button>
-          </nav>
         </header>
 
-        <div className="educraft-hero-in pt-8">
-          {view === "library" ? (
-            <LibraryView lang={lang} ui={ui} theme={theme} dir={dir} onOpen={openBook} skin={skin} covers={covers} onChangeCover={setCover} onClearCover={clearCover} />
-          ) : view === "tree" ? (
+        {/* MAIN BODY CONTENT */}
+        <main className="flex-1">
+          {screen === "library" && (
+            <LibraryView
+              lang={lang}
+              ui={ui}
+              theme={theme}
+              dir={dir}
+              skin={skin}
+              books={books}
+              bags={bags}
+              covers={covers}
+              onOpen={(bookId) => {
+                setSelectedBookId(bookId);
+                setScreen("tree");
+              }}
+              onChangeCover={(bId, data) => setCovers((c) => ({ ...c, [bId]: data }))}
+              onClearCover={(bId) =>
+                setCovers((c) => {
+                  const n = { ...c };
+                  delete n[bId];
+                  return n;
+                })
+              }
+              onAddBag={(newBag) => setBags((prev) => [...prev, newBag])}
+              onMoveBookBag={(bId, newBagId) => {
+                setBooks((prev) => prev.map((b) => (b.id === bId ? { ...b, bagId: newBagId } : b)));
+              }}
+              onAddBook={handleAddBook}
+            />
+          )}
+
+          {screen === "tree" && currentBook && (
             <TreeView
-              key={currentBook.id}
               book={currentBook}
               lang={lang}
               ui={ui}
               theme={theme}
               dir={dir}
-              onBack={() => setView("library")}
               skin={skin}
-              selectedLeaf={leafId}
-              onSelectLeaf={openLeaf}
-              onBrowse={() => setView("browse")}
               covers={covers}
-              onChangeCover={setCover}
-              onClearCover={clearCover}
+              selectedLeaf={selectedLeafId}
+              onBack={() => setScreen("library")}
+              onSelectLeaf={(leafId) => {
+                setSelectedLeafId(leafId);
+                setScreen("deck");
+              }}
+              onBrowse={() => setScreen("browse")}
+              onExport={() => downloadBookHTML(currentBook, lang, theme, ui)}
+              onChangeCover={(bId, data) => setCovers((c) => ({ ...c, [bId]: data }))}
+              onClearCover={(bId) =>
+                setCovers((c) => {
+                  const n = { ...c };
+                  delete n[bId];
+                  return n;
+                })
+              }
             />
-          ) : view === "browse" ? (
-            <BrowseView key={currentBook.id} book={currentBook} lang={lang} ui={ui} theme={theme} dir={dir} skin={skin} onBack={() => setView("tree")} />
-          ) : view === "editor" ? (
-            <EditorView
-              key={currentBook.id}
-              book={currentBook}
-              lang={lang}
-              theme={theme}
-              skin={skin}
-              voiceEnabled={voiceEnabled}
-              onVoiceEnabledChange={setVoiceEnabled}
-              onUpdateBook={updateCurrentBook}
-            />
-          ) : view === "planner" ? (
-            <PlannerView key={currentBook.id} book={currentBook} lang={lang} ui={ui} theme={theme} dir={dir} skin={skin} plan={currentPlan} onUpdatePlan={updateCurrentPlan} />
-          ) : currentLeaf ? (
+          )}
+
+          {screen === "deck" && currentBook && currentLeaf && (
             <DeckView
-              key={currentLeaf.id}
               node={currentLeaf}
               book={currentBook}
               lang={lang}
@@ -5134,27 +5718,140 @@ export default function EDUcraftApp() {
               skin={skin}
               cardMode={cardMode}
               scrollDir={scrollDir}
-              onBack={() => setView("tree")}
+              onBack={() => setScreen("tree")}
+              onJumpToBlock={handleJumpToBlock}
             />
-          ) : (
-            <TreeView
-              key={currentBook.id}
+          )}
+
+          {screen === "browse" && currentBook && (
+            <BrowseView
               book={currentBook}
               lang={lang}
               ui={ui}
               theme={theme}
               dir={dir}
-              onBack={() => setView("library")}
               skin={skin}
-              selectedLeaf={leafId}
-              onSelectLeaf={openLeaf}
-              onBrowse={() => setView("browse")}
-              covers={covers}
-              onChangeCover={setCover}
-              onClearCover={clearCover}
+              onBack={() => setScreen("tree")}
+              onJumpToBlock={handleJumpToBlock}
             />
           )}
-        </div>
+
+          {screen === "editor" && currentBook && (
+            <section>
+              <div className="flex items-center justify-between gap-3 mb-5 flex-wrap">
+                <div>
+                  <h1 className="text-2xl font-bold" style={{ color: theme.ink }}>
+                    {EDITOR_STR[lang]?.editorTitle || "Editor"}
+                  </h1>
+                  <p className="text-xs" style={{ color: theme.inkSoft }}>
+                    {EDITOR_STR[lang]?.editorSub || "Pick a leaf to build cards or A4 pages."}
+                  </p>
+                </div>
+
+                {/* Sub-Tabs: Cards vs A4 Pages (Pill Buttons as reference) */}
+                <div className="flex items-center gap-1.5 p-1 rounded-full border" style={{ background: theme.surface, borderColor: theme.hairlineStrong }}>
+                  <PillTabButton active={editorSubTab === "cards"} onClick={() => setEditorSubTab("cards")} icon={Layers} theme={theme}>
+                    {EDITOR_STR[lang]?.tabCards || "Cards"}
+                  </PillTabButton>
+
+                  <PillTabButton active={editorSubTab === "pages"} onClick={() => setEditorSubTab("pages")} icon={BookOpen} theme={theme}>
+                    {EDITOR_STR[lang]?.tabPages || "A4 Pages"}
+                  </PillTabButton>
+                </div>
+              </div>
+
+              <div className="grid md:grid-cols-[240px_1fr] gap-5">
+                {/* Left Leaf Navigation */}
+                <div className="p-3.5 rounded-2xl shadow-sm border" style={{ ...panelStyle(skin, theme), alignSelf: "start" }}>
+                  <EditorLeafNav
+                    book={currentBook}
+                    lang={lang}
+                    theme={theme}
+                    selectedLeafId={selectedLeafId}
+                    onSelect={(id) => setSelectedLeafId(id)}
+                  />
+                </div>
+
+                {/* Editor Content Area */}
+                <div>
+                  {currentLeaf ? (
+                    editorSubTab === "cards" ? (
+                      <div className="flex flex-col gap-4">
+                        <div className="flex items-center justify-between gap-3 flex-wrap">
+                          <h2 className="text-lg font-bold" style={{ color: theme.ink }}>
+                            {currentLeaf[lang] || currentLeaf.en} — {EDITOR_STR[lang]?.tabCards}
+                          </h2>
+
+                          <button
+                            onClick={() => {
+                              const newCard = {
+                                id: `${currentLeaf.id}-card-${Date.now()}`,
+                                image: null,
+                                imagePosition: "top",
+                                questions: [],
+                              };
+                              const updatedCards = [...(currentLeaf.cards || leafCards(currentLeaf)), newCard];
+                              handleUpdateCurrentLeaf({ cards: updatedCards });
+                            }}
+                            className="text-xs font-bold px-3 py-1.5 rounded-full text-white shadow-xs transition-transform hover:scale-105"
+                            style={{ background: theme.accent }}
+                          >
+                            + {EDITOR_STR[lang]?.newCard}
+                          </button>
+                        </div>
+
+                        {(currentLeaf.cards || leafCards(currentLeaf)).map((card, idx) => (
+                          <CardEditor
+                            key={card.id || idx}
+                            card={card}
+                            lang={lang}
+                            theme={theme}
+                            skin={skin}
+                            t={EDITOR_STR[lang] || EDITOR_STR.ar}
+                            voiceEnabled={voiceEnabled}
+                            allLeaves={allLeaves}
+                            currentLeafId={currentLeaf.id}
+                            pageBlocks={currentLeaf.pageBlocks || []}
+                            onUpdateCard={(patch) => {
+                              const cards = currentLeaf.cards || leafCards(currentLeaf);
+                              const updated = cards.map((c, i) => (i === idx ? { ...c, ...patch } : c));
+                              handleUpdateCurrentLeaf({ cards: updated });
+                            }}
+                            onDeleteCard={() => {
+                              const cards = currentLeaf.cards || leafCards(currentLeaf);
+                              handleUpdateCurrentLeaf({ cards: cards.filter((_, i) => i !== idx) });
+                            }}
+                          />
+                        ))}
+                      </div>
+                    ) : (
+                      <A4PageBuilder
+                        leaf={currentLeaf}
+                        book={currentBook}
+                        lang={lang}
+                        theme={theme}
+                        skin={skin}
+                        t={EDITOR_STR[lang] || EDITOR_STR.ar}
+                        ui={ui}
+                        allLeavesCards={leafCards(currentLeaf)}
+                        allQuestions={allCurrentQuestions}
+                        onUpdateLeaf={handleUpdateCurrentLeaf}
+                        onJumpToQuestion={handleJumpToQuestion}
+                      />
+                    )
+                  ) : (
+                    <div className="p-12 text-center rounded-2xl border border-dashed" style={{ borderColor: theme.hairlineStrong, color: theme.inkSoft }}>
+                      <GitBranch size={32} className="mx-auto mb-2 opacity-50" />
+                      <p className="text-sm font-bold">
+                        {EDITOR_STR[lang]?.noLeaf || "Pick a leaf on the left to start editing."}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </section>
+          )}
+        </main>
       </div>
 
       {settingsOpen && (
@@ -5174,6 +5871,7 @@ export default function EDUcraftApp() {
           voiceEnabled={voiceEnabled}
           onVoiceEnabledChange={setVoiceEnabled}
           onClose={() => setSettingsOpen(false)}
+          onReset={handleResetData}
         />
       )}
     </div>
