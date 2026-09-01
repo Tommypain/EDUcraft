@@ -5510,7 +5510,47 @@ async function buildAppBundleFallback(payload) {
   const to = cover_to || "#F2C879";
   const favicon = generateDynamicFavicon({ from, to }, title);
 
-  // Inlined styles from running document
+  const standaloneScript = `<script>
+window.__STANDALONE__ = {
+  targetType: ${JSON.stringify(target_type)},
+  title: ${JSON.stringify(title)},
+  lang: ${JSON.stringify(lang)},
+  dir: ${JSON.stringify(dir)},
+  coverFrom: ${JSON.stringify(from)},
+  coverTo: ${JSON.stringify(to)},
+  data: ${JSON.stringify(data).replace(/<\/script>/g, "<\\/script>")}
+};
+</script>`;
+
+  // 1. Try reading dist/index.html if available
+  try {
+    const distHtmlRes = await fetch("/dist/index.html");
+    if (distHtmlRes.ok) {
+      let html = await distHtmlRes.text();
+      const cssMatch = html.match(/href="([^"]+\.css)"/);
+      if (cssMatch && cssMatch[1]) {
+        const cssPath = cssMatch[1].startsWith("/") ? cssMatch[1] : "/dist/" + cssMatch[1].replace(/^\/?dist\//, "");
+        const cssRes = await fetch(cssPath);
+        if (cssRes.ok) {
+          const css = await cssRes.text();
+          html = html.replace(/<link[^>]+stylesheet[^>]+>/, `<style>${css}</style>`);
+        }
+      }
+      const jsMatch = html.match(/src="([^"]+\.js)"/);
+      if (jsMatch && jsMatch[1]) {
+        const jsPath = jsMatch[1].startsWith("/") ? jsMatch[1] : "/dist/" + jsMatch[1].replace(/^\/?dist\//, "");
+        const jsRes = await fetch(jsPath);
+        if (jsRes.ok) {
+          const js = await jsRes.text();
+          html = html.replace(/<script[^>]+src=[^>]+><\/script>/, `<script type="module">${js}</script>`);
+        }
+      }
+      html = html.replace("</head>", `${standaloneScript}\n<link rel="icon" href="${favicon}">\n</head>`);
+      return html;
+    }
+  } catch (e) {}
+
+  // 2. Inlined styles from running document
   let cssText = "";
   const styleEls = Array.from(document.querySelectorAll("style"));
   for (const s of styleEls) {
@@ -5524,7 +5564,7 @@ async function buildAppBundleFallback(payload) {
     } catch (e) {}
   }
 
-  // Inlined script tags
+  // 3. Inlined script tags
   let scriptsHtml = "";
   const scriptEls = Array.from(document.querySelectorAll("script"));
   for (const sc of scriptEls) {
@@ -5542,18 +5582,6 @@ async function buildAppBundleFallback(payload) {
       scriptsHtml += `<script type="${sc.type || 'text/javascript'}">${sc.innerHTML}</script>\n`;
     }
   }
-
-  const standaloneScript = `<script>
-window.__STANDALONE__ = {
-  targetType: ${JSON.stringify(target_type)},
-  title: ${JSON.stringify(title)},
-  lang: ${JSON.stringify(lang)},
-  dir: ${JSON.stringify(dir)},
-  coverFrom: ${JSON.stringify(from)},
-  coverTo: ${JSON.stringify(to)},
-  data: ${JSON.stringify(data).replace(/<\/script>/g, "<\\/script>")}
-};
-</script>`;
 
   return `<!doctype html>
 <html lang="${lang}" dir="${dir}">
@@ -5609,32 +5637,19 @@ async function exportStandalonePackage({ targetType, targetId, books, bags, lang
 
   let compiledHtml = "";
 
-  // ── Try Rust Tauri IPC first (app-bundle approach) ────────────────────────
+  // ── 1. Rust Tauri IPC Engine: real compiled React app bundle ──────────────
   try {
     if (window.__TAURI_INTERNALS__ || window.__TAURI__) {
       const { invoke } = await import("@tauri-apps/api/core");
       compiledHtml = await invoke("export_app_bundle", { payload: bundlePayload });
     }
   } catch (err) {
-    console.info("Tauri export_app_bundle not available, using JS fallback:", err);
+    console.info("Tauri export_app_bundle not available, falling back to browser bundler:", err);
   }
 
-  // ── JS Fallback: build standalone HTML with embedded UI ───────────────────
+  // ── 2. Browser Fallback: real React app bundle inlined from browser DOM ───
   if (!compiledHtml) {
-    compiledHtml = buildFullStandaloneHTML({
-      target_type: targetType,
-      title,
-      tagline: "",
-      lang,
-      dir: lang === "ar" ? "rtl" : "ltr",
-      cover_from,
-      cover_to,
-      cover_icon: "book",
-      cover_image: null,
-      data,
-      custom_todos: [],
-      calendar_events: [],
-    });
+    compiledHtml = await buildAppBundleFallback(bundlePayload);
   }
 
   const blob = new Blob([compiledHtml], { type: "text/html" });
@@ -5647,6 +5662,7 @@ async function exportStandalonePackage({ targetType, targetId, books, bags, lang
   a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 4000);
 }
+
 
 
 function ExportModal({ isOpen, onClose, books, bags, currentBook, lang, theme, dir, skin, covers }) {
