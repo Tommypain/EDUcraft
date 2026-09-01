@@ -69,6 +69,14 @@ import {
   FileText,
   PanelLeftClose,
   PanelLeftOpen,
+  Printer,
+  Sparkle,
+  Bookmark,
+  AlertTriangle,
+  Info,
+  Heading,
+  CodeXml,
+  Menu,
 } from "lucide-react";
 
 /* =================================================================
@@ -1472,7 +1480,7 @@ const FLAVORS = {
     ar: "عادي",
     light: {
       canvas: "#F3EAD9",
-      header: "#DCE9DC", // Soft sage green header as requested
+      header: "#DCE9DC", // Restored soft sage green header
       surface: "#FFFDFB",
       surfaceSoft: "#F8F2E6",
       ink: "#241B13",
@@ -1668,7 +1676,7 @@ function panelStyle(skin, theme, { soft = false, radius = "lg" } = {}) {
 }
 
 /* =================================================================
-   Question-type palette — 13 types, one color each.
+   Question-type palette — 13 types
 ================================================================== */
 const CORRECT = { bg: "#9BE8C4", border: "#0B2318" };
 const INCORRECT = { bg: "#FFD9CE", border: "#7A2A12" };
@@ -1708,7 +1716,7 @@ const UI = {
     langToggle: "AR",
     navLibrary: "Library",
     navTree: "Tree",
-    navEditor: "Editor",
+    navEditor: "Studio",
     navBags: "Bags",
     allBags: "All Bags",
     newBag: "New Bag",
@@ -1791,9 +1799,10 @@ const UI = {
     settingsFlavorLabel: "Taste",
     settingsFlavorSub: "The color mood — works with any theme.",
     treeExportCta: "Export as HTML",
-    hideEditorPanel: "Hide Controls",
-    showEditorPanel: "Show Controls",
-    thumbnailsTitle: "Pages",
+    hideEditorPanel: "Hide Sidebar",
+    showEditorPanel: "Show Sidebar",
+    thumbnailsTitle: "Page Previews",
+    printA4: "Print / Export A4",
   },
   ar: {
     dir: "rtl",
@@ -1804,7 +1813,7 @@ const UI = {
     langToggle: "EN",
     navLibrary: "المكتبة",
     navTree: "الشجرة",
-    navEditor: "المحرر",
+    navEditor: "الاستوديو",
     navBags: "الشنط",
     allBags: "كل الشنط",
     newBag: "شنطة جديدة",
@@ -1887,9 +1896,10 @@ const UI = {
     settingsFlavorLabel: "النكهة",
     settingsFlavorSub: "مزاج الألوان — بتشتغل مع أي ثيم فوق، فاتح أو غامق.",
     treeExportCta: "صدّر كملف HTML",
-    hideEditorPanel: "إخفاء التحكم",
-    showEditorPanel: "إظهار التحكم",
-    thumbnailsTitle: "الصفحات",
+    hideEditorPanel: "إخفاء القائمة",
+    showEditorPanel: "إظهار القائمة",
+    thumbnailsTitle: "معاينة الصفحات",
+    printA4: "طباعة / تصدير A4",
   },
 };
 
@@ -4193,11 +4203,11 @@ function SettingsPanel({ ui, theme, dir, skinId, onSkinChange, flavorId, onFlavo
 }
 
 /* =================================================================
-   EDITOR MODE (With Collapsible Sliding Drawer & Full Rich Blocks)
+   EDITOR MODE (Clean Studio Architecture — Unified 3-Pane Workspace)
 ================================================================== */
 const EDITOR_STR = {
   en: {
-    editorTitle: "Editor",
+    editorTitle: "Studio",
     editorSub: "Pick a leaf, then build its question cards or its printed A4 pages.",
     addQuestion: "Add question",
     noLeaf: "Pick a leaf on the left to start editing.",
@@ -4229,10 +4239,10 @@ const EDITOR_STR = {
     noQuestionsInCard: "This card is empty — add a question.",
     pagesSub: "Build the printed A4 version using the 60 Thiqa palettes.",
     addBlock: "Add block",
-    genFromCards: "Generate from this leaf's cards (Auto-Link)",
+    genFromCards: "Auto-Generate from Cards",
     changePalette: "Change Palette",
-    blockTitleBlock: "Doc Title Block",
-    blockSectionTitle: "Section title", blockKeyterm: "Key term", blockNote: "Note", blockWarning: "Warning", blockImportant: "Important", blockImage: "Image", blockTable: "Thiqa Table", blockCode: "Code Box", blockMediaCard: "Media Card", blockPagebreak: "Page break",
+    blockTitleBlock: "Doc Header Block",
+    blockSectionTitle: "Section Title", blockKeyterm: "Key Term", blockNote: "Note Box", blockWarning: "Warning Box", blockImportant: "Important Box", blockImage: "Image", blockTable: "Thiqa Table", blockCode: "Code Box", blockMediaCard: "Media Card", blockPagebreak: "Page Break",
     blockTitle: "Title", blockText: "Text", imageUrl: "Image URL", imageCaption: "Caption",
     mediaTitle: "Card Title", mediaDesc: "Description", mediaMeta: "Source / Note",
     codeBoxLang: "Language", codeSnippet: "Code snippet",
@@ -4243,13 +4253,17 @@ const EDITOR_STR = {
     exportBookJson: "Export book (JSON)",
     cardNote: "Note",
     linkToQuestion: "Link to Question",
-    thumbnailsTitle: "Page Thumbnails",
+    thumbnailsTitle: "Page Previews",
+    tabOutline: "Outline",
+    tabAddBlocks: "Add Blocks",
+    tabInspector: "Blocks List",
+    emptyPagePrompt: "This page is empty right now. Start by adding a header, or generate automatically from cards with one click!",
   },
   ar: {
-    editorTitle: "المحرر",
+    editorTitle: "الاستوديو التعليمي",
     editorSub: "اختار ورقة، وابني كاردات أسئلتها الملوّنة أو صفحاتها المطبوعة A4.",
     addQuestion: "إضافة سؤال",
-    noLeaf: "اختار ورقة من الشمال عشان تبدأ التحرير.",
+    noLeaf: "اختار ورقة من القائمة للبدء.",
     prompt: "نص السؤال",
     voice: "صوت", voiceOn: "الصوت مفعّل",
     code: "صندوق كود", codeLang: "اللغة",
@@ -4278,10 +4292,10 @@ const EDITOR_STR = {
     noQuestionsInCard: "الكارد ده فاضي — ضيف سؤال.",
     pagesSub: "ابني النسخة المطبوعة A4 باستخدام الباليتات الستين (ثِقة).",
     addBlock: "إضافة عنصر",
-    genFromCards: "ولّد من كاردات الورقة دي (ربط تلقائي)",
+    genFromCards: "توليد تلقائي من كاردات الورقة",
     changePalette: "تغيير الباليتة",
     blockTitleBlock: "ترويسة المادة والمحاضرة",
-    blockSectionTitle: "عنوان قسم", blockKeyterm: "مصطلح مفتاحي", blockNote: "ملاحظة", blockWarning: "تحذير", blockImportant: "مهم", blockImage: "صورة", blockTable: "جدول ثِقة", blockCode: "صندوق كود", blockMediaCard: "بطاقة وسائط", blockPagebreak: "فاصل صفحة",
+    blockSectionTitle: "عنوان قسم", blockKeyterm: "مصطلح مفتاحي", blockNote: "صندوق ملاحظة", blockWarning: "صندوق تحذير", blockImportant: "صندوق معلومة مهمة", blockImage: "صورة توضيحية", blockTable: "جدول ثِقة", blockCode: "صندوق كود برمجي", blockMediaCard: "بطاقة وسائط", blockPagebreak: "فاصل صفحة",
     blockTitle: "العنوان", blockText: "النص", imageUrl: "رابط الصورة", imageCaption: "التعليق",
     mediaTitle: "عنوان البطاقة", mediaDesc: "الوصف", mediaMeta: "المصدر / الملاحظة",
     codeBoxLang: "اللغة", codeSnippet: "الكود",
@@ -4292,7 +4306,11 @@ const EDITOR_STR = {
     exportBookJson: "تصدير الكتاب (JSON)",
     cardNote: "ملاحظة",
     linkToQuestion: "ربط بسؤال",
-    thumbnailsTitle: "مصغرات الصفحات",
+    thumbnailsTitle: "معاينة الصفحات",
+    tabOutline: "الفصول والأوراق",
+    tabAddBlocks: "إضافة عناصر",
+    tabInspector: "العناصر الحالية",
+    emptyPagePrompt: "الصفحة فارغة حالياً. ابدأ بإضافة ترويسة أو ولّد المحتوى تلقائياً من كاردات الأسئلة بنقرة واحدة!",
   },
 };
 
@@ -4897,12 +4915,12 @@ function EditorLeafNav({ book, lang, theme, selectedLeafId, onSelect }) {
 }
 
 /* =================================================================
-   A4 PAGE BUILDER (60 Palettes / Thiqa Plates & Thumbnails & Code)
+   BLOCK ROW & PLATE BLOCKS
 ================================================================== */
 function BlockRow({ block, t, theme, skin, onUpdate, onDelete, onMove, allQuestions = [], onJumpToQuestion, bookId, leafId }) {
   const kind = block.kind;
   return (
-    <div id={`block-editor-${block.id}`} className="p-3 mb-2.5 rounded-xl shadow-sm border transition-all" style={{ borderColor: theme.hairline, background: theme.surface }}>
+    <div id={`block-editor-${block.id}`} className="p-3 mb-2.5 rounded-xl shadow-xs border transition-all" style={{ borderColor: theme.hairline, background: theme.surface }}>
       <div className="flex items-center gap-1.5 mb-2 flex-wrap">
         <select
           value={kind}
@@ -4927,7 +4945,7 @@ function BlockRow({ block, t, theme, skin, onUpdate, onDelete, onMove, allQuesti
         <select
           value={block.linkedQuestionId || ""}
           onChange={(e) => onUpdate({ linkedQuestionId: e.target.value || null })}
-          className="text-xs px-2 py-1.5 rounded-lg outline-none max-w-[140px] truncate"
+          className="text-xs px-2 py-1.5 rounded-lg outline-none max-w-[130px] truncate"
           style={{ border: `1px solid ${theme.hairline}`, background: theme.surfaceSoft, color: theme.ink }}
           title={t.linkToQuestion}
         >
@@ -4974,7 +4992,7 @@ function BlockRow({ block, t, theme, skin, onUpdate, onDelete, onMove, allQuesti
             dir="ltr"
             className="w-full text-xs px-2.5 py-1.5 rounded-lg outline-none font-mono"
             style={{ border: `1px solid ${theme.hairline}`, background: "#111", color: "#4FC1FF" }}
-            placeholder={'fn main() {\n  println!("Hello World");\n}'}
+            placeholder={"fn main() {\\n  println!(\\\"Hello World\\\");\\n}"}
           />
         </div>
       ) : kind === "mediaCard" ? (
@@ -5211,12 +5229,27 @@ function usePagedBlocks(blocks) {
 }
 
 /* =================================================================
-   A4PageBuilder (Royal View + Collapsible Controls + Thumbnails Rail)
+   STUDIO PALETTE CARD DEFINITIONS FOR LEFT PANEL
 ================================================================== */
-function A4PageBuilder({ leaf, book, lang, theme, skin, t, ui, onUpdateLeaf, allLeavesCards, allQuestions, onJumpToQuestion }) {
+const STUDIO_BLOCK_DEFS = [
+  { kind: "titleBlock", icon: Bookmark, en: "Doc Header", ar: "ترويسة المادة والمحاضرة", descEn: "Subject name & lecture header", descAr: "عنوان المادة واسم المحاضرة مع خط فاصل" },
+  { kind: "sectionTitle", icon: Heading, en: "Section Title", ar: "عنوان قسم", descEn: "Main colored section header", descAr: "عنوان رئيسي بارز بلون الباليتة" },
+  { kind: "keyterm", icon: Bookmark, en: "Key Term", ar: "مصطلح مفتاحي", descEn: "Definition box with highlighted term", descAr: "صندوق تعريف مصطلح بلون ناعم" },
+  { kind: "note", icon: Info, en: "Note Box", ar: "صندوق ملاحظة", descEn: "Helpful study tip or clinical note", descAr: "ملاحظة توضيحية أو إرشادية" },
+  { kind: "warning", icon: AlertTriangle, en: "Warning Box", ar: "صندوق تحذير", descEn: "Critical alert with distinct border", descAr: "تنبيه هام وملاحظة حساسة" },
+  { kind: "important", icon: Star, en: "Important Box", ar: "معلومة مهمة", descEn: "High-priority emphasized box", descAr: "معلومة أساسية مميزة بلون فاقع" },
+  { kind: "code", icon: CodeXml, en: "Code Box", ar: "صندوق كود", descEn: "Syntax highlighted code snippet", descAr: "كود برمجي داكن عالي التباين" },
+  { kind: "mediaCard", icon: ImageIcon, en: "Media Card", ar: "بطاقة وسائط", descEn: "Image with title & description", descAr: "صورة مع عنوان ووصف ومصدر" },
+  { kind: "table", icon: TableIcon, en: "Thiqa Table", ar: "جدول ثِقة", descEn: "Striped alternating data table", descAr: "جدول ملوّن متناسق مع الباليتة" },
+  { kind: "pagebreak", icon: FileText, en: "Page Break", ar: "فاصل صفحة A4", descEn: "Split content into next page", descAr: "فصل المحتوى لصفحة جديدة" },
+];
+
+/* =================================================================
+   A4PageBuilder (Royal View + Clean Studio Dock + Thumbnails)
+================================================================== */
+function A4PageBuilder({ leaf, book, lang, theme, skin, t, ui, onUpdateLeaf, allLeavesCards, allQuestions, onJumpToQuestion, sidebarOpen, sidebarTab, onSetSidebarTab }) {
   const blocks = leaf.pageBlocks || [];
   const [paletteModalOpen, setPaletteModalOpen] = useState(false);
-  const [controlsOpen, setControlsOpen] = useState(true); // Collapsible sliding sidebar
   const [activePageIndex, setActivePageIndex] = useState(0);
 
   const currentPaletteNum = leaf.paletteId || book.paletteId || 1;
@@ -5264,141 +5297,130 @@ function A4PageBuilder({ leaf, book, lang, theme, skin, t, ui, onUpdateLeaf, all
     pageRefs.current[idx]?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
-  return (
-    <div className="relative flex flex-col gap-4">
-      {/* Top Quick Bar: Toggle Controls & Active Blade Badge */}
-      <div className="flex items-center justify-between gap-3 px-3 py-2 rounded-2xl border" style={{ background: skinSurface(skin, theme, true), borderColor: theme.hairline }}>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setControlsOpen((o) => !o)}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-full transition-all shadow-xs"
-            style={{
-              background: controlsOpen ? theme.accentSoft : theme.accent,
-              color: controlsOpen ? theme.accent : theme.accentInk,
-              border: `1px solid ${theme.hairlineStrong}`,
-            }}
-          >
-            {controlsOpen ? <PanelLeftClose size={14} /> : <PanelLeftOpen size={14} />}
-            <span>{controlsOpen ? ui.hideEditorPanel : ui.showEditorPanel}</span>
-          </button>
+  const handlePrint = () => {
+    window.print();
+  };
 
-          <div className="flex items-center gap-2 px-2.5 py-1 rounded-full border border-black/10 text-xs font-bold" style={{ background: activePalette.vars["--PageBG"], color: activePalette.vars["--HeaderColor"] }}>
-            <span className="w-2.5 h-2.5 rounded-full" style={{ background: activePalette.vars["--SectionBG"] }} />
-            <span>#{activePalette.num} — {activePalette.name}</span>
+  return (
+    <div className="flex-1 flex flex-col min-w-0">
+      {/* Studio Top Control Bar */}
+      <div
+        className="flex items-center justify-between gap-3 px-4 py-2.5 rounded-2xl border mb-4 shadow-xs flex-wrap"
+        style={{ background: theme.surface, borderColor: theme.hairline }}
+      >
+        <div className="flex items-center gap-2.5 flex-wrap">
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setPaletteModalOpen(true)}
+              className="flex items-center gap-2 px-3 py-1.5 rounded-xl border border-black/10 text-xs font-bold transition-all hover:scale-105 shadow-xs"
+              style={{ background: activePalette.vars["--PageBG"], color: activePalette.vars["--HeaderColor"] }}
+            >
+              <div className="flex h-3 w-8 rounded overflow-hidden shadow-inner border border-black/10">
+                <span className="flex-1" style={{ background: activePalette.vars["--SectionBG"] }} />
+                <span className="flex-1" style={{ background: activePalette.vars["--KeyBG"] }} />
+                <span className="flex-1" style={{ background: activePalette.vars["--NoteBG"] }} />
+              </div>
+              <span>#{activePalette.num} — {activePalette.name}</span>
+              <Palette size={12} className="opacity-60" />
+            </button>
           </div>
+
+          <button
+            onClick={generateFromCards}
+            className="flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-xl shadow-xs transition-transform hover:scale-105"
+            style={{ background: theme.accentSoft, color: theme.accent }}
+          >
+            <Sparkles size={13} />
+            <span>{t.genFromCards}</span>
+          </button>
         </div>
 
         <div className="flex items-center gap-2">
           <button
             type="button"
-            onClick={() => setPaletteModalOpen(true)}
-            className="text-xs font-bold px-3 py-1.5 rounded-full text-white shadow-xs hover:brightness-95 transition-all"
-            style={{ background: theme.accent }}
+            onClick={handlePrint}
+            className="flex items-center gap-1.5 text-xs font-bold px-3.5 py-1.5 rounded-xl border hover:bg-black/5 transition-colors"
+            style={{ borderColor: theme.hairlineStrong, color: theme.ink }}
           >
-            <Palette size={13} className="inline me-1" />
-            {t.changePalette}
+            <Printer size={13} />
+            <span>{ui.printA4}</span>
           </button>
         </div>
       </div>
 
-      {/* Main Container: Collapsible Sidebar + Royal A4 View + Page Thumbnails */}
-      <div className="flex gap-4 items-start relative min-h-[75vh]">
-        {/* Collapsible Sliding Sidebar */}
-        <div
-          className={`transition-all duration-300 ease-in-out shrink-0 overflow-hidden ${
-            controlsOpen ? "w-[290px] opacity-100" : "w-0 opacity-0 pointer-events-none"
-          }`}
-        >
-          <div className="p-3.5 rounded-2xl shadow-sm border flex flex-col gap-3 w-[290px]" style={{ borderColor: theme.hairline, background: theme.surface }}>
-            <button
-              onClick={generateFromCards}
-              className="w-full text-xs font-bold px-3 py-2 rounded-xl shadow-xs transition-transform hover:scale-[1.01]"
-              style={{ background: theme.accentSoft, color: theme.accent }}
-            >
-              {t.genFromCards}
-            </button>
-
-            <div className="grid grid-cols-3 gap-1.5">
-              {[
-                ["titleBlock", t.blockTitleBlock],
-                ["sectionTitle", t.blockSectionTitle],
-                ["keyterm", t.blockKeyterm],
-                ["note", t.blockNote],
-                ["warning", t.blockWarning],
-                ["important", t.blockImportant],
-                ["code", t.blockCode],
-                ["mediaCard", t.blockMediaCard],
-                ["table", t.blockTable],
-                ["image", t.blockImage],
-                ["pagebreak", t.blockPagebreak],
-              ].map(([kind, label]) => (
-                <button
-                  key={kind}
-                  onClick={() => addBlock(kind)}
-                  title={label}
-                  className="h-8 grid place-items-center text-[10px] font-bold rounded-lg shadow-xs hover:scale-105 transition-transform truncate px-1"
-                  style={{ background: theme.surfaceSoft, color: theme.ink, border: `1px solid ${theme.hairline}` }}
-                >
-                  + {label.slice(0, 5)}
-                </button>
-              ))}
-            </div>
-
-            <div className="max-h-[58vh] overflow-y-auto pe-1 flex flex-col gap-1">
-              {blocks.map((b, i) => (
-                <BlockRow
-                  key={b.id || i}
-                  block={b}
-                  t={t}
-                  theme={theme}
-                  skin={skin}
-                  allQuestions={allQuestions}
-                  onUpdate={(p) => updateBlock(i, p)}
-                  onDelete={() => deleteBlock(i)}
-                  onMove={(dir) => moveBlock(i, dir)}
-                  onJumpToQuestion={onJumpToQuestion}
-                  bookId={book.id}
-                  leafId={leaf.id}
-                />
-              ))}
-            </div>
-          </div>
+      {/* Center Studio Desk + Right Thumbnails */}
+      <div className="flex gap-6 items-start justify-center relative min-h-[80vh]">
+        {/* Hidden measuring pass */}
+        <div ref={measureRef} style={{ position: "absolute", visibility: "hidden", pointerEvents: "none", width: "182mm", top: -99999 }}>
+          {blocks.map((b, i) => (
+            <PlateBlock key={b.id || i} block={b} ui={ui} />
+          ))}
         </div>
 
-        {/* Center: Full Royal A4 Pages Infinite-Scroll View */}
-        <div className="flex-1 flex flex-col items-center overflow-x-auto min-w-0 pb-16">
-          {/* Hidden measuring pass */}
-          <div ref={measureRef} style={{ position: "absolute", visibility: "hidden", pointerEvents: "none", width: "182mm", top: -99999 }}>
-            {blocks.map((b, i) => (
-              <PlateBlock key={b.id || i} block={b} ui={ui} />
-            ))}
-          </div>
-
-          <div className="flex flex-col gap-8 items-center w-full">
-            {pages.map((pageBlocks, pi) => (
-              <section
-                key={pi}
-                ref={(el) => (pageRefs.current[pi] = el)}
-                className="plate educraft-panel-in"
-                style={activePalette.vars}
-              >
-                {pageBlocks.map((b, i) => (
-                  <PlateBlock key={b.id || i} block={b} ui={ui} bookId={book.id} leafId={leaf.id} onJumpToQuestion={onJumpToQuestion} />
-                ))}
-                <div style={{ textAlign: "center", fontSize: 11, opacity: 0.6, marginTop: "1.5rem", borderTop: `1px dashed ${activePalette.vars["--SectionFrame"]}`, paddingTop: "0.5rem" }}>
-                  {t.pageOf(pi + 1, pages.length)} · {book[lang]?.title || book.en?.title}
-                </div>
-              </section>
-            ))}
-          </div>
+        {/* Center: A4 Paper Sheets on Desk */}
+        <div className="flex-1 flex flex-col items-center min-w-0 max-w-4xl pb-20">
+          {blocks.length === 0 ? (
+            <div className="w-full max-w-xl p-8 my-8 text-center rounded-3xl border border-dashed shadow-sm" style={{ background: theme.surface, borderColor: theme.hairlineStrong }}>
+              <div className="w-12 h-12 rounded-2xl grid place-items-center mx-auto mb-3" style={{ background: theme.accentSoft, color: theme.accent }}>
+                <Sparkles size={24} />
+              </div>
+              <h3 className="text-base font-bold mb-1" style={{ color: theme.ink }}>
+                {leaf[lang] || leaf.en}
+              </h3>
+              <p className="text-xs mb-5 max-w-md mx-auto leading-relaxed" style={{ color: theme.inkSoft }}>
+                {t.emptyPagePrompt}
+              </p>
+              <div className="flex flex-wrap items-center justify-center gap-2">
+                <button
+                  onClick={generateFromCards}
+                  className="px-4 py-2 text-xs font-bold rounded-xl text-white shadow-sm transition-transform hover:scale-105"
+                  style={{ background: theme.accent }}
+                >
+                  ⚡ {t.genFromCards}
+                </button>
+                <button
+                  onClick={() => addBlock("titleBlock")}
+                  className="px-3.5 py-2 text-xs font-bold rounded-xl border hover:bg-black/5 transition-colors"
+                  style={{ borderColor: theme.hairlineStrong, color: theme.ink }}
+                >
+                  + {t.blockTitleBlock}
+                </button>
+                <button
+                  onClick={() => addBlock("sectionTitle")}
+                  className="px-3.5 py-2 text-xs font-bold rounded-xl border hover:bg-black/5 transition-colors"
+                  style={{ borderColor: theme.hairlineStrong, color: theme.ink }}
+                >
+                  + {t.blockSectionTitle}
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="flex flex-col gap-10 items-center w-full">
+              {pages.map((pageBlocks, pi) => (
+                <section
+                  key={pi}
+                  ref={(el) => (pageRefs.current[pi] = el)}
+                  className="plate educraft-panel-in"
+                  style={activePalette.vars}
+                >
+                  {pageBlocks.map((b, i) => (
+                    <PlateBlock key={b.id || i} block={b} ui={ui} bookId={book.id} leafId={leaf.id} onJumpToQuestion={onJumpToQuestion} />
+                  ))}
+                  <div style={{ textAlign: "center", fontSize: 11, opacity: 0.6, marginTop: "1.5rem", borderTop: `1px dashed ${activePalette.vars["--SectionFrame"]}`, paddingTop: "0.5rem" }}>
+                    {t.pageOf(pi + 1, pages.length)} · {book[lang]?.title || book.en?.title}
+                  </div>
+                </section>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Right Side: Page Thumbnails Ribbon Strip */}
-        <div className="sticky top-4 hidden md:flex flex-col gap-2.5 p-2 rounded-2xl border shrink-0" style={{ background: theme.surface, borderColor: theme.hairline }}>
+        <div className="sticky top-6 hidden lg:flex flex-col gap-2.5 p-2 rounded-2xl border shrink-0 shadow-xs" style={{ background: theme.surface, borderColor: theme.hairline }}>
           <span className="text-[10px] font-black uppercase text-center opacity-60">
             {ui.thumbnailsTitle} ({pages.length})
           </span>
-          <div className="flex flex-col gap-2 max-h-[70vh] overflow-y-auto px-1 py-1">
+          <div className="flex flex-col gap-2 max-h-[75vh] overflow-y-auto px-1 py-1">
             {pages.map((p, pIdx) => {
               const isActive = activePageIndex === pIdx;
               return (
@@ -5432,6 +5454,14 @@ function A4PageBuilder({ leaf, book, lang, theme, skin, t, ui, onUpdateLeaf, all
               );
             })}
           </div>
+          <button
+            onClick={() => addBlock("pagebreak")}
+            className="text-[10px] font-bold py-1.5 px-2 rounded-lg border border-dashed hover:bg-black/5 text-center transition-colors"
+            style={{ borderColor: theme.hairlineStrong, color: theme.accent }}
+            title="Add Page Break"
+          >
+            + New Page
+          </button>
         </div>
       </div>
 
@@ -5661,7 +5691,9 @@ export default function EDUcraftApp() {
   const [screen, setScreen] = useState("library"); // "library" | "tree" | "deck" | "browse" | "editor"
   const [selectedBookId, setSelectedBookId] = useState(null);
   const [selectedLeafId, setSelectedLeafId] = useState(null);
-  const [editorSubTab, setEditorSubTab] = useState("cards"); // "cards" | "pages"
+  const [editorSubTab, setEditorSubTab] = useState("pages"); // "cards" | "pages"
+  const [studioSidebarOpen, setStudioSidebarOpen] = useState(true);
+  const [studioSidebarTab, setStudioSidebarTab] = useState("outline"); // "outline" | "blocks" | "inspector"
 
   // Persistence
   useEffect(() => {
@@ -5688,7 +5720,19 @@ export default function EDUcraftApp() {
   const skin = SKINS[skinId] || SKINS.normal;
 
   const currentBook = useMemo(() => books.find((b) => b.id === selectedBookId) || books[0], [books, selectedBookId]);
-  const currentLeaf = useMemo(() => (currentBook?.nodes || []).find((n) => n.id === selectedLeafId && n.level === "leaf"), [currentBook, selectedLeafId]);
+  const currentLeaf = useMemo(() => {
+    const leaves = (currentBook?.nodes || []).filter((n) => n.level === "leaf");
+    if (!leaves.length) return null;
+    return leaves.find((n) => n.id === selectedLeafId) || leaves[0];
+  }, [currentBook, selectedLeafId]);
+
+  // Ensure selectedLeafId is always valid when entering editor
+  useEffect(() => {
+    if (currentBook && (!selectedLeafId || !(currentBook.nodes || []).some((n) => n.id === selectedLeafId))) {
+      const firstLeaf = (currentBook.nodes || []).find((n) => n.level === "leaf");
+      if (firstLeaf) setSelectedLeafId(firstLeaf.id);
+    }
+  }, [currentBook, selectedLeafId]);
 
   // Jump navigation between Questions and A4 Blocks
   const handleJumpToBlock = (bId, lId, blockId) => {
@@ -5792,87 +5836,105 @@ export default function EDUcraftApp() {
     return leafCards(currentLeaf).flatMap((g) => g.questions);
   }, [currentLeaf]);
 
+  const addStudioBlock = (kind) => {
+    if (!currentLeaf) return;
+    const currentBlocks = currentLeaf.pageBlocks || [];
+    const newBlock = {
+      id: `${currentLeaf.id}-b-${Date.now()}`,
+      kind,
+      title: "",
+      text: "",
+      imageUrl: "",
+      caption: "",
+      tableData: "",
+      code: "",
+      lang: "rust",
+      desc: "",
+      meta: "",
+    };
+    handleUpdateCurrentLeaf({ pageBlocks: [...currentBlocks, newBlock] });
+    setStudioSidebarTab("inspector");
+  };
+
   return (
     <div
       dir={dir}
-      className="educraft-root min-h-screen transition-colors duration-200"
+      className="educraft-root min-h-screen transition-colors duration-200 flex flex-col"
       style={{
         background: theme.canvas,
         color: theme.ink,
         fontFamily: ui.bodyFont,
       }}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex flex-col min-h-screen gap-5">
-        {/* TOP NAVIGATION BAR — Uses theme.header (Soft sage green restored) */}
-        <header
-          className="flex items-center justify-between gap-3 px-5 py-3 rounded-2xl flex-wrap shadow-xs"
-          style={{
-            background: skin.surfaceAlpha >= 1 ? theme.header : hexToRgba(theme.header, skin.surfaceAlpha),
-            borderRadius: skin.radiusLg,
-            border: `${skin.borderW}px solid ${skinBorderColor(skin, theme)}`,
-            boxShadow: skin.shadow,
-            backdropFilter: skin.blur,
-            WebkitBackdropFilter: skin.blur,
-          }}
-        >
-          <div className="flex items-center gap-3">
-            <button onClick={() => setScreen("library")} className="flex items-center gap-2 hover:opacity-85 transition-opacity">
-              <img src="/icon.png" alt="EDUcraft" className="w-8 h-8 rounded-lg object-contain shadow-xs" />
-              <span className="text-lg font-black tracking-tight" style={{ fontFamily: ui.displayFont }}>
-                {ui.brand}
-              </span>
-            </button>
+      {/* TOP NAVIGATION BAR — Uses theme.header (Soft sage green restored) */}
+      <header
+        className="w-full border-b px-4 sm:px-6 py-2.5 flex items-center justify-between gap-3 flex-wrap sticky top-0 z-40"
+        style={{
+          background: skin.surfaceAlpha >= 1 ? theme.header : hexToRgba(theme.header, skin.surfaceAlpha),
+          borderColor: theme.hairlineStrong,
+          backdropFilter: skin.blur,
+          WebkitBackdropFilter: skin.blur,
+        }}
+      >
+        <div className="flex items-center gap-3">
+          <button onClick={() => setScreen("library")} className="flex items-center gap-2 hover:opacity-85 transition-opacity">
+            <img src="/icon.png" alt="EDUcraft" className="w-7 h-7 rounded-lg object-contain shadow-xs" />
+            <span className="text-base font-black tracking-tight" style={{ fontFamily: ui.displayFont }}>
+              {ui.brand}
+            </span>
+          </button>
 
-            {/* Pill Navigation Tabs (Orange Pill Reference) */}
-            <nav className="flex items-center gap-1.5 ms-2">
-              <PillTabButton active={screen === "library"} onClick={() => setScreen("library")} icon={Library} theme={theme}>
-                {ui.navLibrary}
-              </PillTabButton>
+          {/* Pill Navigation Tabs (Orange Pill Reference) */}
+          <nav className="flex items-center gap-1.5 ms-2">
+            <PillTabButton active={screen === "library"} onClick={() => setScreen("library")} icon={Library} theme={theme}>
+              {ui.navLibrary}
+            </PillTabButton>
 
-              {currentBook && (
-                <>
-                  <PillTabButton active={screen === "tree" || screen === "deck" || screen === "browse"} onClick={() => setScreen("tree")} icon={GitBranch} theme={theme}>
-                    {ui.navTree}
-                  </PillTabButton>
+            {currentBook && (
+              <>
+                <PillTabButton active={screen === "tree" || screen === "deck" || screen === "browse"} onClick={() => setScreen("tree")} icon={GitBranch} theme={theme}>
+                  {ui.navTree}
+                </PillTabButton>
 
-                  <PillTabButton active={screen === "editor"} onClick={() => setScreen("editor")} icon={Pencil} theme={theme}>
-                    {ui.navEditor}
-                  </PillTabButton>
-                </>
-              )}
-            </nav>
-          </div>
+                <PillTabButton active={screen === "editor"} onClick={() => setScreen("editor")} icon={Pencil} theme={theme}>
+                  {ui.navEditor}
+                </PillTabButton>
+              </>
+            )}
+          </nav>
+        </div>
 
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setLang((l) => (l === "ar" ? "en" : "ar"))}
-              className="px-2.5 py-1 text-xs font-bold rounded-lg border hover:bg-black/5 transition-colors"
-              style={{ borderColor: theme.hairlineStrong, color: theme.ink }}
-            >
-              {ui.langToggle}
-            </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setLang((l) => (l === "ar" ? "en" : "ar"))}
+            className="px-2.5 py-1 text-xs font-bold rounded-lg border hover:bg-black/5 transition-colors"
+            style={{ borderColor: theme.hairlineStrong, color: theme.ink }}
+          >
+            {ui.langToggle}
+          </button>
 
-            <button
-              onClick={() => setMode((m) => (m === "dark" ? "light" : "dark"))}
-              className="w-8 h-8 grid place-items-center rounded-lg border hover:bg-black/5 transition-colors"
-              style={{ borderColor: theme.hairlineStrong, color: theme.ink }}
-            >
-              {mode === "dark" ? <Sun size={15} /> : <Moon size={15} />}
-            </button>
+          <button
+            onClick={() => setMode((m) => (m === "dark" ? "light" : "dark"))}
+            className="w-8 h-8 grid place-items-center rounded-lg border hover:bg-black/5 transition-colors"
+            style={{ borderColor: theme.hairlineStrong, color: theme.ink }}
+          >
+            {mode === "dark" ? <Sun size={15} /> : <Moon size={15} />}
+          </button>
 
-            <button
-              onClick={() => setSettingsOpen(true)}
-              className="w-8 h-8 grid place-items-center rounded-lg border hover:bg-black/5 transition-colors"
-              style={{ borderColor: theme.hairlineStrong, color: theme.ink }}
-            >
-              <Settings size={15} />
-            </button>
-          </div>
-        </header>
+          <button
+            onClick={() => setSettingsOpen(true)}
+            className="w-8 h-8 grid place-items-center rounded-lg border hover:bg-black/5 transition-colors"
+            style={{ borderColor: theme.hairlineStrong, color: theme.ink }}
+          >
+            <Settings size={15} />
+          </button>
+        </div>
+      </header>
 
-        {/* MAIN BODY CONTENT */}
-        <main className="flex-1">
-          {screen === "library" && (
+      {/* MAIN BODY CONTENT */}
+      <main className="flex-1 flex flex-col">
+        {screen === "library" && (
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 w-full">
             <LibraryView
               lang={lang}
               ui={ui}
@@ -5900,9 +5962,11 @@ export default function EDUcraftApp() {
               }}
               onAddBook={handleAddBook}
             />
-          )}
+          </div>
+        )}
 
-          {screen === "tree" && currentBook && (
+        {screen === "tree" && currentBook && (
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 w-full">
             <TreeView
               book={currentBook}
               lang={lang}
@@ -5928,9 +5992,11 @@ export default function EDUcraftApp() {
                 })
               }
             />
-          )}
+          </div>
+        )}
 
-          {screen === "deck" && currentBook && currentLeaf && (
+        {screen === "deck" && currentBook && currentLeaf && (
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6 w-full">
             <DeckView
               node={currentLeaf}
               book={currentBook}
@@ -5944,9 +6010,11 @@ export default function EDUcraftApp() {
               onBack={() => setScreen("tree")}
               onJumpToBlock={handleJumpToBlock}
             />
-          )}
+          </div>
+        )}
 
-          {screen === "browse" && currentBook && (
+        {screen === "browse" && currentBook && (
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6 w-full">
             <BrowseView
               book={currentBook}
               lang={lang}
@@ -5957,125 +6025,267 @@ export default function EDUcraftApp() {
               onBack={() => setScreen("tree")}
               onJumpToBlock={handleJumpToBlock}
             />
-          )}
+          </div>
+        )}
 
-          {screen === "editor" && currentBook && (
-            <section>
-              <div className="flex items-center justify-between gap-3 mb-5 flex-wrap">
-                <div>
-                  <h1 className="text-2xl font-bold" style={{ color: theme.ink }}>
-                    {EDITOR_STR[lang]?.editorTitle || "Editor"}
-                  </h1>
-                  <p className="text-xs" style={{ color: theme.inkSoft }}>
-                    {EDITOR_STR[lang]?.editorSub || "Pick a leaf to build cards or A4 pages."}
-                  </p>
-                </div>
+        {screen === "editor" && currentBook && (
+          <div className="flex-1 flex flex-col w-full">
+            {/* Studio Workspace Header Bar */}
+            <div
+              className="w-full border-b px-4 sm:px-6 py-2 flex items-center justify-between gap-3 flex-wrap"
+              style={{ background: theme.surface, borderColor: theme.hairline }}
+            >
+              <div className="flex items-center gap-2.5">
+                <button
+                  onClick={() => setStudioSidebarOpen((o) => !o)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-xl border hover:bg-black/5 transition-colors"
+                  style={{ borderColor: theme.hairlineStrong, color: theme.ink }}
+                  title={studioSidebarOpen ? ui.hideEditorPanel : ui.showEditorPanel}
+                >
+                  {studioSidebarOpen ? <PanelLeftClose size={14} /> : <PanelLeftOpen size={14} />}
+                  <span className="hidden sm:inline">{studioSidebarOpen ? ui.hideEditorPanel : ui.showEditorPanel}</span>
+                </button>
 
-                {/* Sub-Tabs: Cards vs A4 Pages (Pill Buttons as reference) */}
-                <div className="flex items-center gap-1.5 p-1 rounded-full border" style={{ background: theme.surface, borderColor: theme.hairlineStrong }}>
-                  <PillTabButton active={editorSubTab === "cards"} onClick={() => setEditorSubTab("cards")} icon={Layers} theme={theme}>
-                    {EDITOR_STR[lang]?.tabCards || "Cards"}
-                  </PillTabButton>
-
-                  <PillTabButton active={editorSubTab === "pages"} onClick={() => setEditorSubTab("pages")} icon={BookOpen} theme={theme}>
-                    {EDITOR_STR[lang]?.tabPages || "A4 Pages"}
-                  </PillTabButton>
+                <div className="flex items-center gap-1 text-xs font-semibold" style={{ color: theme.inkSoft }}>
+                  <span className="font-bold" style={{ color: theme.ink }}>{currentBook[lang]?.title || currentBook.en?.title}</span>
+                  <span>/</span>
+                  <span className="px-2 py-0.5 rounded-md font-bold" style={{ background: theme.accentSoft, color: theme.accent }}>
+                    {currentLeaf ? (currentLeaf[lang] || currentLeaf.en) : "..."}
+                  </span>
                 </div>
               </div>
 
-              <div className="grid md:grid-cols-[240px_1fr] gap-5">
-                {/* Left Leaf Navigation */}
-                <div className="p-3.5 rounded-2xl shadow-sm border" style={{ ...panelStyle(skin, theme), alignSelf: "start" }}>
-                  <EditorLeafNav
-                    book={currentBook}
-                    lang={lang}
-                    theme={theme}
-                    selectedLeafId={selectedLeafId}
-                    onSelect={(id) => setSelectedLeafId(id)}
-                  />
+              {/* Sub-Tabs: Cards vs A4 Pages */}
+              <div className="flex items-center gap-1 p-1 rounded-full border shadow-xs" style={{ background: theme.canvas, borderColor: theme.hairlineStrong }}>
+                <PillTabButton active={editorSubTab === "pages"} onClick={() => setEditorSubTab("pages")} icon={BookOpen} theme={theme}>
+                  {EDITOR_STR[lang]?.tabPages || "A4 Pages"}
+                </PillTabButton>
+
+                <PillTabButton active={editorSubTab === "cards"} onClick={() => setEditorSubTab("cards")} icon={Layers} theme={theme}>
+                  {EDITOR_STR[lang]?.tabCards || "Cards"}
+                </PillTabButton>
+              </div>
+            </div>
+
+            {/* Studio Workspace 3-Pane Body */}
+            <div className="flex-1 flex w-full relative">
+              {/* Unified Left Studio Sidebar */}
+              <aside
+                className={`transition-all duration-300 ease-in-out shrink-0 border-e overflow-hidden flex flex-col ${
+                  studioSidebarOpen ? "w-[320px] opacity-100" : "w-0 opacity-0 pointer-events-none"
+                }`}
+                style={{ background: theme.surface, borderColor: theme.hairline }}
+              >
+                {/* Sidebar Navigation Tabs */}
+                <div className="flex items-center border-b p-1.5 gap-1 shrink-0" style={{ borderColor: theme.hairline, background: theme.surfaceSoft }}>
+                  <button
+                    onClick={() => setStudioSidebarTab("outline")}
+                    className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all text-center ${
+                      studioSidebarTab === "outline" ? "bg-white shadow-xs text-slate-900" : "text-slate-500 hover:text-slate-900"
+                    }`}
+                  >
+                    🌿 {EDITOR_STR[lang]?.tabOutline}
+                  </button>
+
+                  {editorSubTab === "pages" && (
+                    <>
+                      <button
+                        onClick={() => setStudioSidebarTab("blocks")}
+                        className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all text-center ${
+                          studioSidebarTab === "blocks" ? "bg-white shadow-xs text-slate-900" : "text-slate-500 hover:text-slate-900"
+                        }`}
+                      >
+                        🧩 {EDITOR_STR[lang]?.tabAddBlocks}
+                      </button>
+
+                      <button
+                        onClick={() => setStudioSidebarTab("inspector")}
+                        className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all text-center ${
+                          studioSidebarTab === "inspector" ? "bg-white shadow-xs text-slate-900" : "text-slate-500 hover:text-slate-900"
+                        }`}
+                      >
+                        ✏️ {EDITOR_STR[lang]?.tabInspector} ({currentLeaf?.pageBlocks?.length || 0})
+                      </button>
+                    </>
+                  )}
                 </div>
 
-                {/* Editor Content Area */}
-                <div>
-                  {currentLeaf ? (
-                    editorSubTab === "cards" ? (
-                      <div className="flex flex-col gap-4">
-                        <div className="flex items-center justify-between gap-3 flex-wrap">
-                          <h2 className="text-lg font-bold" style={{ color: theme.ink }}>
-                            {currentLeaf[lang] || currentLeaf.en} — {EDITOR_STR[lang]?.tabCards}
-                          </h2>
+                {/* Sidebar Tab Contents */}
+                <div className="flex-1 overflow-y-auto p-3.5 flex flex-col gap-3">
+                  {studioSidebarTab === "outline" && (
+                    <EditorLeafNav
+                      book={currentBook}
+                      lang={lang}
+                      theme={theme}
+                      selectedLeafId={selectedLeafId}
+                      onSelect={(id) => setSelectedLeafId(id)}
+                    />
+                  )}
 
-                          <button
-                            onClick={() => {
-                              const newCard = {
-                                id: `${currentLeaf.id}-card-${Date.now()}`,
-                                image: null,
-                                imagePosition: "top",
-                                questions: [],
-                              };
-                              const updatedCards = [...(currentLeaf.cards || leafCards(currentLeaf)), newCard];
-                              handleUpdateCurrentLeaf({ cards: updatedCards });
-                            }}
-                            className="text-xs font-bold px-3 py-1.5 rounded-full text-white shadow-xs transition-transform hover:scale-105"
-                            style={{ background: theme.accent }}
-                          >
-                            + {EDITOR_STR[lang]?.newCard}
-                          </button>
-                        </div>
-
-                        {(currentLeaf.cards || leafCards(currentLeaf)).map((card, idx) => (
-                          <CardEditor
-                            key={card.id || idx}
-                            card={card}
-                            lang={lang}
-                            theme={theme}
-                            skin={skin}
-                            t={EDITOR_STR[lang] || EDITOR_STR.ar}
-                            voiceEnabled={voiceEnabled}
-                            allLeaves={allLeaves}
-                            currentLeafId={currentLeaf.id}
-                            pageBlocks={currentLeaf.pageBlocks || []}
-                            onUpdateCard={(patch) => {
-                              const cards = currentLeaf.cards || leafCards(currentLeaf);
-                              const updated = cards.map((c, i) => (i === idx ? { ...c, ...patch } : c));
-                              handleUpdateCurrentLeaf({ cards: updated });
-                            }}
-                            onDeleteCard={() => {
-                              const cards = currentLeaf.cards || leafCards(currentLeaf);
-                              handleUpdateCurrentLeaf({ cards: cards.filter((_, i) => i !== idx) });
-                            }}
-                          />
-                        ))}
-                      </div>
-                    ) : (
-                      <A4PageBuilder
-                        leaf={currentLeaf}
-                        book={currentBook}
-                        lang={lang}
-                        theme={theme}
-                        skin={skin}
-                        t={EDITOR_STR[lang] || EDITOR_STR.ar}
-                        ui={ui}
-                        allLeavesCards={leafCards(currentLeaf)}
-                        allQuestions={allCurrentQuestions}
-                        onUpdateLeaf={handleUpdateCurrentLeaf}
-                        onJumpToQuestion={handleJumpToQuestion}
-                      />
-                    )
-                  ) : (
-                    <div className="p-12 text-center rounded-2xl border border-dashed" style={{ borderColor: theme.hairlineStrong, color: theme.inkSoft }}>
-                      <GitBranch size={32} className="mx-auto mb-2 opacity-50" />
-                      <p className="text-sm font-bold">
-                        {EDITOR_STR[lang]?.noLeaf || "Pick a leaf on the left to start editing."}
+                  {studioSidebarTab === "blocks" && editorSubTab === "pages" && (
+                    <div className="flex flex-col gap-2">
+                      <p className="text-xs font-bold mb-1" style={{ color: theme.inkSoft }}>
+                        {dir === "rtl" ? "اختر عنصراً لإضافته للصفحة:" : "Select a block to add to page:"}
                       </p>
+                      {STUDIO_BLOCK_DEFS.map((bDef) => {
+                        const Icon = bDef.icon;
+                        return (
+                          <button
+                            key={bDef.kind}
+                            onClick={() => addStudioBlock(bDef.kind)}
+                            className="flex items-start gap-3 p-2.5 rounded-xl border text-start transition-all hover:scale-[1.01] hover:border-black/25 shadow-xs"
+                            style={{ background: theme.surfaceSoft, borderColor: theme.hairline }}
+                          >
+                            <div className="w-8 h-8 rounded-lg grid place-items-center shrink-0" style={{ background: theme.accentSoft, color: theme.accent }}>
+                              <Icon size={16} />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <span className="block text-xs font-bold" style={{ color: theme.ink }}>
+                                {bDef[lang] || bDef.en}
+                              </span>
+                              <span className="block text-[10px] leading-tight opacity-70 truncate" style={{ color: theme.inkSoft }}>
+                                {bDef[`desc${lang === "ar" ? "Ar" : "En"}`] || bDef.descEn}
+                              </span>
+                            </div>
+                            <Plus size={14} className="opacity-50 mt-1 shrink-0" />
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+
+                  {studioSidebarTab === "inspector" && editorSubTab === "pages" && currentLeaf && (
+                    <div className="flex flex-col gap-2">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-xs font-bold" style={{ color: theme.inkSoft }}>
+                          {EDITOR_STR[lang]?.tabInspector}
+                        </span>
+                        <button
+                          onClick={() => setStudioSidebarTab("blocks")}
+                          className="text-xs font-bold px-2.5 py-1 rounded-lg text-white"
+                          style={{ background: theme.accent }}
+                        >
+                          + {EDITOR_STR[lang]?.addBlock}
+                        </button>
+                      </div>
+
+                      {(currentLeaf.pageBlocks || []).map((b, i) => (
+                        <BlockRow
+                          key={b.id || i}
+                          block={b}
+                          t={EDITOR_STR[lang] || EDITOR_STR.ar}
+                          theme={theme}
+                          skin={skin}
+                          allQuestions={allCurrentQuestions}
+                          onUpdate={(p) => {
+                            const updated = (currentLeaf.pageBlocks || []).map((bb, idx) => (idx === i ? { ...bb, ...p } : bb));
+                            handleUpdateCurrentLeaf({ pageBlocks: updated });
+                          }}
+                          onDelete={() => {
+                            const updated = (currentLeaf.pageBlocks || []).filter((_, idx) => idx !== i);
+                            handleUpdateCurrentLeaf({ pageBlocks: updated });
+                          }}
+                          onMove={(dir2) => () => {
+                            const blocksList = currentLeaf.pageBlocks || [];
+                            const j = i + dir2;
+                            if (j < 0 || j >= blocksList.length) return;
+                            const next = [...blocksList];
+                            [next[i], next[j]] = [next[j], next[i]];
+                            handleUpdateCurrentLeaf({ pageBlocks: next });
+                          }}
+                          onJumpToQuestion={handleJumpToQuestion}
+                          bookId={currentBook.id}
+                          leafId={currentLeaf.id}
+                        />
+                      ))}
                     </div>
                   )}
                 </div>
+              </aside>
+
+              {/* Center Canvas Studio Workspace */}
+              <div className="flex-1 flex flex-col overflow-y-auto p-4 sm:p-6" style={{ background: theme.canvas }}>
+                {currentLeaf ? (
+                  editorSubTab === "cards" ? (
+                    <div className="max-w-3xl mx-auto w-full flex flex-col gap-4">
+                      <div className="flex items-center justify-between gap-3 flex-wrap">
+                        <h2 className="text-lg font-bold" style={{ color: theme.ink }}>
+                          {currentLeaf[lang] || currentLeaf.en} — {EDITOR_STR[lang]?.tabCards}
+                        </h2>
+
+                        <button
+                          onClick={() => {
+                            const newCard = {
+                              id: `${currentLeaf.id}-card-${Date.now()}`,
+                              image: null,
+                              imagePosition: "top",
+                              questions: [],
+                            };
+                            const updatedCards = [...(currentLeaf.cards || leafCards(currentLeaf)), newCard];
+                            handleUpdateCurrentLeaf({ cards: updatedCards });
+                          }}
+                          className="text-xs font-bold px-3 py-1.5 rounded-full text-white shadow-xs transition-transform hover:scale-105"
+                          style={{ background: theme.accent }}
+                        >
+                          + {EDITOR_STR[lang]?.newCard}
+                        </button>
+                      </div>
+
+                      {(currentLeaf.cards || leafCards(currentLeaf)).map((card, idx) => (
+                        <CardEditor
+                          key={card.id || idx}
+                          card={card}
+                          lang={lang}
+                          theme={theme}
+                          skin={skin}
+                          t={EDITOR_STR[lang] || EDITOR_STR.ar}
+                          voiceEnabled={voiceEnabled}
+                          allLeaves={allLeaves}
+                          currentLeafId={currentLeaf.id}
+                          pageBlocks={currentLeaf.pageBlocks || []}
+                          onUpdateCard={(patch) => {
+                            const cards = currentLeaf.cards || leafCards(currentLeaf);
+                            const updated = cards.map((c, i) => (i === idx ? { ...c, ...patch } : c));
+                            handleUpdateCurrentLeaf({ cards: updated });
+                          }}
+                          onDeleteCard={() => {
+                            const cards = currentLeaf.cards || leafCards(currentLeaf);
+                            handleUpdateCurrentLeaf({ cards: cards.filter((_, i) => i !== idx) });
+                          }}
+                        />
+                      ))}
+                    </div>
+                  ) : (
+                    <A4PageBuilder
+                      leaf={currentLeaf}
+                      book={currentBook}
+                      lang={lang}
+                      theme={theme}
+                      skin={skin}
+                      t={EDITOR_STR[lang] || EDITOR_STR.ar}
+                      ui={ui}
+                      allLeavesCards={leafCards(currentLeaf)}
+                      allQuestions={allCurrentQuestions}
+                      onUpdateLeaf={handleUpdateCurrentLeaf}
+                      onJumpToQuestion={handleJumpToQuestion}
+                      sidebarOpen={studioSidebarOpen}
+                      sidebarTab={studioSidebarTab}
+                      onSetSidebarTab={setStudioSidebarTab}
+                    />
+                  )
+                ) : (
+                  <div className="p-12 text-center rounded-2xl border border-dashed m-auto" style={{ borderColor: theme.hairlineStrong, color: theme.inkSoft }}>
+                    <GitBranch size={32} className="mx-auto mb-2 opacity-50" />
+                    <p className="text-sm font-bold">
+                      {EDITOR_STR[lang]?.noLeaf || "Pick a leaf on the left to start editing."}
+                    </p>
+                  </div>
+                )}
               </div>
-            </section>
-          )}
-        </main>
-      </div>
+            </div>
+          </div>
+        )}
+      </main>
 
       {settingsOpen && (
         <SettingsPanel
