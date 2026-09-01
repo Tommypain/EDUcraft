@@ -5651,7 +5651,7 @@ function downloadBookHTML(book, lang, theme, ui) {
    MAIN EDUcraftApp
 ================================================================== */
 export default function EDUcraftApp() {
-  const [lang, setLang] = useState("ar");
+  const [lang, setLang] = useState("en");
   const [mode, setMode] = useState("light");
   const [flavorId, setFlavorId] = useState("normal");
   const [skinId, setSkinId] = useState("normal");
