@@ -745,25 +745,36 @@ pub struct BundlePayload {
 
 fn find_dist_dir() -> Option<PathBuf> {
     if let Ok(exe) = std::env::current_exe() {
-        let exe_dir = exe.parent()?;
-        let candidates = [
-            exe_dir.join("dist"),
-            exe_dir.parent()?.parent()?.parent()?.parent()?.join("dist"),
-            exe_dir.parent()?.parent()?.parent()?.join("dist"),
-            exe_dir.parent()?.parent()?.join("dist"),
-        ];
-        for c in &candidates {
-            if c.join("index.html").exists() {
-                return Some(c.clone());
+        let mut curr = exe.parent();
+        for _ in 0..6 {
+            if let Some(p) = curr {
+                let candidate = p.join("dist");
+                if candidate.join("index.html").exists() {
+                    return Some(candidate);
+                }
+                curr = p.parent();
+            } else {
+                break;
             }
         }
     }
-    let cwd_dist = std::env::current_dir().ok()?.join("dist");
-    if cwd_dist.join("index.html").exists() {
-        return Some(cwd_dist);
+    if let Ok(cwd) = std::env::current_dir() {
+        let mut curr = Some(cwd.as_path());
+        for _ in 0..6 {
+            if let Some(p) = curr {
+                let candidate = p.join("dist");
+                if candidate.join("index.html").exists() {
+                    return Some(candidate);
+                }
+                curr = p.parent();
+            } else {
+                break;
+            }
+        }
     }
     None
 }
+
 
 fn extract_attr_val<'a>(tag: &'a str, attr: &str) -> Option<&'a str> {
     let key = format!("{}=\"", attr);

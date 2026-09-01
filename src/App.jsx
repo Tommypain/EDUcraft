@@ -5818,7 +5818,10 @@ function renderPlates(book) {
     }
 
     blocks.forEach(function(b) {
-      if (b.kind === 'sectionTitle') {
+      if (b.kind === 'titleBlock') {
+        html += '<header class="doc-head"><span>' + (b.title || bookTitle) + '</span><span>' + (b.sub || leafTitle) + '</span></header>';
+        html += '<div class="title-block"><div class="subject">' + (b.title || bookTitle) + '</div><div class="lecture">' + (b.sub || leafTitle) + '</div><hr></div>';
+      } else if (b.kind === 'sectionTitle') {
         html += '<div class="box section-title" id="plate-block-' + b.id + '">' + (b.text || '') + '</div>';
       } else if (b.kind === 'keyterm') {
         html += '<div class="box keyterm" id="plate-block-' + b.id + '"><b>' + (b.title || '') + ':</b> ' + (b.text || '') + '</div>';
@@ -5831,7 +5834,9 @@ function renderPlates(book) {
       } else if (b.kind === 'code') {
         html += '<div class="code-box" id="plate-block-' + b.id + '"><pre>' + (b.code || '') + '</pre></div>';
       } else if (b.kind === 'mediaCard') {
-        html += '<div class="media-grid" id="plate-block-' + b.id + '"><div class="media-card"><img src="' + (b.imageUrl || '') + '"><div class="media-info"><div class="media-title">' + (b.title || '') + '</div><div>' + (b.desc || '') + '</div></div></div></div>';
+        html += '<div class="media-grid" id="plate-block-' + b.id + '"><div class="media-card">' + (b.imageUrl ? '<img src="' + b.imageUrl + '">' : '') + '<div class="media-info"><div class="media-title">' + (b.title || '') + '</div><div>' + (b.desc || '') + '</div></div></div></div>';
+      } else if (b.kind === 'image') {
+        html += '<div style="text-align:center; margin: 1.2rem 0;" id="plate-block-' + b.id + '"><img src="' + (b.imageUrl || '') + '" style="max-width:100%; border-radius:14px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);"><div style="font-size:0.85rem; opacity:0.75; margin-top:6px;">' + (b.imageCaption || '') + '</div></div>';
       } else if (b.kind === 'table') {
         html += '<table class="thiqa-table" id="plate-block-' + b.id + '">';
         const rows = (b.tableData || '').split('\n').filter(Boolean);
@@ -5854,6 +5859,8 @@ function renderPlates(book) {
 }
 
 /* 3. Render Question Deck with All 13 Question Types */
+const QUESTIONS_DB = {};
+
 function renderDeck(book) {
   let html = '';
   const leaves = (book.nodes || []).filter(function(n) { return n.level === 'leaf'; });
@@ -5873,6 +5880,9 @@ function renderDeck(book) {
       const qType = q.type || 'single';
       const promptText = c.prompt || c.template || '';
       const qUid = 'q-' + leaf.id + '-' + qIdx;
+      
+      // Save in lookup table to avoid any quote escaping issues
+      QUESTIONS_DB[qUid] = { q: q, content: c, leafId: leaf.id };
 
       let typeBg = '#B7C3FF';
       if (qType === 'single') typeBg = '#E4FF6E';
@@ -5887,16 +5897,15 @@ function renderDeck(book) {
       html += '<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">';
       html += '<span class="q-badge">' + qType.toUpperCase() + (q.subject ? ' • ' + q.subject : '') + '</span>';
       if (q.linkedBlockId) {
-        html += '<a href="javascript:void(0)" onclick="jumpToPlateBlock(\\'' + leaf.id + '\\', \\'' + q.linkedBlockId + '\\')" style="font-size: 0.75rem; font-weight: 700; color: #1a1a1a; text-decoration: underline;">📄 ' + (LANG === 'ar' ? 'انتقال للمعلومة' : 'View in Note') + '</a>';
+        html += '<a href="javascript:void(0)" data-leaf="' + leaf.id + '" data-block="' + q.linkedBlockId + '" onclick="jumpToPlateBlock(this.getAttribute(\'data-leaf\'), this.getAttribute(\'data-block\'))" style="font-size: 0.75rem; font-weight: 700; color: #1a1a1a; text-decoration: underline;">📄 ' + (LANG === 'ar' ? 'انتقال للمعلومة' : 'View in Note') + '</a>';
       }
       html += '</div>';
 
       html += '<p class="q-prompt">' + promptText + '</p>';
 
-      // Interactive Elements based on question type
       if (qType === 'single' && c.options) {
         c.options.forEach(function(opt, oIdx) {
-          html += '<button class="opt-btn" onclick="checkSingle(this, ' + (oIdx === c.correct) + ')">' + opt + '</button>';
+          html += '<button class="opt-btn" data-quid="' + qUid + '" data-idx="' + oIdx + '" onclick="handleSingleClick(this)">' + opt + '</button>';
         });
       } else if (qType === 'multi' && c.options) {
         c.options.forEach(function(opt, oIdx) {
@@ -5904,52 +5913,58 @@ function renderDeck(book) {
           html += '<input type="checkbox" data-idx="' + oIdx + '" style="width: 16px; height: 16px; accent-color: #E8654A;"> ' + opt;
           html += '</label>';
         });
-        const correctJson = JSON.stringify(c.correct || []);
-        html += '<button class="btn-check" onclick="checkMulti(\\'' + qUid + '\\', ' + correctJson + ')">' + (LANG === 'ar' ? 'تحقق من الإجابة' : 'Check Answer') + '</button>';
+        html += '<button class="btn-check" data-quid="' + qUid + '" onclick="handleMultiClick(this)">' + (LANG === 'ar' ? 'تحقق من الإجابة' : 'Check Answer') + '</button>';
       } else if (qType === 'tf') {
-        html += '<button class="opt-btn" onclick="checkSingle(this, ' + (c.correct === true) + ')">✓ True / صح</button>';
-        html += '<button class="opt-btn" onclick="checkSingle(this, ' + (c.correct === false) + ')">✗ False / غلط</button>';
+        html += '<button class="opt-btn" data-quid="' + qUid + '" data-ans="true" onclick="handleTfClick(this)">✓ True / صح</button>';
+        html += '<button class="opt-btn" data-quid="' + qUid + '" data-ans="false" onclick="handleTfClick(this)">✗ False / غلط</button>';
       } else if (qType === 'short') {
-        const acceptedJson = JSON.stringify(c.accepted || [c.answer || '']);
         html += '<div style="display: flex; gap: 8px;">';
         html += '<input type="text" id="' + qUid + '-input" placeholder="' + (LANG === 'ar' ? 'اكتب إجابتك هنا...' : 'Type answer...') + '" style="flex: 1; padding: 10px 14px; border-radius: 12px; border: 1.5px solid rgba(0,0,0,0.2); outline: none; background: #fff; font-weight: 700;">';
-        html += '<button class="btn-check" style="margin: 0;" onclick="checkShort(\\'' + qUid + '\\', ' + acceptedJson + ')">' + (LANG === 'ar' ? 'تحقق' : 'Check') + '</button>';
+        html += '<button class="btn-check" style="margin: 0;" data-quid="' + qUid + '" onclick="handleShortClick(this)">' + (LANG === 'ar' ? 'تحقق' : 'Check') + '</button>';
         html += '</div>';
       } else if (qType === 'essay') {
         html += '<textarea rows="3" placeholder="' + (LANG === 'ar' ? 'اكتب تحليلك أو إجابتك المقالية...' : 'Write your essay answer...') + '" style="width: 100%; padding: 10px 14px; border-radius: 12px; border: 1.5px solid rgba(0,0,0,0.2); outline: none; background: #fff; font-size: 0.95rem; font-family: inherit; margin-bottom: 8px;"></textarea>';
-        html += '<button class="btn-check" onclick="toggleModelAnswer(\\'' + qUid + '-ans\\')">' + (LANG === 'ar' ? '💡 إظهار الإجابة النموذجية' : '💡 Show Model Answer') + '</button>';
+        html += '<button class="btn-check" data-quid="' + qUid + '" onclick="handleToggleEssay(this)">' + (LANG === 'ar' ? '💡 إظهار الإجابة النموذجية' : '💡 Show Model Answer') + '</button>';
         html += '<div id="' + qUid + '-ans" style="display: none; margin-top: 10px; background: rgba(255,255,255,0.92); padding: 12px 14px; border-radius: 12px; font-weight: 600; font-size: 0.9rem; border: 1px solid rgba(0,0,0,0.1);">';
         html += '<b>' + (LANG === 'ar' ? 'الإجابة النموذجية / الدليل:' : 'Model Answer:') + '</b> ' + (c.modelAnswer || c.rubric || c.guidance || c.answer || '—');
         html += '</div>';
       } else if (qType === 'fill' && c.template) {
-        const blanksJson = JSON.stringify(c.blanks || []);
         let tplHtml = c.template.replace(/___/g, '<input type="text" class="blank-input" style="width: 110px;">');
         html += '<div style="background: rgba(255,255,255,0.85); padding: 14px; border-radius: 12px; font-weight: 700; font-size: 1rem; line-height: 2;">' + tplHtml + '</div>';
-        html += '<button class="btn-check" onclick="checkFill(\\'' + qUid + '\\', ' + blanksJson + ')">' + (LANG === 'ar' ? 'تحقق من الفراغات' : 'Check Blanks') + '</button>';
+        html += '<button class="btn-check" data-quid="' + qUid + '" onclick="handleFillClick(this)">' + (LANG === 'ar' ? 'تحقق من الفراغات' : 'Check Blanks') + '</button>';
       } else if (qType === 'cloze' && c.bank) {
-        const correctWord = c.correct || '';
-        html += '<div style="margin-bottom: 8px; font-weight: 700;">' + (LANG === 'ar' ? 'بنك الكلمات: ' : 'Word Bank: ') + (c.bank || []).map(function(w){ return '<span style="display: inline-block; background: #fff; padding: 4px 10px; border-radius: 8px; margin: 2px; font-weight: 800; border: 1px solid rgba(0,0,0,0.15); cursor: pointer;" onclick="document.getElementById(\\'' + qUid + '-cloze\\').value = \\'' + w + '\\'">' + w + '</span>'; }).join(' ') + '</div>';
+        html += '<div style="margin-bottom: 8px; font-weight: 700;">' + (LANG === 'ar' ? 'بنك الكلمات: ' : 'Word Bank: ') + (c.bank || []).map(function(w){ return '<span style="display: inline-block; background: #fff; padding: 4px 10px; border-radius: 8px; margin: 2px; font-weight: 800; border: 1px solid rgba(0,0,0,0.15); cursor: pointer;" data-quid="' + qUid + '" data-word="' + w + '" onclick="handleClozePick(this)">' + w + '</span>'; }).join(' ') + '</div>';
         html += '<div style="display: flex; gap: 8px;">';
         html += '<input type="text" id="' + qUid + '-cloze" placeholder="' + (LANG === 'ar' ? 'اختر كلمة أو اكتبها...' : 'Select or type word...') + '" style="flex: 1; padding: 10px 14px; border-radius: 12px; border: 1.5px solid rgba(0,0,0,0.2); outline: none; background: #fff; font-weight: 700;">';
-        html += '<button class="btn-check" style="margin: 0;" onclick="checkShort(\\'' + qUid + '-cloze\\', [\\'' + correctWord + '\\'])">' + (LANG === 'ar' ? 'تحقق' : 'Check') + '</button>';
+        html += '<button class="btn-check" style="margin: 0;" data-quid="' + qUid + '" onclick="handleClozeClick(this)">' + (LANG === 'ar' ? 'تحقق' : 'Check') + '</button>';
         html += '</div>';
       } else if (qType === 'order' && c.items) {
-        const correctOrderJson = JSON.stringify(c.correct || c.items);
         html += '<div id="' + qUid + '-order-list">';
-        c.items.forEach(function(item, itmIdx) {
+        c.items.forEach(function(item) {
           html += '<div class="order-item" style="display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 10px 14px; border-radius: 12px; margin-bottom: 6px; font-weight: 700;">';
           html += '<span>' + item + '</span>';
           html += '<div style="display: flex; gap: 4px;"><button onclick="moveOrder(this, -1)" class="tab-pill" style="padding: 2px 8px; background: rgba(0,0,0,0.06);">▲</button><button onclick="moveOrder(this, 1)" class="tab-pill" style="padding: 2px 8px; background: rgba(0,0,0,0.06);">▼</button></div>';
           html += '</div>';
         });
         html += '</div>';
-        html += '<button class="btn-check" onclick="checkOrder(\\'' + qUid + '\\', ' + correctOrderJson + ')">' + (LANG === 'ar' ? 'تحقق من الترتيب' : 'Check Order') + '</button>';
+        html += '<button class="btn-check" data-quid="' + qUid + '" onclick="handleOrderClick(this)">' + (LANG === 'ar' ? 'تحقق من الترتيب' : 'Check Order') + '</button>';
+      } else if (qType === 'sort' && c.bins && c.items) {
+        html += '<div style="background: rgba(255,255,255,0.85); padding: 14px; border-radius: 12px; margin-bottom: 8px;">';
+        c.items.forEach(function(item, itmIdx) {
+          const itemText = Array.isArray(item) ? item[0] : item;
+          html += '<div style="display: flex; align-items: center; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid rgba(0,0,0,0.06);">';
+          html += '<span style="font-weight: 700;">' + itemText + '</span>';
+          html += '<select data-item-idx="' + itmIdx + '" class="sort-select" style="padding: 4px 8px; border-radius: 8px; border: 1px solid rgba(0,0,0,0.2); font-weight: 700;">';
+          (c.bins || []).forEach(function(bin) { html += '<option value="' + bin + '">' + bin + '</option>'; });
+          html += '</select>';
+          html += '</div>';
+        });
+        html += '</div>';
+        html += '<button class="btn-check" data-quid="' + qUid + '" onclick="handleSortClick(this)">' + (LANG === 'ar' ? 'تحقق من التصنيف' : 'Check Sort') + '</button>';
       } else if (qType === 'numeric') {
-        const correctNum = c.correct || 0;
-        const tol = c.tolerance || 0;
         html += '<div style="display: flex; gap: 8px;">';
         html += '<input type="number" id="' + qUid + '-num" placeholder="0" style="width: 140px; padding: 10px 14px; border-radius: 12px; border: 1.5px solid rgba(0,0,0,0.2); outline: none; background: #fff; font-weight: 700;">';
-        html += '<button class="btn-check" style="margin: 0;" onclick="checkNumeric(\\'' + qUid + '\\', ' + correctNum + ', ' + tol + ')">' + (LANG === 'ar' ? 'تحقق' : 'Check') + '</button>';
+        html += '<button class="btn-check" style="margin: 0;" data-quid="' + qUid + '" onclick="handleNumericClick(this)">' + (LANG === 'ar' ? 'تحقق' : 'Check') + '</button>';
         html += '</div>';
       } else if (qType === 'rating') {
         html += '<div style="display: flex; gap: 8px; font-size: 1.6rem; cursor: pointer;">';
@@ -5958,10 +5973,9 @@ function renderDeck(book) {
         });
         html += '</div>';
       } else {
-        // Fallback generic interactive choice
         if (c.options) {
           c.options.forEach(function(opt, oIdx) {
-            html += '<button class="opt-btn" onclick="checkSingle(this, ' + (oIdx === (c.correct || 0)) + ')">' + opt + '</button>';
+            html += '<button class="opt-btn" data-quid="' + qUid + '" data-idx="' + oIdx + '" onclick="handleSingleClick(this)">' + opt + '</button>';
           });
         }
       }
@@ -5977,30 +5991,64 @@ function renderDeck(book) {
 }
 
 /* Question Verification Handlers */
-function checkSingle(btn, isCorrect) {
+function handleSingleClick(btn) {
+  const qUid = btn.getAttribute('data-quid');
+  const oIdx = Number(btn.getAttribute('data-idx'));
+  const data = QUESTIONS_DB[qUid];
+  if (!data) return;
+  const isCorrect = (oIdx === (data.content.correct || 0));
   const parent = btn.parentElement;
   parent.querySelectorAll('.opt-btn').forEach(function(b) { b.classList.remove('correct', 'incorrect'); });
   btn.classList.add(isCorrect ? 'correct' : 'incorrect');
 }
 
-function checkMulti(qUid, correctIndices) {
+function handleTfClick(btn) {
+  const qUid = btn.getAttribute('data-quid');
+  const userAns = btn.getAttribute('data-ans') === 'true';
+  const data = QUESTIONS_DB[qUid];
+  if (!data) return;
+  const isCorrect = (userAns === (data.content.correct === true));
+  const parent = btn.parentElement;
+  parent.querySelectorAll('.opt-btn').forEach(function(b) { b.classList.remove('correct', 'incorrect'); });
+  btn.classList.add(isCorrect ? 'correct' : 'incorrect');
+}
+
+function handleMultiClick(btn) {
+  const qUid = btn.getAttribute('data-quid');
+  const data = QUESTIONS_DB[qUid];
+  if (!data) return;
+  const correct = data.content.correct || [];
   const card = document.getElementById(qUid);
   const checked = [];
   card.querySelectorAll('input[type="checkbox"]').forEach(function(cb) {
     if (cb.checked) checked.push(Number(cb.getAttribute('data-idx')));
   });
-  const isOk = checked.length === correctIndices.length && checked.every(function(v){ return correctIndices.includes(v); });
+  const isOk = checked.length === correct.length && checked.every(function(v){ return correct.includes(v); });
   showFeedback(qUid, isOk);
 }
 
-function checkShort(qUid, accepted) {
-  const input = document.getElementById(qUid + '-input') || document.getElementById(qUid);
+function handleShortClick(btn) {
+  const qUid = btn.getAttribute('data-quid');
+  const data = QUESTIONS_DB[qUid];
+  if (!data) return;
+  const accepted = data.content.accepted || [data.content.answer || ''];
+  const input = document.getElementById(qUid + '-input');
   const val = (input ? input.value : '').trim().toLowerCase();
   const isOk = accepted.some(function(a) { return String(a).trim().toLowerCase() === val; });
   showFeedback(qUid, isOk);
 }
 
-function checkFill(qUid, blanks) {
+function handleToggleEssay(btn) {
+  const qUid = btn.getAttribute('data-quid');
+  const ans = document.getElementById(qUid + '-ans');
+  if (ans) ans.style.display = (ans.style.display === 'none' ? 'block' : 'none');
+}
+
+function handleFillClick(btn) {
+  const qUid = btn.getAttribute('data-quid');
+  const data = QUESTIONS_DB[qUid];
+  if (!data) return;
+  const blanks = data.content.blanks || [];
   const card = document.getElementById(qUid);
   const inputs = card.querySelectorAll('.blank-input');
   let isOk = true;
@@ -6017,17 +6065,57 @@ function checkFill(qUid, blanks) {
   showFeedback(qUid, isOk);
 }
 
-function checkNumeric(qUid, correct, tolerance) {
-  const val = Number(document.getElementById(qUid + '-num').value);
-  const isOk = Math.abs(val - correct) <= tolerance;
+function handleClozePick(el) {
+  const qUid = el.getAttribute('data-quid');
+  const word = el.getAttribute('data-word');
+  const inp = document.getElementById(qUid + '-cloze');
+  if (inp) inp.value = word;
+}
+
+function handleClozeClick(btn) {
+  const qUid = btn.getAttribute('data-quid');
+  const data = QUESTIONS_DB[qUid];
+  if (!data) return;
+  const expected = String(data.content.correct || '').trim().toLowerCase();
+  const inp = document.getElementById(qUid + '-cloze');
+  const actual = (inp ? inp.value : '').trim().toLowerCase();
+  showFeedback(qUid, actual === expected && actual.length > 0);
+}
+
+function handleOrderClick(btn) {
+  const qUid = btn.getAttribute('data-quid');
+  const data = QUESTIONS_DB[qUid];
+  if (!data) return;
+  const correct = data.content.correct || data.content.items || [];
+  const card = document.getElementById(qUid);
+  const items = Array.from(card.querySelectorAll('.order-item span')).map(function(s){ return s.innerText.trim(); });
+  const isOk = JSON.stringify(items) === JSON.stringify(correct);
   showFeedback(qUid, isOk);
 }
 
-function checkOrder(qUid, correctOrder) {
+function handleSortClick(btn) {
+  const qUid = btn.getAttribute('data-quid');
+  const data = QUESTIONS_DB[qUid];
+  if (!data) return;
+  const items = data.content.items || [];
   const card = document.getElementById(qUid);
-  const items = Array.from(card.querySelectorAll('.order-item span')).map(function(s){ return s.innerText.trim(); });
-  const isOk = JSON.stringify(items) === JSON.stringify(correctOrder);
+  const selects = card.querySelectorAll('.sort-select');
+  let isOk = true;
+  selects.forEach(function(sel, i) {
+    const expectedBin = Array.isArray(items[i]) ? items[i][1] : '';
+    if (sel.value !== expectedBin) isOk = false;
+  });
   showFeedback(qUid, isOk);
+}
+
+function handleNumericClick(btn) {
+  const qUid = btn.getAttribute('data-quid');
+  const data = QUESTIONS_DB[qUid];
+  if (!data) return;
+  const correct = data.content.correct || 0;
+  const tol = data.content.tolerance || 0;
+  const val = Number(document.getElementById(qUid + '-num').value);
+  showFeedback(qUid, Math.abs(val - correct) <= tol);
 }
 
 function moveOrder(btn, dir) {
@@ -6037,11 +6125,6 @@ function moveOrder(btn, dir) {
   } else if (dir === 1 && item.nextElementSibling) {
     item.parentElement.insertBefore(item.nextElementSibling, item);
   }
-}
-
-function toggleModelAnswer(id) {
-  const el = document.getElementById(id);
-  if (el) el.style.display = el.style.display === 'none' ? 'block' : 'none';
 }
 
 function rateStar(starEl, rating) {
@@ -6070,6 +6153,7 @@ function jumpToPlateBlock(leafId, blockId) {
     }
   }, 100);
 }
+
 
 /* 4. Study Planner & To-Do List */
 const pkgId = activeBook.id || 'educraft_package';
@@ -6160,10 +6244,20 @@ function initBook() {
   renderDeck(activeBook);
 }
 
-initBook();
-renderTodos();
-renderCalendar();
+function bootApp() {
+
+  initBook();
+  renderTodos();
+  renderCalendar();
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', bootApp);
+} else {
+  bootApp();
+}
 </script>
+
 </body>
 </html>`;
 }
@@ -6442,401 +6536,14 @@ function ExportModal({ isOpen, onClose, books, bags, currentBook, lang, theme, d
 }
 
 /* =================================================================
-   STANDALONE VIEWER — rendered when exported HTML is opened in browser
-   (window.__STANDALONE__ is injected by Rust bundle_app_with_data)
-================================================================== */
-function StandaloneViewer({ standaloneData }) {
-  const { targetType, title, lang: sLang, dir: sDir, coverFrom, coverTo, data } = standaloneData;
-
-  const [activeTab, setActiveTab] = useState("tree");
-  const [activeBookIdx, setActiveBookIdx] = useState(0);
-
-  const isAr = sLang === "ar";
-  const accentColor = coverFrom || "#E8654A";
-  const accentColorTo = coverTo || "#F2C879";
-
-  // Resolve book list from data
-  const books = useMemo(() => {
-    if (!data) return [];
-    if (Array.isArray(data)) return data;
-    if (data.books && Array.isArray(data.books)) return data.books;
-    return [data];
-  }, [data]);
-
-  const activeBook = books[activeBookIdx] || { nodes: [], cards: [] };
-  const leaves = (activeBook.nodes || []).filter((n) => n.level === "leaf");
-
-  const [selectedLeafId, setSelectedLeafId] = useState(null);
-  const activeLeaf = useMemo(
-    () => leaves.find((n) => n.id === selectedLeafId) || leaves[0],
-    [leaves, selectedLeafId]
-  );
-
-  const tabs = [
-    { id: "tree",     icon: "🌳", label: isAr ? "شجرة المعرفة" : "Knowledge Tree" },
-    { id: "plates",   icon: "📄", label: isAr ? "صفحات A4"     : "A4 Plates"      },
-    { id: "deck",     icon: "🎴", label: isAr ? "الأسئلة"      : "Questions"       },
-    { id: "planner",  icon: "✅", label: isAr ? "المهام"       : "Planner"         },
-    { id: "calendar", icon: "📅", label: isAr ? "التقويم"      : "Calendar"        },
-  ];
-
-  const allQuestions = useMemo(() => {
-    const qs = [];
-    leaves.forEach((leaf) => {
-      (leaf.questions || []).forEach((q) => qs.push({ leaf, q }));
-      (leaf.cards || []).forEach((c) => (c.questions || []).forEach((q) => qs.push({ leaf, q })));
-    });
-    return qs;
-  }, [leaves]);
-
-  const [todos, setTodos] = useState(() => {
-    try { return JSON.parse(localStorage.getItem("sv_todos") || "[]"); } catch { return []; }
-  });
-  const [newTodo, setNewTodo] = useState("");
-
-  const [calYear, setCalYear] = useState(new Date().getFullYear());
-  const [calMonth, setCalMonth] = useState(new Date().getMonth());
-
-  const headerBg = `linear-gradient(135deg, ${accentColor}, ${accentColorTo})`;
-
-  return (
-    <div dir={sDir} style={{ minHeight: "100vh", background: "#F3EAD9", fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Cairo', sans-serif" }}>
-      {/* ── Top Header ── */}
-      <header style={{
-        background: "#DCE9DC", borderBottom: "1px solid rgba(0,0,0,0.10)",
-        padding: "12px 20px", display: "flex", alignItems: "center",
-        justifyContent: "space-between", flexWrap: "wrap", gap: 10,
-        position: "sticky", top: 0, zIndex: 50,
-        boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
-      }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <div style={{
-            width: 38, height: 38, borderRadius: 10,
-            background: headerBg, display: "grid", placeItems: "center",
-            color: "#fff", fontWeight: 900, fontSize: 18,
-            boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
-          }}>
-            {(title || "E").charAt(0).toUpperCase()}
-          </div>
-          <div>
-            <div style={{ fontWeight: 800, fontSize: "1rem", color: "#241B13" }}>{title}</div>
-            <div style={{ fontSize: "0.72rem", color: "rgba(36,27,19,0.6)" }}>
-              {isAr ? "عارض مستقل • EDUcraft" : "Standalone Viewer • EDUcraft"}
-            </div>
-          </div>
-        </div>
-
-        {/* Tab Pills */}
-        <nav style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-          {tabs.map((t) => (
-            <button
-              key={t.id}
-              onClick={() => setActiveTab(t.id)}
-              style={{
-                border: "none", padding: "7px 14px", borderRadius: 999,
-                fontWeight: 700, fontSize: "0.82rem", cursor: "pointer",
-                transition: "all 0.2s",
-                background: activeTab === t.id ? accentColor : "transparent",
-                color: activeTab === t.id ? "#fff" : "#241B13",
-                boxShadow: activeTab === t.id ? `0 2px 8px ${accentColor}55` : "none",
-                transform: activeTab === t.id ? "scale(1.03)" : "scale(1)",
-              }}
-            >
-              {t.icon} {t.label}
-            </button>
-          ))}
-          <button
-            onClick={() => window.print()}
-            style={{ border: "1px solid rgba(0,0,0,0.15)", padding: "7px 14px", borderRadius: 999, fontWeight: 700, fontSize: "0.82rem", cursor: "pointer", background: "rgba(0,0,0,0.06)" }}
-          >
-            🖨️ {isAr ? "طباعة" : "Print"}
-          </button>
-        </nav>
-
-        {/* Multi-book switcher */}
-        {books.length > 1 && (
-          <select
-            value={activeBookIdx}
-            onChange={(e) => setActiveBookIdx(Number(e.target.value))}
-            style={{ padding: "6px 12px", borderRadius: 12, border: "1px solid rgba(0,0,0,0.15)", fontWeight: 700, fontSize: "0.82rem", background: "#fff" }}
-          >
-            {books.map((b, i) => (
-              <option key={i} value={i}>{b[sLang]?.title || b.en?.title || `Book ${i + 1}`}</option>
-            ))}
-          </select>
-        )}
-      </header>
-
-      {/* ── Content ── */}
-      <main style={{ maxWidth: 1100, margin: "0 auto", padding: "20px 16px 80px" }}>
-
-        {/* ── TREE TAB ── */}
-        {activeTab === "tree" && (
-          <div>
-            <h2 style={{ margin: "0 0 16px", fontSize: "1.2rem", color: "#241B13" }}>
-              {isAr ? "🌳 خريطة المفاهيم والشجرة التعليمية" : "🌳 Knowledge Tree Map"}
-            </h2>
-            <div style={{ overflowX: "auto", background: "#fff", borderRadius: 20, padding: 20, boxShadow: "0 4px 16px rgba(0,0,0,0.06)" }}>
-              <SVStandaloneTree book={activeBook} lang={sLang} dir={sDir} accentColor={accentColor}
-                onLeafClick={(id) => { setSelectedLeafId(id); setActiveTab("deck"); }} />
-            </div>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 10, marginTop: 20 }}>
-              {leaves.map((leaf) => (
-                <button key={leaf.id} onClick={() => { setSelectedLeafId(leaf.id); setActiveTab("plates"); }}
-                  style={{ padding: "8px 16px", borderRadius: 14, border: `1.5px solid ${accentColor}`, fontWeight: 700, fontSize: "0.82rem", background: "#fff", cursor: "pointer" }}>
-                  📄 {typeof leaf[sLang] === "string" ? leaf[sLang] : leaf.en || leaf.id}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* ── A4 PLATES TAB ── */}
-        {activeTab === "plates" && (
-          <div>
-            {leaves.map((leaf) => (
-              <SVStandalonePlate key={leaf.id} leaf={leaf} book={activeBook} lang={sLang} dir={sDir} accentColor={accentColor} />
-            ))}
-          </div>
-        )}
-
-        {/* ── QUESTIONS DECK TAB ── */}
-        {activeTab === "deck" && (
-          <div style={{ maxWidth: 760, margin: "0 auto" }}>
-            {allQuestions.length === 0 ? (
-              <p style={{ textAlign: "center", opacity: 0.5 }}>{isAr ? "لا توجد أسئلة." : "No questions found."}</p>
-            ) : (
-              leaves.map((leaf) => {
-                const qs = allQuestions.filter((x) => x.leaf.id === leaf.id);
-                if (!qs.length) return null;
-                return (
-                  <div key={leaf.id} style={{ marginBottom: 32 }}>
-                    <h3 style={{ color: accentColor, fontSize: "1.1rem", margin: "0 0 14px", display: "flex", alignItems: "center", gap: 8 }}>
-                      🌿 {typeof leaf[sLang] === "string" ? leaf[sLang] : leaf.en || leaf.id}
-                    </h3>
-                    {qs.map(({ q }, qi) => (
-                      <SVStandaloneQuestionCard key={qi} q={q} lang={sLang} accentColor={accentColor} />
-                    ))}
-                  </div>
-                );
-              })
-            )}
-          </div>
-        )}
-
-        {/* ── PLANNER TAB ── */}
-        {activeTab === "planner" && (
-          <div style={{ maxWidth: 700, margin: "0 auto" }}>
-            <h2 style={{ margin: "0 0 8px", fontSize: "1.15rem" }}>{isAr ? "✅ خطة المذاكرة" : "✅ Study Planner"}</h2>
-            <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>
-              <input
-                value={newTodo} onChange={(e) => setNewTodo(e.target.value)}
-                onKeyDown={(e) => { if (e.key === "Enter" && newTodo.trim()) { setTodos([{ id: Date.now(), text: newTodo.trim(), done: false }, ...todos]); setNewTodo(""); localStorage.setItem("sv_todos", JSON.stringify([{ id: Date.now(), text: newTodo.trim(), done: false }, ...todos])); }}}
-                placeholder={isAr ? "اكتب مهمة..." : "Add a task..."}
-                style={{ flex: 1, padding: "10px 14px", borderRadius: 12, border: "1px solid rgba(0,0,0,0.15)", fontSize: "0.9rem", outline: "none" }}
-              />
-              <button onClick={() => { if (!newTodo.trim()) return; const nt = [{ id: Date.now(), text: newTodo.trim(), done: false }, ...todos]; setTodos(nt); setNewTodo(""); try { localStorage.setItem("sv_todos", JSON.stringify(nt)); } catch {} }}
-                style={{ padding: "10px 18px", borderRadius: 12, background: accentColor, color: "#fff", fontWeight: 700, border: "none", cursor: "pointer" }}>
-                + {isAr ? "إضافة" : "Add"}
-              </button>
-            </div>
-            {/* Auto-generate chapter tasks */}
-            {todos.length === 0 && leaves.map((leaf) => ({ id: leaf.id, text: (isAr ? "مراجعة: " : "Review: ") + (typeof leaf[sLang] === "string" ? leaf[sLang] : leaf.en || leaf.id), done: false })).map((t) => (
-              <div key={t.id} style={{ background: "#fff", borderRadius: 14, padding: "12px 16px", marginBottom: 8, display: "flex", alignItems: "center", gap: 10, boxShadow: "0 2px 6px rgba(0,0,0,0.05)" }}>
-                <span style={{ fontSize: "1.1rem" }}>📖</span>
-                <span style={{ flex: 1, fontWeight: 600 }}>{t.text}</span>
-              </div>
-            ))}
-            {todos.map((t, i) => (
-              <div key={t.id} style={{ background: "#fff", borderRadius: 14, padding: "12px 16px", marginBottom: 8, display: "flex", alignItems: "center", gap: 10, boxShadow: "0 2px 6px rgba(0,0,0,0.05)", opacity: t.done ? 0.6 : 1 }}>
-                <input type="checkbox" checked={t.done} onChange={() => { const nt = todos.map((x, xi) => xi === i ? { ...x, done: !x.done } : x); setTodos(nt); try { localStorage.setItem("sv_todos", JSON.stringify(nt)); } catch {} }} style={{ width: 18, height: 18, accentColor }} />
-                <span style={{ flex: 1, fontWeight: 600, textDecoration: t.done ? "line-through" : "none" }}>{t.text}</span>
-                <button onClick={() => { const nt = todos.filter((_, xi) => xi !== i); setTodos(nt); try { localStorage.setItem("sv_todos", JSON.stringify(nt)); } catch {} }}
-                  style={{ border: "none", background: "none", cursor: "pointer", color: "#E8654A", fontWeight: 700, fontSize: "1.1rem" }}>×</button>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* ── CALENDAR TAB ── */}
-        {activeTab === "calendar" && (
-          <SVStandaloneCalendar year={calYear} month={calMonth} lang={sLang}
-            onPrev={() => { if (calMonth === 0) { setCalMonth(11); setCalYear(y => y - 1); } else setCalMonth(m => m - 1); }}
-            onNext={() => { if (calMonth === 11) { setCalMonth(0); setCalYear(y => y + 1); } else setCalMonth(m => m + 1); }}
-            accentColor={accentColor}
-          />
-        )}
-      </main>
-    </div>
-  );
-}
-
-/* ── Standalone Tree SVG ── */
-function SVStandaloneTree({ book, lang, dir, accentColor, onLeafClick }) {
-  const nodes = book.nodes || [];
-  const VB_W = 860, VB_H = Math.max(340, (nodes.length / 3) * 80 + 60);
-  return (
-    <svg viewBox={`0 0 ${VB_W} ${VB_H}`} style={{ width: "100%", minWidth: 600 }}>
-      {nodes.filter(n => n.parent).map(n => {
-        const p = nodes.find(x => x.id === n.parent);
-        if (!p) return null;
-        const ax = dir === "rtl" ? VB_W - p.x : p.x;
-        const bx = dir === "rtl" ? VB_W - n.x : n.x;
-        const midY = (p.y + n.y) / 2;
-        return <path key={n.id + "-e"} d={`M ${ax} ${p.y + 18} C ${ax} ${midY}, ${bx} ${midY}, ${bx} ${n.y - 18}`} fill="none" stroke={accentColor} strokeWidth="2" opacity="0.6" />;
-      })}
-      {nodes.map(n => {
-        const x = dir === "rtl" ? VB_W - n.x : n.x;
-        const isLeaf = n.level === "leaf";
-        const isBranch = n.level === "branch";
-        const label = (typeof n[lang] === "string" ? n[lang] : "") || n.en || n.id;
-        const fill = isBranch ? accentColor : isLeaf ? "#E8F7F9" : "#fff";
-        const stroke = isBranch ? "transparent" : accentColor;
-        const textColor = isBranch ? "#fff" : "#1a1a1a";
-        return (
-          <g key={n.id} style={{ cursor: isLeaf ? "pointer" : "default" }} onClick={() => isLeaf && onLeafClick(n.id)}>
-            <rect x={x - 65} y={n.y - 18} width={130} height={36} rx={10} fill={fill} stroke={stroke} strokeWidth={1.5} />
-            <text x={x} y={n.y} textAnchor="middle" dominantBaseline="central" fontSize={12} fontWeight={700} fill={textColor}>{label}</text>
-          </g>
-        );
-      })}
-    </svg>
-  );
-}
-
-/* ── Standalone A4 Plate ── */
-function SVStandalonePlate({ leaf, book, lang, dir, accentColor }) {
-  const bookTitle = (book[lang] && book[lang].title) || (book.en && book.en.title) || "Book";
-  const leafTitle = (typeof leaf[lang] === "string" ? leaf[lang] : "") || leaf.en || leaf.id;
-  const blocks = leaf.pageBlocks || [];
-
-  const blockTypeMap = {
-    sectionTitle: (b) => <div key={b.id} style={{ background: accentColor, color: "#fff", fontWeight: 800, fontSize: "1.15rem", borderRadius: 14, padding: "0.9rem 1.25rem", margin: "1rem 0" }}>{b.text || ""}</div>,
-    titleBlock:   (b) => <div key={b.id} style={{ textAlign: "center", marginBottom: "1.2rem" }}><div style={{ fontSize: "1.65rem", fontWeight: 800, color: "#2E4060" }}>{b.title || bookTitle}</div><div style={{ fontSize: "1.2rem", color: accentColor }}>{b.sub || leafTitle}</div><hr style={{ borderTop: "1.5px solid #E8874A", width: "50%", margin: "0.75rem auto 0" }} /></div>,
-    keyterm:      (b) => <div key={b.id} style={{ background: "#E8F7F9", border: "1.5px solid #4C9DB0", color: "#1A6B7A", borderRadius: 14, padding: "0.9rem 1.25rem", margin: "1rem 0" }}><b>{b.title || ""}:</b> {b.text || ""}</div>,
-    note:         (b) => <div key={b.id} style={{ background: "#F0EDF7", border: "1.5px solid #655A7C", color: "#3B3050", borderRadius: 14, padding: "0.9rem 1.25rem", margin: "1rem 0" }}><b>{b.title || "Note"}:</b> {b.text || ""}</div>,
-    warning:      (b) => <div key={b.id} style={{ background: "#F2F4E6", border: "2px solid #84922A", color: "#626D17", borderRadius: 14, padding: "0.9rem 1.25rem", margin: "1rem 0" }}><b>⚠️ {b.title || "Warning"}:</b> {b.text || ""}</div>,
-    important:    (b) => <div key={b.id} style={{ background: "#D9E0F2", border: "2px solid #14428F", color: "#14428F", borderRadius: 14, padding: "0.9rem 1.25rem", margin: "1rem 0", fontWeight: 700 }}><b>⭐ {b.title || "Important"}:</b> {b.text || ""}</div>,
-    code:         (b) => <div key={b.id} style={{ background: "#0D0D0D", border: "1px solid #2A2A2A", borderRadius: 14, margin: "1.2rem 0", overflow: "hidden", direction: "ltr" }}><pre style={{ margin: 0, padding: "1rem 1.3rem", fontFamily: "monospace", fontSize: "0.95rem", color: "#D4D4D4", overflowX: "auto" }}>{b.code || ""}</pre></div>,
-    mediaCard:    (b) => <div key={b.id} style={{ background: "#fff", border: `1.5px solid ${accentColor}`, borderRadius: 16, overflow: "hidden", margin: "1.2rem 0" }}>{b.imageUrl && <img src={b.imageUrl} alt={b.title || ""} style={{ width: "100%", maxHeight: 300, objectFit: "cover" }} />}<div style={{ padding: "0.8rem 1rem" }}><div style={{ fontWeight: 800, color: accentColor }}>{b.title || ""}</div><div>{b.desc || ""}</div></div></div>,
-  };
-
-  return (
-    <section style={{
-      background: "#F8F5F0", width: "210mm", maxWidth: "100%", minHeight: "297mm",
-      padding: "16mm 14mm 20mm", margin: "24px auto",
-      boxShadow: "0 10px 32px rgba(0,0,0,0.12)", borderRadius: 4,
-      fontFamily: "'Amiri', 'Noto Naskh Arabic', 'Cairo', serif", fontSize: 17, lineHeight: 1.85,
-    }}>
-      <header style={{ display: "flex", justifyContent: "space-between", borderBottom: "2px solid #2E4060", color: "#2E4060", paddingBottom: "0.5rem", marginBottom: "0.8rem", fontWeight: 700 }}>
-        <span>{bookTitle}</span><span>{leafTitle}</span>
-      </header>
-      {blocks.length === 0 ? (
-        <>
-          <div style={{ background: accentColor, color: "#fff", fontWeight: 800, fontSize: "1.15rem", borderRadius: 14, padding: "0.9rem 1.25rem", margin: "1rem 0" }}>{leafTitle}</div>
-          <div style={{ background: "#E8F7F9", border: "1.5px solid #4C9DB0", color: "#1A6B7A", borderRadius: 14, padding: "0.9rem 1.25rem", margin: "1rem 0" }}>
-            {lang === "ar" ? "المفاهيم والنقاط الجوهرية لهذه الورقة." : "Core concepts and key points for this leaf."}
-          </div>
-        </>
-      ) : blocks.map(b => blockTypeMap[b.kind] ? blockTypeMap[b.kind](b) : null)}
-    </section>
-  );
-}
-
-/* ── Standalone Question Card ── */
-function SVStandaloneQuestionCard({ q, lang, accentColor }) {
-  const [revealed, setRevealed] = useState(false);
-  const c = q[lang] || q.en || {};
-  const qType = q.type || "single";
-  const promptText = c.prompt || c.template || "";
-  const typeColors = { single: "#E4FF6E", multi: "#FF8A5B", tf: "#9BE8C4", short: "#FFE885", essay: "#FAD2E1", fill: "#C5E7F7", cloze: "#C5E7F7", match: "#E0CEF7", order: "#E0CEF7", sort: "#E0CEF7", numeric: "#B7C3FF", rating: "#FFD6A5" };
-  const bg = typeColors[qType] || "#E0E0E0";
-
-  return (
-    <div style={{ background: bg, borderRadius: 18, padding: 20, marginBottom: 18, border: "1.5px solid rgba(0,0,0,0.10)" }}>
-      <div style={{ fontSize: "0.72rem", fontWeight: 800, textTransform: "uppercase", background: "rgba(0,0,0,0.10)", padding: "3px 8px", borderRadius: 6, display: "inline-block", marginBottom: 8 }}>
-        {qType.toUpperCase()}
-      </div>
-      <p style={{ fontWeight: 700, fontSize: "1.05rem", margin: "0 0 14px" }}>{promptText}</p>
-      {/* Options for single/multi */}
-      {(qType === "single" || qType === "multi") && c.options && c.options.map((opt, oi) => (
-        <div key={oi} style={{ background: "rgba(255,255,255,0.85)", padding: "10px 14px", borderRadius: 12, marginBottom: 6, fontWeight: 600 }}>{opt}</div>
-      ))}
-      {/* True/False */}
-      {qType === "tf" && (
-        <div style={{ display: "flex", gap: 10 }}>
-          <div style={{ background: "rgba(255,255,255,0.85)", padding: "10px 20px", borderRadius: 12, fontWeight: 700 }}>✓ True</div>
-          <div style={{ background: "rgba(255,255,255,0.85)", padding: "10px 20px", borderRadius: 12, fontWeight: 700 }}>✗ False</div>
-        </div>
-      )}
-      {/* Essay / Short — show model answer on click */}
-      {(qType === "essay" || qType === "short") && (
-        <button onClick={() => setRevealed(r => !r)} style={{ padding: "8px 16px", borderRadius: 12, background: accentColor, color: "#fff", border: "none", fontWeight: 700, cursor: "pointer", marginBottom: 8 }}>
-          {revealed ? (lang === "ar" ? "إخفاء الإجابة" : "Hide Answer") : (lang === "ar" ? "💡 إظهار الإجابة" : "💡 Show Answer")}
-        </button>
-      )}
-      {revealed && (qType === "essay" || qType === "short") && (
-        <div style={{ background: "rgba(255,255,255,0.9)", padding: "12px 14px", borderRadius: 12, fontWeight: 600, fontSize: "0.9rem" }}>
-          <b>{lang === "ar" ? "الإجابة:" : "Answer:"}</b> {c.modelAnswer || c.rubric || c.answer || "—"}
-        </div>
-      )}
-    </div>
-  );
-}
-
-/* ── Standalone Calendar ── */
-function SVStandaloneCalendar({ year, month, lang, onPrev, onNext, accentColor }) {
-  const monthNames = lang === "ar"
-    ? ["يناير","فبراير","مارس","أبريل","مايو","يونيو","يوليو","أغسطس","سبتمبر","أكتوبر","نوفمبر","ديسمبر"]
-    : ["January","February","March","April","May","June","July","August","September","October","November","December"];
-  const dayNames = lang === "ar" ? ["أحد","اثنين","ثلاثاء","أربعاء","خميس","جمعة","سبت"] : ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
-  const firstDay = new Date(year, month, 1).getDay();
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-  const today = new Date();
-
-  return (
-    <div style={{ maxWidth: 700, margin: "0 auto" }}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
-        <h2 style={{ margin: 0, fontSize: "1.15rem" }}>📅 {monthNames[month]} {year}</h2>
-        <div style={{ display: "flex", gap: 8 }}>
-          <button onClick={onPrev} style={{ padding: "6px 14px", borderRadius: 999, border: "1px solid rgba(0,0,0,0.15)", cursor: "pointer", fontWeight: 700 }}>◀</button>
-          <button onClick={onNext} style={{ padding: "6px 14px", borderRadius: 999, border: "1px solid rgba(0,0,0,0.15)", cursor: "pointer", fontWeight: 700 }}>▶</button>
-        </div>
-      </div>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 6 }}>
-        {dayNames.map(d => <div key={d} style={{ textAlign: "center", fontWeight: 700, fontSize: "0.78rem", padding: "6px 0", color: "#666" }}>{d}</div>)}
-        {Array.from({ length: firstDay }).map((_, i) => <div key={"e" + i} />)}
-        {Array.from({ length: daysInMonth }, (_, i) => i + 1).map(d => {
-          const isToday = today.getFullYear() === year && today.getMonth() === month && today.getDate() === d;
-          return (
-            <div key={d} style={{
-              background: isToday ? accentColor : "#fff", color: isToday ? "#fff" : "#241B13",
-              borderRadius: 12, padding: "10px 6px 8px", textAlign: "center", fontWeight: isToday ? 800 : 600,
-              boxShadow: "0 1px 4px rgba(0,0,0,0.06)", fontSize: "0.9rem",
-            }}>
-              <div>{d}</div>
-              {d % 7 === 0 && <div style={{ fontSize: "0.62rem", marginTop: 2 }}>📚</div>}
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
-
-/* =================================================================
    MAIN EDUcraftApp
 ================================================================== */
 export default function EDUcraftApp() {
-  // ── Standalone mode: exported HTML opened in browser ─────────────────────
-  // This is safe to check before hooks because window.__STANDALONE__ is a
-  // module-level constant (set once by Rust injection, never changes at runtime).
+  // ── Standalone mode detection: when exported HTML is opened in browser ──
   const standaloneData =
     typeof window !== "undefined" ? window.__STANDALONE__ : null;
 
-  const [lang, setLang] = useState("en");
-
-
+  const [lang, setLang] = useState(standaloneData?.lang || "en");
   const [mode, setMode] = useState("light");
   const [flavorId, setFlavorId] = useState("normal");
   const [skinId, setSkinId] = useState("normal");
@@ -6846,8 +6553,14 @@ export default function EDUcraftApp() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [showExportModal, setShowExportModal] = useState(false);
 
-  // Bag & Book Data State
+  // Bag & Book Data State (initialized from standalone data if present)
   const [bags, setBags] = useState(() => {
+    if (standaloneData) {
+      if (standaloneData.targetType === "bag" && standaloneData.data?.bag) {
+        return [standaloneData.data.bag];
+      }
+      return DEFAULT_BAGS;
+    }
     try {
       const saved = localStorage.getItem("educraft_bags");
       return saved ? JSON.parse(saved) : DEFAULT_BAGS;
@@ -6857,6 +6570,17 @@ export default function EDUcraftApp() {
   });
 
   const [books, setBooks] = useState(() => {
+    if (standaloneData) {
+      if (standaloneData.targetType === "bag" && standaloneData.data?.books) {
+        return standaloneData.data.books;
+      }
+      if (Array.isArray(standaloneData.data)) {
+        return standaloneData.data;
+      }
+      if (standaloneData.data) {
+        return [standaloneData.data];
+      }
+    }
     try {
       const saved = localStorage.getItem("educraft_books");
       return saved ? JSON.parse(saved) : INITIAL_BOOKS;
@@ -6866,6 +6590,9 @@ export default function EDUcraftApp() {
   });
 
   const [covers, setCovers] = useState(() => {
+    if (standaloneData?.coverFrom && standaloneData?.data?.id) {
+      return { [standaloneData.data.id]: { from: standaloneData.coverFrom, to: standaloneData.coverTo, icon: "code" } };
+    }
     try {
       const saved = localStorage.getItem("educraft_covers");
       return saved ? JSON.parse(saved) : {};
@@ -6874,12 +6601,36 @@ export default function EDUcraftApp() {
     }
   });
 
-  const [screen, setScreen] = useState("library"); // "library" | "tree" | "deck" | "browse" | "editor"
-  const [selectedBookId, setSelectedBookId] = useState(null);
-  const [selectedLeafId, setSelectedLeafId] = useState(null);
+  // Start on Tree screen for a single book, or Library for a bag collection
+  const [screen, setScreen] = useState(() => {
+    if (standaloneData) {
+      return standaloneData.targetType === "bag" ? "library" : "tree";
+    }
+    return "library";
+  });
+
+  const [selectedBookId, setSelectedBookId] = useState(() => {
+    if (standaloneData) {
+      if (standaloneData.targetType === "bag" && standaloneData.data?.books?.length) {
+        return standaloneData.data.books[0].id;
+      }
+      return standaloneData.data?.id || null;
+    }
+    return null;
+  });
+
+  const [selectedLeafId, setSelectedLeafId] = useState(() => {
+    if (standaloneData?.data?.nodes) {
+      const firstLeaf = standaloneData.data.nodes.find((n) => n.level === "leaf");
+      return firstLeaf?.id || null;
+    }
+    return null;
+  });
+
   const [editorSubTab, setEditorSubTab] = useState("pages"); // "cards" | "pages"
   const [studioSidebarOpen, setStudioSidebarOpen] = useState(true);
   const [studioSidebarTab, setStudioSidebarTab] = useState("outline"); // "outline" | "blocks" | "inspector"
+
 
   // Persistence
   useEffect(() => {
@@ -7042,12 +6793,8 @@ export default function EDUcraftApp() {
     setStudioSidebarTab("inspector");
   };
 
-  // ── Standalone mode early render (after all hooks) ─────────────────────────
-  if (standaloneData) {
-    return <StandaloneViewer standaloneData={standaloneData} />;
-  }
-
   return (
+
 
     <div
       dir={dir}
