@@ -62,6 +62,13 @@ import {
   Table as TableIcon,
   Plus,
   Search,
+  Code,
+  Image as ImageIcon,
+  Eye,
+  EyeOff,
+  FileText,
+  PanelLeftClose,
+  PanelLeftOpen,
 } from "lucide-react";
 
 /* =================================================================
@@ -1450,6 +1457,7 @@ const THIQA_PALETTES = [
   }
 ];
 
+
 function getPalette(paletteId) {
   const num = Number(paletteId) || 1;
   return THIQA_PALETTES.find((p) => p.num === num) || THIQA_PALETTES[0];
@@ -1464,7 +1472,7 @@ const FLAVORS = {
     ar: "عادي",
     light: {
       canvas: "#F3EAD9",
-      header: "#DCE9DC",
+      header: "#DCE9DC", // Soft sage green header as requested
       surface: "#FFFDFB",
       surfaceSoft: "#F8F2E6",
       ink: "#241B13",
@@ -1627,6 +1635,14 @@ function skinBorderColor(skin, theme) {
   if (skin.id === "pixel") return theme.ink;
   return theme.hairline;
 }
+function hexToRgba(hex, alpha) {
+  const h = (hex || "#000000").replace("#", "");
+  if (h.length !== 6) return hex;
+  const r = parseInt(h.slice(0, 2), 16);
+  const g = parseInt(h.slice(2, 4), 16);
+  const b = parseInt(h.slice(4, 6), 16);
+  return `rgba(${r},${g},${b},${alpha})`;
+}
 function skinSurface(skin, theme, soft) {
   const base = soft ? theme.surfaceSoft : theme.surface;
   if (skin.surfaceAlpha >= 1) return base;
@@ -1775,6 +1791,9 @@ const UI = {
     settingsFlavorLabel: "Taste",
     settingsFlavorSub: "The color mood — works with any theme.",
     treeExportCta: "Export as HTML",
+    hideEditorPanel: "Hide Controls",
+    showEditorPanel: "Show Controls",
+    thumbnailsTitle: "Pages",
   },
   ar: {
     dir: "rtl",
@@ -1868,6 +1887,9 @@ const UI = {
     settingsFlavorLabel: "النكهة",
     settingsFlavorSub: "مزاج الألوان — بتشتغل مع أي ثيم فوق، فاتح أو غامق.",
     treeExportCta: "صدّر كملف HTML",
+    hideEditorPanel: "إخفاء التحكم",
+    showEditorPanel: "إظهار التحكم",
+    thumbnailsTitle: "الصفحات",
   },
 };
 
@@ -1914,9 +1936,11 @@ const INITIAL_BOOKS = [
         ar: "القوائم",
         paletteId: 1,
         pageBlocks: [
+          { id: "a1a-b0", kind: "titleBlock", title: "أساسيات الويب", sub: "المحاضرة الأولى: القوائم والجداول" },
           { id: "a1a-b1", kind: "sectionTitle", text: "قوائم HTML وتنسيقها" },
           { id: "a1a-b2", kind: "keyterm", title: "عنصر القائمة المرقّمة <ol>", text: "يُستخدم عنصر <ol> لإنشاء قوائم مرتبة تلقائيًا بأرقام أو أحرف.", linkedQuestionId: "a1a-q0" },
           { id: "a1a-b3", kind: "note", title: "ملاحظة هامة", text: "يمكن التحكم في لون النص عبر خاصية CSS color المباشرة.", linkedQuestionId: "a1a-q1" },
+          { id: "a1a-b4", kind: "code", title: "مثال كود", lang: "html", code: "<ol>\n  <li>عنصر أول</li>\n  <li>عنصر ثاني</li>\n</ol>" },
         ],
         questions: [
           {
@@ -2137,9 +2161,11 @@ const INITIAL_BOOKS = [
         ar: "دوال المصفوفات",
         paletteId: 2,
         pageBlocks: [
+          { id: "a1a-b0", kind: "titleBlock", title: "JavaScript Pro", sub: "Array Mastery & Asynchronous Execution" },
           { id: "a1a-b1", kind: "sectionTitle", text: "دوال المصفوفات في JavaScript" },
           { id: "a1a-b2", kind: "keyterm", title: "الدالة Array.find()", text: "تُرجع دالة find أول عنصر في المصفوفة يُحقق شرط دالة الاختبار المُمررة.", linkedQuestionId: "a1a-q0" },
           { id: "a1a-b3", kind: "important", title: "باراميترات reduce", text: "يقبل callback دالة reduce أربعة باراميترات كحد أقصى: accumulator, currentValue, currentIndex, array.", linkedQuestionId: "a1a-q1" },
+          { id: "a1a-b4", kind: "code", title: "كود Array Methods", lang: "javascript", code: "const nums = [1, 2, 3, 4];\nconst even = nums.find(n => n % 2 === 0);\nconsole.log(even); // 2" },
         ],
         cards: [
           {
@@ -2300,7 +2326,7 @@ function slugify(str) {
       .toString()
       .trim()
       .toLowerCase()
-      .replace(/[^\w\u0600-\u06FF]+/g, "-")
+      .replace(/[^\w؀-ۿ]+/g, "-")
       .replace(/^-+|-+$/g, "") || "book"
   );
 }
@@ -2441,7 +2467,7 @@ function PaletteSelectorModal({ currentPaletteId, onSelectPalette, onClose, ui, 
 }
 
 /* =================================================================
-   SHARED FEEDBACK & BUTTONS (Frosted Full-Card Harmonized)
+   SHARED FEEDBACK & BUTTONS
 ================================================================== */
 function FeedbackBanner({ ok, ui, onRetry, skin = SKINS.normal }) {
   return (
@@ -4167,7 +4193,7 @@ function SettingsPanel({ ui, theme, dir, skinId, onSkinChange, flavorId, onFlavo
 }
 
 /* =================================================================
-   EDITOR MODE (With Frosted Tools & Question ↔ A4 Linking)
+   EDITOR MODE (With Collapsible Sliding Drawer & Full Rich Blocks)
 ================================================================== */
 const EDITOR_STR = {
   en: {
@@ -4205,8 +4231,11 @@ const EDITOR_STR = {
     addBlock: "Add block",
     genFromCards: "Generate from this leaf's cards (Auto-Link)",
     changePalette: "Change Palette",
-    blockSectionTitle: "Section title", blockKeyterm: "Key term", blockNote: "Note", blockWarning: "Warning", blockImportant: "Important", blockImage: "Image", blockTable: "Thiqa Table", blockPagebreak: "Page break",
+    blockTitleBlock: "Doc Title Block",
+    blockSectionTitle: "Section title", blockKeyterm: "Key term", blockNote: "Note", blockWarning: "Warning", blockImportant: "Important", blockImage: "Image", blockTable: "Thiqa Table", blockCode: "Code Box", blockMediaCard: "Media Card", blockPagebreak: "Page break",
     blockTitle: "Title", blockText: "Text", imageUrl: "Image URL", imageCaption: "Caption",
+    mediaTitle: "Card Title", mediaDesc: "Description", mediaMeta: "Source / Note",
+    codeBoxLang: "Language", codeSnippet: "Code snippet",
     pageOf: (n, total) => `Page ${n} of ${total}`,
     moveUp: "Move up", moveDown: "Move down", removeBlock: "Remove",
     files: "Files",
@@ -4214,6 +4243,7 @@ const EDITOR_STR = {
     exportBookJson: "Export book (JSON)",
     cardNote: "Note",
     linkToQuestion: "Link to Question",
+    thumbnailsTitle: "Page Thumbnails",
   },
   ar: {
     editorTitle: "المحرر",
@@ -4250,8 +4280,11 @@ const EDITOR_STR = {
     addBlock: "إضافة عنصر",
     genFromCards: "ولّد من كاردات الورقة دي (ربط تلقائي)",
     changePalette: "تغيير الباليتة",
-    blockSectionTitle: "عنوان قسم", blockKeyterm: "مصطلح مفتاحي", blockNote: "ملاحظة", blockWarning: "تحذير", blockImportant: "مهم", blockImage: "صورة", blockTable: "جدول ثِقة", blockPagebreak: "فاصل صفحة",
+    blockTitleBlock: "ترويسة المادة والمحاضرة",
+    blockSectionTitle: "عنوان قسم", blockKeyterm: "مصطلح مفتاحي", blockNote: "ملاحظة", blockWarning: "تحذير", blockImportant: "مهم", blockImage: "صورة", blockTable: "جدول ثِقة", blockCode: "صندوق كود", blockMediaCard: "بطاقة وسائط", blockPagebreak: "فاصل صفحة",
     blockTitle: "العنوان", blockText: "النص", imageUrl: "رابط الصورة", imageCaption: "التعليق",
+    mediaTitle: "عنوان البطاقة", mediaDesc: "الوصف", mediaMeta: "المصدر / الملاحظة",
+    codeBoxLang: "اللغة", codeSnippet: "الكود",
     pageOf: (n, total) => `صفحة ${n} من ${total}`,
     moveUp: "لأعلى", moveDown: "لأسفل", removeBlock: "إزالة",
     files: "ملفات",
@@ -4259,6 +4292,7 @@ const EDITOR_STR = {
     exportBookJson: "تصدير الكتاب (JSON)",
     cardNote: "ملاحظة",
     linkToQuestion: "ربط بسؤال",
+    thumbnailsTitle: "مصغرات الصفحات",
   },
 };
 
@@ -4863,7 +4897,7 @@ function EditorLeafNav({ book, lang, theme, selectedLeafId, onSelect }) {
 }
 
 /* =================================================================
-   A4 PAGE BUILDER (60 Palettes / Thiqa Plates & Tables)
+   A4 PAGE BUILDER (60 Palettes / Thiqa Plates & Thumbnails & Code)
 ================================================================== */
 function BlockRow({ block, t, theme, skin, onUpdate, onDelete, onMove, allQuestions = [], onJumpToQuestion, bookId, leafId }) {
   const kind = block.kind;
@@ -4876,11 +4910,14 @@ function BlockRow({ block, t, theme, skin, onUpdate, onDelete, onMove, allQuesti
           className="text-xs font-bold px-2 py-1.5 rounded-lg outline-none"
           style={{ border: `1px solid ${theme.hairline}`, background: theme.surfaceSoft, color: theme.ink }}
         >
+          <option value="titleBlock">{t.blockTitleBlock}</option>
           <option value="sectionTitle">{t.blockSectionTitle}</option>
           <option value="keyterm">{t.blockKeyterm}</option>
           <option value="note">{t.blockNote}</option>
           <option value="warning">{t.blockWarning}</option>
           <option value="important">{t.blockImportant}</option>
+          <option value="code">{t.blockCode}</option>
+          <option value="mediaCard">{t.blockMediaCard}</option>
           <option value="table">{t.blockTable}</option>
           <option value="image">{t.blockImage}</option>
           <option value="pagebreak">{t.blockPagebreak}</option>
@@ -4919,6 +4956,44 @@ function BlockRow({ block, t, theme, skin, onUpdate, onDelete, onMove, allQuesti
         <p className="text-[11px] font-mono text-center opacity-60">
           — {t.blockPagebreak} (A4 Page Break) —
         </p>
+      ) : kind === "titleBlock" ? (
+        <div className="grid grid-cols-2 gap-1.5">
+          <TextInput theme={theme} skin={skin} value={block.title} onChange={(v) => onUpdate({ title: v })} placeholder="اسم المادة (Subject)" />
+          <TextInput theme={theme} skin={skin} value={block.sub} onChange={(v) => onUpdate({ sub: v })} placeholder="عنوان المحاضرة (Lecture)" />
+        </div>
+      ) : kind === "code" ? (
+        <div className="flex flex-col gap-1.5">
+          <div className="grid grid-cols-2 gap-1.5">
+            <TextInput theme={theme} skin={skin} value={block.title} onChange={(v) => onUpdate({ title: v })} placeholder={t.blockTitle} />
+            <TextInput theme={theme} skin={skin} value={block.lang} onChange={(v) => onUpdate({ lang: v })} placeholder="rust / js / html / css / python" />
+          </div>
+          <textarea
+            value={block.code || ""}
+            onChange={(e) => onUpdate({ code: e.target.value })}
+            rows={4}
+            dir="ltr"
+            className="w-full text-xs px-2.5 py-1.5 rounded-lg outline-none font-mono"
+            style={{ border: `1px solid ${theme.hairline}`, background: "#111", color: "#4FC1FF" }}
+            placeholder={'fn main() {\n  println!("Hello World");\n}'}
+          />
+        </div>
+      ) : kind === "mediaCard" ? (
+        <div className="flex flex-col gap-1.5">
+          <TextInput theme={theme} skin={skin} value={block.imageUrl} onChange={(v) => onUpdate({ imageUrl: v })} placeholder={t.imageUrl} />
+          <div className="grid grid-cols-2 gap-1.5">
+            <TextInput theme={theme} skin={skin} value={block.title} onChange={(v) => onUpdate({ title: v })} placeholder={t.mediaTitle} />
+            <TextInput theme={theme} skin={skin} value={block.meta} onChange={(v) => onUpdate({ meta: v })} placeholder={t.mediaMeta} />
+          </div>
+          <textarea
+            value={block.desc || ""}
+            onChange={(e) => onUpdate({ desc: e.target.value })}
+            rows={2}
+            dir="auto"
+            className="w-full text-xs px-2.5 py-1.5 rounded-lg outline-none"
+            style={{ border: `1px solid ${theme.hairline}`, background: theme.surfaceSoft, color: theme.ink }}
+            placeholder={t.mediaDesc}
+          />
+        </div>
       ) : kind === "image" ? (
         <div className="grid grid-cols-2 gap-1.5">
           <TextInput theme={theme} skin={skin} value={block.imageUrl} onChange={(v) => onUpdate({ imageUrl: v })} placeholder={t.imageUrl} />
@@ -4959,6 +5034,9 @@ function PlateBlock({ block, style, onJumpToQuestion, bookId, leafId, ui }) {
   const isTable = block.kind === "table";
   const isImage = block.kind === "image";
   const isSection = block.kind === "sectionTitle";
+  const isCode = block.kind === "code";
+  const isMediaCard = block.kind === "mediaCard";
+  const isTitleBlock = block.kind === "titleBlock";
 
   const linkedBadge = block.linkedQuestionId && onJumpToQuestion ? (
     <button
@@ -4973,6 +5051,59 @@ function PlateBlock({ block, style, onJumpToQuestion, bookId, leafId, ui }) {
       <Link2 size={10} /> {ui?.relatedQuestion || "Related Question"} <ExternalLink size={9} />
     </button>
   ) : null;
+
+  if (isTitleBlock) {
+    return (
+      <div id={`plate-block-${block.id}`} style={{ width: "100%", marginBottom: "1rem", ...style }}>
+        <header className="doc-head">
+          <span>{block.title || "[اسم المادة]"}</span>
+          <span>{block.sub || "[عنوان المحاضرة]"}</span>
+        </header>
+        <div className="title-block">
+          <div className="subject">{block.title || "[اسم المادة]"}</div>
+          <div className="lecture">{block.sub || "[عنوان المحاضرة]"}</div>
+          <hr />
+        </div>
+      </div>
+    );
+  }
+
+  if (isCode) {
+    return (
+      <div id={`plate-block-${block.id}`} className="code-box" style={style}>
+        {block.title && (
+          <div style={{ padding: "6px 14px", borderBottom: "1px solid var(--CodeFrame)", display: "flex", justifyContent: "space-between", alignItems: "center", background: "rgba(255,255,255,0.05)" }}>
+            <span style={{ fontSize: 11, fontWeight: 700, color: "var(--CodeType)" }}>{block.title}</span>
+            <span style={{ fontSize: 10, color: "var(--CodeComment)", textTransform: "uppercase" }}>{block.lang || "code"}</span>
+            {linkedBadge}
+          </div>
+        )}
+        <pre>{block.code || '// Enter your code here'}</pre>
+      </div>
+    );
+  }
+
+  if (isMediaCard) {
+    return (
+      <div id={`plate-block-${block.id}`} className="media-grid" style={style}>
+        <div className="media-card">
+          {block.imageUrl ? (
+            <img src={block.imageUrl} alt={block.title || ""} />
+          ) : (
+            <div className="media-ph"><span>صورة توضيحية / Media</span></div>
+          )}
+          <div className="media-info">
+            <div className="flex items-center justify-between">
+              {block.title && <div className="media-title">{block.title}</div>}
+              {linkedBadge}
+            </div>
+            {block.desc && <div className="media-desc">{block.desc}</div>}
+            {block.meta && <div className="media-meta">{block.meta}</div>}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (isImage) {
     return (
@@ -5079,11 +5210,18 @@ function usePagedBlocks(blocks) {
   return { pages: pages.length ? pages : [blocks], measureRef };
 }
 
+/* =================================================================
+   A4PageBuilder (Royal View + Collapsible Controls + Thumbnails Rail)
+================================================================== */
 function A4PageBuilder({ leaf, book, lang, theme, skin, t, ui, onUpdateLeaf, allLeavesCards, allQuestions, onJumpToQuestion }) {
   const blocks = leaf.pageBlocks || [];
   const [paletteModalOpen, setPaletteModalOpen] = useState(false);
+  const [controlsOpen, setControlsOpen] = useState(true); // Collapsible sliding sidebar
+  const [activePageIndex, setActivePageIndex] = useState(0);
+
   const currentPaletteNum = leaf.paletteId || book.paletteId || 1;
   const activePalette = getPalette(currentPaletteNum);
+  const pageRefs = useRef([]);
 
   const setBlocks = (next) => onUpdateLeaf({ pageBlocks: next });
   const updateBlock = (i, patch) => setBlocks(blocks.map((b, idx) => (idx === i ? { ...b, ...patch } : b)));
@@ -5095,13 +5233,16 @@ function A4PageBuilder({ leaf, book, lang, theme, skin, t, ui, onUpdateLeaf, all
     [next[i], next[j]] = [next[j], next[i]];
     setBlocks(next);
   };
-  const addBlock = (kind) => setBlocks([...blocks, { id: `${leaf.id}-b-${Date.now()}`, kind, title: "", text: "", imageUrl: "", caption: "", tableData: "" }]);
+  const addBlock = (kind) => setBlocks([...blocks, { id: `${leaf.id}-b-${Date.now()}`, kind, title: "", text: "", imageUrl: "", caption: "", tableData: "", code: "", lang: "rust", desc: "", meta: "" }]);
 
   const generateFromCards = () => {
     const cards = allLeavesCards;
-    const gen = [{ id: `${leaf.id}-b-title`, kind: "sectionTitle", text: lang === "ar" ? leaf.ar : leaf.en }];
+    const gen = [
+      { id: `${leaf.id}-b-title`, kind: "titleBlock", title: book[lang]?.title || book.en?.title, sub: lang === "ar" ? leaf.ar : leaf.en },
+      { id: `${leaf.id}-b-sec`, kind: "sectionTitle", text: lang === "ar" ? leaf.ar : leaf.en }
+    ];
     cards.forEach((card) => {
-      if (card.image) gen.push({ id: `${card.id}-img`, kind: "image", imageUrl: card.image, caption: "" });
+      if (card.image) gen.push({ id: `${card.id}-img`, kind: "mediaCard", imageUrl: card.image, title: "مخطط توضيحي", desc: "", meta: "" });
       card.questions?.forEach((q) => {
         const c = q[lang] || {};
         gen.push({
@@ -5118,102 +5259,179 @@ function A4PageBuilder({ leaf, book, lang, theme, skin, t, ui, onUpdateLeaf, all
 
   const { pages, measureRef } = usePagedBlocks(blocks);
 
+  const scrollToPage = (idx) => {
+    setActivePageIndex(idx);
+    pageRefs.current[idx]?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
   return (
-    <div className="grid lg:grid-cols-[300px_1fr] gap-5">
-      <div className="p-3.5 rounded-2xl shadow-sm border" style={{ borderColor: theme.hairline, background: theme.surface, alignSelf: "start" }}>
-        {/* Palette Selector Button */}
-        <div className="flex items-center justify-between gap-2 p-2.5 mb-3 rounded-xl border border-black/10" style={{ background: activePalette.vars["--PageBG"] }}>
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-bold font-mono px-2 py-0.5 rounded text-white" style={{ background: activePalette.vars["--SectionBG"] }}>
-              #{activePalette.num}
-            </span>
-            <span className="text-xs font-bold truncate max-w-[110px]" style={{ color: activePalette.vars["--HeaderColor"] }}>
-              {activePalette.name}
-            </span>
+    <div className="relative flex flex-col gap-4">
+      {/* Top Quick Bar: Toggle Controls & Active Blade Badge */}
+      <div className="flex items-center justify-between gap-3 px-3 py-2 rounded-2xl border" style={{ background: skinSurface(skin, theme, true), borderColor: theme.hairline }}>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setControlsOpen((o) => !o)}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-full transition-all shadow-xs"
+            style={{
+              background: controlsOpen ? theme.accentSoft : theme.accent,
+              color: controlsOpen ? theme.accent : theme.accentInk,
+              border: `1px solid ${theme.hairlineStrong}`,
+            }}
+          >
+            {controlsOpen ? <PanelLeftClose size={14} /> : <PanelLeftOpen size={14} />}
+            <span>{controlsOpen ? ui.hideEditorPanel : ui.showEditorPanel}</span>
+          </button>
+
+          <div className="flex items-center gap-2 px-2.5 py-1 rounded-full border border-black/10 text-xs font-bold" style={{ background: activePalette.vars["--PageBG"], color: activePalette.vars["--HeaderColor"] }}>
+            <span className="w-2.5 h-2.5 rounded-full" style={{ background: activePalette.vars["--SectionBG"] }} />
+            <span>#{activePalette.num} — {activePalette.name}</span>
           </div>
+        </div>
+
+        <div className="flex items-center gap-2">
           <button
             type="button"
             onClick={() => setPaletteModalOpen(true)}
-            className="text-xs font-bold px-2.5 py-1 rounded-lg text-white shadow-xs hover:brightness-95 transition-all"
+            className="text-xs font-bold px-3 py-1.5 rounded-full text-white shadow-xs hover:brightness-95 transition-all"
             style={{ background: theme.accent }}
           >
+            <Palette size={13} className="inline me-1" />
             {t.changePalette}
           </button>
         </div>
-
-        <button
-          onClick={generateFromCards}
-          className="w-full text-xs font-bold px-3 py-2 mb-3 rounded-xl shadow-xs transition-transform hover:scale-[1.01]"
-          style={{ background: theme.accentSoft, color: theme.accent }}
-        >
-          {t.genFromCards}
-        </button>
-
-        <div className="grid grid-cols-4 gap-1.5 mb-3">
-          {[
-            ["sectionTitle", t.blockSectionTitle],
-            ["keyterm", t.blockKeyterm],
-            ["note", t.blockNote],
-            ["warning", t.blockWarning],
-            ["important", t.blockImportant],
-            ["table", t.blockTable],
-            ["image", t.blockImage],
-            ["pagebreak", t.blockPagebreak],
-          ].map(([kind, label]) => (
-            <button
-              key={kind}
-              onClick={() => addBlock(kind)}
-              title={label}
-              className="h-8 grid place-items-center text-[10px] font-bold rounded-lg shadow-xs hover:scale-105 transition-transform"
-              style={{ background: theme.surfaceSoft, color: theme.ink, border: `1px solid ${theme.hairline}` }}
-            >
-              + {label.slice(0, 4)}
-            </button>
-          ))}
-        </div>
-
-        <div className="max-h-[58vh] overflow-y-auto pe-1">
-          {blocks.map((b, i) => (
-            <BlockRow
-              key={b.id || i}
-              block={b}
-              t={t}
-              theme={theme}
-              skin={skin}
-              allQuestions={allQuestions}
-              onUpdate={(p) => updateBlock(i, p)}
-              onDelete={() => deleteBlock(i)}
-              onMove={(dir) => moveBlock(i, dir)}
-              onJumpToQuestion={onJumpToQuestion}
-              bookId={book.id}
-              leafId={leaf.id}
-            />
-          ))}
-        </div>
       </div>
 
-      <div className="overflow-x-auto">
-        {/* Hidden measuring pass */}
-        <div ref={measureRef} style={{ position: "absolute", visibility: "hidden", pointerEvents: "none", width: "182mm", top: -99999 }}>
-          {blocks.map((b, i) => (
-            <PlateBlock key={b.id || i} block={b} ui={ui} />
-          ))}
+      {/* Main Container: Collapsible Sidebar + Royal A4 View + Page Thumbnails */}
+      <div className="flex gap-4 items-start relative min-h-[75vh]">
+        {/* Collapsible Sliding Sidebar */}
+        <div
+          className={`transition-all duration-300 ease-in-out shrink-0 overflow-hidden ${
+            controlsOpen ? "w-[290px] opacity-100" : "w-0 opacity-0 pointer-events-none"
+          }`}
+        >
+          <div className="p-3.5 rounded-2xl shadow-sm border flex flex-col gap-3 w-[290px]" style={{ borderColor: theme.hairline, background: theme.surface }}>
+            <button
+              onClick={generateFromCards}
+              className="w-full text-xs font-bold px-3 py-2 rounded-xl shadow-xs transition-transform hover:scale-[1.01]"
+              style={{ background: theme.accentSoft, color: theme.accent }}
+            >
+              {t.genFromCards}
+            </button>
+
+            <div className="grid grid-cols-3 gap-1.5">
+              {[
+                ["titleBlock", t.blockTitleBlock],
+                ["sectionTitle", t.blockSectionTitle],
+                ["keyterm", t.blockKeyterm],
+                ["note", t.blockNote],
+                ["warning", t.blockWarning],
+                ["important", t.blockImportant],
+                ["code", t.blockCode],
+                ["mediaCard", t.blockMediaCard],
+                ["table", t.blockTable],
+                ["image", t.blockImage],
+                ["pagebreak", t.blockPagebreak],
+              ].map(([kind, label]) => (
+                <button
+                  key={kind}
+                  onClick={() => addBlock(kind)}
+                  title={label}
+                  className="h-8 grid place-items-center text-[10px] font-bold rounded-lg shadow-xs hover:scale-105 transition-transform truncate px-1"
+                  style={{ background: theme.surfaceSoft, color: theme.ink, border: `1px solid ${theme.hairline}` }}
+                >
+                  + {label.slice(0, 5)}
+                </button>
+              ))}
+            </div>
+
+            <div className="max-h-[58vh] overflow-y-auto pe-1 flex flex-col gap-1">
+              {blocks.map((b, i) => (
+                <BlockRow
+                  key={b.id || i}
+                  block={b}
+                  t={t}
+                  theme={theme}
+                  skin={skin}
+                  allQuestions={allQuestions}
+                  onUpdate={(p) => updateBlock(i, p)}
+                  onDelete={() => deleteBlock(i)}
+                  onMove={(dir) => moveBlock(i, dir)}
+                  onJumpToQuestion={onJumpToQuestion}
+                  bookId={book.id}
+                  leafId={leaf.id}
+                />
+              ))}
+            </div>
+          </div>
         </div>
 
-        <div className="flex flex-col gap-6 items-center py-2">
-          {pages.map((pageBlocks, pi) => (
-            <section key={pi} className="plate" style={activePalette.vars}>
-              <h1>
-                <span className="num">Blade #{activePalette.num}</span> — {activePalette.name}
-              </h1>
-              {pageBlocks.map((b, i) => (
-                <PlateBlock key={b.id || i} block={b} ui={ui} bookId={book.id} leafId={leaf.id} onJumpToQuestion={onJumpToQuestion} />
-              ))}
-              <p style={{ textAlign: "center", fontSize: 11, opacity: 0.6, marginTop: "1rem" }}>
-                {t.pageOf(pi + 1, pages.length)} · {book[lang]?.title || book.en?.title}
-              </p>
-            </section>
-          ))}
+        {/* Center: Full Royal A4 Pages Infinite-Scroll View */}
+        <div className="flex-1 flex flex-col items-center overflow-x-auto min-w-0 pb-16">
+          {/* Hidden measuring pass */}
+          <div ref={measureRef} style={{ position: "absolute", visibility: "hidden", pointerEvents: "none", width: "182mm", top: -99999 }}>
+            {blocks.map((b, i) => (
+              <PlateBlock key={b.id || i} block={b} ui={ui} />
+            ))}
+          </div>
+
+          <div className="flex flex-col gap-8 items-center w-full">
+            {pages.map((pageBlocks, pi) => (
+              <section
+                key={pi}
+                ref={(el) => (pageRefs.current[pi] = el)}
+                className="plate educraft-panel-in"
+                style={activePalette.vars}
+              >
+                {pageBlocks.map((b, i) => (
+                  <PlateBlock key={b.id || i} block={b} ui={ui} bookId={book.id} leafId={leaf.id} onJumpToQuestion={onJumpToQuestion} />
+                ))}
+                <div style={{ textAlign: "center", fontSize: 11, opacity: 0.6, marginTop: "1.5rem", borderTop: `1px dashed ${activePalette.vars["--SectionFrame"]}`, paddingTop: "0.5rem" }}>
+                  {t.pageOf(pi + 1, pages.length)} · {book[lang]?.title || book.en?.title}
+                </div>
+              </section>
+            ))}
+          </div>
+        </div>
+
+        {/* Right Side: Page Thumbnails Ribbon Strip */}
+        <div className="sticky top-4 hidden md:flex flex-col gap-2.5 p-2 rounded-2xl border shrink-0" style={{ background: theme.surface, borderColor: theme.hairline }}>
+          <span className="text-[10px] font-black uppercase text-center opacity-60">
+            {ui.thumbnailsTitle} ({pages.length})
+          </span>
+          <div className="flex flex-col gap-2 max-h-[70vh] overflow-y-auto px-1 py-1">
+            {pages.map((p, pIdx) => {
+              const isActive = activePageIndex === pIdx;
+              return (
+                <button
+                  key={pIdx}
+                  type="button"
+                  onClick={() => scrollToPage(pIdx)}
+                  className={`a4-thumb-item flex flex-col justify-between p-1.5 text-start ${isActive ? "active scale-105" : ""}`}
+                  style={{ ...activePalette.vars, background: activePalette.vars["--PageBG"] }}
+                  title={`Page ${pIdx + 1}`}
+                >
+                  <div className="flex items-center justify-between w-full">
+                    <span className="text-[9px] font-bold px-1 rounded text-white" style={{ background: activePalette.vars["--SectionBG"] }}>
+                      {pIdx + 1}
+                    </span>
+                    <span className="text-[8px] opacity-70 truncate max-w-[36px]" style={{ color: activePalette.vars["--HeaderColor"] }}>
+                      A4
+                    </span>
+                  </div>
+
+                  <div className="flex flex-col gap-0.5 my-1 opacity-70">
+                    <span className="h-1 rounded w-3/4" style={{ background: activePalette.vars["--HeaderColor"] }} />
+                    <span className="h-0.5 rounded w-full" style={{ background: activePalette.vars["--SectionBG"] }} />
+                    <span className="h-0.5 rounded w-1/2" style={{ background: activePalette.vars["--KeyBG"] }} />
+                  </div>
+
+                  <span className="text-[8px] text-center font-bold opacity-60 truncate">
+                    {p.length} items
+                  </span>
+                </button>
+              );
+            })}
+          </div>
         </div>
       </div>
 
@@ -5274,7 +5492,7 @@ function buildBookExportHTML({ book, lang, theme, ui }) {
   }));
 
   const totalLeaves = (book.nodes || []).filter((n) => n.level === "leaf").length;
-  const dataJson = JSON.stringify({ id: book.id, title, tagline, totalLeaves, groups, lang, dir: ui.dir, cover: book.cover, palette }).replace(/</g, "\\u003c");
+  const dataJson = JSON.stringify({ id: book.id, title, tagline, totalLeaves, groups, lang, dir: ui.dir, cover: book.cover, palette }).replace(/</g, "\u003c");
   const favicon = faviconDataUri(book.cover, title);
   const vars = Object.entries(palette.vars).map(([k, v]) => `${k}:${v};`).join(" ");
 
@@ -5356,7 +5574,7 @@ function renderExport(){
           bOut += '<div style="font-weight:700;margin-bottom:8px;">' + (q.d.prompt || q.d.template || '') + '</div>';
           if(q.d.options){
             q.d.options.forEach((opt, idx) => {
-              bOut += '<button class="opt" onclick="this.parentElement.querySelectorAll(\\'.opt\\').forEach(x=>x.classList.remove(\\'.sel\\'));this.classList.add(\\'.sel\\');">' + opt + '</button>';
+              bOut += '<button class="opt" onclick="this.parentElement.querySelectorAll(\'.opt\').forEach(x=>x.classList.remove(\'.sel\'));this.classList.add(\'.sel\');">' + opt + '</button>';
             });
           }
           bOut += '</div>';
@@ -5584,12 +5802,17 @@ export default function EDUcraftApp() {
         fontFamily: ui.bodyFont,
       }}
     >
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex flex-col min-h-screen gap-5">
-        {/* TOP NAVIGATION BAR */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex flex-col min-h-screen gap-5">
+        {/* TOP NAVIGATION BAR — Uses theme.header (Soft sage green restored) */}
         <header
-          className="flex items-center justify-between gap-3 px-4 py-3 rounded-2xl flex-wrap shadow-xs"
+          className="flex items-center justify-between gap-3 px-5 py-3 rounded-2xl flex-wrap shadow-xs"
           style={{
-            ...panelStyle(skin, theme, { soft: true }),
+            background: skin.surfaceAlpha >= 1 ? theme.header : hexToRgba(theme.header, skin.surfaceAlpha),
+            borderRadius: skin.radiusLg,
+            border: `${skin.borderW}px solid ${skinBorderColor(skin, theme)}`,
+            boxShadow: skin.shadow,
+            backdropFilter: skin.blur,
+            WebkitBackdropFilter: skin.blur,
           }}
         >
           <div className="flex items-center gap-3">

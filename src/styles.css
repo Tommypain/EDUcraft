@@ -58,53 +58,88 @@
 }
 
 /* =================================================================
-   THIQA (ثِقة) A4 PLATE & BOX STYLES — The 60 Blades
+   THIQA (ثِقة) A4 PLATE, CODE-BOX, MEDIA-CARD, AND BOX STYLES
 ================================================================== */
+:root {
+  --CodeBG: #0D0D0D;
+  --CodeFrame: #2A2A2A;
+  --CodeComment: #8A8A8A;
+  --CodeKeyword: #C586C0;
+  --CodeType: #4FC1FF;
+  --CodeMacro: #FF7AB2;
+  --CodeFunc: #DCDCDC;
+  --CodeString: #6A9955;
+  --CodeNumber: #CE9178;
+  --CodePlain: #D4D4D4;
+}
+
 .plate {
   background: var(--PageBG, #F8F5F0);
   color: var(--BodyText, #000000);
   width: 210mm;
   min-height: 297mm;
   box-sizing: border-box;
-  padding: 16mm 14mm;
+  padding: 16mm 14mm 20mm;
   margin: 0 auto;
   font-family: 'Amiri', 'Noto Naskh Arabic', 'Cairo', 'Traditional Arabic', serif;
-  font-size: 16px;
-  line-height: 1.8;
+  font-size: 17px;
+  line-height: 1.85;
   position: relative;
   transition: background 0.2s ease, color 0.2s ease;
 }
 
 @media screen {
   .plate {
-    margin: 16px auto;
-    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12);
-    border-radius: 6px;
+    margin: 20px auto;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.14), 0 1px 3px rgba(0, 0, 0, 0.08);
+    border-radius: 4px;
   }
 }
 
-.plate h1 {
+header.doc-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  margin: 0 auto 0.8rem;
+  padding: 0 0 0.6rem;
+  border-bottom: 2px solid var(--HeaderColor);
+  color: var(--HeaderColor);
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.title-block {
   text-align: center;
-  color: var(--HeaderColor, #2E4060);
-  font-size: 1.6rem;
+  margin-bottom: 1.2rem;
+}
+.title-block .subject {
+  font-size: 1.65rem;
   font-weight: 800;
-  margin: 0.5rem 0 1.2rem;
+  color: var(--HeaderColor);
 }
-
-.plate h1 .num {
-  color: var(--SectionBG, #E8874A);
-  font-family: 'Space Mono', sans-serif;
-  margin-inline-end: 6px;
+.title-block .lecture {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--SectionBG);
+  margin-top: 0.25rem;
 }
-
-.plate p {
-  margin: 0.7em 0;
+.title-block .sub {
+  font-size: 0.9rem;
+  color: #777777;
+  margin-top: 0.2rem;
+}
+.title-block hr {
+  border: none;
+  border-top: 1.5px solid var(--SectionFrame);
+  width: 50%;
+  margin: 0.75rem auto 0;
 }
 
 .box {
   border-radius: 14px;
-  padding: 0.85rem 1.15rem;
-  margin: 0.85rem 0;
+  padding: 0.9rem 1.25rem;
+  margin: 1rem 0;
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
   border-width: 1.5px;
   border-style: solid;
@@ -116,7 +151,7 @@
   border-color: var(--SectionFrame);
   color: #ffffff;
   font-weight: 800;
-  font-size: 1.15rem;
+  font-size: 1.2rem;
 }
 
 .box.keyterm {
@@ -124,8 +159,11 @@
   border-color: var(--KeyFrame);
   color: var(--KeyText);
 }
+.box.keyterm b {
+  color: var(--KeyText);
+}
 
-.box.note {
+.box.note, .box.clinical-note {
   background: var(--NoteBG);
   border-color: var(--NoteFrame);
   color: var(--NoteText);
@@ -146,20 +184,101 @@
   font-weight: 700;
 }
 
+.kw { color: var(--SectionFrame); font-weight: 700; }
+.warnhl { color: var(--WarningFrame); font-weight: 700; }
+.stat { color: var(--KeyFrame); font-weight: 700; }
+.hl { color: var(--ImportantText); font-weight: 800; }
+
 bdi.en {
   direction: ltr;
   unicode-bidi: isolate;
   font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
 }
 
-.hl {
-  color: var(--ImportantText);
-  font-weight: 800;
+/* ── Code Box ── */
+.code-box {
+  background: var(--CodeBG, #0D0D0D);
+  border: 1px solid var(--CodeFrame, #2A2A2A);
+  border-radius: 14px;
+  margin: 1.2rem 0;
+  overflow: hidden;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+  direction: ltr;
+  text-align: left;
 }
+.code-box pre {
+  margin: 0;
+  padding: 1.1rem 1.3rem;
+  overflow-x: auto;
+  font-family: 'JetBrains Mono', 'Fira Code', 'Space Mono', Consolas, monospace;
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: var(--CodePlain, #D4D4D4);
+}
+.code-box .cm { color: var(--CodeComment, #8A8A8A); font-style: italic; }
+.code-box .kw { color: var(--CodeKeyword, #C586C0); font-weight: 700; }
+.code-box .ty { color: var(--CodeType, #4FC1FF); }
+.code-box .mc { color: var(--CodeMacro, #FF7AB2); font-weight: 700; }
+.code-box .fn { color: var(--CodeFunc, #DCDCDC); }
+.code-box .st { color: var(--CodeString, #6A9955); }
+.code-box .nm { color: var(--CodeNumber, #CE9178); }
 
-.warnhl {
-  color: var(--WarningFrame);
-  font-weight: 700;
+/* ── Media Grid & Card ── */
+.media-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+  margin: 1.2rem 0;
+}
+.media-card {
+  background: #ffffff;
+  border: 1.5px solid var(--SectionFrame);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.10);
+  display: flex;
+  flex-direction: column;
+}
+.media-card .media-ph {
+  aspect-ratio: 4 / 3;
+  background: linear-gradient(135deg, var(--SectionBG), var(--KeyFrame));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-weight: 800;
+  font-family: sans-serif;
+  font-size: 0.9rem;
+}
+.media-card img {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: contain;
+  background: #ffffff;
+  display: block;
+}
+.media-card.photo img {
+  object-fit: cover;
+}
+.media-card .media-info {
+  padding: 0.8rem 1rem 1rem;
+  color: var(--BodyText);
+}
+.media-card .media-info .media-title {
+  font-weight: 800;
+  color: var(--SectionFrame);
+  margin-bottom: 0.25rem;
+  font-size: 1rem;
+}
+.media-card .media-info .media-desc {
+  font-size: 0.92rem;
+  line-height: 1.7;
+}
+.media-card .media-info .media-meta {
+  font-size: 0.78rem;
+  color: #7a7a7a;
+  margin-top: 0.4rem;
+  font-family: sans-serif;
 }
 
 table.thiqa-table {
@@ -170,7 +289,6 @@ table.thiqa-table {
   overflow: hidden;
   font-size: 0.95em;
 }
-
 table.thiqa-table th {
   background: var(--SectionBG);
   color: #ffffff;
@@ -178,14 +296,35 @@ table.thiqa-table th {
   border: 1px solid var(--SectionFrame);
   text-align: inherit;
 }
-
 table.thiqa-table td {
   padding: 0.45rem 0.8rem;
   border: 1px solid var(--SectionFrame);
 }
-
 table.thiqa-table tr:nth-child(even) td {
   background: var(--KeyBG);
+}
+
+/* ── Page Thumbnail Ribbon ── */
+.a4-thumb-item {
+  width: 68px;
+  height: 96px;
+  border-radius: 6px;
+  border: 1.5px solid rgba(0,0,0,0.15);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+  position: relative;
+  background: var(--PageBG, #fff);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+.a4-thumb-item:hover {
+  transform: scale(1.08);
+  box-shadow: 0 6px 14px rgba(0,0,0,0.15);
+  border-color: #E8654A;
+}
+.a4-thumb-item.active {
+  border-color: #E8654A;
+  box-shadow: 0 0 0 2px #E8654A;
 }
 
 @media print {
@@ -199,6 +338,11 @@ table.thiqa-table tr:nth-child(even) td {
     break-after: auto;
     page-break-after: auto;
   }
+  .box { break-inside: auto; box-decoration-break: clone; -webkit-box-decoration-break: clone; box-shadow: none; }
+  .media-card { break-inside: avoid; box-shadow: none; }
+  .code-box { break-inside: auto; box-shadow: none; }
+  .code-box pre { break-inside: auto; white-space: pre-wrap; word-break: break-word; orphans: 3; widows: 3; }
+  p, li { orphans: 3; widows: 3; }
 }
 
 @page {
