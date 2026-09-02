@@ -71,6 +71,7 @@ import {
   Wand2,
 } from "lucide-react";
 import { ImportModal } from "./utils/ImportModal.jsx";
+import { SyntaxCodeBlock } from "./utils/syntax.jsx";
 
 /* =================================================================
    THEME — one warm system shared by every screen. Untouched from
@@ -478,6 +479,9 @@ const UI = {
     importSuccessTitle: "Import Successful!",
     importSuccessDesc: "Content has been validated and imported into your library.",
     importDoneBtn: "Open Library",
+    libraryDeleteBook: "Delete book",
+    libraryDeleteBookConfirm: "Are you sure you want to delete this book completely along with all its questions, tree, and study plans? This action cannot be undone.",
+    bookFlavorLabel: "Theme flavor",
   },
   ar: {
     dir: "rtl",
@@ -622,6 +626,9 @@ const UI = {
     importSuccessTitle: "تم الاستيراد بنجاح!",
     importSuccessDesc: "تم التحقق من صحة كافة الفروع والأسئلة والصفحات وحفظها في مكتبتك بنجاح.",
     importDoneBtn: "عرض المكتبة الآن",
+    libraryDeleteBook: "حذف الكتاب",
+    libraryDeleteBookConfirm: "هل أنت متأكد من حذف هذا الكتاب بالكامل مع كافة أسئلته وشجرته وخطة مذاكرته؟ لا يمكن التراجع عن هذا الإجراء.",
+    bookFlavorLabel: "نكهة ألوان الكتاب",
   },
 };
 
@@ -1748,16 +1755,11 @@ function QuestionItem({ q, lang, ui, theme, skin = SKINS.normal, onAnswered }) {
       </p>
 
       {(q.code || c.code) && (
-        <div className="code-box my-1 overflow-hidden rounded-xl border border-[#2A2A2A]" style={{ background: "#0D0D0D" }} dir="ltr">
-          {(q.code?.lang || q.code_language || c.code_language) && (
-            <div className="flex items-center justify-between px-3 py-1 text-[11px] font-mono text-gray-400 border-b border-[#2A2A2A]" style={{ background: "#171717" }}>
-              <span>{q.code?.lang || q.code_language || c.code_language}</span>
-            </div>
-          )}
-          <pre className="p-3 m-0 overflow-x-auto font-mono text-xs leading-relaxed text-[#D4D4D4]">
-            <code>{typeof (q.code || c.code) === "object" ? (q.code || c.code).src : (q.code || c.code)}</code>
-          </pre>
-        </div>
+        <SyntaxCodeBlock
+          code={typeof (q.code || c.code) === "object" ? (q.code || c.code).src : (q.code || c.code)}
+          lang={q.code?.lang || q.code_language || c.code_language || q.codeLang}
+          title={typeof (q.code || c.code) === "object" ? (q.code || c.code).title : undefined}
+        />
       )}
 
       {body}
@@ -1982,16 +1984,11 @@ function TypeCard({ q, lang, ui, theme, skin = SKINS.normal, onAnswered }) {
       </p>
 
       {(q.code || c.code) && (
-        <div className="code-box my-1 overflow-hidden rounded-xl border border-[#2A2A2A]" style={{ background: "#0D0D0D" }} dir="ltr">
-          {(q.code?.lang || q.code_language || c.code_language) && (
-            <div className="flex items-center justify-between px-3 py-1 text-[11px] font-mono text-gray-400 border-b border-[#2A2A2A]" style={{ background: "#171717" }}>
-              <span>{q.code?.lang || q.code_language || c.code_language}</span>
-            </div>
-          )}
-          <pre className="p-3 m-0 overflow-x-auto font-mono text-xs leading-relaxed text-[#D4D4D4]">
-            <code>{typeof (q.code || c.code) === "object" ? (q.code || c.code).src : (q.code || c.code)}</code>
-          </pre>
-        </div>
+        <SyntaxCodeBlock
+          code={typeof (q.code || c.code) === "object" ? (q.code || c.code).src : (q.code || c.code)}
+          lang={q.code?.lang || q.code_language || c.code_language || q.codeLang}
+          title={typeof (q.code || c.code) === "object" ? (q.code || c.code).title : undefined}
+        />
       )}
 
       {image && (
@@ -2424,7 +2421,7 @@ function EditableCover({ book, theme, skin, ui, coverUrl, onChangeCover, onClear
    LibraryView — the shelf. Each card is the cover + title + a
    quick tally of branches / questions inside that book's tree.
 ================================================================== */
-function LibraryView({ lang, ui, theme, dir, onOpen, skin, covers, onChangeCover, onClearCover, books, collections, libraryPath, onEnterCollection, onCrumb, onCreateCollection, onDeleteCollection, onAssignToCollection, onRemoveFromCollection, onExportBook, onExportCollection, onOpenImportModal }) {
+function LibraryView({ lang, ui, theme, dir, onOpen, skin, covers, onChangeCover, onClearCover, books, collections, libraryPath, onEnterCollection, onCrumb, onCreateCollection, onDeleteCollection, onAssignToCollection, onRemoveFromCollection, onExportBook, onExportCollection, onOpenImportModal, onDeleteBook }) {
   const ArrowIcon = dir === "rtl" ? ArrowLeft : ArrowRight;
   const atRoot = libraryPath.length === 0;
   const currentCollection = atRoot ? null : collections.find((c) => c.id === libraryPath[libraryPath.length - 1]);
@@ -2653,6 +2650,22 @@ function LibraryView({ lang, ui, theme, dir, onOpen, skin, covers, onChangeCover
                         <FileDown size={13} />
                       </button>
                     )}
+                    {onDeleteBook && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (window.confirm(ui.libraryDeleteBookConfirm)) {
+                            onDeleteBook(book.id);
+                          }
+                        }}
+                        className="p-1.5 hover:opacity-100 transition-opacity"
+                        style={{ borderRadius: skin.radiusSm, color: INCORRECT.border }}
+                        aria-label={ui.libraryDeleteBook}
+                        title={ui.libraryDeleteBook}
+                      >
+                        <Trash2 size={13} />
+                      </button>
+                    )}
                     {atRoot ? (
                     targets.length > 0 ? (
                       <select
@@ -2703,7 +2716,7 @@ function LibraryView({ lang, ui, theme, dir, onOpen, skin, covers, onChangeCover
    cover + title, its knowledge tree, and — once a leaf is picked —
    the question deck for that leaf.
 ================================================================== */
-function TreeView({ book, lang, ui, theme, dir, onBack, skin, selectedLeaf, onSelectLeaf, onBrowse, onReadThrough, onPlanner, onExport, covers, onChangeCover, onClearCover }) {
+function TreeView({ book, lang, ui, theme, dir, onBack, skin, selectedLeaf, onSelectLeaf, onBrowse, onReadThrough, onPlanner, onExport, covers, onChangeCover, onClearCover, bookFlavorId, onChangeBookFlavor, onDeleteBook }) {
   const BackIcon = dir === "rtl" ? ArrowRight : ArrowLeft;
 
   return (
@@ -2750,6 +2763,42 @@ function TreeView({ book, lang, ui, theme, dir, onBack, skin, selectedLeaf, onSe
       </div>
 
       <div className="flex items-center gap-2 mb-6 flex-wrap">
+        {/* Per-Book Flavor Swatches Picker */}
+        {onChangeBookFlavor && (
+          <div className="flex items-center gap-1.5 px-3 py-1.5" style={{ borderRadius: skin.radiusSm, border: `1.5px solid ${skinBorderColor(skin, theme)}`, background: theme.surface }}>
+            <Palette size={13} style={{ color: theme.inkSoft }} />
+            <span className="text-[11px] font-bold me-1" style={{ color: theme.inkSoft }}>
+              {ui.bookFlavorLabel || (lang === "ar" ? "نكهة الكتاب:" : "Flavor:")}
+            </span>
+            <div className="flex items-center gap-1.5">
+              {Object.entries(FLAVORS).map(([fid, f]) => {
+                const pal = f[theme === FLAVORS[fid]?.dark ? "dark" : "light"] || f.light;
+                const isSelected = bookFlavorId === fid;
+                return (
+                  <button
+                    key={fid}
+                    onClick={() => onChangeBookFlavor(fid)}
+                    className="relative p-0.5 rounded-full transition-transform hover:scale-110"
+                    style={{
+                      border: isSelected ? `2px solid ${theme.ink}` : "1.5px solid transparent",
+                      boxShadow: isSelected ? `0 0 0 1px ${theme.accent}` : "none",
+                    }}
+                    title={f[lang] || fid}
+                  >
+                    <div
+                      className="w-4 h-4 rounded-full flex overflow-hidden"
+                      style={{ border: `1px solid ${pal.hairlineStrong}` }}
+                    >
+                      <span className="w-1/2 h-full" style={{ background: pal.canvas }} />
+                      <span className="w-1/2 h-full" style={{ background: pal.accent }} />
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
         <button
           onClick={onPlanner}
           className="flex items-center gap-1.5 text-xs font-bold px-3.5 py-2"
@@ -2766,6 +2815,21 @@ function TreeView({ book, lang, ui, theme, dir, onBack, skin, selectedLeaf, onSe
           >
             <FileDown size={13} />
             {ui.treeExportCta}
+          </button>
+        )}
+        {onDeleteBook && (
+          <button
+            onClick={() => {
+              if (window.confirm(ui.libraryDeleteBookConfirm)) {
+                onDeleteBook(book.id);
+              }
+            }}
+            className="flex items-center gap-1.5 text-xs font-bold px-3.5 py-2 hover:opacity-90 transition-opacity"
+            style={{ borderRadius: skin.radiusSm, border: `1.5px solid ${INCORRECT.border}`, color: INCORRECT.border, minHeight: 36 }}
+            title={ui.libraryDeleteBook}
+          >
+            <Trash2 size={13} />
+            {ui.libraryDeleteBook}
           </button>
         )}
       </div>
@@ -4376,36 +4440,16 @@ function PlateBlock({ block, style, kinds }) {
     );
   }
   if (block.kind === "code") {
-    // matches template.html's .code-box: dark, monospace, LTR.
     return (
-      <div
+      <SyntaxCodeBlock
+        code={block.text}
+        lang={block.codeLang || block.lang}
+        title={block.title}
         style={{
           margin: "10px 0",
-          background: kind.bg,
-          border: `1px solid ${kind.border}`,
-          borderRadius: 14,
-          overflow: "hidden",
-          boxShadow: "0 6px 18px rgba(0,0,0,0.25)",
-          direction: "ltr",
           ...style,
         }}
-      >
-        <pre
-          style={{
-            margin: 0,
-            padding: "14px 16px",
-            overflowX: "auto",
-            fontFamily: "'JetBrains Mono','Fira Code',Consolas,monospace",
-            fontSize: 13,
-            lineHeight: 1.7,
-            color: kind.fg,
-            whiteSpace: "pre-wrap",
-            wordBreak: "break-word",
-          }}
-        >
-          {block.text}
-        </pre>
-      </div>
+      />
     );
   }
   if (block.kind === "sectionTitle") {
@@ -5673,11 +5717,43 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
   const [scrollDir, setScrollDir] = useState(saved.scrollDir || "vertical");
   const [covers, setCovers] = useState(saved.covers || (EXPORT && EXPORT.covers) || {});
   const [plans, setPlans] = useState(saved.plans || {});
+  const [bookFlavors, setBookFlavors] = useState(saved.bookFlavors || {});
   const [collections, setCollections] = useState(saved.collections || (EXPORT && EXPORT.collections) || []);
   const [libraryPath, setLibraryPath] = useState([]);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [importModalOpen, setImportModalOpen] = useState(false);
   const [voiceEnabled, setVoiceEnabled] = useState(saved.voiceEnabled !== false);
+
+  const setBookFlavor = (bid, fid) => setBookFlavors((prev) => ({ ...prev, [bid]: fid }));
+
+  const deleteBook = (deleteId) => {
+    setBooks((prev) => prev.filter((b) => b.id !== deleteId));
+    setCovers((prev) => {
+      const next = { ...prev };
+      delete next[deleteId];
+      return next;
+    });
+    setPlans((prev) => {
+      const next = { ...prev };
+      delete next[deleteId];
+      return next;
+    });
+    setBookFlavors((prev) => {
+      const next = { ...prev };
+      delete next[deleteId];
+      return next;
+    });
+    setCollections((prev) =>
+      prev.map((c) => ({
+        ...c,
+        itemIds: c.itemIds.filter((id) => id !== deleteId)
+      }))
+    );
+    if (bookId === deleteId) {
+      setView("library");
+      setLeafId(null);
+    }
+  };
 
   const handleImportSuccess = ({ books: newBooks, collections: newCols, plans: newPlans, targetBookId }) => {
     setBooks(newBooks);
@@ -5692,16 +5768,18 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
 
   const ui = UI[lang];
   const theme = FLAVORS[flavorId][mode];
+  const currentBook = books.find((b) => b.id === bookId) || books[0];
+  const currentBookFlavorId = (currentBook && bookFlavors[currentBook.id]) || flavorId;
+  const bookTheme = FLAVORS[currentBookFlavorId] ? FLAVORS[currentBookFlavorId][mode] : theme;
   const skin = SKINS[skinId];
   const dir = ui.dir;
-  const currentBook = books.find((b) => b.id === bookId) || books[0];
   const updateCurrentBook = (fn) => setBooks((prev) => prev.map((b) => (b.id === currentBook.id ? fn(b) : b)));
   const currentPlan = plans[bookId] || defaultPlan();
   const updateCurrentPlan = (fn) => setPlans((prev) => ({ ...prev, [bookId]: fn(prev[bookId] || defaultPlan()) }));
 
   useEffect(() => {
-    saveAppState({ lang, mode, skinId, flavorId, cardMode, scrollDir, voiceEnabled, covers, plans, collections });
-  }, [lang, mode, skinId, flavorId, cardMode, scrollDir, voiceEnabled, covers, plans, collections]);
+    saveAppState({ lang, mode, skinId, flavorId, bookFlavors, cardMode, scrollDir, voiceEnabled, covers, plans, collections });
+  }, [lang, mode, skinId, flavorId, bookFlavors, cardMode, scrollDir, voiceEnabled, covers, plans, collections]);
 
   const resetAll = () => {
     saveAppState({});
@@ -5709,6 +5787,7 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
     setMode("light");
     setSkinId("normal");
     setFlavorId("normal");
+    setBookFlavors({});
     setCardMode("paged");
     setScrollDir("vertical");
     setVoiceEnabled(true);
@@ -5946,6 +6025,7 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
               onExportBook={onExportBook ? (book) => onExportBook(book, lang, theme, ui, skin, covers) : undefined}
               onExportCollection={onExportCollection ? (col) => onExportCollection(col, books, collections, lang, theme, ui, skin, covers) : undefined}
               onOpenImportModal={() => setImportModalOpen(true)}
+              onDeleteBook={deleteBook}
             />
           ) : view === "tree" ? (
             <TreeView
@@ -5953,7 +6033,7 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
               book={currentBook}
               lang={lang}
               ui={ui}
-              theme={theme}
+              theme={bookTheme}
               dir={dir}
               onBack={() => setView("library")}
               skin={skin}
@@ -5962,19 +6042,22 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
               onBrowse={() => setView("browse")}
               onReadThrough={() => setView("readthrough")}
               onPlanner={() => setView("planner")}
-              onExport={onExportBook ? () => onExportBook(currentBook, lang, theme, ui, skin, covers) : undefined}
+              onExport={onExportBook ? () => onExportBook(currentBook, lang, bookTheme, ui, skin, covers) : undefined}
               covers={covers}
               onChangeCover={setCover}
               onClearCover={clearCover}
+              bookFlavorId={currentBookFlavorId}
+              onChangeBookFlavor={(fid) => setBookFlavor(currentBook.id, fid)}
+              onDeleteBook={deleteBook}
             />
           ) : view === "browse" ? (
-            <BrowseView key={currentBook.id} book={currentBook} lang={lang} ui={ui} theme={theme} dir={dir} skin={skin} onBack={() => setView("tree")} />
+            <BrowseView key={currentBook.id} book={currentBook} lang={lang} ui={ui} theme={bookTheme} dir={dir} skin={skin} onBack={() => setView("tree")} />
           ) : view === "readthrough" ? (
             <section key={currentBook.id}>
               <button
                 onClick={() => setView("tree")}
                 className="flex items-center gap-1.5 text-sm font-semibold mb-5"
-                style={{ color: theme.inkSoft, minHeight: 40 }}
+                style={{ color: bookTheme.inkSoft, minHeight: 40 }}
               >
                 {dir === "rtl" ? <ArrowRight size={15} /> : <ArrowLeft size={15} />}
                 {currentBook[lang].title}
@@ -5983,7 +6066,7 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
                 book={currentBook}
                 lang={lang}
                 t={EDITOR_STR[lang]}
-                theme={theme}
+                theme={bookTheme}
                 skin={skin}
                 docTitle={lang === "ar" ? currentBook.ar?.title : currentBook.en?.title}
               />
@@ -5993,14 +6076,14 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
               key={currentBook.id}
               book={currentBook}
               lang={lang}
-              theme={theme}
+              theme={bookTheme}
               skin={skin}
               voiceEnabled={voiceEnabled}
               onVoiceEnabledChange={setVoiceEnabled}
               onUpdateBook={updateCurrentBook}
             />
           ) : view === "planner" ? (
-            <PlannerView key={currentBook.id} book={currentBook} lang={lang} ui={ui} theme={theme} dir={dir} skin={skin} plan={currentPlan} onUpdatePlan={updateCurrentPlan} />
+            <PlannerView key={currentBook.id} book={currentBook} lang={lang} ui={ui} theme={bookTheme} dir={dir} skin={skin} plan={currentPlan} onUpdatePlan={updateCurrentPlan} />
           ) : currentLeaf ? (
             <DeckView
               key={currentLeaf.id}
@@ -6008,7 +6091,7 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
               book={currentBook}
               lang={lang}
               ui={ui}
-              theme={theme}
+              theme={bookTheme}
               dir={dir}
               skin={skin}
               cardMode={cardMode}
@@ -6021,7 +6104,7 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
               book={currentBook}
               lang={lang}
               ui={ui}
-              theme={theme}
+              theme={bookTheme}
               dir={dir}
               onBack={() => setView("library")}
               skin={skin}
@@ -6030,10 +6113,13 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
               onBrowse={() => setView("browse")}
               onReadThrough={() => setView("readthrough")}
               onPlanner={() => setView("planner")}
-              onExport={onExportBook ? () => onExportBook(currentBook, lang, theme, ui, skin, covers) : undefined}
+              onExport={onExportBook ? () => onExportBook(currentBook, lang, bookTheme, ui, skin, covers) : undefined}
               covers={covers}
               onChangeCover={setCover}
               onClearCover={clearCover}
+              bookFlavorId={currentBookFlavorId}
+              onChangeBookFlavor={(fid) => setBookFlavor(currentBook.id, fid)}
+              onDeleteBook={deleteBook}
             />
           )}
         </div>

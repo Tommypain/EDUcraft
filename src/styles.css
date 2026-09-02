@@ -223,6 +223,60 @@ bdi.en {
 .code-box .st { color: var(--CodeString, #6A9955); }
 .code-box .nm { color: var(--CodeNumber, #CE9178); }
 
+/* ── Prism Syntax Highlighting Tokens ── */
+.token.comment,
+.token.prolog,
+.token.doctype,
+.token.cdata {
+  color: #8A8A8A !important;
+  font-style: italic;
+}
+.token.punctuation {
+  color: #D4D4D4 !important;
+}
+.token.property,
+.token.tag,
+.token.boolean,
+.token.number,
+.token.constant,
+.token.symbol,
+.token.deleted {
+  color: #CE9178 !important;
+}
+.token.selector,
+.token.attr-name,
+.token.string,
+.token.char,
+.token.builtin,
+.token.inserted {
+  color: #7EE787 !important;
+}
+.token.operator,
+.token.entity,
+.token.url {
+  color: #D4D4D4 !important;
+}
+.token.atrule,
+.token.attr-value,
+.token.keyword {
+  color: #FF7B72 !important;
+  font-weight: 700;
+}
+.token.function,
+.token.class-name,
+.token.function-definition {
+  color: #79C0FF !important;
+  font-weight: 600;
+}
+.token.macro {
+  color: #FFA657 !important;
+}
+.token.regex,
+.token.important,
+.token.variable {
+  color: #D2A8FF !important;
+}
+
 /* ── Media Grid & Card ── */
 .media-grid {
   display: grid;
