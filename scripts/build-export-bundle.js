@@ -23,6 +23,7 @@ async function buildExport() {
     minify: true,
     target: ["es2022", "chrome100", "firefox100", "safari15"],
     format: "iife",
+    jsx: "automatic",
     outfile: path.join(tempDir, "bundle.js"),
     external: ["tailwindcss"],
     define: {

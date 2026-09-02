@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useRef } from "react";
+import React, { useState, useMemo, useEffect, useRef } from "react";
 import {
   BookOpen,
   Library,
@@ -5572,7 +5572,7 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
   const [saved] = useState(() => loadAppState());
   const [lang, setLang] = useState(saved.lang || (EXPORT && EXPORT.lang) || "en");
   const [mode, setMode] = useState(saved.mode || "light");
-  const [view, setView] = useState("library");
+  const [view, setView] = useState(EXPORT && EXPORT.books && EXPORT.books.length === 1 && (!EXPORT.collections || EXPORT.collections.length === 0) ? "tree" : "library");
   const [books, setBooks] = useState(EXPORT ? EXPORT.books : BOOKS);
   const [bookId, setBookId] = useState(EXPORT ? EXPORT.startBookId || EXPORT.books[0].id : BOOKS[0].id);
   const [leafId, setLeafId] = useState(null);
@@ -5581,8 +5581,8 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
   const [cardMode, setCardMode] = useState(saved.cardMode || "paged");
   const [scrollDir, setScrollDir] = useState(saved.scrollDir || "vertical");
   const [covers, setCovers] = useState(saved.covers || (EXPORT && EXPORT.covers) || {});
-  const [plans, setPlans] = useState(saved.plans || {});
-  const [bookFlavors, setBookFlavors] = useState(saved.bookFlavors || {});
+  const [plans, setPlans] = useState(saved.plans || (EXPORT && EXPORT.plans) || {});
+  const [bookFlavors, setBookFlavors] = useState(saved.bookFlavors || (EXPORT && EXPORT.bookFlavors) || {});
   const [collections, setCollections] = useState(saved.collections || (EXPORT && EXPORT.collections) || []);
   const [libraryPath, setLibraryPath] = useState([]);
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -6119,11 +6119,14 @@ function downloadBookHTML(book, lang, theme, ui, skin, covers) {
 
 function downloadCollectionHTML(collection, books, collections, lang, theme, ui, skin, covers) {
   covers = covers || {};
+  const currentFlavor = flavorIdOf(theme);
   const subtree = resolveCollectionSubtree(collection, collections || []);
   const flatBooks = resolveCollectionBooks(collection, collections || [], books);
   const seedCovers = {};
+  const seedFlavors = {};
   flatBooks.forEach((b) => {
     if (covers[b.id]) seedCovers[b.id] = covers[b.id];
+    seedFlavors[b.id] = currentFlavor;
   });
   const seed = {
     id: collection.id,
@@ -6132,7 +6135,8 @@ function downloadCollectionHTML(collection, books, collections, lang, theme, ui,
     collections: subtree,
     lang,
     skinId: skinIdOf(skin),
-    flavorId: flavorIdOf(theme),
+    flavorId: currentFlavor,
+    bookFlavors: seedFlavors,
     covers: seedCovers,
   };
   const favicon = faviconDataUri({ from: flatBooks[0]?.cover?.from, to: flatBooks[0]?.cover?.to }, collection.title);
