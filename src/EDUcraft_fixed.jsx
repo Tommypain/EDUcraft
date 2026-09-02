@@ -72,6 +72,7 @@ import {
 } from "lucide-react";
 import { ImportModal } from "./utils/ImportModal.jsx";
 import { SyntaxCodeBlock } from "./utils/syntax.jsx";
+import { KnowledgeTreeEnhanced } from "./utils/KnowledgeTree.jsx";
 
 /* =================================================================
    THEME — one warm system shared by every screen. Untouched from
@@ -482,6 +483,15 @@ const UI = {
     libraryDeleteBook: "Delete book",
     libraryDeleteBookConfirm: "Are you sure you want to delete this book completely along with all its questions, tree, and study plans? This action cannot be undone.",
     bookFlavorLabel: "Theme flavor",
+    treeSearchPlaceholder: "Search branches or leaves…",
+    treeFitView: "Fit to view",
+    treeZoomIn: "Zoom in",
+    treeZoomOut: "Zoom out",
+    treeResetZoom: "Reset view",
+    treeCollapseAll: "Collapse branches",
+    treeExpandAll: "Expand all",
+    treeSearchResults: "matching nodes",
+    treeNoResults: "No matching nodes found",
   },
   ar: {
     dir: "rtl",
@@ -629,6 +639,15 @@ const UI = {
     libraryDeleteBook: "حذف الكتاب",
     libraryDeleteBookConfirm: "هل أنت متأكد من حذف هذا الكتاب بالكامل مع كافة أسئلته وشجرته وخطة مذاكرته؟ لا يمكن التراجع عن هذا الإجراء.",
     bookFlavorLabel: "نكهة ألوان الكتاب",
+    treeSearchPlaceholder: "ابحث في الشجرة والفروع والأوراق…",
+    treeFitView: "إعادة ضبط العرض",
+    treeZoomIn: "تكبير",
+    treeZoomOut: "تصغير",
+    treeResetZoom: "إعادة الضبط",
+    treeCollapseAll: "طي الفروع",
+    treeExpandAll: "فتح الكل",
+    treeSearchResults: "عناصر مطابقة",
+    treeNoResults: "لا توجد نتائج مطابقة",
   },
 };
 
@@ -2140,173 +2159,18 @@ function NodeQuestionDeck({ node, book, lang, ui, theme, dir, skin, cardMode = "
    badge when their card holds more than one question.
 ================================================================== */
 function KnowledgeTree({ book, lang, dir, theme, ui, skin, selected, onSelect }) {
-  const [hovered, setHovered] = useState(null);
-  const nodes = book.nodes;
-
-  const edges = useMemo(() => {
-    const branchEdges = nodes.filter((n) => n.parent).map((n) => ({ from: n.parent, to: n.id, type: "branch" }));
-    const linkEdges = book.crossLinks.map(([from, to]) => ({ from, to, type: "link" }));
-    return [...branchEdges, ...linkEdges];
-  }, [book]);
-
-  const nodeById = useMemo(() => Object.fromEntries(nodes.map((n) => [n.id, n])), [nodes]);
-  const posFor = (n) => ({ x: dir === "rtl" ? VB_W - n.x : n.x, y: n.y });
-
-  const active = hovered || selected;
-  const isEdgeActive = (e) => active && (e.from === active || e.to === active);
-  const isNodeActive = (id) =>
-    active && (id === active || edges.some((e) => (e.from === active && e.to === id) || (e.to === active && e.from === id)));
-
-  const dims = { branch: { w: 168, h: 42, r: 21, fs: 13, fw: 700 }, sub: { w: 148, h: 36, r: 14, fs: 12, fw: 600 }, leaf: { w: 130, h: 40, r: 12, fs: 11.5, fw: 600 } };
-
   return (
-    <div>
-      <svg viewBox={`0 0 ${VB_W} ${VB_H}`} className="w-full" style={{ overflow: "visible" }} role="img" aria-label={ui.treeEyebrow}>
-        {edges.map((e, i) => {
-          const a = posFor(nodeById[e.from]);
-          const b = posFor(nodeById[e.to]);
-          const edgeActive = isEdgeActive(e);
-          const dimmed = active && !edgeActive;
-          if (e.type === "branch") {
-            const midY = (a.y + b.y) / 2;
-            const path = `M ${a.x} ${a.y + 20} C ${a.x} ${midY}, ${b.x} ${midY}, ${b.x} ${b.y - 20}`;
-            return (
-              <path
-                key={i}
-                d={path}
-                fill="none"
-                stroke={edgeActive ? theme.accent : theme.hairlineStrong}
-                strokeWidth={edgeActive ? 2.5 : 1.5}
-                style={{ opacity: dimmed ? 0.35 : 1, transition: "all .18s ease" }}
-              />
-            );
-          }
-          const midY = Math.min(VB_H - 14, Math.min(a.y, b.y) + 30);
-          const path = `M ${a.x} ${a.y + 20} C ${a.x} ${midY}, ${b.x} ${midY}, ${b.x} ${b.y + 20}`;
-          return (
-            <path
-              key={i}
-              d={path}
-              fill="none"
-              stroke={edgeActive ? theme.accent : theme.inkSoft}
-              strokeWidth={edgeActive ? 2.5 : 1.4}
-              strokeDasharray="5 5"
-              style={{ opacity: dimmed ? 0.2 : 0.85, transition: "all .18s ease" }}
-            />
-          );
-        })}
-
-        {nodes.map((n) => {
-          const { x, y } = posFor(n);
-          const d = dims[n.level];
-          const nodeActive = isNodeActive(n.id);
-          const isHovered = hovered === n.id;
-          const isSelected = selected === n.id;
-          const isLeaf = n.level === "leaf";
-          const isBranch = n.level === "branch";
-          const count = isLeaf ? leafCards(n).reduce((sum, g) => sum + g.questions.length, 0) : 0;
-
-          let fill = theme.surface;
-          let stroke = theme.hairlineStrong;
-          let textFill = theme.ink;
-          if (isBranch) {
-            fill = theme.accent;
-            stroke = "transparent";
-            textFill = theme.accentInk;
-          } else if (isLeaf && isSelected) {
-            fill = theme.accent;
-            stroke = theme.accent;
-            textFill = theme.accentInk;
-          } else if (isLeaf) {
-            fill = theme.accentSoft;
-            stroke = theme.accent;
-          }
-
-          return (
-            <g
-              key={n.id}
-              role={isLeaf ? "button" : undefined}
-              tabIndex={isLeaf ? 0 : -1}
-              aria-label={isLeaf ? `${n[lang]} — ${count > 1 ? ui.multiCardBadge(count) : ""}` : n[lang]}
-              onMouseEnter={() => setHovered(n.id)}
-              onMouseLeave={() => setHovered(null)}
-              onFocus={() => setHovered(n.id)}
-              onBlur={() => setHovered(null)}
-              onClick={() => isLeaf && onSelect(n.id)}
-              onKeyDown={(e) => {
-                if (isLeaf && (e.key === "Enter" || e.key === " ")) {
-                  e.preventDefault();
-                  onSelect(n.id);
-                }
-              }}
-              style={{ cursor: isLeaf ? "pointer" : "default", outline: "none" }}
-            >
-              <rect
-                x={x - d.w / 2}
-                y={y - d.h / 2}
-                width={d.w}
-                height={d.h}
-                rx={skin && skin.pixel ? 0 : d.r}
-                fill={fill}
-                stroke={stroke}
-                strokeWidth={skin && skin.pixel ? 2.5 : 1.5}
-                style={{
-                  filter: isHovered ? "brightness(1.05)" : "none",
-                  opacity: active && !nodeActive ? 0.4 : 1,
-                  transition: "all .18s ease",
-                  transformBox: "fill-box",
-                  transformOrigin: "center",
-                  transform: isHovered || isSelected ? "scale(1.05)" : "scale(1)",
-                }}
-              />
-              <text
-                x={x}
-                y={y}
-                textAnchor="middle"
-                dominantBaseline="central"
-                fontSize={d.fs}
-                fontWeight={d.fw}
-                fill={textFill}
-                style={{ fontFamily: "inherit", opacity: active && !nodeActive ? 0.5 : 1, transition: "opacity .18s ease", pointerEvents: "none" }}
-              >
-                {n[lang]}
-              </text>
-              {count > 1 && (
-                <g style={{ opacity: active && !nodeActive ? 0.5 : 1, transition: "opacity .18s ease", pointerEvents: "none" }}>
-                  <circle cx={x + d.w / 2 - 6} cy={y - d.h / 2 + 2} r={10} fill={theme.ink} />
-                  <text x={x + d.w / 2 - 6} y={y - d.h / 2 + 2} textAnchor="middle" dominantBaseline="central" fontSize={10} fontWeight={700} fill={theme.canvas}>
-                    {count}
-                  </text>
-                </g>
-              )}
-            </g>
-          );
-        })}
-      </svg>
-
-      <div className="flex flex-wrap items-center gap-5 mt-4">
-        <div className="flex items-center gap-2">
-          <span className="inline-block rounded-full" style={{ width: 22, height: 10, background: theme.accent }} />
-          <span className="text-sm" style={{ color: theme.inkSoft }}>
-            {ui.legendBranch}
-          </span>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="inline-block rounded-full" style={{ width: 18, height: 10, background: theme.accentSoft, border: `1.5px solid ${theme.accent}` }} />
-          <span className="text-sm" style={{ color: theme.inkSoft }}>
-            {ui.legendLeaf}
-          </span>
-        </div>
-        <div className="flex items-center gap-2">
-          <svg width="18" height="6">
-            <line x1="0" y1="3" x2="18" y2="3" stroke={theme.inkSoft} strokeWidth="1.6" strokeDasharray="4 4" />
-          </svg>
-          <span className="text-sm" style={{ color: theme.inkSoft }}>
-            {ui.legendLink}
-          </span>
-        </div>
-      </div>
-    </div>
+    <KnowledgeTreeEnhanced
+      book={book}
+      lang={lang}
+      dir={dir}
+      theme={theme}
+      ui={ui}
+      skin={skin}
+      selected={selected}
+      onSelect={onSelect}
+      leafCards={leafCards}
+    />
   );
 }
 
