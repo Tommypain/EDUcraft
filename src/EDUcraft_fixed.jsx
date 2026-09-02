@@ -1834,7 +1834,7 @@ function NodeQuestionDeck({ node, book, lang, ui, theme, dir, skin, cardMode = "
    focusable and tap-friendly (not hover-only), and carry a small
    badge when their card holds more than one question.
 ================================================================== */
-function KnowledgeTree({ book, lang, dir, theme, ui, skin, selected, onSelect }) {
+function KnowledgeTree({ book, lang, dir, theme, ui, skin, selected, onSelect, doneLeafIds = [] }) {
   return (
     <KnowledgeTreeEnhanced
       book={book}
@@ -1845,6 +1845,7 @@ function KnowledgeTree({ book, lang, dir, theme, ui, skin, selected, onSelect })
       skin={skin}
       selected={selected}
       onSelect={onSelect}
+      doneLeafIds={doneLeafIds}
       leafCards={leafCards}
     />
   );
@@ -1961,7 +1962,7 @@ function EditableCover({ book, theme, skin, ui, coverUrl, onChangeCover, onClear
    LibraryView — the shelf. Each card is the cover + title + a
    quick tally of branches / questions inside that book's tree.
 ================================================================== */
-function LibraryView({ lang, ui, theme, dir, onOpen, skin, covers, onChangeCover, onClearCover, books, collections, libraryPath, onEnterCollection, onCrumb, onCreateCollection, onDeleteCollection, onAssignToCollection, onRemoveFromCollection, onExportBook, onExportCollection, onOpenImportModal, onDeleteBook }) {
+function LibraryView({ lang, ui, theme, dir, onOpen, skin, covers, onChangeCover, onClearCover, books, collections, libraryPath, onEnterCollection, onCrumb, onCreateCollection, onDeleteCollection, onAssignToCollection, onRemoveFromCollection, onExportBook, onExportCollection, onOpenImportModal, onDeleteBook, plans = {} }) {
   const ArrowIcon = dir === "rtl" ? ArrowLeft : ArrowRight;
   const atRoot = libraryPath.length === 0;
   const currentCollection = atRoot ? null : collections.find((c) => c.id === libraryPath[libraryPath.length - 1]);
@@ -2148,6 +2149,9 @@ function LibraryView({ lang, ui, theme, dir, onOpen, skin, covers, onChangeCover
         {itemBooks.map((book) => {
           const branchCount = book.nodes.filter((n) => n.level === "branch").length;
           const questionCount = book.nodes.reduce((sum, n) => sum + (n.level === "leaf" ? leafCards(n).reduce((s, g) => s + g.questions.length, 0) : 0), 0);
+          const totalLeaves = book.nodes.filter((n) => n.level === "leaf").length;
+          const doneLeaves = (plans[book.id]?.doneLeafIds || []).filter((id) => book.nodes.some((n) => n.id === id)).length;
+          const progressPct = totalLeaves > 0 ? Math.round((doneLeaves / totalLeaves) * 100) : 0;
           const targets = targetsFor("book");
           return (
             <div
@@ -2170,6 +2174,20 @@ function LibraryView({ lang, ui, theme, dir, onOpen, skin, covers, onChangeCover
                   <p className="text-sm" style={{ color: theme.inkSoft, lineHeight: 1.5 }}>
                     {book[lang].tagline}
                   </p>
+                  {doneLeaves > 0 && (
+                    <div className="mt-2.5 flex flex-col gap-1">
+                      <div className="flex items-center justify-between text-[11px] font-bold" style={{ color: progressPct === 100 ? "#10B981" : theme.accent }}>
+                        <span className="flex items-center gap-1">
+                          <CheckCircle2 size={11} className={progressPct === 100 ? "text-emerald-500" : ""} />
+                          {progressPct === 100 ? (lang === "ar" ? "مكتمل بالكامل ✨" : "Fully Completed ✨") : `${doneLeaves}/${totalLeaves} ${lang === "ar" ? "أوراق مكتملة" : "leaves completed"}`}
+                        </span>
+                        <span>{progressPct}%</span>
+                      </div>
+                      <div className="w-full h-1.5 rounded-full overflow-hidden" style={{ background: theme.hairlineStrong }}>
+                        <div className="h-full rounded-full transition-all duration-300" style={{ width: `${progressPct}%`, background: progressPct === 100 ? "#10B981" : theme.accent }} />
+                      </div>
+                    </div>
+                  )}
                 </div>
                 <div className="flex items-center justify-between gap-2 mt-3">
                   <span className="text-xs font-semibold" style={{ color: theme.inkSoft }}>
@@ -2385,7 +2403,7 @@ function TreeView({ book, lang, ui, theme, dir, onBack, skin, selectedLeaf, onSe
         <p className="text-sm mb-6 max-w-lg" style={{ color: theme.inkSoft, lineHeight: 1.7 }}>
           {ui.treeSub}
         </p>
-        <KnowledgeTree book={book} lang={lang} dir={dir} theme={theme} ui={ui} skin={skin} selected={selectedLeaf} onSelect={onSelectLeaf} />
+        <KnowledgeTree book={book} lang={lang} dir={dir} theme={theme} ui={ui} skin={skin} selected={selectedLeaf} onSelect={onSelectLeaf} doneLeafIds={plan?.doneLeafIds || []} />
       </div>
     </section>
   );
@@ -2398,15 +2416,33 @@ function TreeView({ book, lang, ui, theme, dir, onBack, skin, selectedLeaf, onSe
    scroll, per Settings). The tree never renders here — this screen
    is reached only by tapping a leaf.
 ================================================================== */
-function DeckView({ node, book, lang, ui, theme, dir, skin, cardMode, scrollDir, onBack }) {
+function DeckView({ node, book, lang, ui, theme, dir, skin, cardMode, scrollDir, onBack, plan, onToggleLeafDone, onAnswered }) {
   const BackIcon = dir === "rtl" ? ArrowRight : ArrowLeft;
+  const isDone = plan?.doneLeafIds?.includes(node.id);
   return (
     <section>
-      <button onClick={onBack} className="flex items-center gap-1.5 text-sm font-semibold mb-5" style={{ color: theme.inkSoft, minHeight: 40 }}>
-        <BackIcon size={15} />
-        {book[lang].title}
-      </button>
-      <NodeQuestionDeck node={node} book={book} lang={lang} ui={ui} theme={theme} dir={dir} skin={skin} cardMode={cardMode} scrollDir={scrollDir} />
+      <div className="flex items-center justify-between gap-3 mb-5 flex-wrap">
+        <button onClick={onBack} className="flex items-center gap-1.5 text-sm font-semibold" style={{ color: theme.inkSoft, minHeight: 40 }}>
+          <BackIcon size={15} />
+          {book[lang].title}
+        </button>
+        {onToggleLeafDone && (
+          <button
+            onClick={() => onToggleLeafDone(node.id)}
+            className="flex items-center gap-2 text-xs font-bold px-3.5 py-2 rounded-xl transition-all hover:opacity-90"
+            style={{
+              background: isDone ? "#10B981" : theme.surface,
+              color: isDone ? "#FFFFFF" : theme.ink,
+              border: `1.5px solid ${isDone ? "#10B981" : theme.hairlineStrong}`,
+              minHeight: 38
+            }}
+          >
+            <CheckCircle2 size={14} />
+            <span>{isDone ? (lang === "ar" ? "مكتملة ومحفوظة ✓" : "Completed ✓") : (lang === "ar" ? "تحديد كمكتملة" : "Mark as completed")}</span>
+          </button>
+        )}
+      </div>
+      <NodeQuestionDeck node={node} book={book} lang={lang} ui={ui} theme={theme} dir={dir} skin={skin} cardMode={cardMode} scrollDir={scrollDir} onAnswered={onAnswered} />
     </section>
   );
 }
@@ -5245,11 +5281,27 @@ function PlannerView({ book, lang, ui, theme, dir, skin, plan, onUpdatePlan }) {
 function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
   const EXPORT = useMemo(() => getExportSeed(), []);
   const [saved] = useState(() => loadAppState());
+  const [deletedBookIds, setDeletedBookIds] = useState(() => saved.deletedBookIds || []);
+  const initialBooks = useMemo(() => {
+    if (EXPORT) return EXPORT.books;
+    const deletedSet = new Set(saved.deletedBookIds || []);
+    const base = BOOKS.filter((b) => !deletedSet.has(b.id));
+    if (saved.customBooks && Array.isArray(saved.customBooks)) {
+      const custom = saved.customBooks.filter((b) => !deletedSet.has(b.id));
+      const existingIds = new Set(base.map((b) => b.id));
+      return [...base, ...custom.filter((b) => !existingIds.has(b.id))];
+    }
+    return base;
+  }, [EXPORT, saved.deletedBookIds, saved.customBooks]);
+
   const [lang, setLang] = useState(saved.lang || (EXPORT && EXPORT.lang) || "en");
   const [mode, setMode] = useState(saved.mode || "light");
   const [view, setView] = useState(EXPORT && EXPORT.books && EXPORT.books.length === 1 && (!EXPORT.collections || EXPORT.collections.length === 0) ? "tree" : "library");
-  const [books, setBooks] = useState(EXPORT ? EXPORT.books : BOOKS);
-  const [bookId, setBookId] = useState(EXPORT ? EXPORT.startBookId || EXPORT.books[0].id : BOOKS[0].id);
+  const [books, setBooks] = useState(initialBooks);
+  const [bookId, setBookId] = useState(() => {
+    if (EXPORT) return EXPORT.startBookId || (EXPORT.books[0] && EXPORT.books[0].id) || "";
+    return initialBooks[0] ? initialBooks[0].id : "";
+  });
   const [leafId, setLeafId] = useState(null);
   const [skinId, setSkinId] = useState(saved.skinId || (EXPORT && EXPORT.skinId) || "normal");
   const [flavorId, setFlavorId] = useState(saved.flavorId || (EXPORT && EXPORT.flavorId) || "normal");
@@ -5267,6 +5319,7 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
   const setBookFlavor = (bid, fid) => setBookFlavors((prev) => ({ ...prev, [bid]: fid }));
 
   const deleteBook = (deleteId) => {
+    setDeletedBookIds((prev) => [...new Set([...(prev || []), deleteId])]);
     setBooks((prev) => prev.filter((b) => b.id !== deleteId));
     setCovers((prev) => {
       const next = { ...prev };
@@ -5286,7 +5339,7 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
     setCollections((prev) =>
       prev.map((c) => ({
         ...c,
-        itemIds: c.itemIds.filter((id) => id !== deleteId)
+        itemIds: (c.itemIds || []).filter((id) => id !== deleteId)
       }))
     );
     if (bookId === deleteId) {
@@ -5302,27 +5355,73 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
       setPlans((prev) => ({ ...prev, ...newPlans }));
     }
     if (targetBookId) {
+      setDeletedBookIds((prev) => (prev || []).filter((id) => id !== targetBookId));
       setBookId(targetBookId);
     }
   };
 
   const ui = UI[lang];
   const theme = FLAVORS[flavorId][mode];
-  const currentBook = books.find((b) => b.id === bookId) || books[0];
+  const currentBook = books.find((b) => b.id === bookId) || books[0] || BOOKS[0];
   const currentBookFlavorId = (currentBook && bookFlavors[currentBook.id]) || flavorId;
   const bookTheme = FLAVORS[currentBookFlavorId] ? FLAVORS[currentBookFlavorId][mode] : theme;
   const skin = SKINS[skinId];
   const dir = ui.dir;
   const updateCurrentBook = (fn) => setBooks((prev) => prev.map((b) => (b.id === currentBook.id ? fn(b) : b)));
-  const currentPlan = plans[bookId] || defaultPlan();
-  const updateCurrentPlan = (fn) => setPlans((prev) => ({ ...prev, [bookId]: fn(prev[bookId] || defaultPlan()) }));
+  const currentPlan = (currentBook && plans[currentBook.id]) || defaultPlan();
+  const updateCurrentPlan = (fn) => {
+    if (!currentBook) return;
+    setPlans((prev) => ({ ...prev, [currentBook.id]: fn(prev[currentBook.id] || defaultPlan()) }));
+  };
+
+  const toggleLeafDone = (lid) => {
+    const targetLeafId = lid || leafId;
+    if (!targetLeafId) return;
+    updateCurrentPlan((p) => {
+      const isDone = (p.doneLeafIds || []).includes(targetLeafId);
+      const nextDone = isDone
+        ? p.doneLeafIds.filter((id) => id !== targetLeafId)
+        : [...(p.doneLeafIds || []), targetLeafId];
+      const today = toDateStr(new Date());
+      const nextLog = { ...(p.log || {}) };
+      if (!isDone) {
+        nextLog[today] = (nextLog[today] || 0) + 1;
+      }
+      return { ...p, doneLeafIds: nextDone, log: nextLog };
+    });
+  };
+
+  const handleDeckAnswer = (groupId, qIndex, result) => {
+    const today = toDateStr(new Date());
+    updateCurrentPlan((p) => {
+      const nextLog = { ...(p.log || {}) };
+      nextLog[today] = (nextLog[today] || 0) + 1;
+      return { ...p, log: nextLog };
+    });
+  };
 
   useEffect(() => {
-    saveAppState({ lang, mode, skinId, flavorId, bookFlavors, cardMode, scrollDir, voiceEnabled, covers, plans, collections });
-  }, [lang, mode, skinId, flavorId, bookFlavors, cardMode, scrollDir, voiceEnabled, covers, plans, collections]);
+    const customBooks = books.filter((b) => !BOOKS.some((def) => def.id === b.id));
+    saveAppState({
+      lang,
+      mode,
+      skinId,
+      flavorId,
+      bookFlavors,
+      cardMode,
+      scrollDir,
+      voiceEnabled,
+      covers,
+      plans,
+      collections,
+      deletedBookIds,
+      customBooks
+    });
+  }, [lang, mode, skinId, flavorId, bookFlavors, cardMode, scrollDir, voiceEnabled, covers, plans, collections, deletedBookIds, books]);
 
   const resetAll = () => {
     saveAppState({});
+    setDeletedBookIds([]);
     setLang("en");
     setMode("light");
     setSkinId("normal");
@@ -5566,6 +5665,7 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
               onExportCollection={onExportCollection ? (col) => onExportCollection(col, books, collections, lang, theme, ui, skin, covers) : undefined}
               onOpenImportModal={() => setImportModalOpen(true)}
               onDeleteBook={deleteBook}
+              plans={plans}
             />
           ) : view === "tree" ? (
             <TreeView
@@ -5589,6 +5689,7 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
               bookFlavorId={currentBookFlavorId}
               onChangeBookFlavor={(fid) => setBookFlavor(currentBook.id, fid)}
               onDeleteBook={deleteBook}
+              plan={currentPlan}
             />
           ) : view === "browse" ? (
             <BrowseView key={currentBook.id} book={currentBook} lang={lang} ui={ui} theme={bookTheme} dir={dir} skin={skin} onBack={() => setView("tree")} />
@@ -5637,6 +5738,9 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
               cardMode={cardMode}
               scrollDir={scrollDir}
               onBack={() => setView("tree")}
+              plan={currentPlan}
+              onToggleLeafDone={toggleLeafDone}
+              onAnswered={handleDeckAnswer}
             />
           ) : (
             <TreeView
@@ -5660,6 +5764,7 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
               bookFlavorId={currentBookFlavorId}
               onChangeBookFlavor={(fid) => setBookFlavor(currentBook.id, fid)}
               onDeleteBook={deleteBook}
+              plan={currentPlan}
             />
           )}
         </div>

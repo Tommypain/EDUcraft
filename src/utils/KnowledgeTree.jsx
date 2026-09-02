@@ -142,11 +142,13 @@ export function KnowledgeTreeEnhanced({
   skin,
   selected,
   onSelect,
+  doneLeafIds = [],
   leafCards = (n) => (n.cards?.length ? n.cards : n.questions?.length ? [{ questions: n.questions }] : [])
 }) {
   const [hovered, setHovered] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [collapsedNodes, setCollapsedNodes] = useState(new Set());
+  const doneSet = useMemo(() => new Set(doneLeafIds || []), [doneLeafIds]);
 
   // Pan & Zoom state
   const [scale, setScale] = useState(1);
@@ -597,6 +599,21 @@ export function KnowledgeTreeEnhanced({
                   >
                     {n[lang] || n.ar || n.en || n.id}
                   </text>
+
+                  {/* Completed checkmark badge on leaves */}
+                  {isLeaf && doneSet.has(n.id) && (
+                    <g style={{ pointerEvents: "none" }}>
+                      <circle cx={x - d.w / 2 + 10} cy={y - d.h / 2 + 10} r={8} fill="#10B981" />
+                      <path
+                        d={`M ${x - d.w / 2 + 6.5} ${y - d.h / 2 + 10} L ${x - d.w / 2 + 9} ${y - d.h / 2 + 12.5} L ${x - d.w / 2 + 13.5} ${y - d.h / 2 + 7.5}`}
+                        fill="none"
+                        stroke="#FFFFFF"
+                        strokeWidth={1.8}
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </g>
+                  )}
 
                   {/* Multi-question count badge on leaves */}
                   {count > 1 && (
