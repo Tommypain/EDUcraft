@@ -8,13 +8,6 @@ const host = process.env.TAURI_DEV_HOST;
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   clearScreen: false,
-  build: {
-    rollupOptions: {
-      output: {
-        inlineDynamicImports: true,
-      },
-    },
-  },
   server: {
     port: 5173,
     strictPort: true,
@@ -31,4 +24,3 @@ export default defineConfig({
     },
   },
 });
-

@@ -1,6 +1,6 @@
 [package]
 name = "educraft"
-version = "0.0.2"
+version = "0.0.3"
 description = "EDUcraft - Cross-Platform Desktop Application"
 authors = ["EDUcraft Contributors"]
 edition = "2021"
@@ -13,4 +13,3 @@ tauri = { version = "2", features = [] }
 tauri-plugin-opener = "2"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
-base64 = "0.22"
