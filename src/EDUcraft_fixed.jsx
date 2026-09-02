@@ -1712,6 +1712,19 @@ function QuestionItem({ q, lang, ui, theme, skin = SKINS.normal, onAnswered }) {
         {c.prompt || c.template}
       </p>
 
+      {(q.code || c.code) && (
+        <div className="code-box my-1 overflow-hidden rounded-xl border border-[#2A2A2A]" style={{ background: "#0D0D0D" }} dir="ltr">
+          {(q.code?.lang || q.code_language || c.code_language) && (
+            <div className="flex items-center justify-between px-3 py-1 text-[11px] font-mono text-gray-400 border-b border-[#2A2A2A]" style={{ background: "#171717" }}>
+              <span>{q.code?.lang || q.code_language || c.code_language}</span>
+            </div>
+          )}
+          <pre className="p-3 m-0 overflow-x-auto font-mono text-xs leading-relaxed text-[#D4D4D4]">
+            <code>{typeof (q.code || c.code) === "object" ? (q.code || c.code).src : (q.code || c.code)}</code>
+          </pre>
+        </div>
+      )}
+
       {body}
 
       {checked && !selfGraded && <FeedbackBanner ok={ok} ui={ui} skin={skin} onRetry={() => setChecked(false)} />}
@@ -1932,6 +1945,19 @@ function TypeCard({ q, lang, ui, theme, skin = SKINS.normal, onAnswered }) {
       <p dir={q.dir} className="text-base font-semibold leading-relaxed">
         {c.prompt || c.template}
       </p>
+
+      {(q.code || c.code) && (
+        <div className="code-box my-1 overflow-hidden rounded-xl border border-[#2A2A2A]" style={{ background: "#0D0D0D" }} dir="ltr">
+          {(q.code?.lang || q.code_language || c.code_language) && (
+            <div className="flex items-center justify-between px-3 py-1 text-[11px] font-mono text-gray-400 border-b border-[#2A2A2A]" style={{ background: "#171717" }}>
+              <span>{q.code?.lang || q.code_language || c.code_language}</span>
+            </div>
+          )}
+          <pre className="p-3 m-0 overflow-x-auto font-mono text-xs leading-relaxed text-[#D4D4D4]">
+            <code>{typeof (q.code || c.code) === "object" ? (q.code || c.code).src : (q.code || c.code)}</code>
+          </pre>
+        </div>
+      )}
 
       {image && (
         <div
