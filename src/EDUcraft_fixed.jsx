@@ -5291,9 +5291,9 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
   const [saved] = useState(() => loadAppState());
   const [deletedBookIds, setDeletedBookIds] = useState(() => saved.deletedBookIds || []);
   const initialBooks = useMemo(() => {
-    if (EXPORT) return EXPORT.books;
     const deletedSet = new Set(saved.deletedBookIds || []);
-    const base = BOOKS.filter((b) => !deletedSet.has(b.id));
+    const sourceBooks = (EXPORT ? EXPORT.books : BOOKS) || [];
+    const base = sourceBooks.filter((b) => !deletedSet.has(b.id));
     if (saved.customBooks && Array.isArray(saved.customBooks)) {
       const custom = saved.customBooks.filter((b) => !deletedSet.has(b.id));
       const existingIds = new Set(base.map((b) => b.id));
