@@ -5980,7 +5980,13 @@ function flavorIdOf(theme) {
   return Object.keys(FLAVORS).find((k) => FLAVORS[k].light === theme || FLAVORS[k].dark === theme) || "normal";
 }
 
-function downloadBookHTML(book, lang, theme, ui, skin, covers) {
+/* ─── Tauri detection ─────────────────────────────────────────────────────── */
+function isTauriEnv() {
+  return typeof window !== "undefined" && !!window.__TAURI_INTERNALS__;
+}
+
+/* ─── Book export ─────────────────────────────────────────────────────────── */
+async function downloadBookHTML(book, lang, theme, ui, skin, covers) {
   covers = covers || {};
   const currentFlavor = flavorIdOf(theme);
   const seed = {
@@ -5994,12 +6000,29 @@ function downloadBookHTML(book, lang, theme, ui, skin, covers) {
     bookFlavors: { [book.id]: currentFlavor },
     covers: covers[book.id] ? { [book.id]: covers[book.id] } : {},
   };
+
+  if (isTauriEnv()) {
+    // ── Tauri path: Rust builds and saves the file, shows a save dialog ──
+    try {
+      const { invoke } = await import("@tauri-apps/api/core");
+      const savedPath = await invoke("export_book", { seed, outputPath: null });
+      // Toast is shown by the caller (EDUcraftApp handles the returned path)
+      return savedPath;
+    } catch (err) {
+      console.warn("[EDUcraft] Tauri export failed, falling back to browser download:", err);
+      // Fall through to browser fallback below
+    }
+  }
+
+  // ── Browser fallback: Blob / ObjectURL download ──
   const favicon = faviconDataUri(book.cover, book[lang].title);
   const html = buildExportHTML({ title: book[lang].title, favicon, lang, dir: ui.dir, seed });
   downloadHTMLFile(`${slugify(book[lang].title)}.html`, html);
+  return null;
 }
 
-function downloadCollectionHTML(collection, books, collections, lang, theme, ui, skin, covers) {
+/* ─── Collection export ───────────────────────────────────────────────────── */
+async function downloadCollectionHTML(collection, books, collections, lang, theme, ui, skin, covers) {
   covers = covers || {};
   const currentFlavor = flavorIdOf(theme);
   const subtree = resolveCollectionSubtree(collection, collections || []);
@@ -6021,9 +6044,26 @@ function downloadCollectionHTML(collection, books, collections, lang, theme, ui,
     bookFlavors: seedFlavors,
     covers: seedCovers,
   };
+
+  if (isTauriEnv()) {
+    try {
+      const { invoke } = await import("@tauri-apps/api/core");
+      const savedPath = await invoke("export_collection", {
+        seed,
+        collectionTitle: collection.title,
+        outputPath: null,
+      });
+      return savedPath;
+    } catch (err) {
+      console.warn("[EDUcraft] Tauri collection export failed, falling back to browser download:", err);
+    }
+  }
+
+  // ── Browser fallback ──
   const favicon = faviconDataUri({ from: flatBooks[0]?.cover?.from, to: flatBooks[0]?.cover?.to }, collection.title);
   const html = buildExportHTML({ title: collection.title, favicon, lang, dir: ui.dir, seed });
   downloadHTMLFile(`${slugify(collection.title)}.html`, html);
+  return null;
 }
 
 export default function EDUcraft() {
