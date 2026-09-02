@@ -2066,7 +2066,7 @@ function EditableCover({ book, theme, skin, ui, coverUrl, onChangeCover, onClear
    LibraryView — the shelf. Each card is the cover + title + a
    quick tally of branches / questions inside that book's tree.
 ================================================================== */
-function LibraryView({ lang, ui, theme, dir, onOpen, skin, covers, onChangeCover, onClearCover, books, collections, libraryPath, onEnterCollection, onCrumb, onCreateCollection, onDeleteCollection, onAssignToCollection, onRemoveFromCollection, onExportBook, onExportCollection, onOpenImportModal, onDeleteBook, plans = {} }) {
+function LibraryView({ lang, ui, theme, dir, onOpen, skin, covers, onChangeCover, onClearCover, books, collections, libraryPath, onEnterCollection, onCrumb, onCreateCollection, onDeleteCollection, onAssignToCollection, onRemoveFromCollection, onExportBook, onExportCollection, onOpenImportModal, onDeleteBook, plans = {}, isExporting = false }) {
   const ArrowIcon = dir === "rtl" ? ArrowLeft : ArrowRight;
   const atRoot = libraryPath.length === 0;
   const currentCollection = atRoot ? null : collections.find((c) => c.id === libraryPath[libraryPath.length - 1]);
@@ -2204,7 +2204,8 @@ function LibraryView({ lang, ui, theme, dir, onOpen, skin, covers, onChangeCover
                           e.stopPropagation();
                           onExportCollection(col);
                         }}
-                        className="p-1.5"
+                        disabled={isExporting}
+                        className="p-1.5 transition-all hover:scale-110 disabled:opacity-40"
                         style={{ borderRadius: skin.radiusSm, color: theme.inkSoft }}
                         aria-label={ui.treeExportCta}
                         title={ui.treeExportCta}
@@ -2304,7 +2305,8 @@ function LibraryView({ lang, ui, theme, dir, onOpen, skin, covers, onChangeCover
                           e.stopPropagation();
                           onExportBook(book);
                         }}
-                        className="p-1.5"
+                        disabled={isExporting}
+                        className="p-1.5 transition-all hover:scale-110 disabled:opacity-40"
                         style={{ borderRadius: skin.radiusSm, color: theme.inkSoft }}
                         aria-label={ui.treeExportCta}
                         title={ui.treeExportCta}
@@ -5672,6 +5674,71 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [importModalOpen, setImportModalOpen] = useState(false);
   const [voiceEnabled, setVoiceEnabled] = useState(saved.voiceEnabled !== false);
+  const [exportToast, setExportToast] = useState(null);
+  const [isExporting, setIsExporting] = useState(false);
+
+  const handleExportBook = async (bookToExport, exportLang, exportTheme, exportUi, exportSkin, exportCovers) => {
+    if (isExporting || !onExportBook) return;
+    setIsExporting(true);
+    const bTitle = bookToExport?.[exportLang]?.title || bookToExport?.id || "Book";
+    setExportToast({
+      type: "info",
+      message: exportLang === "ar" ? `جارٍ استخراج وتصدير "${bTitle}" عبر محرك Rust...` : `Exporting "${bTitle}" via Rust engine...`,
+    });
+    try {
+      const res = await onExportBook(bookToExport, exportLang, exportTheme, exportUi, exportSkin, exportCovers);
+      if (res) {
+        setExportToast({
+          type: "success",
+          message: exportLang === "ar" ? `تم استخراج وتصدير "${bTitle}" بنجاح!` : `Successfully exported "${bTitle}"!`,
+        });
+      } else {
+        setExportToast(null);
+      }
+    } catch (err) {
+      console.error("[EDUcraft] Export failed:", err);
+      setExportToast({
+        type: "error",
+        message: exportLang === "ar" ? `فشل التصدير: ${err?.message || err}` : `Export failed: ${err?.message || err}`,
+      });
+    } finally {
+      setIsExporting(false);
+      setTimeout(() => {
+        setExportToast((prev) => (prev?.type === "success" ? null : prev));
+      }, 4000);
+    }
+  };
+
+  const handleExportCollection = async (colToExport, allBooks, allCols, exportLang, exportTheme, exportUi, exportSkin, exportCovers) => {
+    if (isExporting || !onExportCollection) return;
+    setIsExporting(true);
+    setExportToast({
+      type: "info",
+      message: exportLang === "ar" ? `جارٍ استخراج وتصدير المجموعة "${colToExport.title}" عبر محرك Rust...` : `Exporting collection "${colToExport.title}" via Rust engine...`,
+    });
+    try {
+      const res = await onExportCollection(colToExport, allBooks, allCols, exportLang, exportTheme, exportUi, exportSkin, exportCovers);
+      if (res) {
+        setExportToast({
+          type: "success",
+          message: exportLang === "ar" ? `تم استخراج وتصدير المجموعة "${colToExport.title}" بنجاح!` : `Successfully exported collection "${colToExport.title}"!`,
+        });
+      } else {
+        setExportToast(null);
+      }
+    } catch (err) {
+      console.error("[EDUcraft] Collection export failed:", err);
+      setExportToast({
+        type: "error",
+        message: exportLang === "ar" ? `فشل تصدير المجموعة: ${err?.message || err}` : `Failed to export collection: ${err?.message || err}`,
+      });
+    } finally {
+      setIsExporting(false);
+      setTimeout(() => {
+        setExportToast((prev) => (prev?.type === "success" ? null : prev));
+      }, 4000);
+    }
+  };
 
   const setBookFlavor = (bid, fid) => setBookFlavors((prev) => ({ ...prev, [bid]: fid }));
 
@@ -6029,8 +6096,9 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
               onDeleteCollection={deleteCollection}
               onAssignToCollection={assignToCollection}
               onRemoveFromCollection={removeFromCollection}
-              onExportBook={onExportBook ? (book) => onExportBook(book, lang, theme, ui, skin, covers) : undefined}
-              onExportCollection={onExportCollection ? (col) => onExportCollection(col, books, collections, lang, theme, ui, skin, covers) : undefined}
+              onExportBook={onExportBook ? (book) => handleExportBook(book, lang, theme, ui, skin, covers) : undefined}
+              onExportCollection={onExportCollection ? (col) => handleExportCollection(col, books, collections, lang, theme, ui, skin, covers) : undefined}
+              isExporting={isExporting}
               onOpenImportModal={() => setImportModalOpen(true)}
               onDeleteBook={deleteBook}
               plans={plans}
@@ -6050,7 +6118,7 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
               onBrowse={() => setView("browse")}
               onReadThrough={() => setView("readthrough")}
               onPlanner={() => setView("planner")}
-              onExport={onExportBook ? () => onExportBook(currentBook, lang, bookTheme, ui, skin, covers) : undefined}
+              onExport={onExportBook ? () => handleExportBook(currentBook, lang, bookTheme, ui, skin, covers) : undefined}
               covers={covers}
               onChangeCover={setCover}
               onClearCover={clearCover}
@@ -6173,6 +6241,37 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
           skin={skin}
         />
       )}
+      {/* Toast Notification Container (compliant with Web Interface Guidelines) */}
+      {exportToast && (
+        <div
+          role="status"
+          aria-live="polite"
+          className="fixed bottom-6 start-1/2 -translate-x-1/2 z-50 flex items-center gap-3 px-4 py-3 rounded-2xl border text-xs sm:text-sm font-bold animate-in fade-in slide-in-from-bottom-3 duration-200"
+          style={{
+            background: exportToast.type === "error" ? "#EF4444" : exportToast.type === "success" ? "#10B981" : theme.surface,
+            color: exportToast.type === "info" ? theme.ink : "#FFFFFF",
+            borderColor: exportToast.type === "info" ? theme.hairlineStrong : "transparent",
+            maxWidth: "90vw",
+            boxShadow: "0 12px 36px rgba(0,0,0,0.25)",
+          }}
+        >
+          {exportToast.type === "info" ? (
+            <span className="w-4 h-4 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin shrink-0" />
+          ) : exportToast.type === "success" ? (
+            <CheckCircle2 size={16} className="shrink-0 text-white" />
+          ) : (
+            <span className="text-base shrink-0">⚠️</span>
+          )}
+          <span className="truncate">{exportToast.message}</span>
+          <button
+            onClick={() => setExportToast(null)}
+            className="p-1 rounded-lg opacity-70 hover:opacity-100 transition-opacity shrink-0"
+            aria-label="Close notification"
+          >
+            <X size={14} />
+          </button>
+        </div>
+      )}
     </div>
   );
 }
@@ -6198,10 +6297,24 @@ function isTauriEnv() {
   return typeof window !== "undefined" && !!window.__TAURI_INTERNALS__;
 }
 
+function downloadBlob(content, filename) {
+  const blob = new Blob([content], { type: "text/html; charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 4000);
+}
+
 /* ─── Rust-Powered Book Export ─────────────────────────────────────────────── */
 async function exportBookViaRust(book, lang, theme, ui, skin, covers) {
   covers = covers || {};
   const currentFlavor = flavorIdOf(theme);
+  const title = book?.[lang]?.title || book?.id;
+  const filename = `${slugify(title) || book?.id || "book"}.html`;
   const seed = {
     id: book.id,
     startBookId: book.id,
@@ -6214,23 +6327,37 @@ async function exportBookViaRust(book, lang, theme, ui, skin, covers) {
     covers: covers[book.id] ? { [book.id]: covers[book.id] } : {},
   };
 
+  // 1. Tauri desktop application path
   if (isTauriEnv()) {
     try {
       const { invoke } = await import("@tauri-apps/api/core");
       const savedPath = await invoke("export_book", { seed, outputPath: null });
       return savedPath;
     } catch (err) {
-      console.error("[EDUcraft Rust Exporter] export_book error:", err);
-      window.alert(lang === "ar" ? `فشل التصدير: ${err}` : `Export failed: ${err}`);
-      return null;
+      console.error("[EDUcraft Rust Exporter] Tauri export_book error:", err);
+      throw err;
     }
-  } else {
-    window.alert(
-      lang === "ar"
-        ? "تصدير الكتب مدعوم بالكامل ومؤمن عبر محرك Rust في تطبيق EDUcraft لسطح المكتب."
-        : "Book export is fully powered and secured by the Rust engine in the EDUcraft desktop app."
-    );
-    return null;
+  }
+
+  // 2. Web browser / Vite dev server path: Call Rust exporter bridge via HTTP
+  try {
+    const res = await fetch("/__api/export_book", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(seed),
+    });
+
+    if (res.ok) {
+      const html = await res.text();
+      downloadBlob(html, filename);
+      return filename;
+    } else {
+      const errJson = await res.json().catch(() => ({}));
+      throw new Error(errJson.error || `HTTP ${res.status}`);
+    }
+  } catch (err) {
+    console.error("[EDUcraft Rust Exporter] Dev server bridge error:", err);
+    throw err;
   }
 }
 
@@ -6240,6 +6367,7 @@ async function exportCollectionViaRust(collection, books, collections, lang, the
   const currentFlavor = flavorIdOf(theme);
   const subtree = resolveCollectionSubtree(collection, collections || []);
   const flatBooks = resolveCollectionBooks(collection, collections || [], books);
+  const filename = `${slugify(collection.title) || collection.id || "collection"}.html`;
   const seedCovers = {};
   const seedFlavors = {};
   flatBooks.forEach((b) => {
@@ -6258,6 +6386,7 @@ async function exportCollectionViaRust(collection, books, collections, lang, the
     covers: seedCovers,
   };
 
+  // 1. Tauri desktop application path
   if (isTauriEnv()) {
     try {
       const { invoke } = await import("@tauri-apps/api/core");
@@ -6268,17 +6397,30 @@ async function exportCollectionViaRust(collection, books, collections, lang, the
       });
       return savedPath;
     } catch (err) {
-      console.error("[EDUcraft Rust Exporter] export_collection error:", err);
-      window.alert(lang === "ar" ? `فشل تصدير المجموعة: ${err}` : `Collection export failed: ${err}`);
-      return null;
+      console.error("[EDUcraft Rust Exporter] Tauri export_collection error:", err);
+      throw err;
     }
-  } else {
-    window.alert(
-      lang === "ar"
-        ? "تصدير المجموعات مدعوم بالكامل ومؤمن عبر محرك Rust في تطبيق EDUcraft لسطح المكتب."
-        : "Collection export is fully powered and secured by the Rust engine in the EDUcraft desktop app."
-    );
-    return null;
+  }
+
+  // 2. Web browser / Vite dev server path: Call Rust exporter bridge via HTTP
+  try {
+    const res = await fetch("/__api/export_collection", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(seed),
+    });
+
+    if (res.ok) {
+      const html = await res.text();
+      downloadBlob(html, filename);
+      return filename;
+    } else {
+      const errJson = await res.json().catch(() => ({}));
+      throw new Error(errJson.error || `HTTP ${res.status}`);
+    }
+  } catch (err) {
+    console.error("[EDUcraft Rust Exporter] Dev server collection bridge error:", err);
+    throw err;
   }
 }
 
