@@ -1,14 +1,14 @@
 //! EDUcraft Tauri application library.
 //!
 //! # Architecture
-//! ```
+//! ```text
 //! lib.rs          — Tauri builder + command registration
 //! commands/       — IPC surface: thin wrappers, Tauri-aware
 //! export_engine/  — Pure Rust business logic, no Tauri dependency
 //! ```
 
 mod commands;
-mod export_engine;
+pub mod export_engine;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {

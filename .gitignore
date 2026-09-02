@@ -16,6 +16,9 @@ dist-ssr/
 # Tauri / Rust build artifacts
 src-tauri/target/
 src-tauri/gen/
+src-tauri/.pkgconfig/
+src-tauri/tests/output/
+.export_temp/
 
 # Editor / OS files
 .DS_Store

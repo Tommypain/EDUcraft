@@ -1,4 +1,4 @@
-//! Pure Rust port of the JS `buildExportHTML()` function from EDUcraft_fixed.jsx.
+//! Pure Rust port of the standalone HTML document builder.
 //!
 //! This module has NO Tauri dependency — it takes typed data and returns a String.
 //! It is fully unit-testable without a running Tauri context.
@@ -24,25 +24,28 @@ pub fn escape_html(s: &str) -> String {
 }
 
 /// Prevent `</script>` from closing the inline script tag prematurely.
-/// Mirrors the JS `escapeScriptClose()`.
+/// Case-insensitive, UTF-8 safe (never corrupts non-ASCII Arabic or emojis).
 pub fn escape_script_close(s: &str) -> String {
-    // Replace </script with <\/script (case-insensitive via manual check)
-    let mut result = String::with_capacity(s.len());
+    let needle = b"</script";
     let bytes = s.as_bytes();
+    let mut out = String::with_capacity(s.len() + 32);
+    let mut last = 0;
     let mut i = 0;
-    while i < bytes.len() {
-        if i + 9 <= bytes.len() {
-            let chunk = &s[i..i + 9];
-            if chunk.eq_ignore_ascii_case("</script") {
-                result.push_str("<\\/script");
-                i += 9;
-                continue;
-            }
+
+    while i + 8 <= bytes.len() {
+        if bytes[i..i + 8].eq_ignore_ascii_case(needle) {
+            out.push_str(&s[last..i]);
+            out.push_str(r"<\/");
+            out.push_str(&s[i + 2..i + 8]); // script / SCRIPT preserved
+            i += 8;
+            last = i;
+        } else {
+            i += 1;
         }
-        result.push(bytes[i] as char);
-        i += 1;
     }
-    result
+
+    out.push_str(&s[last..]);
+    out
 }
 
 /// Options for building the export HTML document.
@@ -110,7 +113,7 @@ pub fn slugify(s: &str) -> String {
 }
 
 /// Serialise the seed to JSON, escaping `<` to `\u003c` to prevent XSS
-/// when the payload is inlined into a `<script>` tag.
+/// and premature script closure when the payload is inlined into a `<script>` tag.
 pub fn seed_to_safe_json(seed: &ExportSeed) -> Result<String, serde_json::Error> {
     let raw = serde_json::to_string(seed)?;
     Ok(raw.replace('<', "\\u003c"))
@@ -122,22 +125,28 @@ mod tests {
 
     #[test]
     fn escape_html_handles_all_chars() {
-        assert_eq!(escape_html("<div class=\"x\">a&b</div>"), "&lt;div class=&quot;x&quot;&gt;a&amp;b&lt;/div&gt;");
+        assert_eq!(
+            escape_html("<div class=\"x\">a&b</div>"),
+            "&lt;div class=&quot;x&quot;&gt;a&amp;b&lt;/div&gt;"
+        );
     }
 
     #[test]
-    fn escape_script_close_case_insensitive() {
-        let input = r#"x</script>y</SCRIPT>z"#;
+    fn escape_script_close_case_insensitive_and_unicode_safe() {
+        let input = r#"كتاب برمجة: </script><SCRIPT> console.log("مرحبا");</sCripT>"#;
         let out = escape_script_close(input);
-        assert!(!out.contains("</script"), "should escape lowercase");
-        assert!(!out.contains("</SCRIPT"), "should escape uppercase");
-        assert!(out.contains("<\\/script"), "should contain escaped form");
+        assert!(!out.contains("</script"));
+        assert!(!out.contains("</SCRIPT"));
+        assert!(!out.contains("</sCripT"));
+        assert!(out.contains("كتاب برمجة:"));
+        assert!(out.contains("مرحبا"));
     }
 
     #[test]
     fn slugify_basic() {
         assert_eq!(slugify("Hello World! 123"), "hello-world-123");
         assert_eq!(slugify("  spaces  "), "spaces");
+        assert_eq!(slugify("كتاب"), "كتاب");
     }
 
     #[test]

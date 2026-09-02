@@ -26,6 +26,7 @@ import {
   Star,
   SlidersHorizontal,
   Check,
+  CheckCircle2,
   X,
   RotateCcw,
   ArrowUp,
@@ -36,6 +37,7 @@ import {
   Upload,
   FileUp,
   FileDown,
+  FileText,
   ImagePlus,
   FolderOpen,
   FolderPlus,
@@ -74,7 +76,6 @@ import { ImportModal } from "./utils/ImportModal.jsx";
 import { SyntaxCodeBlock } from "./utils/syntax.jsx";
 import { KnowledgeTreeEnhanced } from "./utils/KnowledgeTree.jsx";
 import masterLibraryData from "./data/educraft_master_library.json";
-import { EDUCRAFT_EXPORT_BUNDLE_JS, EDUCRAFT_EXPORT_TAILWIND_CSS } from "./data/export_bundle_data.js";
 
 /* =================================================================
    THEME — one warm system shared by every screen. Untouched from
@@ -1377,9 +1378,13 @@ function SliderBody({ c, value, setValue, checked, theme }) {
    one neutral card without fighting each other visually.
 ================================================================== */
 function QuestionItem({ q, lang, ui, theme, skin = SKINS.normal, onAnswered }) {
-  const c = q[lang];
-  const meta = TYPE_META[q.type];
-  const initialValue = q.type === "multi" ? [] : q.type === "match" || q.type === "sort" ? {} : q.type === "order" ? c.items : undefined;
+  if (!q) return null;
+  const c = q[lang] || q.ar || q.en || {};
+  const meta = TYPE_META[q.type] || TYPE_META.single || {
+    ar: "سؤال", en: "Question", Icon: CircleDot,
+    color: { bg: theme.surface, border: theme.hairline, ink: theme.ink }
+  };
+  const initialValue = q.type === "multi" ? [] : q.type === "match" || q.type === "sort" ? {} : q.type === "order" ? (c.items || []) : undefined;
   const [value, setValue] = useState(initialValue);
   const [checked, setChecked] = useState(false);
   const selfGraded = q.type === "essay" || q.type === "rating";
@@ -1501,6 +1506,8 @@ function QuestionItem({ q, lang, ui, theme, skin = SKINS.normal, onAnswered }) {
    or just 1 — not necessarily one question each.
 ================================================================== */
 function QuestionGroupCard({ group, lang, ui, theme, skin = SKINS.normal, onAnswered }) {
+  if (!group) return null;
+  const questions = Array.isArray(group.questions) ? group.questions : [];
   const pos = group.imagePosition || "top";
   const hasImage = !!group.image;
   const hasVideo = !!group.video;
@@ -1517,9 +1524,9 @@ function QuestionGroupCard({ group, lang, ui, theme, skin = SKINS.normal, onAnsw
       className="flex flex-col gap-5 p-5 sm:p-6 flex-1 min-w-0"
       style={{ maxHeight: "min(60vh, 540px)", overflowY: "auto", WebkitOverflowScrolling: "touch" }}
     >
-      {group.questions.map((q, i) => (
+      {questions.map((q, i) => (
         <QuestionItem
-          key={i}
+          key={q?.id || i}
           q={q}
           lang={lang}
           ui={ui}
@@ -1592,9 +1599,13 @@ function QuestionGroupCard({ group, lang, ui, theme, skin = SKINS.normal, onAnsw
 
 
 function TypeCard({ q, lang, ui, theme, skin = SKINS.normal, onAnswered }) {
-  const c = q[lang];
-  const meta = TYPE_META[q.type];
-  const initialValue = q.type === "multi" ? [] : q.type === "match" || q.type === "sort" ? {} : q.type === "order" ? c.items : undefined;
+  if (!q) return null;
+  const c = q[lang] || q.ar || q.en || {};
+  const meta = TYPE_META[q.type] || TYPE_META.single || {
+    ar: "سؤال", en: "Question", Icon: CircleDot,
+    color: { bg: theme.surface, border: theme.hairline, ink: theme.ink }
+  };
+  const initialValue = q.type === "multi" ? [] : q.type === "match" || q.type === "sort" ? {} : q.type === "order" ? (c.items || []) : undefined;
   const [value, setValue] = useState(initialValue);
   const [checked, setChecked] = useState(false);
   const selfGraded = q.type === "essay" || q.type === "rating";
@@ -1736,7 +1747,7 @@ function TypeCard({ q, lang, ui, theme, skin = SKINS.normal, onAnswered }) {
    One leaf can carry several questions; this pages through them
    inside a single outer shell instead of stacking separate cards.
 ================================================================== */
-function NodeQuestionDeck({ node, book, lang, ui, theme, dir, skin, cardMode = "paged", scrollDir = "vertical" }) {
+function NodeQuestionDeck({ node, book, lang, ui, theme, dir, skin, cardMode = "paged", scrollDir = "vertical", onAnswered }) {
   const [index, setIndex] = useState(0);
   const cards = useMemo(() => leafCards(node), [node]);
   const multi = cards.length > 1;
@@ -1744,9 +1755,24 @@ function NodeQuestionDeck({ node, book, lang, ui, theme, dir, skin, cardMode = "
   const PrevIcon = dir === "rtl" ? ChevronRight : ChevronLeft;
   const scrolling = cardMode === "scroll" && multi;
   const horizontal = scrolling && scrollDir === "horizontal";
-  const totalQuestions = cards.reduce((n, g) => n + g.questions.length, 0);
+  const totalQuestions = useMemo(() => {
+    return cards.reduce((n, g) => n + (Array.isArray(g?.questions) ? g.questions.length : 0), 0);
+  }, [cards]);
 
-  useEffect(() => setIndex(0), [node.id]);
+  useEffect(() => setIndex(0), [node?.id]);
+
+  if (!cards || cards.length === 0) {
+    return (
+      <div className="p-8 text-center educraft-panel-in" style={panelStyle(skin, theme)}>
+        <p className="text-sm font-semibold" style={{ color: theme.inkSoft }}>
+          {lang === "ar" ? "لا توجد أسئلة أو تمارين مخصصة لهذه الورقة حاليًا." : "No questions or exercises assigned to this leaf yet."}
+        </p>
+      </div>
+    );
+  }
+
+  const safeIndex = Math.min(Math.max(0, index), cards.length - 1);
+  const currentCard = cards[safeIndex] || cards[0];
 
   return (
     <div
@@ -1758,22 +1784,22 @@ function NodeQuestionDeck({ node, book, lang, ui, theme, dir, skin, cardMode = "
           <Layers size={16} color={theme.accent} strokeWidth={2} />
           <div className="flex flex-col leading-tight min-w-0">
             <span className="text-xs font-semibold truncate" style={{ color: theme.inkSoft }}>
-              {book[lang].title}
+              {book?.[lang]?.title || book?.id}
             </span>
             <span className="text-sm font-bold truncate" style={{ color: theme.ink }}>
-              {node[lang]}
+              {node?.[lang] || node?.ar || node?.en || node?.id}
             </span>
           </div>
         </div>
         {multi && !scrolling && (
           <div className="flex items-center gap-2 shrink-0">
             <span className="text-xs font-semibold px-2.5 py-1" style={{ borderRadius: skin.radiusSm, background: theme.canvas, color: theme.inkSoft }}>
-              {ui.deckQuestion} {index + 1} {ui.deckOf} {cards.length}
+              {ui.deckQuestion} {safeIndex + 1} {ui.deckOf} {cards.length}
             </span>
             <button
               aria-label={ui.prev}
               onClick={() => setIndex((i) => Math.max(0, i - 1))}
-              disabled={index === 0}
+              disabled={safeIndex === 0}
               className="grid place-items-center disabled:opacity-30"
               style={{ width: 32, height: 32, borderRadius: skin.radiusSm, border: `1px solid ${skinBorderColor(skin, theme)}`, color: theme.ink }}
             >
@@ -1782,7 +1808,7 @@ function NodeQuestionDeck({ node, book, lang, ui, theme, dir, skin, cardMode = "
             <button
               aria-label={ui.next}
               onClick={() => setIndex((i) => Math.min(cards.length - 1, i + 1))}
-              disabled={index === cards.length - 1}
+              disabled={safeIndex === cards.length - 1}
               className="grid place-items-center disabled:opacity-30"
               style={{ width: 32, height: 32, borderRadius: skin.radiusSm, border: `1px solid ${skinBorderColor(skin, theme)}`, color: theme.ink }}
             >
@@ -1811,14 +1837,16 @@ function NodeQuestionDeck({ node, book, lang, ui, theme, dir, skin, cardMode = "
           }}
         >
           {cards.map((group, i) => (
-            <div key={group.id || `${node.id}-${i}`} style={horizontal ? { flex: "0 0 min(88vw, 420px)", scrollSnapAlign: "start" } : undefined}>
-              <QuestionGroupCard group={group} lang={lang} ui={ui} theme={theme} skin={skin} />
+            <div key={group?.id || `${node?.id}-${i}`} style={horizontal ? { flex: "0 0 min(88vw, 420px)", scrollSnapAlign: "start" } : undefined}>
+              <QuestionGroupCard group={group} lang={lang} ui={ui} theme={theme} skin={skin} onAnswered={onAnswered} />
             </div>
           ))}
         </div>
       ) : (
         <div className="p-2.5 sm:p-3.5">
-          <QuestionGroupCard key={cards[index].id || `${node.id}-${index}`} group={cards[index]} lang={lang} ui={ui} theme={theme} skin={skin} />
+          {currentCard && (
+            <QuestionGroupCard key={currentCard?.id || `${node?.id}-${safeIndex}`} group={currentCard} lang={lang} ui={ui} theme={theme} skin={skin} onAnswered={onAnswered} />
+          )}
         </div>
       )}
 
@@ -1831,10 +1859,10 @@ function NodeQuestionDeck({ node, book, lang, ui, theme, dir, skin, cardMode = "
               onClick={() => setIndex(i)}
               className="transition-all"
               style={{
-                width: i === index ? 18 : 6,
+                width: i === safeIndex ? 18 : 6,
                 height: 6,
                 borderRadius: skin.radiusSm,
-                background: i === index ? theme.accent : theme.hairlineStrong,
+                background: i === safeIndex ? theme.accent : theme.hairlineStrong,
               }}
             />
           ))}
@@ -2492,34 +2520,172 @@ function TreeView({ book, lang, ui, theme, dir, onBack, skin, selectedLeaf, onSe
    scroll, per Settings). The tree never renders here — this screen
    is reached only by tapping a leaf.
 ================================================================== */
+/* =================================================================
+   LeafErrorBoundary — Guarantees clicking a leaf NEVER crashes or opens a blank page.
+================================================================== */
+class LeafErrorBoundary extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+  componentDidCatch(error, info) {
+    console.error("[EDUcraft] Leaf render error caught:", error, info);
+  }
+  render() {
+    if (this.state.hasError) {
+      const { theme, skin, lang, onBack } = this.props;
+      return (
+        <div
+          className="flex flex-col items-center justify-center gap-4 p-8 sm:p-12 rounded-2xl border my-6 text-center"
+          style={{
+            background: theme?.surface || "#FFFFFF",
+            borderColor: theme?.hairlineStrong || "#E5E7EB",
+            minHeight: 260
+          }}
+        >
+          <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl" style={{ background: "rgba(239, 68, 68, 0.1)", color: "#EF4444" }}>
+            ⚠️
+          </div>
+          <div>
+            <h3 className="text-base sm:text-lg font-bold" style={{ color: theme?.ink }}>
+              {lang === "ar" ? "تعذر عرض محتوى هذه الورقة مؤقتًا" : "Could not load leaf content"}
+            </h3>
+            <p className="text-xs sm:text-sm mt-1" style={{ color: theme?.inkSoft }}>
+              {lang === "ar" ? "حدث خطأ غير متوقع أثناء معالجة بيانات الورقة." : "An unexpected error occurred while rendering this leaf."}
+            </p>
+          </div>
+          {onBack && (
+            <button
+              onClick={onBack}
+              className="text-xs font-bold px-4 py-2.5 rounded-xl transition-opacity hover:opacity-90"
+              style={{
+                background: theme?.accent || "#4F46E5",
+                color: theme?.accentInk || "#FFFFFF"
+              }}
+            >
+              {lang === "ar" ? "العودة إلى الشجرة" : "Back to Tree"}
+            </button>
+          )}
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
+/* =================================================================
+   DeckView — the destination the tree points to. Full-screen home
+   for a leaf's content:
+   - A4 Educational Sheets (leaf.pageBlocks)
+   - Interactive Question Deck (leaf.cards / leaf.questions)
+   - Fluid tab switcher when both exist
+================================================================== */
 function DeckView({ node, book, lang, ui, theme, dir, skin, cardMode, scrollDir, onBack, plan, onToggleLeafDone, onAnswered }) {
   const BackIcon = dir === "rtl" ? ArrowRight : ArrowLeft;
-  const isDone = plan?.doneLeafIds?.includes(node.id);
+  const isDone = plan?.doneLeafIds?.includes(node?.id);
+
+  const hasPages = Boolean(node?.pageBlocks && node.pageBlocks.length > 0);
+  const cards = useMemo(() => leafCards(node), [node]);
+  const hasCards = cards.length > 0;
+
+  const [activeTab, setActiveTab] = useState(() => (hasPages ? "pages" : "deck"));
+
+  // Ensure active tab points to available content
+  useEffect(() => {
+    if (hasPages && !hasCards) setActiveTab("pages");
+    else if (!hasPages && hasCards) setActiveTab("deck");
+  }, [hasPages, hasCards]);
+
+  const leafTitle = node ? (node[lang] || node.ar || node.en || node.id) : "";
+
   return (
-    <section>
-      <div className="flex items-center justify-between gap-3 mb-5 flex-wrap">
-        <button onClick={onBack} className="flex items-center gap-1.5 text-sm font-semibold" style={{ color: theme.inkSoft, minHeight: 40 }}>
-          <BackIcon size={15} />
-          {book[lang].title}
-        </button>
-        {onToggleLeafDone && (
-          <button
-            onClick={() => onToggleLeafDone(node.id)}
-            className="flex items-center gap-2 text-xs font-bold px-3.5 py-2 rounded-xl transition-all hover:opacity-90"
-            style={{
-              background: isDone ? "#10B981" : theme.surface,
-              color: isDone ? "#FFFFFF" : theme.ink,
-              border: `1.5px solid ${isDone ? "#10B981" : theme.hairlineStrong}`,
-              minHeight: 38
-            }}
-          >
-            <CheckCircle2 size={14} />
-            <span>{isDone ? (lang === "ar" ? "مكتملة ومحفوظة ✓" : "Completed ✓") : (lang === "ar" ? "تحديد كمكتملة" : "Mark as completed")}</span>
+    <LeafErrorBoundary theme={theme} skin={skin} lang={lang} onBack={onBack}>
+      <section>
+        <div className="flex items-center justify-between gap-3 mb-5 flex-wrap">
+          <button onClick={onBack} className="flex items-center gap-1.5 text-sm font-semibold" style={{ color: theme.inkSoft, minHeight: 40 }}>
+            <BackIcon size={15} />
+            <span>{book?.[lang]?.title || book?.id}</span>
           </button>
+
+          <div className="flex items-center gap-2 flex-wrap">
+            {/* Tab switcher if both A4 pages and questions exist */}
+            {hasPages && hasCards && (
+              <div
+                className="flex items-center p-1 rounded-xl"
+                style={{ background: theme.surface, border: `1px solid ${theme.hairline}` }}
+              >
+                <button
+                  onClick={() => setActiveTab("pages")}
+                  className="flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-lg transition-all"
+                  style={{
+                    background: activeTab === "pages" ? theme.accent : "transparent",
+                    color: activeTab === "pages" ? theme.accentInk : theme.inkSoft,
+                  }}
+                >
+                  <FileText size={13} />
+                  <span>{lang === "ar" ? "شيتات A4" : "A4 Pages"}</span>
+                </button>
+                <button
+                  onClick={() => setActiveTab("deck")}
+                  className="flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-lg transition-all"
+                  style={{
+                    background: activeTab === "deck" ? theme.accent : "transparent",
+                    color: activeTab === "deck" ? theme.accentInk : theme.inkSoft,
+                  }}
+                >
+                  <Layers size={13} />
+                  <span>{lang === "ar" ? "الأسئلة والتمارين" : "Questions"}</span>
+                </button>
+              </div>
+            )}
+
+            {onToggleLeafDone && node && (
+              <button
+                onClick={() => onToggleLeafDone(node.id)}
+                className="flex items-center gap-2 text-xs font-bold px-3.5 py-2 rounded-xl transition-all hover:opacity-90"
+                style={{
+                  background: isDone ? "#10B981" : theme.surface,
+                  color: isDone ? "#FFFFFF" : theme.ink,
+                  border: `1.5px solid ${isDone ? "#10B981" : theme.hairlineStrong}`,
+                  minHeight: 38
+                }}
+              >
+                <CheckCircle2 size={14} />
+                <span>{isDone ? (lang === "ar" ? "مكتملة ومحفوظة ✓" : "Completed ✓") : (lang === "ar" ? "تحديد كمكتملة" : "Mark as completed")}</span>
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Content Render Area */}
+        {hasPages && activeTab === "pages" ? (
+          <SingleLeafA4Preview leaf={node} book={book} lang={lang} theme={theme} skin={skin} />
+        ) : hasCards ? (
+          <NodeQuestionDeck node={node} book={book} lang={lang} ui={ui} theme={theme} dir={dir} skin={skin} cardMode={cardMode} scrollDir={scrollDir} onAnswered={onAnswered} />
+        ) : hasPages ? (
+          <SingleLeafA4Preview leaf={node} book={book} lang={lang} theme={theme} skin={skin} />
+        ) : (
+          <div className="p-10 text-center" style={panelStyle(skin, theme)}>
+            <p className="text-base font-bold mb-2" style={{ color: theme.ink }}>
+              {leafTitle}
+            </p>
+            <p className="text-sm font-semibold mb-5" style={{ color: theme.inkSoft }}>
+              {lang === "ar" ? "هذه الورقة لا تحتوي على محتوى أو أسئلة بعد." : "This leaf does not contain content or questions yet."}
+            </p>
+            <button
+              onClick={onBack}
+              className="text-xs font-bold px-4 py-2.5 rounded-xl transition-all"
+              style={{ background: theme.accent, color: theme.accentInk }}
+            >
+              {ui.backToTree || (lang === "ar" ? "العودة إلى الشجرة" : "Back to Tree")}
+            </button>
+          </div>
         )}
-      </div>
-      <NodeQuestionDeck node={node} book={book} lang={lang} ui={ui} theme={theme} dir={dir} skin={skin} cardMode={cardMode} scrollDir={scrollDir} onAnswered={onAnswered} />
-    </section>
+      </section>
+    </LeafErrorBoundary>
   );
 }
 
@@ -4204,9 +4370,14 @@ function useFitScale() {
       setFitScale(fit);
     };
     compute();
-    const ro = new ResizeObserver(compute);
-    ro.observe(el);
-    return () => ro.disconnect();
+    if (typeof ResizeObserver !== "undefined") {
+      const ro = new ResizeObserver(compute);
+      ro.observe(el);
+      return () => ro.disconnect();
+    } else if (typeof window !== "undefined") {
+      window.addEventListener("resize", compute);
+      return () => window.removeEventListener("resize", compute);
+    }
   }, []);
   const scale = zoomOverride ?? fitScale;
   const zoomIn = () => setZoomOverride(Math.min(2, Math.round((scale + 0.15) * 100) / 100));
@@ -4368,6 +4539,101 @@ function FullBookA4Preview({ book, lang, t, theme, skin, docTitle }) {
                 </div>
               );
             })}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* Read-only single-leaf A4 preview for DeckView when viewing educational reading sheets */
+function SingleLeafA4Preview({ leaf, book, lang, theme, skin }) {
+  const blocks = leaf?.pageBlocks || [];
+  const palette = paletteById(leaf?.pagePaletteId || 1);
+  const kinds = plateKindsFor(palette);
+  const { pages, measureRef } = usePagedBlocks(blocks);
+  const { containerRef, scale, zoomIn, zoomOut, zoomFit, isFit } = useFitScale();
+  const t = EDITOR_STR[lang] || EDITOR_STR.ar;
+  const docTitle = lang === "ar" ? book?.ar?.title : book?.en?.title;
+  const leafTitle = leaf ? (lang === "ar" ? (leaf.ar || leaf.en) : (leaf.en || leaf.ar)) : "";
+
+  if (!blocks.length) {
+    return (
+      <div className="p-8 text-center" style={panelStyle(skin, theme)}>
+        <p className="text-sm font-semibold" style={{ color: theme.inkSoft }}>
+          {lang === "ar" ? "لا توجد صفحات أو شيتات A4 في هذه الورقة." : "No A4 pages in this leaf."}
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <div
+        ref={measureRef}
+        style={{
+          position: "absolute",
+          visibility: "hidden",
+          pointerEvents: "none",
+          width: "182mm",
+          top: -99999,
+          fontFamily: PAGE_FONT,
+          fontSize: 15,
+          lineHeight: 1.9,
+        }}
+      >
+        {blocks.map((b, i) => (
+          <PlateBlock key={b.id || i} block={b} kinds={kinds} />
+        ))}
+      </div>
+
+      <ZoomBar t={t} theme={theme} skin={skin} scale={scale} onZoomOut={zoomOut} onZoomIn={zoomIn} onFit={zoomFit} isFit={isFit} />
+
+      <div ref={containerRef} className="overflow-x-auto">
+        <div style={{ zoom: scale }}>
+          <div className="flex flex-col gap-6 items-center py-2">
+            {pages.map((pageBlocks, pi) => (
+              <div
+                key={pi}
+                dir={lang === "ar" ? "rtl" : "ltr"}
+                style={{
+                  width: "210mm",
+                  minHeight: "297mm",
+                  background: palette.PageBG,
+                  color: palette.BodyText,
+                  padding: "16mm 14mm",
+                  boxShadow: "0 4px 24px rgba(0,0,0,0.15)",
+                  borderRadius: 4,
+                  fontFamily: PAGE_FONT,
+                  fontSize: 15,
+                  lineHeight: 1.9,
+                }}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    paddingBottom: "0.6rem",
+                    marginBottom: "1rem",
+                    borderBottom: `2px solid ${palette.HeaderColor}`,
+                    color: palette.HeaderColor,
+                    fontWeight: 700,
+                    fontSize: 12,
+                  }}
+                >
+                  <span>{docTitle}</span>
+                  <span>{leafTitle}</span>
+                </div>
+
+                {pageBlocks.map((b, i) => (
+                  <PlateBlock key={b.id || i} block={b} kinds={kinds} />
+                ))}
+                <p style={{ position: "relative", top: "8mm", textAlign: "center", fontSize: 10, color: "#b3a692" }}>
+                  {t.pageOf(pi + 1, pages.length)}
+                </p>
+              </div>
+            ))}
           </div>
         </div>
       </div>
@@ -5914,65 +6180,12 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
 
 
 /* =================================================================
-   EXPORT — everything below is what used to live in a separate
-   generated/ folder + a thin EDUcraft.jsx wrapper (see the project
-   version of this deliverable if you want the multi-file, more
-   maintainable form with `npm run build:export`). Merged into one
-   file here so this single .jsx is fully self-contained and portable
-   to any environment that only accepts one file.
-
-   EDUCRAFT_EXPORT_BUNDLE_JS is this exact component tree (everything
-   above) bundled once with React + ReactDOM + lucide-react by esbuild.
-   EDUCRAFT_EXPORT_TAILWIND_CSS is the exact compiled Tailwind CSS for
-   every class name used above. Exporting a book/collection just wraps
-   these two constants + the book's own JSON data (images/video/audio
-   already base64 from MediaUploadField) into one offline .html file —
-   it is never a re-implementation of the UI, so it can never drift
-   from what this file actually renders.
+   RUST EXPORT ARCHITECTURE — Book and collection exports are handled
+   exclusively by the Rust backend engine (src-tauri/src/export_engine).
+   The frontend communicates via Tauri IPC commands `export_book` and
+   `export_collection`, ensuring type safety, validation, and zero
+   UI drift.
 ================================================================== */
-// EDUCRAFT_EXPORT_BUNDLE_JS & EDUCRAFT_EXPORT_TAILWIND_CSS imported from src/data/export_bundle_data.js
-
-function escapeHtml(str) {
-  return (str == null ? "" : String(str)).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-}
-function escapeScriptClose(str) {
-  return str.replace(/<\/(script)/gi, "<\\/$1");
-}
-const EXPORT_FONT_LINKS = `<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Press+Start+2P&family=Inter:wght@400;500;600;700&family=Cairo:wght@500;700;800&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">`;
-
-function buildExportHTML({ title, favicon, lang, dir, seed }) {
-  const payload = JSON.stringify(seed).replace(/</g, "\\u003c");
-  const bundleJs = escapeScriptClose(EDUCRAFT_EXPORT_BUNDLE_JS);
-  return `<!DOCTYPE html>
-<html lang="${lang}" dir="${dir}">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>${escapeHtml(title)}</title>
-<link rel="icon" href="${favicon}">
-${EXPORT_FONT_LINKS}
-<style>${EDUCRAFT_EXPORT_TAILWIND_CSS}</style>
-</head>
-<body>
-<div id="root"></div>
-<script>window.__EDUCRAFT_EXPORT__ = ${payload};</script>
-<script>${bundleJs}</script>
-</body>
-</html>`;
-}
-
-function downloadHTMLFile(filename, html) {
-  const blob = new Blob([html], { type: "text/html" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 4000);
-}
-
 function skinIdOf(skin) {
   return Object.keys(SKINS).find((k) => SKINS[k] === skin) || "normal";
 }
@@ -5980,13 +6193,13 @@ function flavorIdOf(theme) {
   return Object.keys(FLAVORS).find((k) => FLAVORS[k].light === theme || FLAVORS[k].dark === theme) || "normal";
 }
 
-/* ─── Tauri detection ─────────────────────────────────────────────────────── */
+/* ─── Tauri environment check ────────────────────────────────────────────── */
 function isTauriEnv() {
   return typeof window !== "undefined" && !!window.__TAURI_INTERNALS__;
 }
 
-/* ─── Book export ─────────────────────────────────────────────────────────── */
-async function downloadBookHTML(book, lang, theme, ui, skin, covers) {
+/* ─── Rust-Powered Book Export ─────────────────────────────────────────────── */
+async function exportBookViaRust(book, lang, theme, ui, skin, covers) {
   covers = covers || {};
   const currentFlavor = flavorIdOf(theme);
   const seed = {
@@ -6002,27 +6215,27 @@ async function downloadBookHTML(book, lang, theme, ui, skin, covers) {
   };
 
   if (isTauriEnv()) {
-    // ── Tauri path: Rust builds and saves the file, shows a save dialog ──
     try {
       const { invoke } = await import("@tauri-apps/api/core");
       const savedPath = await invoke("export_book", { seed, outputPath: null });
-      // Toast is shown by the caller (EDUcraftApp handles the returned path)
       return savedPath;
     } catch (err) {
-      console.warn("[EDUcraft] Tauri export failed, falling back to browser download:", err);
-      // Fall through to browser fallback below
+      console.error("[EDUcraft Rust Exporter] export_book error:", err);
+      window.alert(lang === "ar" ? `فشل التصدير: ${err}` : `Export failed: ${err}`);
+      return null;
     }
+  } else {
+    window.alert(
+      lang === "ar"
+        ? "تصدير الكتب مدعوم بالكامل ومؤمن عبر محرك Rust في تطبيق EDUcraft لسطح المكتب."
+        : "Book export is fully powered and secured by the Rust engine in the EDUcraft desktop app."
+    );
+    return null;
   }
-
-  // ── Browser fallback: Blob / ObjectURL download ──
-  const favicon = faviconDataUri(book.cover, book[lang].title);
-  const html = buildExportHTML({ title: book[lang].title, favicon, lang, dir: ui.dir, seed });
-  downloadHTMLFile(`${slugify(book[lang].title)}.html`, html);
-  return null;
 }
 
-/* ─── Collection export ───────────────────────────────────────────────────── */
-async function downloadCollectionHTML(collection, books, collections, lang, theme, ui, skin, covers) {
+/* ─── Rust-Powered Collection Export ───────────────────────────────────────── */
+async function exportCollectionViaRust(collection, books, collections, lang, theme, ui, skin, covers) {
   covers = covers || {};
   const currentFlavor = flavorIdOf(theme);
   const subtree = resolveCollectionSubtree(collection, collections || []);
@@ -6055,17 +6268,20 @@ async function downloadCollectionHTML(collection, books, collections, lang, them
       });
       return savedPath;
     } catch (err) {
-      console.warn("[EDUcraft] Tauri collection export failed, falling back to browser download:", err);
+      console.error("[EDUcraft Rust Exporter] export_collection error:", err);
+      window.alert(lang === "ar" ? `فشل تصدير المجموعة: ${err}` : `Collection export failed: ${err}`);
+      return null;
     }
+  } else {
+    window.alert(
+      lang === "ar"
+        ? "تصدير المجموعات مدعوم بالكامل ومؤمن عبر محرك Rust في تطبيق EDUcraft لسطح المكتب."
+        : "Collection export is fully powered and secured by the Rust engine in the EDUcraft desktop app."
+    );
+    return null;
   }
-
-  // ── Browser fallback ──
-  const favicon = faviconDataUri({ from: flatBooks[0]?.cover?.from, to: flatBooks[0]?.cover?.to }, collection.title);
-  const html = buildExportHTML({ title: collection.title, favicon, lang, dir: ui.dir, seed });
-  downloadHTMLFile(`${slugify(collection.title)}.html`, html);
-  return null;
 }
 
 export default function EDUcraft() {
-  return <EDUcraftApp onExportBook={downloadBookHTML} onExportCollection={downloadCollectionHTML} />;
+  return <EDUcraftApp onExportBook={exportBookViaRust} onExportCollection={exportCollectionViaRust} />;
 }
