@@ -843,7 +843,12 @@ const APP_STORAGE_KEY = (() => {
 function loadAppState() {
   if (typeof window === "undefined") return {};
   try {
-    return JSON.parse(window.localStorage.getItem(APP_STORAGE_KEY)) || {};
+    const raw = JSON.parse(window.localStorage.getItem(APP_STORAGE_KEY)) || {};
+    const dedicatedDeleted = JSON.parse(window.localStorage.getItem("educraft_deleted_books") || "[]");
+    if (Array.isArray(dedicatedDeleted) && dedicatedDeleted.length > 0) {
+      raw.deletedBookIds = [...new Set([...(raw.deletedBookIds || []), ...dedicatedDeleted])];
+    }
+    return raw;
   } catch (e) {
     return {};
   }
@@ -852,6 +857,9 @@ function saveAppState(state) {
   if (typeof window === "undefined") return;
   try {
     window.localStorage.setItem(APP_STORAGE_KEY, JSON.stringify(state));
+    if (state && Array.isArray(state.deletedBookIds)) {
+      window.localStorage.setItem("educraft_deleted_books", JSON.stringify(state.deletedBookIds));
+    }
   } catch (e) {}
 }
 function uid(prefix) {
@@ -5319,7 +5327,8 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
   const setBookFlavor = (bid, fid) => setBookFlavors((prev) => ({ ...prev, [bid]: fid }));
 
   const deleteBook = (deleteId) => {
-    setDeletedBookIds((prev) => [...new Set([...(prev || []), deleteId])]);
+    const nextDeleted = [...new Set([...(deletedBookIds || []), deleteId])];
+    setDeletedBookIds(nextDeleted);
     setBooks((prev) => prev.filter((b) => b.id !== deleteId));
     setCovers((prev) => {
       const next = { ...prev };
@@ -5342,6 +5351,11 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
         itemIds: (c.itemIds || []).filter((id) => id !== deleteId)
       }))
     );
+    if (typeof window !== "undefined") {
+      try {
+        window.localStorage.setItem("educraft_deleted_books", JSON.stringify(nextDeleted));
+      } catch (e) {}
+    }
     if (bookId === deleteId) {
       setView("library");
       setLeafId(null);
@@ -5420,6 +5434,11 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
   }, [lang, mode, skinId, flavorId, bookFlavors, cardMode, scrollDir, voiceEnabled, covers, plans, collections, deletedBookIds, books]);
 
   const resetAll = () => {
+    if (typeof window !== "undefined") {
+      try {
+        window.localStorage.removeItem("educraft_deleted_books");
+      } catch (e) {}
+    }
     saveAppState({});
     setDeletedBookIds([]);
     setLang("en");
