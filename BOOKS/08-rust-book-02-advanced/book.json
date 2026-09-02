@@ -1,0 +1,1002 @@
+{
+  "id": "08-rust-book-02-advanced",
+  "cover": {
+    "from": "#A855F7",
+    "to": "#7E22CE",
+    "icon": "code"
+  },
+  "en": {
+    "title": "Rust Book 02: Advanced & Unsafe",
+    "tagline": "Unsafe Rust, raw pointers, FFI bindings, and lock-free concurrency."
+  },
+  "ar": {
+    "title": "BOOK 02 — ADVANCED RUST (البرمجة المتقدمة والمؤشرات الخام)",
+    "tagline": "المؤشرات الخام (Raw Pointers)، الـ FFI، وتعدد المهام المتوازي Concurrency."
+  },
+  "crossLinks": [],
+  "nodes": [
+    {
+      "id": "b1",
+      "level": "branch",
+      "parent": null,
+      "x": 160,
+      "y": 44,
+      "en": "Foundations",
+      "ar": "الأساسيات والمعمارية"
+    },
+    {
+      "id": "b2",
+      "level": "branch",
+      "parent": null,
+      "x": 400,
+      "y": 44,
+      "en": "Core Concepts",
+      "ar": "المفاهيم والتطبيق"
+    },
+    {
+      "id": "b3",
+      "level": "branch",
+      "parent": null,
+      "x": 640,
+      "y": 44,
+      "en": "Advanced & Mastery",
+      "ar": "الاحتراف والإنتاجية"
+    },
+    {
+      "id": "s1_0",
+      "level": "sub",
+      "parent": "b1",
+      "x": 100,
+      "y": 156,
+      "en": "Module 1",
+      "ar": "الوحدة 1"
+    },
+    {
+      "id": "l_01",
+      "level": "leaf",
+      "parent": "s1_0",
+      "x": 50,
+      "y": 262,
+      "en": "02. المؤشرات الذكية: `Rc<T>` و `Arc<T>` (Reference Counting)",
+      "ar": "02. المؤشرات الذكية: `Rc<T>` و `Arc<T>` (Reference Counting)",
+      "questions": [
+        {
+          "type": "single",
+          "subject": "RUST",
+          "difficulty": "Intermediate",
+          "tier": "core",
+          "dir": "rtl",
+          "en": {
+            "prompt": "بص على الكود والمفهوم ده في سياق 01. المعالجة غير المتزامنة: الـ Futures ونموذج الـ Polling (Async Internals):\n\nإيه هو الدور الأساسي اللي بيقوم بيه الكود ده وليه بنكتبه بالطريقة دي؟",
+            "options": [
+              "عشان نطبق المفهوم بشكل مظبوط ونضمن الأداء العالي والأمان البرمجي حسب المعايير القياسية.",
+              "الكود ده مجرد ستايل اختياري وملوش أي تأثير حقيقي على طريقة عمل البرنامج.",
+              "عشان نتجاهل الـ Type Checking والـ Memory Safety ونخلي التنفيذ أسرع وخلاص.",
+              "الكود ده هيتسبب في Runtime Error ومش هيشتغل أصلاً في أي بيئة إنتاج."
+            ],
+            "correct": 0
+          },
+          "ar": {
+            "prompt": "بص على الكود والمفهوم ده في سياق 01. المعالجة غير المتزامنة: الـ Futures ونموذج الـ Polling (Async Internals):\n\nإيه هو الدور الأساسي اللي بيقوم بيه الكود ده وليه بنكتبه بالطريقة دي؟",
+            "options": [
+              "عشان نطبق المفهوم بشكل مظبوط ونضمن الأداء العالي والأمان البرمجي حسب المعايير القياسية.",
+              "الكود ده مجرد ستايل اختياري وملوش أي تأثير حقيقي على طريقة عمل البرنامج.",
+              "عشان نتجاهل الـ Type Checking والـ Memory Safety ونخلي التنفيذ أسرع وخلاص.",
+              "الكود ده هيتسبب في Runtime Error ومش هيشتغل أصلاً في أي بيئة إنتاج."
+            ],
+            "correct": 0
+          },
+          "code": {
+            "enabled": true,
+            "lang": "text",
+            "src": "┌─────────────────────────────────────────────────────────────┐\n│                 الـ Async Runtime (Tokio)                   │\n├─────────────────────────────────────────────────────────────┤\n│ 1. الـ Executor يسأل الـ Future: \"هل جهزتِ؟\" (poll)     \n// ..."
+          }
+        },
+        {
+          "type": "tf",
+          "subject": "RUST",
+          "difficulty": "Beginner",
+          "tier": "core",
+          "dir": "rtl",
+          "en": {
+            "prompt": "صح ولا غلط: في 01. المعالجة غير المتزامنة: الـ Futures ونموذج الـ Polling (Async Internals)، المفروض دايماً نتبع الـ Best Practices عشان نمنع الـ Bugs الغامضة ونحافظ على وضوح الـ Architecture.",
+            "correct": true
+          },
+          "ar": {
+            "prompt": "صح ولا غلط: في 01. المعالجة غير المتزامنة: الـ Futures ونموذج الـ Polling (Async Internals)، المفروض دايماً نتبع الـ Best Practices عشان نمنع الـ Bugs الغامضة ونحافظ على وضوح الـ Architecture.",
+            "correct": true
+          }
+        },
+        {
+          "type": "essay",
+          "subject": "RUST",
+          "difficulty": "Advanced",
+          "tier": "advanced",
+          "dir": "rtl",
+          "en": {
+            "prompt": "بص على الكود ده في سياق 01. المعالجة غير المتزامنة: الـ Futures ونموذج الـ Polling (Async Internals):\n\nإيه المشكلة اللي ممكن تظهر في الكود ده وإزاي نصلحها بالشكل الصح؟",
+            "model": "المشكلة المحتملة هنا هي عدم معالجة الحالات الاستثنائية أو تمرير قيم غير متوافقة مع الـ Expected Rules في 01. المعالجة غير المتزامنة: الـ Futures ونموذج الـ Polling (Async Internals)."
+          },
+          "ar": {
+            "prompt": "بص على الكود ده في سياق 01. المعالجة غير المتزامنة: الـ Futures ونموذج الـ Polling (Async Internals):\n\nإيه المشكلة اللي ممكن تظهر في الكود ده وإزاي نصلحها بالشكل الصح؟",
+            "model": "المشكلة المحتملة هنا هي عدم معالجة الحالات الاستثنائية أو تمرير قيم غير متوافقة مع الـ Expected Rules في 01. المعالجة غير المتزامنة: الـ Futures ونموذج الـ Polling (Async Internals)."
+          },
+          "code": {
+            "enabled": true,
+            "lang": "rust",
+            "src": "pub trait Future {\n    type Output;\n\n    fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output>;\n}\n\npub enum Poll<T> {\n    Ready(T),\n    Pending,\n}"
+          }
+        },
+        {
+          "type": "essay",
+          "subject": "RUST",
+          "difficulty": "Advanced",
+          "tier": "advanced",
+          "dir": "rtl",
+          "en": {
+            "prompt": "بص على الكود ده كويس:\n\nإيه الـ Output أو النتيجة المتوقعة لما الكود ده يشتغل؟ وليه؟",
+            "model": "تنفيذ سليم للقيمة المتوقعة بناءً على منطق 01. المعالجة غير المتزامنة: الـ Futures ونموذج الـ Polling (Async Internals)."
+          },
+          "ar": {
+            "prompt": "بص على الكود ده كويس:\n\nإيه الـ Output أو النتيجة المتوقعة لما الكود ده يشتغل؟ وليه؟",
+            "model": "تنفيذ سليم للقيمة المتوقعة بناءً على منطق 01. المعالجة غير المتزامنة: الـ Futures ونموذج الـ Polling (Async Internals)."
+          },
+          "code": {
+            "enabled": true,
+            "lang": "text",
+            "src": "┌─────────────────────────────────────────────────────────────┐\n│                 الـ Async Runtime (Tokio)                   │\n├─────────────────────────────────────────────────────────────┤\n│ 1. الـ Executor يسأل الـ Future: \"هل جهزتِ؟\" (poll)     \n// ..."
+          }
+        },
+        {
+          "type": "match",
+          "subject": "RUST",
+          "difficulty": "Intermediate",
+          "tier": "extra",
+          "dir": "rtl",
+          "en": {
+            "prompt": "وصل كل مفهوم بالوصف المناسب ليه بالظبط:",
+            "left": [
+              "01. المعالجة غير المتزامنة: الـ Futures ونموذج الـ Polling (Async Internals) Core Token",
+              "Runtime / Browser Execution",
+              "Error Handling & Safety"
+            ],
+            "right": [
+              "الاسم أو الكلمة المحجوزة الأساسية لتعريف العنصر أو الدالة.",
+              "البيئة الحية اللي بتشغل الكود وتنفذ الأوامر في الذاكرة.",
+              "الآلية اللي بنضمن بيها عدم انهيار البرنامج والتعامل مع المشاكل."
+            ],
+            "correct": [
+              0,
+              1,
+              2
+            ]
+          },
+          "ar": {
+            "prompt": "وصل كل Concept أو مصطلح بالوصف المناسب ليه بالظبط:",
+            "left": [
+              "01. المعالجة غير المتزامنة: الـ Futures ونموذج الـ Polling (Async Internals) Core Token",
+              "Runtime / Browser Execution",
+              "Error Handling & Safety"
+            ],
+            "right": [
+              "الاسم أو الكلمة المحجوزة الأساسية لتعريف العنصر أو الدالة.",
+              "البيئة الحية اللي بتشغل الكود وتنفذ الأوامر في الذاكرة.",
+              "الآلية اللي بنضمن بيها عدم انهيار البرنامج والتعامل مع المشاكل."
+            ],
+            "correct": [
+              0,
+              1,
+              2
+            ]
+          }
+        },
+        {
+          "type": "cloze",
+          "subject": "RUST",
+          "difficulty": "Beginner",
+          "tier": "core",
+          "dir": "rtl",
+          "en": {
+            "template": "اختار الـ Keyword الصح من الـ Word Bank عشان تكمل الكود ده في سياق 01. المعالجة غير المتزامنة: الـ Futures ونموذج الـ Polling (Async Internals):\n\n`___ item = ...;`",
+            "bank": [
+              "let",
+              "const",
+              "function",
+              "mut"
+            ],
+            "correct": "let"
+          },
+          "ar": {
+            "template": "اختار الـ Keyword الصح من الـ Word Bank عشان تكمل الكود ده في سياق 01. المعالجة غير المتزامنة: الـ Futures ونموذج الـ Polling (Async Internals):\n\n`___ item = ...;`",
+            "bank": [
+              "let",
+              "const",
+              "function",
+              "mut"
+            ],
+            "correct": "let"
+          }
+        }
+      ],
+      "pagePaletteId": 8,
+      "pageBlocks": [
+        {
+          "id": "ch01-b01",
+          "kind": "sectionTitle",
+          "text": "02. المؤشرات الذكية: `Rc<T>` و `Arc<T>` (Reference Counting)"
+        },
+        {
+          "id": "ch01-b02",
+          "kind": "note",
+          "text": "- فهم متى نحتاج لملكية مشتركة متعددة لنفس القيمة في الذاكرة (Multiple Ownership).\n- استيعاب آلية عمل الـ Reference Counting وكيف يتم حساب المراجع في الذاكرة.\n- الفرق الجوهري بين `Rc<T>` (Single-Threaded) و `Arc<T>` (Atomic Thread-Safe).\n- تجنب الـ Memory Leaks الناتجة عن الـ Reference Cycles باستخدام `Weak<T>`.",
+          "title": "🎯 أهداف الدرس (Learning Goals)"
+        },
+        {
+          "id": "ch01-b03",
+          "kind": "note",
+          "text": "في قواعد الـ Ownership العادية، كل قيمة لها مالك وحيد فقط.\nلكن في الحياة الواقعية، فيه هياكل بيانات زي الـ Graphs أو الـ Node Trees، أو سيرفر ويب بيخدم 1000 طلب في نفس الوقت محتاجين كلهم يقرأوا من نفس الـ Config Object المشترك!",
+          "title": "🧠 المشكلة: ماذا لو احتجنا أكثر من مالك؟ (The Problem)"
+        },
+        {
+          "id": "ch01-b04",
+          "kind": "code",
+          "title": "Code Snippet",
+          "text": "                ┌────────────────────────────────┐\n                │   Shared Data: ServerConfig    │ (قيمة واحدة في الـ Heap)\n                └──────────────┬─────────────────┘\n                               │\n            ┌──────────────────┼──────────────────┐\n            │ (Ref Count = 3)  │                  │\n            ▼                  ▼                  ▼\n      Worker Thread 1    Worker Thread 2    Worker Thread 3"
+        },
+        {
+          "id": "ch01-b05",
+          "kind": "note",
+          "text": "`Rc<T>` بيحجز البيانات على الـ Heap، وجنبها بيحط عداد رقمي (`Strong Count`):\n- كل ما تعمل `.clone()` للـ `Rc`، مش بينسخ البيانات، ده بس بيزود العداد `+1` ويرجعلك Pointer جديد!\n- كل ما واحد من الملاك يخرج من الـ Scope ويموت، العداد ينقص `-1` تلقائياً.\n- أول ما العداد يوصل لـ `0`، بيتم مسح البيانات من الـ Heap فوراً!",
+          "title": "⚙️ كيف يعمل `Rc<T>`؟ (Single-Threaded Reference Counting)"
+        },
+        {
+          "id": "ch01-b06",
+          "kind": "code",
+          "title": "كود توضيحي (rust)",
+          "text": "use std::rc::Rc;\n\nfn main() {\n    let shared_data = Rc::new(String::from(\"قاعدة بيانات مشتركة\"));\n    println!(\"العداد بعد الإنشاء: {}\", Rc::strong_count(&shared_data)); // 1\n\n    let owner2 = Rc::clone(&shared_data);\n    println!(\"العداد بعد المالك الثاني: {}\", Rc::strong_count(&shared_data)); // 2\n\n    {\n        let owner3 = Rc::clone(&shared_data);\n        println!(\"العداد داخل النطاق: {}\", Rc::strong_count(&shared_data)); // 3\n    } // owner3 مات هنا!\n\n    println!(\"العداد بعد خروج المالك الثالث: {}\", Rc::strong_count(&shared_data)); // 2\n}"
+        },
+        {
+          "id": "ch01-b07",
+          "kind": "note",
+          "text": "لو جربت تمرر `Rc<T>` لـ Thread تاني بـ `std::thread::spawn`، الكومبيلر هيرفض فوراً لأن زيادة العداد في `Rc` مش Thread-Safe وقد تسبب Race Condition!",
+          "title": "⚡ المزامنة متعددة الخيوط: `Arc<T>` (Atomic Reference Counting)"
+        },
+        {
+          "id": "ch01-b08",
+          "kind": "note",
+          "text": "الحل هو **`Arc<T>`**:\n`Arc` بيستخدم **عمليات ذرية على مستوى المعالج (Atomic CPU Instructions)** لزيادة ونقص العداد بأمان تام عبر عدة Threads بدون تكلفة Mutex Lock على العداد نفسه."
+        },
+        {
+          "id": "ch01-b09",
+          "kind": "code",
+          "title": "كود توضيحي (rust)",
+          "text": "use std::sync::Arc;\nuse std::thread;\n\nfn main() {\n    let config = Arc::new(String::from(\"إعدادات الإنتاج المشتركة\"));\n    let mut handles = vec![];\n\n    for i in 0..5 {\n        let config_clone = Arc::clone(&config);\n        \n        let handle = thread::spawn(move || {\n            println!(\"Thread {} يقرأ بأمان: {}\", i, config_clone);\n        });\n        \n        handles.push(handle);\n    }\n\n    for handle in handles {\n        handle.join().unwrap();\n    }\n}"
+        },
+        {
+          "id": "ch01-b10",
+          "kind": "note",
+          "text": "| وجه المقارنة | `Rc<T>` | `Arc<T>` |\n| :--- | :--- | :--- |\n| **دعم الـ Threads** | ❌ أحادي الخيط فقط (Single-thread). | ✅ متعدد الخيوط بأمان تام (Thread-Safe). |\n| **تكلفة الأداء** | أسرع قليلاً (Non-atomic operations). | أبطأ بنسبة ضئيلة جداً (Atomic operations). |\n| **Traits المطبقة** | لا يطبق `Send` ولا `Sync`. | يطبق `Send` و `Sync` إذا كان `T` يطبقهما. |\n| **مكان الاستخدام** | خوارزميات الـ Trees في خيط واحد. | خوادم الويب، الـ Background Jobs، والتطبيقات المتوازية. |",
+          "title": "⚖️ المقارنة الصارمة: `Rc<T>` vs `Arc<T>`"
+        },
+        {
+          "id": "ch01-b11",
+          "kind": "note",
+          "text": "انتقل للدرس التالي: **[`03-refcell-interior-mutability.md`](./03-refcell-interior-mutability.md)** لمعرفة كيف نعدل البيانات المشتركة داخل `Arc` باستخدام `Mutex` و `RwLock`!",
+          "title": "🚀 الخطوة التالية"
+        }
+      ]
+    },
+    {
+      "id": "l_02",
+      "level": "leaf",
+      "parent": "s1_0",
+      "x": 283,
+      "y": 262,
+      "en": "01. المعالجة غير المتزامنة: الـ Futures ونموذج الـ Polling (Async Internals)",
+      "ar": "01. المعالجة غير المتزامنة: الـ Futures ونموذج الـ Polling (Async Internals)",
+      "questions": [
+        {
+          "type": "single",
+          "subject": "RUST",
+          "difficulty": "Intermediate",
+          "tier": "core",
+          "dir": "rtl",
+          "en": {
+            "prompt": "بص على الكود والمفهوم ده في سياق 02. المؤشرات الذكية: `Rc<T>` و `Arc<T>` (Reference Counting):\n\nإيه هو الدور الأساسي اللي بيقوم بيه الكود ده وليه بنكتبه بالطريقة دي؟",
+            "options": [
+              "عشان نطبق المفهوم بشكل مظبوط ونضمن الأداء العالي والأمان البرمجي حسب المعايير القياسية.",
+              "الكود ده مجرد ستايل اختياري وملوش أي تأثير حقيقي على طريقة عمل البرنامج.",
+              "عشان نتجاهل الـ Type Checking والـ Memory Safety ونخلي التنفيذ أسرع وخلاص.",
+              "الكود ده هيتسبب في Runtime Error ومش هيشتغل أصلاً في أي بيئة إنتاج."
+            ],
+            "correct": 0
+          },
+          "ar": {
+            "prompt": "بص على الكود والمفهوم ده في سياق 02. المؤشرات الذكية: `Rc<T>` و `Arc<T>` (Reference Counting):\n\nإيه هو الدور الأساسي اللي بيقوم بيه الكود ده وليه بنكتبه بالطريقة دي؟",
+            "options": [
+              "عشان نطبق المفهوم بشكل مظبوط ونضمن الأداء العالي والأمان البرمجي حسب المعايير القياسية.",
+              "الكود ده مجرد ستايل اختياري وملوش أي تأثير حقيقي على طريقة عمل البرنامج.",
+              "عشان نتجاهل الـ Type Checking والـ Memory Safety ونخلي التنفيذ أسرع وخلاص.",
+              "الكود ده هيتسبب في Runtime Error ومش هيشتغل أصلاً في أي بيئة إنتاج."
+            ],
+            "correct": 0
+          },
+          "code": {
+            "enabled": true,
+            "lang": "text",
+            "src": "┌────────────────────────────────┐\n                │   Shared Data: ServerConfig    │ (قيمة واحدة في الـ Heap)\n                └──────────────┬─────────────────┘\n                               │\n            ┌──────────────────┼──────────────────┐\n   \n// ..."
+          }
+        },
+        {
+          "type": "tf",
+          "subject": "RUST",
+          "difficulty": "Beginner",
+          "tier": "core",
+          "dir": "rtl",
+          "en": {
+            "prompt": "صح ولا غلط: في 02. المؤشرات الذكية: `Rc<T>` و `Arc<T>` (Reference Counting)، المفروض دايماً نتبع الـ Best Practices عشان نمنع الـ Bugs الغامضة ونحافظ على وضوح الـ Architecture.",
+            "correct": true
+          },
+          "ar": {
+            "prompt": "صح ولا غلط: في 02. المؤشرات الذكية: `Rc<T>` و `Arc<T>` (Reference Counting)، المفروض دايماً نتبع الـ Best Practices عشان نمنع الـ Bugs الغامضة ونحافظ على وضوح الـ Architecture.",
+            "correct": true
+          }
+        },
+        {
+          "type": "essay",
+          "subject": "RUST",
+          "difficulty": "Advanced",
+          "tier": "advanced",
+          "dir": "rtl",
+          "en": {
+            "prompt": "بص على الكود ده في سياق 02. المؤشرات الذكية: `Rc<T>` و `Arc<T>` (Reference Counting):\n\nإيه المشكلة اللي ممكن تظهر في الكود ده وإزاي نصلحها بالشكل الصح؟",
+            "model": "المشكلة المحتملة هنا هي عدم معالجة الحالات الاستثنائية أو تمرير قيم غير متوافقة مع الـ Expected Rules في 02. المؤشرات الذكية: `Rc<T>` و `Arc<T>` (Reference Counting)."
+          },
+          "ar": {
+            "prompt": "بص على الكود ده في سياق 02. المؤشرات الذكية: `Rc<T>` و `Arc<T>` (Reference Counting):\n\nإيه المشكلة اللي ممكن تظهر في الكود ده وإزاي نصلحها بالشكل الصح؟",
+            "model": "المشكلة المحتملة هنا هي عدم معالجة الحالات الاستثنائية أو تمرير قيم غير متوافقة مع الـ Expected Rules في 02. المؤشرات الذكية: `Rc<T>` و `Arc<T>` (Reference Counting)."
+          },
+          "code": {
+            "enabled": true,
+            "lang": "rust",
+            "src": "use std::rc::Rc;\n\nfn main() {\n    let shared_data = Rc::new(String::from(\"قاعدة بيانات مشتركة\"));\n    println!(\"العداد بعد الإنشاء: {}\", Rc::strong_count(&shared_data)); // 1\n\n    let owner2 = Rc::clone(&shared_data);\n    println!(\"العداد بعد المالك الثاني: {}\", Rc::strong_count(&shared_data)); // 2\n\n    {\n        let owner3 = Rc::clone(&shared_data);\n        println!(\"العداد داخل النطاق: {}\", Rc::strong_count(&shared_data)); // 3\n    } // owner3 مات هنا!\n\n    println!(\"العداد بعد خروج المالك الثالث: {}\", Rc::strong_count(&shared_data)); // 2\n}"
+          }
+        },
+        {
+          "type": "essay",
+          "subject": "RUST",
+          "difficulty": "Advanced",
+          "tier": "advanced",
+          "dir": "rtl",
+          "en": {
+            "prompt": "بص على الكود ده كويس:\n\nإيه الـ Output أو النتيجة المتوقعة لما الكود ده يشتغل؟ وليه؟",
+            "model": "تنفيذ سليم للقيمة المتوقعة بناءً على منطق 02. المؤشرات الذكية: `Rc<T>` و `Arc<T>` (Reference Counting)."
+          },
+          "ar": {
+            "prompt": "بص على الكود ده كويس:\n\nإيه الـ Output أو النتيجة المتوقعة لما الكود ده يشتغل؟ وليه؟",
+            "model": "تنفيذ سليم للقيمة المتوقعة بناءً على منطق 02. المؤشرات الذكية: `Rc<T>` و `Arc<T>` (Reference Counting)."
+          },
+          "code": {
+            "enabled": true,
+            "lang": "text",
+            "src": "┌────────────────────────────────┐\n                │   Shared Data: ServerConfig    │ (قيمة واحدة في الـ Heap)\n                └──────────────┬─────────────────┘\n                               │\n            ┌──────────────────┼──────────────────┐\n   \n// ..."
+          }
+        },
+        {
+          "type": "match",
+          "subject": "RUST",
+          "difficulty": "Intermediate",
+          "tier": "extra",
+          "dir": "rtl",
+          "en": {
+            "prompt": "وصل كل مفهوم بالوصف المناسب ليه بالظبط:",
+            "left": [
+              "02. المؤشرات الذكية: `Rc<T>` و `Arc<T>` (Reference Counting) Core Token",
+              "Runtime / Browser Execution",
+              "Error Handling & Safety"
+            ],
+            "right": [
+              "الاسم أو الكلمة المحجوزة الأساسية لتعريف العنصر أو الدالة.",
+              "البيئة الحية اللي بتشغل الكود وتنفذ الأوامر في الذاكرة.",
+              "الآلية اللي بنضمن بيها عدم انهيار البرنامج والتعامل مع المشاكل."
+            ],
+            "correct": [
+              0,
+              1,
+              2
+            ]
+          },
+          "ar": {
+            "prompt": "وصل كل Concept أو مصطلح بالوصف المناسب ليه بالظبط:",
+            "left": [
+              "02. المؤشرات الذكية: `Rc<T>` و `Arc<T>` (Reference Counting) Core Token",
+              "Runtime / Browser Execution",
+              "Error Handling & Safety"
+            ],
+            "right": [
+              "الاسم أو الكلمة المحجوزة الأساسية لتعريف العنصر أو الدالة.",
+              "البيئة الحية اللي بتشغل الكود وتنفذ الأوامر في الذاكرة.",
+              "الآلية اللي بنضمن بيها عدم انهيار البرنامج والتعامل مع المشاكل."
+            ],
+            "correct": [
+              0,
+              1,
+              2
+            ]
+          }
+        },
+        {
+          "type": "cloze",
+          "subject": "RUST",
+          "difficulty": "Beginner",
+          "tier": "core",
+          "dir": "rtl",
+          "en": {
+            "template": "اختار الـ Keyword الصح من الـ Word Bank عشان تكمل الكود ده في سياق 02. المؤشرات الذكية: `Rc<T>` و `Arc<T>` (Reference Counting):\n\n`___ item = ...;`",
+            "bank": [
+              "let",
+              "const",
+              "function",
+              "mut"
+            ],
+            "correct": "let"
+          },
+          "ar": {
+            "template": "اختار الـ Keyword الصح من الـ Word Bank عشان تكمل الكود ده في سياق 02. المؤشرات الذكية: `Rc<T>` و `Arc<T>` (Reference Counting):\n\n`___ item = ...;`",
+            "bank": [
+              "let",
+              "const",
+              "function",
+              "mut"
+            ],
+            "correct": "let"
+          }
+        }
+      ],
+      "pagePaletteId": 8,
+      "pageBlocks": [
+        {
+          "id": "ch02-b01",
+          "kind": "sectionTitle",
+          "text": "01. المعالجة غير المتزامنة: الـ Futures ونموذج الـ Polling (Async Internals)"
+        },
+        {
+          "id": "ch02-b02",
+          "kind": "note",
+          "text": "- فهم الفرق الجوهري بين نموذج الـ Async في Rust ونموذج لغات مثل JavaScript و Go.\n- استيعاب الـ Pull-based Model (الـ Polling) مقابل الـ Push-based Model.\n- تفكيك الـ `Future` Trait ودالة `poll(Context)`.\n- فهم كيف يقوم كومبيلر Rust بتحويل دوال الـ `async fn` إلى State Machines حقيقية بدون Heap Allocation افتراضي.",
+          "title": "🎯 أهداف الدرس (Learning Goals)"
+        },
+        {
+          "id": "ch02-b03",
+          "kind": "note",
+          "text": "في JavaScript أو C#، الـ Promise أو Task أول ما بتنشأ بتشتغل فوراً في الخلفية (Eager / Push-based).\nفي **Rust**، الـ Futures هي **كسولة تماماً (Lazy / Pull-based)**:\n> **\"الـ Future في Rust لا تفعل أي شيء على الإطلاق إلا إذا قمت بعمل `.await` لها أو ناديت عليها داخل Async Executor!\"**",
+          "title": "🧠 النموذج الذهني: كيف يعمل الـ Async في Rust؟"
+        },
+        {
+          "id": "ch02-b04",
+          "kind": "code",
+          "title": "Code Snippet",
+          "text": "┌─────────────────────────────────────────────────────────────┐\n│                 الـ Async Runtime (Tokio)                   │\n├─────────────────────────────────────────────────────────────┤\n│ 1. الـ Executor يسأل الـ Future: \"هل جهزتِ؟\" (poll)        │\n│                                                             │\n│                ┌──────────────┐                             │\n│                │ Future State │                             │\n│                └──────┬───────┘                             │\n│                       │                                     │\n│         ┌─────────────┴─────────────┐                       │\n│         ▼                           ▼                       │\n│   Poll::Pending                Poll::Ready(Value)           │\n│   (لسه بنستنى الشبكة)          (البيانات جاهزة اتفضل!)      │\n│   + تسجيل الـ Waker                                         │\n└─────────────────────────────────────────────────────────────┘"
+        },
+        {
+          "id": "ch02-b05",
+          "kind": "code",
+          "title": "كود توضيحي (rust)",
+          "text": "pub trait Future {\n    type Output;\n\n    fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output>;\n}\n\npub enum Poll<T> {\n    Ready(T),\n    Pending,\n}"
+        },
+        {
+          "id": "ch02-b06",
+          "kind": "keyterm",
+          "text": "1. `type Output`: نوع القيمة التي ستنتجها الـ Future عند اكتمالها بنجاح.\n2. `self: Pin<&mut Self>`: مؤشر مثبت في الذاكرة (ممنوع نقله لأن الـ State Machine قد تحتوي على Self-referential pointers).\n3. `cx: &mut Context`: يحتوي على كائن الـ `Waker`، وهو الذي يتولى إيقاظ الـ Task وإبلاغ الـ Runtime عندما تنتهي عملية الـ I/O في كارت الشبكة أو القرص الصلب!",
+          "title": "تفكيك المعاملات:"
+        },
+        {
+          "id": "ch02-b07",
+          "kind": "note",
+          "text": "عندما تكتب:",
+          "title": "⚙️ كيف يحول الكومبيلر دالة `async fn` إلى State Machine؟"
+        },
+        {
+          "id": "ch02-b08",
+          "kind": "code",
+          "title": "كود توضيحي (rust)",
+          "text": "async fn fetch_user_data(user_id: u64) -> String {\n    let socket = connect_db().await; // نقطة توقف 1\n    let data = query(&socket, user_id).await; // نقطة توقف 2\n    format_response(data)\n}"
+        },
+        {
+          "id": "ch02-b09",
+          "kind": "note",
+          "text": "يقوم الكومبيلر بتحويل هذه الدالة تلقائياً إلى Enum شبيه بهذا:"
+        },
+        {
+          "id": "ch02-b10",
+          "kind": "code",
+          "title": "كود توضيحي (rust)",
+          "text": "// تمثيل تقريبي لما يولده الكومبيلر خلف الكواليس:\nenum FetchUserDataStateMachine {\n    Start { user_id: u64 },\n    WaitingConnectDB { user_id: u64, fut: ConnectDbFuture },\n    WaitingQuery { socket: DbSocket, fut: QueryFuture },\n    Completed,\n}"
+        },
+        {
+          "id": "ch02-b11",
+          "kind": "keyterm",
+          "text": "1. **Zero Heap Allocation**: الحالة كلها عبارة عن Struct/Enum بحجم ثابت معروف وقت الـ Compile-Time!\n2. **Cancellation Safety**: إلغاء المهمة ببساطة يعني عمل `drop` للـ Future في أي لحظة قبل اكتمالها، بدون تسريب موارد وبدون تعليق خيوط المعالجة!",
+          "title": "🌟 الفائدة المعمارية العظيمة:"
+        },
+        {
+          "id": "ch02-b12",
+          "kind": "note",
+          "text": "انتقل للدرس التالي: **[`02-pin-and-unpin.md`](./02-pin-and-unpin.md)** لفهم اللغز الأكبر في عالم الـ Async: لماذا نحتاج `Pin`؟ 🎯",
+          "title": "🚀 الخطوة التالية"
+        }
+      ]
+    },
+    {
+      "id": "s2_0",
+      "level": "sub",
+      "parent": "b2",
+      "x": 460,
+      "y": 156,
+      "en": "Module 1",
+      "ar": "الوحدة 1"
+    },
+    {
+      "id": "l_03",
+      "level": "leaf",
+      "parent": "s2_0",
+      "x": 516,
+      "y": 262,
+      "en": "02. لغز الـ `Pin<P>` والـ `Unpin` (Self-Referential Safety)",
+      "ar": "02. لغز الـ `Pin<P>` والـ `Unpin` (Self-Referential Safety)",
+      "questions": [
+        {
+          "type": "single",
+          "subject": "RUST",
+          "difficulty": "Intermediate",
+          "tier": "core",
+          "dir": "rtl",
+          "en": {
+            "prompt": "بص على الكود والمفهوم ده في سياق 01. المعالجة غير المتزامنة: الـ Futures ونموذج الـ Polling (Async Internals):\n\nإيه هو الدور الأساسي اللي بيقوم بيه الكود ده وليه بنكتبه بالطريقة دي؟",
+            "options": [
+              "عشان نطبق المفهوم بشكل مظبوط ونضمن الأداء العالي والأمان البرمجي حسب المعايير القياسية.",
+              "الكود ده مجرد ستايل اختياري وملوش أي تأثير حقيقي على طريقة عمل البرنامج.",
+              "عشان نتجاهل الـ Type Checking والـ Memory Safety ونخلي التنفيذ أسرع وخلاص.",
+              "الكود ده هيتسبب في Runtime Error ومش هيشتغل أصلاً في أي بيئة إنتاج."
+            ],
+            "correct": 0
+          },
+          "ar": {
+            "prompt": "بص على الكود والمفهوم ده في سياق 01. المعالجة غير المتزامنة: الـ Futures ونموذج الـ Polling (Async Internals):\n\nإيه هو الدور الأساسي اللي بيقوم بيه الكود ده وليه بنكتبه بالطريقة دي؟",
+            "options": [
+              "عشان نطبق المفهوم بشكل مظبوط ونضمن الأداء العالي والأمان البرمجي حسب المعايير القياسية.",
+              "الكود ده مجرد ستايل اختياري وملوش أي تأثير حقيقي على طريقة عمل البرنامج.",
+              "عشان نتجاهل الـ Type Checking والـ Memory Safety ونخلي التنفيذ أسرع وخلاص.",
+              "الكود ده هيتسبب في Runtime Error ومش هيشتغل أصلاً في أي بيئة إنتاج."
+            ],
+            "correct": 0
+          },
+          "code": {
+            "enabled": true,
+            "lang": "text",
+            "src": "┌─────────────────────────────────────────────────────────────┐\n│                 الـ Async Runtime (Tokio)                   │\n├─────────────────────────────────────────────────────────────┤\n│ 1. الـ Executor يسأل الـ Future: \"هل جهزتِ؟\" (poll)     \n// ..."
+          }
+        },
+        {
+          "type": "tf",
+          "subject": "RUST",
+          "difficulty": "Beginner",
+          "tier": "core",
+          "dir": "rtl",
+          "en": {
+            "prompt": "صح ولا غلط: في 01. المعالجة غير المتزامنة: الـ Futures ونموذج الـ Polling (Async Internals)، المفروض دايماً نتبع الـ Best Practices عشان نمنع الـ Bugs الغامضة ونحافظ على وضوح الـ Architecture.",
+            "correct": true
+          },
+          "ar": {
+            "prompt": "صح ولا غلط: في 01. المعالجة غير المتزامنة: الـ Futures ونموذج الـ Polling (Async Internals)، المفروض دايماً نتبع الـ Best Practices عشان نمنع الـ Bugs الغامضة ونحافظ على وضوح الـ Architecture.",
+            "correct": true
+          }
+        },
+        {
+          "type": "essay",
+          "subject": "RUST",
+          "difficulty": "Advanced",
+          "tier": "advanced",
+          "dir": "rtl",
+          "en": {
+            "prompt": "بص على الكود ده في سياق 01. المعالجة غير المتزامنة: الـ Futures ونموذج الـ Polling (Async Internals):\n\nإيه المشكلة اللي ممكن تظهر في الكود ده وإزاي نصلحها بالشكل الصح؟",
+            "model": "المشكلة المحتملة هنا هي عدم معالجة الحالات الاستثنائية أو تمرير قيم غير متوافقة مع الـ Expected Rules في 01. المعالجة غير المتزامنة: الـ Futures ونموذج الـ Polling (Async Internals)."
+          },
+          "ar": {
+            "prompt": "بص على الكود ده في سياق 01. المعالجة غير المتزامنة: الـ Futures ونموذج الـ Polling (Async Internals):\n\nإيه المشكلة اللي ممكن تظهر في الكود ده وإزاي نصلحها بالشكل الصح؟",
+            "model": "المشكلة المحتملة هنا هي عدم معالجة الحالات الاستثنائية أو تمرير قيم غير متوافقة مع الـ Expected Rules في 01. المعالجة غير المتزامنة: الـ Futures ونموذج الـ Polling (Async Internals)."
+          },
+          "code": {
+            "enabled": true,
+            "lang": "rust",
+            "src": "pub trait Future {\n    type Output;\n\n    fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output>;\n}\n\npub enum Poll<T> {\n    Ready(T),\n    Pending,\n}"
+          }
+        },
+        {
+          "type": "essay",
+          "subject": "RUST",
+          "difficulty": "Advanced",
+          "tier": "advanced",
+          "dir": "rtl",
+          "en": {
+            "prompt": "بص على الكود ده كويس:\n\nإيه الـ Output أو النتيجة المتوقعة لما الكود ده يشتغل؟ وليه؟",
+            "model": "تنفيذ سليم للقيمة المتوقعة بناءً على منطق 01. المعالجة غير المتزامنة: الـ Futures ونموذج الـ Polling (Async Internals)."
+          },
+          "ar": {
+            "prompt": "بص على الكود ده كويس:\n\nإيه الـ Output أو النتيجة المتوقعة لما الكود ده يشتغل؟ وليه؟",
+            "model": "تنفيذ سليم للقيمة المتوقعة بناءً على منطق 01. المعالجة غير المتزامنة: الـ Futures ونموذج الـ Polling (Async Internals)."
+          },
+          "code": {
+            "enabled": true,
+            "lang": "text",
+            "src": "┌─────────────────────────────────────────────────────────────┐\n│                 الـ Async Runtime (Tokio)                   │\n├─────────────────────────────────────────────────────────────┤\n│ 1. الـ Executor يسأل الـ Future: \"هل جهزتِ؟\" (poll)     \n// ..."
+          }
+        },
+        {
+          "type": "match",
+          "subject": "RUST",
+          "difficulty": "Intermediate",
+          "tier": "extra",
+          "dir": "rtl",
+          "en": {
+            "prompt": "وصل كل مفهوم بالوصف المناسب ليه بالظبط:",
+            "left": [
+              "01. المعالجة غير المتزامنة: الـ Futures ونموذج الـ Polling (Async Internals) Core Token",
+              "Runtime / Browser Execution",
+              "Error Handling & Safety"
+            ],
+            "right": [
+              "الاسم أو الكلمة المحجوزة الأساسية لتعريف العنصر أو الدالة.",
+              "البيئة الحية اللي بتشغل الكود وتنفذ الأوامر في الذاكرة.",
+              "الآلية اللي بنضمن بيها عدم انهيار البرنامج والتعامل مع المشاكل."
+            ],
+            "correct": [
+              0,
+              1,
+              2
+            ]
+          },
+          "ar": {
+            "prompt": "وصل كل Concept أو مصطلح بالوصف المناسب ليه بالظبط:",
+            "left": [
+              "01. المعالجة غير المتزامنة: الـ Futures ونموذج الـ Polling (Async Internals) Core Token",
+              "Runtime / Browser Execution",
+              "Error Handling & Safety"
+            ],
+            "right": [
+              "الاسم أو الكلمة المحجوزة الأساسية لتعريف العنصر أو الدالة.",
+              "البيئة الحية اللي بتشغل الكود وتنفذ الأوامر في الذاكرة.",
+              "الآلية اللي بنضمن بيها عدم انهيار البرنامج والتعامل مع المشاكل."
+            ],
+            "correct": [
+              0,
+              1,
+              2
+            ]
+          }
+        },
+        {
+          "type": "cloze",
+          "subject": "RUST",
+          "difficulty": "Beginner",
+          "tier": "core",
+          "dir": "rtl",
+          "en": {
+            "template": "اختار الـ Keyword الصح من الـ Word Bank عشان تكمل الكود ده في سياق 01. المعالجة غير المتزامنة: الـ Futures ونموذج الـ Polling (Async Internals):\n\n`___ item = ...;`",
+            "bank": [
+              "let",
+              "const",
+              "function",
+              "mut"
+            ],
+            "correct": "let"
+          },
+          "ar": {
+            "template": "اختار الـ Keyword الصح من الـ Word Bank عشان تكمل الكود ده في سياق 01. المعالجة غير المتزامنة: الـ Futures ونموذج الـ Polling (Async Internals):\n\n`___ item = ...;`",
+            "bank": [
+              "let",
+              "const",
+              "function",
+              "mut"
+            ],
+            "correct": "let"
+          }
+        }
+      ],
+      "pagePaletteId": 8,
+      "pageBlocks": [
+        {
+          "id": "ch03-b01",
+          "kind": "sectionTitle",
+          "text": "02. لغز الـ `Pin<P>` والـ `Unpin` (Self-Referential Safety)"
+        },
+        {
+          "id": "ch03-b02",
+          "kind": "note",
+          "text": "- فهم المشكلة الفيزيائية للـ Self-Referential Structs في الذاكرة.\n- معرفة لماذا يؤدي الـ Memory Move إلى إفساد المؤشرات الداخلية (Invalidated Internal Pointers).\n- استيعاب وظيفة `Pin<P>`: تثبيت الكائن في مكان ثابت في الذاكرة لمنع نقله.\n- التمييز بين الأنواع التي تطبق `Unpin` تلقائياً والأنواع `!Unpin` التي تحتاج حماية.",
+          "title": "🎯 أهداف الدرس (Learning Goals)"
+        },
+        {
+          "id": "ch03-b03",
+          "kind": "note",
+          "text": "تخيل كائناً يحتوي على بيانات، وأحد حقوله عبارة عن مؤشر (Pointer) يشير إلى حقل آخر **داخل نفس الكائن**:",
+          "title": "🧠 المشكلة: الهياكل ذاتية الإشارة (Self-Referential Structs)"
+        },
+        {
+          "id": "ch03-b04",
+          "kind": "code",
+          "title": "Code Snippet",
+          "text": "الكائن في العنوان 0x1000:\n┌─────────────────────────────────────────┐\n│ a: String = \"Hello\" (Address: 0x1000)   │\n│ b: &str ───────────┐                    │\n└────────────────────┼────────────────────┘\n                     │ (يشير إلى العنوان 0x1000)\n                     ▼"
+        },
+        {
+          "id": "ch03-b05",
+          "kind": "keyterm",
+          "text": "في Rust، أي نقل (Move) ينسخ البايتات إلى العنوان الجديد:",
+          "title": "ماذا يحدث إذا نقلنا الكائن في الذاكرة (Memory Move إلى 0x2000)؟"
+        },
+        {
+          "id": "ch03-b06",
+          "kind": "code",
+          "title": "Code Snippet",
+          "text": "الكائن بعد النقل إلى العنوان 0x2000:\n┌─────────────────────────────────────────┐\n│ a: String = \"Hello\" (Address: 0x2000)   │\n│ b: &str ───────────┐                    │\n└────────────────────┼────────────────────┘\n                     │ (ما زال يشير إلى العنوان القديم 0x1000!)\n                     ▼\n          💥 0x1000 (مكان أصبح تالفاً في الذاكرة - Dangling Pointer!)"
+        },
+        {
+          "id": "ch03-b07",
+          "kind": "note",
+          "text": "الـ `Pin` هو غلاف (Wrapper) يضمن للكومبيلر أن الكائن المحاط به **لن يتحرك أبداً من عنوانه في الذاكرة حتى يتم تدميره (`Drop`)**:",
+          "title": "🔒 الحل العبقري: الـ `Pin<P>`"
+        },
+        {
+          "id": "ch03-b08",
+          "kind": "code",
+          "title": "كود توضيحي (rust)",
+          "text": "use std::pin::Pin;\nuse std::marker::PhantomPinned;\n\nstruct SelfReferential {\n    data: String,\n    pointer_to_data: *const String,\n    _marker: PhantomPinned, // يخبر الكومبيلر أن هذا الهيكل !Unpin وممنوع نقله!\n}"
+        },
+        {
+          "id": "ch03-b09",
+          "kind": "note",
+          "text": "- **99% من الأنواع في Rust** (`i32`, `String`, `Vec`, ومعظم الـ Structs العادية) تطبق الـ `Unpin` Trait تلقائياً، ومعنى ذلك أنها آمنة تماماً للنقل في الذاكرة حتى لو تم وضعها داخل `Pin`.\n- **الـ Async Futures المتولدة من الكومبيلر** لا تطبق `Unpin` (`!Unpin`) لأنها تحتوي على مراجع داخلية بين نقاط الـ `.await`، ولذلك تتطلب دالة `poll` تمرير `Pin<&mut Self>` لضمان عدم نقلها أثناء انتظار الـ I/O!",
+          "title": "🏷️ الـ Marker Trait: `Unpin`"
+        },
+        {
+          "id": "ch03-b10",
+          "kind": "note",
+          "text": "عند استخدام مكتبات مثل `Tokio` و `Futures`:\n- إذا أردت استدعاء دالة `.poll()` يدوياً على Future، ستحتاج تثبيتها أولاً باستخدام:\n  `Box::pin(my_future)` أو الماكرو `tokio::pin!(my_future)`.\n- إذا كنت تستخدم `.await` فقط، فإن الكومبيلر يتولى الـ Pinning تلقائياً بدون تدخل منك!",
+          "title": "🚀 الخلاصة العملية لمطور Rust"
+        }
+      ]
+    },
+    {
+      "id": "s2_1",
+      "level": "sub",
+      "parent": "b2",
+      "x": 340,
+      "y": 156,
+      "en": "Module 2",
+      "ar": "الوحدة 2"
+    },
+    {
+      "id": "l_04",
+      "level": "leaf",
+      "parent": "s2_1",
+      "x": 750,
+      "y": 262,
+      "en": "01. الـ Unsafe Rust والمؤشرات الخام (Raw Pointers & Unsafe Boundaries)",
+      "ar": "01. الـ Unsafe Rust والمؤشرات الخام (Raw Pointers & Unsafe Boundaries)",
+      "questions": [
+        {
+          "type": "single",
+          "subject": "RUST",
+          "difficulty": "Intermediate",
+          "tier": "core",
+          "dir": "rtl",
+          "en": {
+            "prompt": "بص على الكود والمفهوم ده في سياق 02. المؤشرات الذكية: `Rc<T>` و `Arc<T>` (Reference Counting):\n\nإيه هو الدور الأساسي اللي بيقوم بيه الكود ده وليه بنكتبه بالطريقة دي؟",
+            "options": [
+              "عشان نطبق المفهوم بشكل مظبوط ونضمن الأداء العالي والأمان البرمجي حسب المعايير القياسية.",
+              "الكود ده مجرد ستايل اختياري وملوش أي تأثير حقيقي على طريقة عمل البرنامج.",
+              "عشان نتجاهل الـ Type Checking والـ Memory Safety ونخلي التنفيذ أسرع وخلاص.",
+              "الكود ده هيتسبب في Runtime Error ومش هيشتغل أصلاً في أي بيئة إنتاج."
+            ],
+            "correct": 0
+          },
+          "ar": {
+            "prompt": "بص على الكود والمفهوم ده في سياق 02. المؤشرات الذكية: `Rc<T>` و `Arc<T>` (Reference Counting):\n\nإيه هو الدور الأساسي اللي بيقوم بيه الكود ده وليه بنكتبه بالطريقة دي؟",
+            "options": [
+              "عشان نطبق المفهوم بشكل مظبوط ونضمن الأداء العالي والأمان البرمجي حسب المعايير القياسية.",
+              "الكود ده مجرد ستايل اختياري وملوش أي تأثير حقيقي على طريقة عمل البرنامج.",
+              "عشان نتجاهل الـ Type Checking والـ Memory Safety ونخلي التنفيذ أسرع وخلاص.",
+              "الكود ده هيتسبب في Runtime Error ومش هيشتغل أصلاً في أي بيئة إنتاج."
+            ],
+            "correct": 0
+          },
+          "code": {
+            "enabled": true,
+            "lang": "text",
+            "src": "┌────────────────────────────────┐\n                │   Shared Data: ServerConfig    │ (قيمة واحدة في الـ Heap)\n                └──────────────┬─────────────────┘\n                               │\n            ┌──────────────────┼──────────────────┐\n   \n// ..."
+          }
+        },
+        {
+          "type": "tf",
+          "subject": "RUST",
+          "difficulty": "Beginner",
+          "tier": "core",
+          "dir": "rtl",
+          "en": {
+            "prompt": "صح ولا غلط: في 02. المؤشرات الذكية: `Rc<T>` و `Arc<T>` (Reference Counting)، المفروض دايماً نتبع الـ Best Practices عشان نمنع الـ Bugs الغامضة ونحافظ على وضوح الـ Architecture.",
+            "correct": true
+          },
+          "ar": {
+            "prompt": "صح ولا غلط: في 02. المؤشرات الذكية: `Rc<T>` و `Arc<T>` (Reference Counting)، المفروض دايماً نتبع الـ Best Practices عشان نمنع الـ Bugs الغامضة ونحافظ على وضوح الـ Architecture.",
+            "correct": true
+          }
+        },
+        {
+          "type": "essay",
+          "subject": "RUST",
+          "difficulty": "Advanced",
+          "tier": "advanced",
+          "dir": "rtl",
+          "en": {
+            "prompt": "بص على الكود ده في سياق 02. المؤشرات الذكية: `Rc<T>` و `Arc<T>` (Reference Counting):\n\nإيه المشكلة اللي ممكن تظهر في الكود ده وإزاي نصلحها بالشكل الصح؟",
+            "model": "المشكلة المحتملة هنا هي عدم معالجة الحالات الاستثنائية أو تمرير قيم غير متوافقة مع الـ Expected Rules في 02. المؤشرات الذكية: `Rc<T>` و `Arc<T>` (Reference Counting)."
+          },
+          "ar": {
+            "prompt": "بص على الكود ده في سياق 02. المؤشرات الذكية: `Rc<T>` و `Arc<T>` (Reference Counting):\n\nإيه المشكلة اللي ممكن تظهر في الكود ده وإزاي نصلحها بالشكل الصح؟",
+            "model": "المشكلة المحتملة هنا هي عدم معالجة الحالات الاستثنائية أو تمرير قيم غير متوافقة مع الـ Expected Rules في 02. المؤشرات الذكية: `Rc<T>` و `Arc<T>` (Reference Counting)."
+          },
+          "code": {
+            "enabled": true,
+            "lang": "rust",
+            "src": "use std::rc::Rc;\n\nfn main() {\n    let shared_data = Rc::new(String::from(\"قاعدة بيانات مشتركة\"));\n    println!(\"العداد بعد الإنشاء: {}\", Rc::strong_count(&shared_data)); // 1\n\n    let owner2 = Rc::clone(&shared_data);\n    println!(\"العداد بعد المالك الثاني: {}\", Rc::strong_count(&shared_data)); // 2\n\n    {\n        let owner3 = Rc::clone(&shared_data);\n        println!(\"العداد داخل النطاق: {}\", Rc::strong_count(&shared_data)); // 3\n    } // owner3 مات هنا!\n\n    println!(\"العداد بعد خروج المالك الثالث: {}\", Rc::strong_count(&shared_data)); // 2\n}"
+          }
+        },
+        {
+          "type": "essay",
+          "subject": "RUST",
+          "difficulty": "Advanced",
+          "tier": "advanced",
+          "dir": "rtl",
+          "en": {
+            "prompt": "بص على الكود ده كويس:\n\nإيه الـ Output أو النتيجة المتوقعة لما الكود ده يشتغل؟ وليه؟",
+            "model": "تنفيذ سليم للقيمة المتوقعة بناءً على منطق 02. المؤشرات الذكية: `Rc<T>` و `Arc<T>` (Reference Counting)."
+          },
+          "ar": {
+            "prompt": "بص على الكود ده كويس:\n\nإيه الـ Output أو النتيجة المتوقعة لما الكود ده يشتغل؟ وليه؟",
+            "model": "تنفيذ سليم للقيمة المتوقعة بناءً على منطق 02. المؤشرات الذكية: `Rc<T>` و `Arc<T>` (Reference Counting)."
+          },
+          "code": {
+            "enabled": true,
+            "lang": "text",
+            "src": "┌────────────────────────────────┐\n                │   Shared Data: ServerConfig    │ (قيمة واحدة في الـ Heap)\n                └──────────────┬─────────────────┘\n                               │\n            ┌──────────────────┼──────────────────┐\n   \n// ..."
+          }
+        },
+        {
+          "type": "match",
+          "subject": "RUST",
+          "difficulty": "Intermediate",
+          "tier": "extra",
+          "dir": "rtl",
+          "en": {
+            "prompt": "وصل كل مفهوم بالوصف المناسب ليه بالظبط:",
+            "left": [
+              "02. المؤشرات الذكية: `Rc<T>` و `Arc<T>` (Reference Counting) Core Token",
+              "Runtime / Browser Execution",
+              "Error Handling & Safety"
+            ],
+            "right": [
+              "الاسم أو الكلمة المحجوزة الأساسية لتعريف العنصر أو الدالة.",
+              "البيئة الحية اللي بتشغل الكود وتنفذ الأوامر في الذاكرة.",
+              "الآلية اللي بنضمن بيها عدم انهيار البرنامج والتعامل مع المشاكل."
+            ],
+            "correct": [
+              0,
+              1,
+              2
+            ]
+          },
+          "ar": {
+            "prompt": "وصل كل Concept أو مصطلح بالوصف المناسب ليه بالظبط:",
+            "left": [
+              "02. المؤشرات الذكية: `Rc<T>` و `Arc<T>` (Reference Counting) Core Token",
+              "Runtime / Browser Execution",
+              "Error Handling & Safety"
+            ],
+            "right": [
+              "الاسم أو الكلمة المحجوزة الأساسية لتعريف العنصر أو الدالة.",
+              "البيئة الحية اللي بتشغل الكود وتنفذ الأوامر في الذاكرة.",
+              "الآلية اللي بنضمن بيها عدم انهيار البرنامج والتعامل مع المشاكل."
+            ],
+            "correct": [
+              0,
+              1,
+              2
+            ]
+          }
+        },
+        {
+          "type": "cloze",
+          "subject": "RUST",
+          "difficulty": "Beginner",
+          "tier": "core",
+          "dir": "rtl",
+          "en": {
+            "template": "اختار الـ Keyword الصح من الـ Word Bank عشان تكمل الكود ده في سياق 02. المؤشرات الذكية: `Rc<T>` و `Arc<T>` (Reference Counting):\n\n`___ item = ...;`",
+            "bank": [
+              "let",
+              "const",
+              "function",
+              "mut"
+            ],
+            "correct": "let"
+          },
+          "ar": {
+            "template": "اختار الـ Keyword الصح من الـ Word Bank عشان تكمل الكود ده في سياق 02. المؤشرات الذكية: `Rc<T>` و `Arc<T>` (Reference Counting):\n\n`___ item = ...;`",
+            "bank": [
+              "let",
+              "const",
+              "function",
+              "mut"
+            ],
+            "correct": "let"
+          }
+        }
+      ],
+      "pagePaletteId": 8,
+      "pageBlocks": [
+        {
+          "id": "ch04-b01",
+          "kind": "sectionTitle",
+          "text": "01. الـ Unsafe Rust والمؤشرات الخام (Raw Pointers & Unsafe Boundaries)"
+        },
+        {
+          "id": "ch04-b02",
+          "kind": "note",
+          "text": "- فهم ما يعنيه `unsafe` في Rust وما الذي لا يعنيه (It doesn't turn off the borrow checker).\n- الميزات الخمسة الحصرية التي يفتحها بلوك `unsafe`.\n- إنشاء واستخدام الـ Raw Pointers (`*const T` و `*mut T`).\n- الفرق بين إنشاء الـ Raw Pointer (الآمن) وعمل Dereference له (الـ Unsafe).\n- مفهوم الـ Safe Abstraction: تغليف كود الـ Unsafe داخل واجهة آمنة 100%.",
+          "title": "🎯 أهداف الدرس (Learning Goals)"
+        },
+        {
+          "id": "ch04-b03",
+          "kind": "note",
+          "text": "بلوك `unsafe` ليس زراً سحرياً يوقف الكومبيلر! الكومبيلر ما زال يفحص الـ Types والـ Lifetimes العادية.\nبلوك `unsafe` يمنحك فقط **خمس صلاحيات خارقة (Superpowers)** لا يسمح بها الكود العادي:",
+          "title": "🧠 ما هو الـ `unsafe` الحقيقي؟"
+        },
+        {
+          "id": "ch04-b04",
+          "kind": "note",
+          "text": "1. فك الإشارة عن المؤشرات الخام (**Dereference raw pointers**).\n2. استدعاء دوال غير آمنة (**Call unsafe functions or methods**).\n3. تطبيق Trait غير آمن (**Implement unsafe traits** مثل `Send` و `Sync` يدوياً).\n4. تعديل متغير ثابت قابل للتعديل (**Mutate mutable static variables**).\n5. الوصول لحقول الـ `union`."
+        },
+        {
+          "id": "ch04-b05",
+          "kind": "note",
+          "text": "الـ Raw Pointers نوعان:\n- `*const T`: مؤشر خام غير قابل للتعديل (لا يضمن صلاحية الذاكرة ولا يطبق قواعد الاستعارة).\n- `*mut T`: مؤشر خام قابل للتعديل.",
+          "title": "💻 إنشاء واستخدام الـ Raw Pointers"
+        },
+        {
+          "id": "ch04-b06",
+          "kind": "code",
+          "title": "كود توضيحي (rust)",
+          "text": "fn main() {\n    let mut num = 42;\n\n    // 1. إنشاء الـ Raw Pointers مسموح في الكود الآمن العادي (Safe Code):\n    let r1 = &num as *const i32;\n    let r2 = &mut num as *mut i32;\n\n    // 2. محاولة قراءة أو تعديل القيمة (Dereferencing) تتطلب unsafe:\n    unsafe {\n        println!(\"قراءة r1: {}\", *r1);\n        \n        *r2 = 99; // تعديل مباشر في الذاكرة عبر المؤشر الخام\n        println!(\"قيمة num بعد التعديل عبر r2: {}\", *r2);\n    }\n}"
+        },
+        {
+          "id": "ch04-b07",
+          "kind": "note",
+          "text": "في لغة Rust الاحترافية، لا نترك كود الـ `unsafe` يتسرب للمستخدمين أو طبقات التطبيق العليا.\nنقوم ببناء Struct آمن تماماً، ونضع الـ `unsafe` في بضعة أسطر داخل دواله، مع إثبات رياضي وهندسي أنه من المستحيل أن يتسبب في Undefined Behavior (UB):",
+          "title": "🏛️ القاعدة الذهبية: الـ Safe Abstraction Boundary"
+        },
+        {
+          "id": "ch04-b08",
+          "kind": "code",
+          "title": "كود توضيحي (rust)",
+          "text": "pub struct SafeBuffer {\n    ptr: *mut u8,\n    len: usize,\n}\n\nimpl SafeBuffer {\n    pub fn new(size: usize) -> Self {\n        let layout = std::alloc::Layout::array::<u8>(size).unwrap();\n        let ptr = unsafe { std::alloc::alloc(layout) };\n        if ptr.is_null() {\n            panic!(\"فشل حجز الذاكرة!\");\n        }\n        Self { ptr, len: size }\n    }\n\n    pub fn write_at(&mut self, index: usize, val: u8) -> Result<(), &'static str> {\n        if index >= self.len {\n            return Err(\"تجاوز حدود الذاكرة (Index Out of Bounds)!\");\n        }\n        // الكود الداخلي فقط يستخدم unsafe بأمان تام:\n        unsafe {\n            *self.ptr.add(index) = val;\n        }\n        Ok(())\n    }\n}\n\nimpl Drop for SafeBuffer {\n    fn drop(&mut self) {\n        let layout = std::alloc::Layout::array::<u8>(self.len).unwrap();\n        unsafe {\n            std::alloc::dealloc(self.ptr, layout);\n        }\n    }\n}"
+        },
+        {
+          "id": "ch04-b09",
+          "kind": "note",
+          "text": "انتقل للدرس التالي: **[`02-unsafe-functions-ub.md`](./02-unsafe-functions-ub.md)** للتعرف على كوابيس الـ Undefined Behavior وكيفية فحصها باستخدام أداة `Miri`!",
+          "title": "🚀 الخطوة التالية"
+        }
+      ]
+    }
+  ]
+}

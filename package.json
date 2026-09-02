@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build:export": "node scripts/build-export-bundle.js",
-    "build:cli": "cd src-tauri && cargo build --bin export_cli",
+    "build:cli": "cd src-tauri && LIBRARY_PATH=\"$PWD/.pkgconfig/lib\" PKG_CONFIG_PATH=\"$PWD/.pkgconfig\" cargo build --bin export_cli --bin books_cli",
     "prebuild": "node scripts/build-export-bundle.js",
     "build": "vite build",
     "preview": "vite preview",

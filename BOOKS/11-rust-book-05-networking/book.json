@@ -1,0 +1,149 @@
+{
+  "id": "11-rust-book-05-networking",
+  "cover": {
+    "from": "#06B6D4",
+    "to": "#0891B2",
+    "icon": "code"
+  },
+  "en": {
+    "title": "Rust Book 05: Systems & Networking",
+    "tagline": "Raw sockets, packet inspection, epoll multiplexing, and async networking."
+  },
+  "ar": {
+    "title": "BOOK 05 — RUST SYSTEMS & NETWORKING (الأنظمة وبروتوكولات الشبكات)",
+    "tagline": "بروتوكولات الشبكات (TCP/UDP, Sockets, epoll, TLS) والأنظمة منخفضة المستوى."
+  },
+  "crossLinks": [],
+  "nodes": [
+    {
+      "id": "b1",
+      "level": "branch",
+      "parent": null,
+      "x": 160,
+      "y": 44,
+      "en": "Foundations",
+      "ar": "الأساسيات والمعمارية"
+    },
+    {
+      "id": "b2",
+      "level": "branch",
+      "parent": null,
+      "x": 400,
+      "y": 44,
+      "en": "Core Concepts",
+      "ar": "المفاهيم والتطبيق"
+    },
+    {
+      "id": "b3",
+      "level": "branch",
+      "parent": null,
+      "x": 640,
+      "y": 44,
+      "en": "Advanced & Mastery",
+      "ar": "الاحتراف والإنتاجية"
+    },
+    {
+      "id": "s1_0",
+      "level": "sub",
+      "parent": "b1",
+      "x": 100,
+      "y": 156,
+      "en": "Module 1",
+      "ar": "الوحدة 1"
+    },
+    {
+      "id": "l_01",
+      "level": "leaf",
+      "parent": "s1_0",
+      "x": 50,
+      "y": 262,
+      "en": "02. الـ Framing والـ Codecs في Tokio (Message Boundaries)",
+      "ar": "02. الـ Framing والـ Codecs في Tokio (Message Boundaries)",
+      "questions": [
+        {
+          "type": "single",
+          "subject": "RUST",
+          "difficulty": "Intermediate",
+          "tier": "core",
+          "dir": "rtl",
+          "en": {
+            "prompt": "What is the primary role of 02. الـ Framing والـ Codecs في Tokio (Message Boundaries) in production?",
+            "options": [
+              "Applying industry standard patterns for optimal performance and safety.",
+              "It is an optional decorative layer with no functional impact.",
+              "Bypassing compiler validation and type safety checks.",
+              "It will cause immediate runtime exceptions."
+            ],
+            "correct": 0
+          },
+          "ar": {
+            "prompt": "إيه هو الدور الأساسي لـ 02. الـ Framing والـ Codecs في Tokio (Message Boundaries) في بناء تطبيقات الإنتاج الحقيقية؟",
+            "options": [
+              "تطبيق المعايير القياسية لضمان أعلى أداء وكتابة كود سليم وقابل للصيانة.",
+              "مجرد عنصر تجميلي اختياري وملوش أي تأثير تقني على عمل النظام.",
+              "تجاوز فحوصات الأمان وفحص الأنواع وخلاص.",
+              "بيتسبب في Runtime Error ومش هيشتغل في بيئة الإنتاج."
+            ],
+            "correct": 0
+          }
+        }
+      ],
+      "pagePaletteId": 3,
+      "pageBlocks": [
+        {
+          "id": "ch01-b01",
+          "kind": "sectionTitle",
+          "text": "02. الـ Framing والـ Codecs في Tokio (Message Boundaries)"
+        },
+        {
+          "id": "ch01-b02",
+          "kind": "note",
+          "text": "- فهم طبيعة تيار الـ TCP: \"TCP is a Stream of Bytes, Not Messages\".\n- حل مشكلة تقطيع الرسائل (Packet Fragmentation / Concatenation) عبر الـ Framing.\n- تطبيق الـ `Decoder` والـ `Encoder` Traits من مكتبة `tokio-util`.\n- استخدام `Framed<T, C>` لتحويل الـ `TcpStream` إلى `Sink` و `Stream` عالي المستوى.",
+          "title": "🎯 أهداف الدرس (Learning Goals)"
+        },
+        {
+          "id": "ch01-b03",
+          "kind": "note",
+          "text": "عند إرسال رسالتين: `\"Hello\"` ثم `\"World\"` عبر TCP:\nقد يستقبل السيرفر:\n1. `\"HelloWorld\"` (دمج في حزمة واحدة).\n2. أو `\"Hel\"` ثم `\"loWor\"` ثم `\"ld\"` (تقطيع عشوائي عبر الـ IP Packets)!",
+          "title": "🧠 المشكلة: TCP تيار غير محدد المعالم (The Stream Problem)"
+        },
+        {
+          "id": "ch01-b04",
+          "kind": "code",
+          "title": "Code Snippet",
+          "text": "[ المرسل ] ──► إرسال \"Hello\" + إرسال \"World\"\n                  │\n                  ▼\n              [ شبكة TCP ]\n                  │\n                  ▼\n[ المستقبل ] ◄── يستقبل بايتات متصلة: [ H, e, l, l, o, W, o, r, l, d ]\n             ❌ السيرفر لا يعرف أين تنتهي الرسالة الأولى وأين تبدأ الثانية!"
+        },
+        {
+          "id": "ch01-b05",
+          "kind": "note",
+          "text": "نضيف 4 بايت في بداية كل رسالة تحدد طول البيانات التابعة لها:",
+          "title": "🔒 الحل المعماري: بروتوكول الـ Length-Prefixed Framing"
+        },
+        {
+          "id": "ch01-b06",
+          "kind": "code",
+          "title": "Code Snippet",
+          "text": "┌──────────────┬────────────────────────┐\n│ Length: 5    │ \"Hello\"                │ (رسالة 1)\n├──────────────┼────────────────────────┤\n│ Length: 5    │ \"World\"                │ (رسالة 2)\n└──────────────┴────────────────────────┘"
+        },
+        {
+          "id": "ch01-b07",
+          "kind": "code",
+          "title": "كود توضيحي (rust)",
+          "text": "use bytes::{Buf, BufMut, BytesMut};\nuse std::io;\nuse tokio_util::codec::{Decoder, Encoder};\n\npub struct LengthPrefixedStringCodec;\n\nimpl Decoder for LengthPrefixedStringCodec {\n    type Item = String;\n    type Error = io::Error;\n\n    fn decode(&mut self, src: &mut BytesMut) -> Result<Option<Self::Item>, Self::Error> {\n        // 1. نتأكد إن عندنا 4 بايت على الأقل عشان نقرأ الطول:\n        if src.len() < 4 {\n            return Ok(None); // لسه البيانات مجاتش كاملة من الشبكة\n        }\n\n        // 2. قراءة طول الرسالة بدون مسحها من الـ Buffer:\n        let mut length_bytes = [0u8; 4];\n        length_bytes.copy_from_slice(&src[..4]);\n        let msg_len = u32::from_be_bytes(length_bytes) as usize;\n\n        // 3. نتأكد إن الرسالة كاملة وصلت في الـ Buffer:\n        if src.len() < 4 + msg_len {\n            src.reserve(4 + msg_len - src.len());\n            return Ok(None); // في انتظار باقي البايتات\n        }\n\n        // 4. استخراج الرسالة وتحويلها لـ String:\n        src.advance(4); // تخطي الـ 4 بايت الخاصة بالطول\n        let data = src.split_to(msg_len);\n        let s = String::from_utf8(data.to_vec())\n            .map_err(|e| io::Error::new(io::ErrorKind::InvalidData, e))?;\n\n        Ok(Some(s))\n    }\n}\n\nimpl Encoder<String> for LengthPrefixedStringCodec {\n    type Error = io::Error;\n\n    fn encode(&mut self, item: String, dst: &mut BytesMut) -> Result<(), Self::Error> {\n        let len = item.len() as u32;\n        dst.reserve(4 + item.len());\n        dst.put_u32(len); // كتابة الطول في أول 4 بايت\n        dst.put_slice(item.as_bytes()); // كتابة نص الرسالة\n        Ok(())\n    }\n}"
+        },
+        {
+          "id": "ch01-b08",
+          "kind": "code",
+          "title": "كود توضيحي (rust)",
+          "text": "use tokio::net::TcpListener;\nuse tokio_util::codec::Framed;\nuse futures::{SinkExt, StreamExt};\n\n#[tokio::main]\nasync fn main() -> Result<(), Box<dyn std::error::Error>> {\n    let listener = TcpListener::bind(\"127.0.0.1:8080\").await?;\n    println!(\"📡 سيرفر الـ Framed TCP شغال على 8080...\");\n\n    while let Ok((socket, addr)) = listener.accept().await {\n        println!(\"اتصال جديد من: {}\", addr);\n        \n        tokio::spawn(async move {\n            // تحويل الـ Raw TCP Socket إلى تيار رسائل مهيكل:\n            let mut framed = Framed::new(socket, LengthPrefixedStringCodec);\n\n            // القراءة والإرسال أصبحت بمستوى الرسائل الكاملة:\n            while let Some(Ok(message)) = framed.next().await {\n                println!(\"استلمت رسالة كاملة: {}\", message);\n                \n                // الرد برسالة مؤطرة أيضاً:\n                let response = format!(\"Echo: {}\", message);\n                if let Err(e) = framed.send(response).await {\n                    eprintln!(\"فشل الإرسال: {}\", e);\n                    break;\n                }\n            }\n        });\n    }\n\n    Ok(())\n}"
+        },
+        {
+          "id": "ch01-b09",
+          "kind": "note",
+          "text": "انتقل لمشروع الكتاب: **[`project-networking/README.md`](../project-networking/README.md)** لتطبيق خادم المحادثة متعدد الغرف فائق السرعة!",
+          "title": "🚀 الخطوة التالية"
+        }
+      ]
+    }
+  ]
+}

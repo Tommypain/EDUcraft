@@ -8,6 +8,7 @@
 //! ```
 
 mod commands;
+pub mod book_manager;
 pub mod export_engine;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -18,6 +19,9 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             commands::export_book,
             commands::export_collection,
+            commands::scan_books_dir,
+            commands::delete_book_fs,
+            commands::get_default_books_dir,
         ])
         .run(tauri::generate_context!())
         .expect("error while running EDUcraft application");

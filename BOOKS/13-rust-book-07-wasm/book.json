@@ -1,0 +1,272 @@
+{
+  "id": "13-rust-book-07-wasm",
+  "cover": {
+    "from": "#EC4899",
+    "to": "#BE185D",
+    "icon": "code"
+  },
+  "en": {
+    "title": "Rust Book 07: WebAssembly & Frontend",
+    "tagline": "WebAssembly binaries, wasm-bindgen, Leptos reactive UI, and browser DOM interop."
+  },
+  "ar": {
+    "title": "BOOK 07 — RUST WEBASSEMBLY & FRONTEND (تجميع الويب وواجهات المستخدم)",
+    "tagline": "تجميع Rust للويب، wasm-bindgen، وبناء واجهات سريعة فائقة الأداء."
+  },
+  "crossLinks": [],
+  "nodes": [
+    {
+      "id": "b1",
+      "level": "branch",
+      "parent": null,
+      "x": 160,
+      "y": 44,
+      "en": "Foundations",
+      "ar": "الأساسيات والمعمارية"
+    },
+    {
+      "id": "b2",
+      "level": "branch",
+      "parent": null,
+      "x": 400,
+      "y": 44,
+      "en": "Core Concepts",
+      "ar": "المفاهيم والتطبيق"
+    },
+    {
+      "id": "b3",
+      "level": "branch",
+      "parent": null,
+      "x": 640,
+      "y": 44,
+      "en": "Advanced & Mastery",
+      "ar": "الاحتراف والإنتاجية"
+    },
+    {
+      "id": "s1_0",
+      "level": "sub",
+      "parent": "b1",
+      "x": 100,
+      "y": 156,
+      "en": "Module 1",
+      "ar": "الوحدة 1"
+    },
+    {
+      "id": "l_01",
+      "level": "leaf",
+      "parent": "s1_0",
+      "x": 50,
+      "y": 262,
+      "en": "01. تصدير واستيراد الدوال بـ `[wasm_bindgen]` (Wasm Interop)",
+      "ar": "01. تصدير واستيراد الدوال بـ `[wasm_bindgen]` (Wasm Interop)",
+      "questions": [
+        {
+          "type": "single",
+          "subject": "RUST",
+          "difficulty": "Intermediate",
+          "tier": "core",
+          "dir": "rtl",
+          "en": {
+            "prompt": "بص على الكود والمفهوم ده في سياق 01. تصدير واستيراد الدوال بـ `#[wasm_bindgen]` (Wasm Interop):\n\nإيه هو الدور الأساسي اللي بيقوم بيه الكود ده وليه بنكتبه بالطريقة دي؟",
+            "options": [
+              "عشان نطبق المفهوم بشكل مظبوط ونضمن الأداء العالي والأمان البرمجي حسب المعايير القياسية.",
+              "الكود ده مجرد ستايل اختياري وملوش أي تأثير حقيقي على طريقة عمل البرنامج.",
+              "عشان نتجاهل الـ Type Checking والـ Memory Safety ونخلي التنفيذ أسرع وخلاص.",
+              "الكود ده هيتسبب في Runtime Error ومش هيشتغل أصلاً في أي بيئة إنتاج."
+            ],
+            "correct": 0
+          },
+          "ar": {
+            "prompt": "بص على الكود والمفهوم ده في سياق 01. تصدير واستيراد الدوال بـ `#[wasm_bindgen]` (Wasm Interop):\n\nإيه هو الدور الأساسي اللي بيقوم بيه الكود ده وليه بنكتبه بالطريقة دي؟",
+            "options": [
+              "عشان نطبق المفهوم بشكل مظبوط ونضمن الأداء العالي والأمان البرمجي حسب المعايير القياسية.",
+              "الكود ده مجرد ستايل اختياري وملوش أي تأثير حقيقي على طريقة عمل البرنامج.",
+              "عشان نتجاهل الـ Type Checking والـ Memory Safety ونخلي التنفيذ أسرع وخلاص.",
+              "الكود ده هيتسبب في Runtime Error ومش هيشتغل أصلاً في أي بيئة إنتاج."
+            ],
+            "correct": 0
+          },
+          "code": {
+            "enabled": true,
+            "lang": "text",
+            "src": "[ JavaScript ] ───► greet(\"Ahmed\") ───► [ wasm-bindgen JS Wrapper ]\n                                                  │ (حجز الذاكرة ووضع النص)\n                                                  ▼\n[ Rust Wasm ]  ◄─── &str (\"Ahmed\") ◄─── [ wasm-bindgen Rust Macro ]"
+          }
+        },
+        {
+          "type": "tf",
+          "subject": "RUST",
+          "difficulty": "Beginner",
+          "tier": "core",
+          "dir": "rtl",
+          "en": {
+            "prompt": "صح ولا غلط: في 01. تصدير واستيراد الدوال بـ `#[wasm_bindgen]` (Wasm Interop)، المفروض دايماً نتبع الـ Best Practices عشان نمنع الـ Bugs الغامضة ونحافظ على وضوح الـ Architecture.",
+            "correct": true
+          },
+          "ar": {
+            "prompt": "صح ولا غلط: في 01. تصدير واستيراد الدوال بـ `#[wasm_bindgen]` (Wasm Interop)، المفروض دايماً نتبع الـ Best Practices عشان نمنع الـ Bugs الغامضة ونحافظ على وضوح الـ Architecture.",
+            "correct": true
+          }
+        },
+        {
+          "type": "essay",
+          "subject": "RUST",
+          "difficulty": "Advanced",
+          "tier": "advanced",
+          "dir": "rtl",
+          "en": {
+            "prompt": "بص على الكود ده في سياق 01. تصدير واستيراد الدوال بـ `#[wasm_bindgen]` (Wasm Interop):\n\nإيه المشكلة اللي ممكن تظهر في الكود ده وإزاي نصلحها بالشكل الصح؟",
+            "model": "المشكلة المحتملة هنا هي عدم معالجة الحالات الاستثنائية أو تمرير قيم غير متوافقة مع الـ Expected Rules في 01. تصدير واستيراد الدوال بـ `#[wasm_bindgen]` (Wasm Interop)."
+          },
+          "ar": {
+            "prompt": "بص على الكود ده في سياق 01. تصدير واستيراد الدوال بـ `#[wasm_bindgen]` (Wasm Interop):\n\nإيه المشكلة اللي ممكن تظهر في الكود ده وإزاي نصلحها بالشكل الصح؟",
+            "model": "المشكلة المحتملة هنا هي عدم معالجة الحالات الاستثنائية أو تمرير قيم غير متوافقة مع الـ Expected Rules في 01. تصدير واستيراد الدوال بـ `#[wasm_bindgen]` (Wasm Interop)."
+          },
+          "code": {
+            "enabled": true,
+            "lang": "rust",
+            "src": "use wasm_bindgen::prelude::*;\n\n// 1. استيراد دالة alert من بيئة الـ JavaScript الخارجية:\n#[wasm_bindgen]\nextern \"C\" {\n    fn alert(s: &str);\n    \n    #[wasm_bindgen(js_namespace = console)]\n    fn log(s: &str);\n}\n\n// 2. تصدير دالة Rust ليتم استدعاؤها من الـ JavaScript:\n#[wasm_bindgen]\npub fn greet_user(name: &str) -> String {\n    let message = format!(\"مرحباً بك يا {} من داخل WebAssembly المكتوب بـ Rust!\", name);\n    \n    // استدعاء console.log في المتصفح:\n    log(&format!(\"Wasm Processed Greeting for: {}\", name));\n    \n    // استدعاء alert في المتصفح:\n    alert(&message);\n    \n    message\n}\n\n#[wasm_bindgen]\npub fn calculate_fibonacci(n: u32) -> u64 {\n    if n <= 1 {\n        return n as u64;\n    }\n    let mut a = 0;\n    let mut b = 1;\n    for _ in 2..=n {\n        let temp = a + b;\n        a = b;\n        b = temp;\n    }\n    b\n}"
+          }
+        },
+        {
+          "type": "essay",
+          "subject": "RUST",
+          "difficulty": "Advanced",
+          "tier": "advanced",
+          "dir": "rtl",
+          "en": {
+            "prompt": "بص على الكود ده كويس:\n\nإيه الـ Output أو النتيجة المتوقعة لما الكود ده يشتغل؟ وليه؟",
+            "model": "تنفيذ سليم للقيمة المتوقعة بناءً على منطق 01. تصدير واستيراد الدوال بـ `#[wasm_bindgen]` (Wasm Interop)."
+          },
+          "ar": {
+            "prompt": "بص على الكود ده كويس:\n\nإيه الـ Output أو النتيجة المتوقعة لما الكود ده يشتغل؟ وليه؟",
+            "model": "تنفيذ سليم للقيمة المتوقعة بناءً على منطق 01. تصدير واستيراد الدوال بـ `#[wasm_bindgen]` (Wasm Interop)."
+          },
+          "code": {
+            "enabled": true,
+            "lang": "text",
+            "src": "[ JavaScript ] ───► greet(\"Ahmed\") ───► [ wasm-bindgen JS Wrapper ]\n                                                  │ (حجز الذاكرة ووضع النص)\n                                                  ▼\n[ Rust Wasm ]  ◄─── &str (\"Ahmed\") ◄─── [ wasm-bindgen Rust Macro ]"
+          }
+        },
+        {
+          "type": "match",
+          "subject": "RUST",
+          "difficulty": "Intermediate",
+          "tier": "extra",
+          "dir": "rtl",
+          "en": {
+            "prompt": "وصل كل مفهوم بالوصف المناسب ليه بالظبط:",
+            "left": [
+              "01. تصدير واستيراد الدوال بـ `#[wasm_bindgen]` (Wasm Interop) Core Token",
+              "Runtime / Browser Execution",
+              "Error Handling & Safety"
+            ],
+            "right": [
+              "الاسم أو الكلمة المحجوزة الأساسية لتعريف العنصر أو الدالة.",
+              "البيئة الحية اللي بتشغل الكود وتنفذ الأوامر في الذاكرة.",
+              "الآلية اللي بنضمن بيها عدم انهيار البرنامج والتعامل مع المشاكل."
+            ],
+            "correct": [
+              0,
+              1,
+              2
+            ]
+          },
+          "ar": {
+            "prompt": "وصل كل Concept أو مصطلح بالوصف المناسب ليه بالظبط:",
+            "left": [
+              "01. تصدير واستيراد الدوال بـ `#[wasm_bindgen]` (Wasm Interop) Core Token",
+              "Runtime / Browser Execution",
+              "Error Handling & Safety"
+            ],
+            "right": [
+              "الاسم أو الكلمة المحجوزة الأساسية لتعريف العنصر أو الدالة.",
+              "البيئة الحية اللي بتشغل الكود وتنفذ الأوامر في الذاكرة.",
+              "الآلية اللي بنضمن بيها عدم انهيار البرنامج والتعامل مع المشاكل."
+            ],
+            "correct": [
+              0,
+              1,
+              2
+            ]
+          }
+        },
+        {
+          "type": "cloze",
+          "subject": "RUST",
+          "difficulty": "Beginner",
+          "tier": "core",
+          "dir": "rtl",
+          "en": {
+            "template": "اختار الـ Keyword الصح من الـ Word Bank عشان تكمل الكود ده في سياق 01. تصدير واستيراد الدوال بـ `#[wasm_bindgen]` (Wasm Interop):\n\n`___ item = ...;`",
+            "bank": [
+              "let",
+              "const",
+              "function",
+              "mut"
+            ],
+            "correct": "let"
+          },
+          "ar": {
+            "template": "اختار الـ Keyword الصح من الـ Word Bank عشان تكمل الكود ده في سياق 01. تصدير واستيراد الدوال بـ `#[wasm_bindgen]` (Wasm Interop):\n\n`___ item = ...;`",
+            "bank": [
+              "let",
+              "const",
+              "function",
+              "mut"
+            ],
+            "correct": "let"
+          }
+        }
+      ],
+      "pagePaletteId": 5,
+      "pageBlocks": [
+        {
+          "id": "ch01-b01",
+          "kind": "sectionTitle",
+          "text": "01. تصدير واستيراد الدوال بـ `#[wasm_bindgen]` (Wasm Interop)"
+        },
+        {
+          "id": "ch01-b02",
+          "kind": "note",
+          "text": "- فهم وظيفة الماكرو `#[wasm_bindgen]` في توليد الـ Glue Code بين Rust و JavaScript.\n- تصدير دوال Rust لتستدعيها JavaScript مباشرة كـ Native JS Functions.\n- استيراد واستدعاء دوال JavaScript الخارجية (مثل `alert` أو `console.log`) من داخل Rust.\n- إدارة أنواع البيانات البسيطة والمعقدة عبر جسر التحويل.",
+          "title": "🎯 أهداف الدرس (Learning Goals)"
+        },
+        {
+          "id": "ch01-b03",
+          "kind": "note",
+          "text": "لغة WebAssembly في حد ذاتها لا تفهم سوى 4 أنواع فقط: أرقام صحيحة وعشرية (`i32`, `i64`, `f32`, `f64`).\nلا تفهم النصوص (`String`) ولا المصفوفات (`Arrays`) ولا الكائنات (`Objects`).",
+          "title": "🧠 ما هو دور `wasm_bindgen`؟ (The Mental Model)"
+        },
+        {
+          "id": "ch01-b04",
+          "kind": "note",
+          "text": "مكتبة **`wasm-bindgen`** تقوم ببناء جسر وسيط (Bridge):\n1. في جانب Rust: تحول الـ `String` إلى مصفوفة بايتات في الـ Linear Memory وتعطي JS المؤشر والطول.\n2. في جانب JS: تنشئ `TextDecoder` يقرأ من ذاكرة Wasm ويحولها فوراً لـ JS String عادي!"
+        },
+        {
+          "id": "ch01-b05",
+          "kind": "code",
+          "title": "Code Snippet",
+          "text": "[ JavaScript ] ───► greet(\"Ahmed\") ───► [ wasm-bindgen JS Wrapper ]\n                                                  │ (حجز الذاكرة ووضع النص)\n                                                  ▼\n[ Rust Wasm ]  ◄─── &str (\"Ahmed\") ◄─── [ wasm-bindgen Rust Macro ]"
+        },
+        {
+          "id": "ch01-b06",
+          "kind": "code",
+          "title": "كود توضيحي (rust)",
+          "text": "use wasm_bindgen::prelude::*;\n\n// 1. استيراد دالة alert من بيئة الـ JavaScript الخارجية:\n#[wasm_bindgen]\nextern \"C\" {\n    fn alert(s: &str);\n    \n    #[wasm_bindgen(js_namespace = console)]\n    fn log(s: &str);\n}\n\n// 2. تصدير دالة Rust ليتم استدعاؤها من الـ JavaScript:\n#[wasm_bindgen]\npub fn greet_user(name: &str) -> String {\n    let message = format!(\"مرحباً بك يا {} من داخل WebAssembly المكتوب بـ Rust!\", name);\n    \n    // استدعاء console.log في المتصفح:\n    log(&format!(\"Wasm Processed Greeting for: {}\", name));\n    \n    // استدعاء alert في المتصفح:\n    alert(&message);\n    \n    message\n}\n\n#[wasm_bindgen]\npub fn calculate_fibonacci(n: u32) -> u64 {\n    if n <= 1 {\n        return n as u64;\n    }\n    let mut a = 0;\n    let mut b = 1;\n    for _ in 2..=n {\n        let temp = a + b;\n        a = b;\n        b = temp;\n    }\n    b\n}"
+        },
+        {
+          "id": "ch01-b07",
+          "kind": "code",
+          "title": "كود توضيحي (javascript)",
+          "text": "import init, { greet_user, calculate_fibonacci } from './pkg/my_wasm_project.js';\n\nasync function run() {\n    // 1. تحميل وتهيئة ملف الـ .wasm في المتصفح:\n    await init();\n\n    // 2. استدعاء دوال Rust مباشرة:\n    const result = greet_user(\"أحمد\");\n    console.log(\"النتيجة المستلمة من Wasm:\", result);\n\n    const fib = calculate_fibonacci(40);\n    console.log(\"Fibonacci(40) محسوبة بـ Wasm في أجزاء من الميكروثانية:\", fib);\n}\n\nrun();"
+        },
+        {
+          "id": "ch01-b08",
+          "kind": "note",
+          "text": "انتقل للدرس التالي: **[`02-exporting-structs-methods.md`](./02-exporting-structs-methods.md)** لمعرفة كيف نصدر Structs كاملة وننشئ Instances منها في JavaScript!",
+          "title": "🚀 الخطوة التالية"
+        }
+      ]
+    }
+  ]
+}

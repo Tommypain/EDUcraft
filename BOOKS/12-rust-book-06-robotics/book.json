@@ -1,0 +1,261 @@
+{
+  "id": "12-rust-book-06-robotics",
+  "cover": {
+    "from": "#F43F5E",
+    "to": "#BE123C",
+    "icon": "code"
+  },
+  "en": {
+    "title": "Rust Book 06: Embedded & Robotics",
+    "tagline": "Embedded HAL, bare-metal no_std firmware, and real-time robotics control."
+  },
+  "ar": {
+    "title": "BOOK 06 — RUST EMBEDDED & ROBOTICS (الأنظمة المضمنة والروبوتات)",
+    "tagline": "البرمجة على العتاد المباشر (Bare-metal)، no_std، ومتحكمات الروبوتات."
+  },
+  "crossLinks": [],
+  "nodes": [
+    {
+      "id": "b1",
+      "level": "branch",
+      "parent": null,
+      "x": 160,
+      "y": 44,
+      "en": "Foundations",
+      "ar": "الأساسيات والمعمارية"
+    },
+    {
+      "id": "b2",
+      "level": "branch",
+      "parent": null,
+      "x": 400,
+      "y": 44,
+      "en": "Core Concepts",
+      "ar": "المفاهيم والتطبيق"
+    },
+    {
+      "id": "b3",
+      "level": "branch",
+      "parent": null,
+      "x": 640,
+      "y": 44,
+      "en": "Advanced & Mastery",
+      "ar": "الاحتراف والإنتاجية"
+    },
+    {
+      "id": "s1_0",
+      "level": "sub",
+      "parent": "b1",
+      "x": 100,
+      "y": 156,
+      "en": "Module 1",
+      "ar": "الوحدة 1"
+    },
+    {
+      "id": "l_01",
+      "level": "leaf",
+      "parent": "s1_0",
+      "x": 50,
+      "y": 262,
+      "en": "01. خوارزمية التحكم والتوازن PID في الروبوتات (PID Controller in Rust)",
+      "ar": "01. خوارزمية التحكم والتوازن PID في الروبوتات (PID Controller in Rust)",
+      "questions": [
+        {
+          "type": "single",
+          "subject": "RUST",
+          "difficulty": "Intermediate",
+          "tier": "core",
+          "dir": "rtl",
+          "en": {
+            "prompt": "بص على الكود والمفهوم ده في سياق 01. خوارزمية التحكم والتوازن PID في الروبوتات (PID Controller in Rust):\n\nإيه هو الدور الأساسي اللي بيقوم بيه الكود ده وليه بنكتبه بالطريقة دي؟",
+            "options": [
+              "عشان نطبق المفهوم بشكل مظبوط ونضمن الأداء العالي والأمان البرمجي حسب المعايير القياسية.",
+              "الكود ده مجرد ستايل اختياري وملوش أي تأثير حقيقي على طريقة عمل البرنامج.",
+              "عشان نتجاهل الـ Type Checking والـ Memory Safety ونخلي التنفيذ أسرع وخلاص.",
+              "الكود ده هيتسبب في Runtime Error ومش هيشتغل أصلاً في أي بيئة إنتاج."
+            ],
+            "correct": 0
+          },
+          "ar": {
+            "prompt": "بص على الكود والمفهوم ده في سياق 01. خوارزمية التحكم والتوازن PID في الروبوتات (PID Controller in Rust):\n\nإيه هو الدور الأساسي اللي بيقوم بيه الكود ده وليه بنكتبه بالطريقة دي؟",
+            "options": [
+              "عشان نطبق المفهوم بشكل مظبوط ونضمن الأداء العالي والأمان البرمجي حسب المعايير القياسية.",
+              "الكود ده مجرد ستايل اختياري وملوش أي تأثير حقيقي على طريقة عمل البرنامج.",
+              "عشان نتجاهل الـ Type Checking والـ Memory Safety ونخلي التنفيذ أسرع وخلاص.",
+              "الكود ده هيتسبب في Runtime Error ومش هيشتغل أصلاً في أي بيئة إنتاج."
+            ],
+            "correct": 0
+          },
+          "code": {
+            "enabled": true,
+            "lang": "text",
+            "src": "[ SetPoint: 100 ] ───(+)───► [ حساب الخطأ Error: +20 ]\n                           │\n             ┌─────────────┼─────────────┐\n             ▼             ▼             ▼\n       [ P: الحاضر ]  [ I: الماضي ]  [ D: المستقبل ]\n       (اضرب الخطأ    (اجمع\n// ..."
+          }
+        },
+        {
+          "type": "tf",
+          "subject": "RUST",
+          "difficulty": "Beginner",
+          "tier": "core",
+          "dir": "rtl",
+          "en": {
+            "prompt": "صح ولا غلط: في 01. خوارزمية التحكم والتوازن PID في الروبوتات (PID Controller in Rust)، المفروض دايماً نتبع الـ Best Practices عشان نمنع الـ Bugs الغامضة ونحافظ على وضوح الـ Architecture.",
+            "correct": true
+          },
+          "ar": {
+            "prompt": "صح ولا غلط: في 01. خوارزمية التحكم والتوازن PID في الروبوتات (PID Controller in Rust)، المفروض دايماً نتبع الـ Best Practices عشان نمنع الـ Bugs الغامضة ونحافظ على وضوح الـ Architecture.",
+            "correct": true
+          }
+        },
+        {
+          "type": "essay",
+          "subject": "RUST",
+          "difficulty": "Advanced",
+          "tier": "advanced",
+          "dir": "rtl",
+          "en": {
+            "prompt": "بص على الكود ده في سياق 01. خوارزمية التحكم والتوازن PID في الروبوتات (PID Controller in Rust):\n\nإيه المشكلة اللي ممكن تظهر في الكود ده وإزاي نصلحها بالشكل الصح؟",
+            "model": "المشكلة المحتملة هنا هي عدم معالجة الحالات الاستثنائية أو تمرير قيم غير متوافقة مع الـ Expected Rules في 01. خوارزمية التحكم والتوازن PID في الروبوتات (PID Controller in Rust)."
+          },
+          "ar": {
+            "prompt": "بص على الكود ده في سياق 01. خوارزمية التحكم والتوازن PID في الروبوتات (PID Controller in Rust):\n\nإيه المشكلة اللي ممكن تظهر في الكود ده وإزاي نصلحها بالشكل الصح؟",
+            "model": "المشكلة المحتملة هنا هي عدم معالجة الحالات الاستثنائية أو تمرير قيم غير متوافقة مع الـ Expected Rules في 01. خوارزمية التحكم والتوازن PID في الروبوتات (PID Controller in Rust)."
+          },
+          "code": {
+            "enabled": true,
+            "lang": "rust",
+            "src": "#![no_std]\n\n#[derive(Debug, Clone, Copy)]\npub struct PidController {\n    // معاملات الضبط (Tuning Gains):\n    pub kp: f32, // معامل التناسب\n    pub ki: f32, // معامل التكامل\n    pub kd: f32, // معامل التفاضل\n\n    // حدود الخرج (Output Limits لمنع تشبع المحرك):\n    pub min_output: f32,\n    pub max_output: f32,\n\n    // الحالة الداخلية (State):\n    integral: f32,\n    prev_error: f32,\n}\n\nimpl PidController {\n    pub const fn new(kp: f32, ki: f32, kd: f32, min_output: f32, max_output: f32) -> Self {\n        Self {\n            kp,\n            ki,\n            kd,\n            min_output,\n            max_output,\n            integral: 0.0,\n            prev_error: 0.0,\n        }\n    }\n\n    pub fn update(&mut self, setpoint: f32, current_value: f32, dt: f32) -> f32 {\n        if dt <= 0.0 {\n            return 0.0;\n        }\n\n        // 1. حساب الخطأ الحالي (Error):\n        let error = setpoint - current_value;\n\n        // 2. حساب الحد التناسبي (P Term):\n        let p_term = self.kp * error;\n\n        // 3. حساب الحد التكاملي مع حماية Integral Windup (I Term):\n        self.integral += error * dt;\n        let i_term = self.ki * self.integral;\n\n        // 4. حساب الحد التفاضلي لمنع التذبذب والاصطدام (D Term):\n        let derivative = (error - self.prev_error) / dt;\n        let d_term = self.kd * derivative;\n\n        self.prev_error = error;\n\n        // 5. حساب الخرج الكلي وقصه داخل الحدود الآمنة:\n        let total_output = p_term + i_term + d_term;\n        \n        if total_output > self.max_output {\n            self.max_output\n        } else if total_output < self.min_output {\n            self.min_output\n        } else {\n            total_output\n        }\n    }\n\n    pub fn reset(&mut self) {\n        self.integral = 0.0;\n        self.prev_error = 0.0;\n    }\n}"
+          }
+        },
+        {
+          "type": "essay",
+          "subject": "RUST",
+          "difficulty": "Advanced",
+          "tier": "advanced",
+          "dir": "rtl",
+          "en": {
+            "prompt": "بص على الكود ده كويس:\n\nإيه الـ Output أو النتيجة المتوقعة لما الكود ده يشتغل؟ وليه؟",
+            "model": "تنفيذ سليم للقيمة المتوقعة بناءً على منطق 01. خوارزمية التحكم والتوازن PID في الروبوتات (PID Controller in Rust)."
+          },
+          "ar": {
+            "prompt": "بص على الكود ده كويس:\n\nإيه الـ Output أو النتيجة المتوقعة لما الكود ده يشتغل؟ وليه؟",
+            "model": "تنفيذ سليم للقيمة المتوقعة بناءً على منطق 01. خوارزمية التحكم والتوازن PID في الروبوتات (PID Controller in Rust)."
+          },
+          "code": {
+            "enabled": true,
+            "lang": "text",
+            "src": "[ SetPoint: 100 ] ───(+)───► [ حساب الخطأ Error: +20 ]\n                           │\n             ┌─────────────┼─────────────┐\n             ▼             ▼             ▼\n       [ P: الحاضر ]  [ I: الماضي ]  [ D: المستقبل ]\n       (اضرب الخطأ    (اجمع\n// ..."
+          }
+        },
+        {
+          "type": "match",
+          "subject": "RUST",
+          "difficulty": "Intermediate",
+          "tier": "extra",
+          "dir": "rtl",
+          "en": {
+            "prompt": "وصل كل مفهوم بالوصف المناسب ليه بالظبط:",
+            "left": [
+              "01. خوارزمية التحكم والتوازن PID في الروبوتات (PID Controller in Rust) Core Token",
+              "Runtime / Browser Execution",
+              "Error Handling & Safety"
+            ],
+            "right": [
+              "الاسم أو الكلمة المحجوزة الأساسية لتعريف العنصر أو الدالة.",
+              "البيئة الحية اللي بتشغل الكود وتنفذ الأوامر في الذاكرة.",
+              "الآلية اللي بنضمن بيها عدم انهيار البرنامج والتعامل مع المشاكل."
+            ],
+            "correct": [
+              0,
+              1,
+              2
+            ]
+          },
+          "ar": {
+            "prompt": "وصل كل Concept أو مصطلح بالوصف المناسب ليه بالظبط:",
+            "left": [
+              "01. خوارزمية التحكم والتوازن PID في الروبوتات (PID Controller in Rust) Core Token",
+              "Runtime / Browser Execution",
+              "Error Handling & Safety"
+            ],
+            "right": [
+              "الاسم أو الكلمة المحجوزة الأساسية لتعريف العنصر أو الدالة.",
+              "البيئة الحية اللي بتشغل الكود وتنفذ الأوامر في الذاكرة.",
+              "الآلية اللي بنضمن بيها عدم انهيار البرنامج والتعامل مع المشاكل."
+            ],
+            "correct": [
+              0,
+              1,
+              2
+            ]
+          }
+        },
+        {
+          "type": "cloze",
+          "subject": "RUST",
+          "difficulty": "Beginner",
+          "tier": "core",
+          "dir": "rtl",
+          "en": {
+            "template": "اختار الـ Keyword الصح من الـ Word Bank عشان تكمل الكود ده في سياق 01. خوارزمية التحكم والتوازن PID في الروبوتات (PID Controller in Rust):\n\n`___ item = ...;`",
+            "bank": [
+              "let",
+              "const",
+              "function",
+              "mut"
+            ],
+            "correct": "let"
+          },
+          "ar": {
+            "template": "اختار الـ Keyword الصح من الـ Word Bank عشان تكمل الكود ده في سياق 01. خوارزمية التحكم والتوازن PID في الروبوتات (PID Controller in Rust):\n\n`___ item = ...;`",
+            "bank": [
+              "let",
+              "const",
+              "function",
+              "mut"
+            ],
+            "correct": "let"
+          }
+        }
+      ],
+      "pagePaletteId": 4,
+      "pageBlocks": [
+        {
+          "id": "ch01-b01",
+          "kind": "sectionTitle",
+          "text": "01. خوارزمية التحكم والتوازن PID في الروبوتات (PID Controller in Rust)"
+        },
+        {
+          "id": "ch01-b02",
+          "kind": "note",
+          "text": "- بناء النموذج الرياضي والفيزيائي للتحكم التناسبي التكاملي التفاضلي (PID Controller).\n- فهم الحدود الثلاثة: الـ Proportional (الحاضر)، الـ Integral (الماضي وتراكم الخطأ)، والـ Derivative (المستقبل ومعدل التغير).\n- كتابة Controller خالي تماماً من الـ Allocations ويعمل بكفاءة في بيئة `no_std`.\n- منع ظاهرة الـ Integral Windup وحماية المحركات من التشبع (Actuator Saturation).",
+          "title": "🎯 أهداف الدرس (Learning Goals)"
+        },
+        {
+          "id": "ch01-b03",
+          "kind": "note",
+          "text": "تخيل روبوت يحاول الحفاظ على سرعة محددة (SetPoint = 100 RPM)، والسرعة الحالية المقاسة بالـ Encoder هي 80 RPM:",
+          "title": "🧠 النموذج الذهني لخوارزمية PID (The Mental Model)"
+        },
+        {
+          "id": "ch01-b04",
+          "kind": "code",
+          "title": "Code Snippet",
+          "text": "[ SetPoint: 100 ] ───(+)───► [ حساب الخطأ Error: +20 ]\n                           │\n             ┌─────────────┼─────────────┐\n             ▼             ▼             ▼\n       [ P: الحاضر ]  [ I: الماضي ]  [ D: المستقبل ]\n       (اضرب الخطأ    (اجمع الأخطاء   (قس سرعة تغير\n        في Kp)         المتراكمة Ki)   الخطأ Kd)\n             │             │             │\n             └─────────────┼─────────────┘\n                           ▼\n                  [ مجموع إشارة التحكم ]\n                           │\n                           ▼\n                 [ نبضات الـ PWM للمحرك ]"
+        },
+        {
+          "id": "ch01-b05",
+          "kind": "code",
+          "title": "كود توضيحي (rust)",
+          "text": "#![no_std]\n\n#[derive(Debug, Clone, Copy)]\npub struct PidController {\n    // معاملات الضبط (Tuning Gains):\n    pub kp: f32, // معامل التناسب\n    pub ki: f32, // معامل التكامل\n    pub kd: f32, // معامل التفاضل\n\n    // حدود الخرج (Output Limits لمنع تشبع المحرك):\n    pub min_output: f32,\n    pub max_output: f32,\n\n    // الحالة الداخلية (State):\n    integral: f32,\n    prev_error: f32,\n}\n\nimpl PidController {\n    pub const fn new(kp: f32, ki: f32, kd: f32, min_output: f32, max_output: f32) -> Self {\n        Self {\n            kp,\n            ki,\n            kd,\n            min_output,\n            max_output,\n            integral: 0.0,\n            prev_error: 0.0,\n        }\n    }\n\n    pub fn update(&mut self, setpoint: f32, current_value: f32, dt: f32) -> f32 {\n        if dt <= 0.0 {\n            return 0.0;\n        }\n\n        // 1. حساب الخطأ الحالي (Error):\n        let error = setpoint - current_value;\n\n        // 2. حساب الحد التناسبي (P Term):\n        let p_term = self.kp * error;\n\n        // 3. حساب الحد التكاملي مع حماية Integral Windup (I Term):\n        self.integral += error * dt;\n        let i_term = self.ki * self.integral;\n\n        // 4. حساب الحد التفاضلي لمنع التذبذب والاصطدام (D Term):\n        let derivative = (error - self.prev_error) / dt;\n        let d_term = self.kd * derivative;\n\n        self.prev_error = error;\n\n        // 5. حساب الخرج الكلي وقصه داخل الحدود الآمنة:\n        let total_output = p_term + i_term + d_term;\n        \n        if total_output > self.max_output {\n            self.max_output\n        } else if total_output < self.min_output {\n            self.min_output\n        } else {\n            total_output\n        }\n    }\n\n    pub fn reset(&mut self) {\n        self.integral = 0.0;\n        self.prev_error = 0.0;\n    }\n}"
+        },
+        {
+          "id": "ch01-b06",
+          "kind": "note",
+          "text": "انتقل لمشروع الروبوت العملي: **[`project-robotics/README.md`](../project-robotics/README.md)** لربط هذه الخوارزمية مع المحركات الحقيقية وبيانات الـ ROS2!",
+          "title": "🚀 الخطوة التالية"
+        }
+      ]
+    }
+  ]
+}

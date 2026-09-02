@@ -14,6 +14,7 @@ function rustExporterPlugin() {
   return {
     name: "rust-exporter-bridge",
     configureServer(server) {
+      // 1. Export endpoints
       const handleExport = (req, res, next) => {
         if (req.method !== "POST") return next();
         const chunks = [];
@@ -70,6 +71,75 @@ function rustExporterPlugin() {
 
       server.middlewares.use("/__api/export_book", handleExport);
       server.middlewares.use("/__api/export_collection", handleExport);
+
+      // 2. Book Management endpoints
+      server.middlewares.use("/__api/books/scan", (req, res, next) => {
+        if (req.method !== "GET" && req.method !== "POST") return next();
+        const binPath = path.resolve(__dirname, "src-tauri/target/debug/books_cli");
+        const booksDir = path.resolve(__dirname, "BOOKS");
+
+        if (!fs.existsSync(binPath)) {
+          res.statusCode = 503;
+          res.setHeader("Content-Type", "application/json");
+          res.end(JSON.stringify({ error: "books_cli binary not found. Run: npm run build:cli" }));
+          return;
+        }
+
+        const proc = spawn(binPath, ["scan", booksDir], {
+          env: {
+            ...process.env,
+            LIBRARY_PATH: path.resolve(__dirname, "src-tauri/.pkgconfig/lib"),
+            PKG_CONFIG_PATH: path.resolve(__dirname, "src-tauri/.pkgconfig"),
+          },
+        });
+
+        res.setHeader("Content-Type", "application/json; charset=utf-8");
+        proc.stdout.pipe(res);
+        proc.on("error", (err) => {
+          if (!res.headersSent) {
+            res.statusCode = 500;
+            res.end(JSON.stringify({ error: String(err) }));
+          }
+        });
+      });
+
+      server.middlewares.use("/__api/books/delete", (req, res, next) => {
+        if (req.method !== "POST") return next();
+        let body = "";
+        req.on("data", (chunk) => (body += chunk));
+        req.on("end", () => {
+          try {
+            const data = JSON.parse(body);
+            const targetPath = data.path;
+            if (!targetPath) {
+              res.statusCode = 400;
+              res.end(JSON.stringify({ error: "Missing path to delete" }));
+              return;
+            }
+
+            const binPath = path.resolve(__dirname, "src-tauri/target/debug/books_cli");
+            const proc = spawn(binPath, ["delete", targetPath], {
+              env: {
+                ...process.env,
+                LIBRARY_PATH: path.resolve(__dirname, "src-tauri/.pkgconfig/lib"),
+                PKG_CONFIG_PATH: path.resolve(__dirname, "src-tauri/.pkgconfig"),
+              },
+            });
+
+            res.setHeader("Content-Type", "application/json; charset=utf-8");
+            proc.stdout.pipe(res);
+            proc.on("error", (err) => {
+              if (!res.headersSent) {
+                res.statusCode = 500;
+                res.end(JSON.stringify({ error: String(err) }));
+              }
+            });
+          } catch (err) {
+            res.statusCode = 400;
+            res.end(JSON.stringify({ error: "Invalid JSON body" }));
+          }
+        });
+      });
     },
   };
 }

@@ -854,11 +854,9 @@ const APP_STORAGE_KEY = (() => {
 function loadAppState() {
   if (typeof window === "undefined") return {};
   try {
+    window.localStorage.removeItem("educraft_deleted_books");
     const raw = JSON.parse(window.localStorage.getItem(APP_STORAGE_KEY)) || {};
-    const dedicatedDeleted = JSON.parse(window.localStorage.getItem("educraft_deleted_books") || "[]");
-    if (Array.isArray(dedicatedDeleted) && dedicatedDeleted.length > 0) {
-      raw.deletedBookIds = [...new Set([...(raw.deletedBookIds || []), ...dedicatedDeleted])];
-    }
+    delete raw.deletedBookIds;
     return raw;
   } catch (e) {
     return {};
@@ -867,10 +865,9 @@ function loadAppState() {
 function saveAppState(state) {
   if (typeof window === "undefined") return;
   try {
-    window.localStorage.setItem(APP_STORAGE_KEY, JSON.stringify(state));
-    if (state && Array.isArray(state.deletedBookIds)) {
-      window.localStorage.setItem("educraft_deleted_books", JSON.stringify(state.deletedBookIds));
-    }
+    const copy = { ...state };
+    delete copy.deletedBookIds;
+    window.localStorage.setItem(APP_STORAGE_KEY, JSON.stringify(copy));
   } catch (e) {}
 }
 function uid(prefix) {
@@ -2066,7 +2063,7 @@ function EditableCover({ book, theme, skin, ui, coverUrl, onChangeCover, onClear
    LibraryView — the shelf. Each card is the cover + title + a
    quick tally of branches / questions inside that book's tree.
 ================================================================== */
-function LibraryView({ lang, ui, theme, dir, onOpen, skin, covers, onChangeCover, onClearCover, books, collections, libraryPath, onEnterCollection, onCrumb, onCreateCollection, onDeleteCollection, onAssignToCollection, onRemoveFromCollection, onExportBook, onExportCollection, onOpenImportModal, onDeleteBook, plans = {}, isExporting = false }) {
+function LibraryView({ lang, ui, theme, dir, onOpen, skin, covers, onChangeCover, onClearCover, books, collections, libraryPath, onEnterCollection, onCrumb, onCreateCollection, onDeleteCollection, onAssignToCollection, onRemoveFromCollection, onExportBook, onExportCollection, onOpenImportModal, onDeleteBook, plans = {}, isExporting = false, onRescan, isScanning = false }) {
   const ArrowIcon = dir === "rtl" ? ArrowLeft : ArrowRight;
   const atRoot = libraryPath.length === 0;
   const currentCollection = atRoot ? null : collections.find((c) => c.id === libraryPath[libraryPath.length - 1]);
@@ -2141,6 +2138,18 @@ function LibraryView({ lang, ui, theme, dir, onOpen, skin, covers, onChangeCover
 
       {atRoot && (
         <div className="flex items-center gap-2 mb-6 flex-wrap">
+          {onRescan && (
+            <button
+              onClick={onRescan}
+              disabled={isScanning}
+              className="flex items-center gap-1.5 text-xs font-bold px-3.5 py-2 transition-all hover:opacity-90 disabled:opacity-50"
+              style={{ borderRadius: skin.radiusSm, border: `1.5px solid ${skinBorderColor(skin, theme)}`, color: theme.ink, minHeight: 36 }}
+              title={lang === "ar" ? "فحص وتحديث مجلد الكتب من القرص" : "Rescan books folder from disk"}
+            >
+              <RotateCcw size={13} className={isScanning ? "animate-spin text-indigo-500" : ""} />
+              {lang === "ar" ? (isScanning ? "جارٍ الفحص..." : "تحديث المكتبة") : (isScanning ? "Scanning..." : "Refresh Library")}
+            </button>
+          )}
           <button
             onClick={onOpenImportModal}
             className="flex items-center gap-1.5 text-xs font-bold px-3.5 py-2 text-white shadow-sm"
@@ -2274,11 +2283,18 @@ function LibraryView({ lang, ui, theme, dir, onOpen, skin, covers, onChangeCover
               <div className="flex flex-1 min-w-0 flex-col justify-between py-1">
                 <div>
                   <h3 className="text-lg font-bold leading-snug mb-1" style={{ color: theme.ink }}>
-                    {book[lang].title}
+                    {book[lang]?.title || book.id}
                   </h3>
                   <p className="text-sm" style={{ color: theme.inkSoft, lineHeight: 1.5 }}>
-                    {book[lang].tagline}
+                    {book[lang]?.tagline}
                   </p>
+                  {book._state && book._state !== "valid" && (
+                    <div className="mt-1 flex items-center gap-1.5 text-[11px] font-bold px-2 py-0.5 rounded-md bg-amber-500/10 text-amber-600 border border-amber-500/20 w-fit">
+                      <span>⚠️</span>
+                      <span>{book._state === "incomplete" ? (lang === "ar" ? "غير مكتمل" : "Incomplete") : (lang === "ar" ? "تالف" : "Invalid")}</span>
+                      {book._error && <span className="opacity-75 truncate max-w-xs font-normal">({book._error})</span>}
+                    </div>
+                  )}
                   {doneLeaves > 0 && (
                     <div className="mt-2.5 flex flex-col gap-1">
                       <div className="flex items-center justify-between text-[11px] font-bold" style={{ color: progressPct === 100 ? "#10B981" : theme.accent }}>
@@ -2318,9 +2334,7 @@ function LibraryView({ lang, ui, theme, dir, onOpen, skin, covers, onChangeCover
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
-                          if (window.confirm(ui.libraryDeleteBookConfirm)) {
-                            onDeleteBook(book.id);
-                          }
+                          onDeleteBook(book);
                         }}
                         className="p-1.5 hover:opacity-100 transition-opacity"
                         style={{ borderRadius: skin.radiusSm, color: INCORRECT.border }}
@@ -2484,9 +2498,7 @@ function TreeView({ book, lang, ui, theme, dir, onBack, skin, selectedLeaf, onSe
         {onDeleteBook && (
           <button
             onClick={() => {
-              if (window.confirm(ui.libraryDeleteBookConfirm)) {
-                onDeleteBook(book.id);
-              }
+              onDeleteBook(book);
             }}
             className="flex items-center gap-1.5 text-xs font-bold px-3.5 py-2 hover:opacity-90 transition-opacity"
             style={{ borderRadius: skin.radiusSm, border: `1.5px solid ${INCORRECT.border}`, color: INCORRECT.border, minHeight: 36 }}
@@ -5630,6 +5642,55 @@ function PlannerView({ book, lang, ui, theme, dir, skin, plan, onUpdatePlan }) {
   );
 }
 
+/* ─── Filesystem-Based Book Discovery & Management ────────────────────────── */
+async function scanBooksFs(customDir = null) {
+  if (isTauriEnv()) {
+    try {
+      const { invoke } = await import("@tauri-apps/api/core");
+      return await invoke("scan_books_dir", { dir: customDir });
+    } catch (err) {
+      console.error("[EDUcraft BookManager] Tauri scan_books_dir error:", err);
+      throw err;
+    }
+  }
+
+  // Web Browser / Dev Server Bridge
+  try {
+    const res = await fetch("/__api/books/scan");
+    if (res.ok) {
+      return await res.json();
+    }
+  } catch (err) {
+    console.warn("[EDUcraft BookManager] Dev bridge scan error:", err);
+  }
+  return null;
+}
+
+async function deleteBookFs(path, id) {
+  if (isTauriEnv()) {
+    try {
+      const { invoke } = await import("@tauri-apps/api/core");
+      return await invoke("delete_book_fs", { path, id });
+    } catch (err) {
+      console.error("[EDUcraft BookManager] Tauri delete_book_fs error:", err);
+      throw err;
+    }
+  }
+
+  // Web Browser / Dev Server Bridge
+  const res = await fetch("/__api/books/delete", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ path, id }),
+  });
+  if (res.ok) {
+    return true;
+  } else {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error || `HTTP ${res.status}`);
+  }
+}
+
 /* onExportBook / onExportCollection are injected by the top-level
    EDUcraft.jsx wrapper (see that file) — they build the actual
    downloadable .html file using the pre-bundled export assets. This
@@ -5640,18 +5701,14 @@ function PlannerView({ book, lang, ui, theme, dir, skin, plan, onUpdatePlan }) {
 function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
   const EXPORT = useMemo(() => getExportSeed(), []);
   const [saved] = useState(() => loadAppState());
-  const [deletedBookIds, setDeletedBookIds] = useState(() => saved.deletedBookIds || []);
   const initialBooks = useMemo(() => {
-    const deletedSet = new Set(saved.deletedBookIds || []);
     const sourceBooks = (EXPORT ? EXPORT.books : BOOKS) || [];
-    const base = sourceBooks.filter((b) => !deletedSet.has(b.id));
     if (saved.customBooks && Array.isArray(saved.customBooks)) {
-      const custom = saved.customBooks.filter((b) => !deletedSet.has(b.id));
-      const existingIds = new Set(base.map((b) => b.id));
-      return [...base, ...custom.filter((b) => !existingIds.has(b.id))];
+      const existingIds = new Set(sourceBooks.map((b) => b.id));
+      return [...sourceBooks, ...saved.customBooks.filter((b) => !existingIds.has(b.id))];
     }
-    return base;
-  }, [EXPORT, saved.deletedBookIds, saved.customBooks]);
+    return sourceBooks;
+  }, [EXPORT, saved.customBooks]);
 
   const [lang, setLang] = useState(saved.lang || (EXPORT && EXPORT.lang) || "en");
   const [mode, setMode] = useState(saved.mode || "light");
@@ -5676,6 +5733,93 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
   const [voiceEnabled, setVoiceEnabled] = useState(saved.voiceEnabled !== false);
   const [exportToast, setExportToast] = useState(null);
   const [isExporting, setIsExporting] = useState(false);
+  const [isScanning, setIsScanning] = useState(false);
+  const [confirmDeleteBook, setConfirmDeleteBook] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const rescanBooks = async (silent = false) => {
+    if (EXPORT) return;
+    setIsScanning(true);
+    if (!silent) {
+      setExportToast({
+        type: "info",
+        message: lang === "ar" ? "جارٍ فحص مجلد الكتب وتحديث المكتبة..." : "Scanning books folder and updating library...",
+      });
+    }
+
+    try {
+      const scanResult = await scanBooksFs();
+      if (scanResult && Array.isArray(scanResult.books)) {
+        const mappedBooks = scanResult.books
+          .filter((b) => b.state === "valid" && b.book)
+          .map((b) => ({
+            ...b.book,
+            _sourcePath: b.path,
+            _isDir: b.is_dir,
+            _state: b.state,
+            _mtimeMs: b.mtime_ms,
+          }));
+
+        const invalidBooks = scanResult.books
+          .filter((b) => b.state !== "valid")
+          .map((b) => ({
+            id: b.id,
+            cover: "linear-gradient(135deg, #4b5563, #1f2937)",
+            ar: { title: b.title_ar || b.id, tagline: b.error || "كتاب غير صالح أو غير مكتمل" },
+            en: { title: b.title_en || b.id, tagline: b.error || "Invalid or incomplete book" },
+            nodes: [],
+            _sourcePath: b.path,
+            _isDir: b.is_dir,
+            _state: b.state,
+            _error: b.error,
+            _mtimeMs: b.mtime_ms,
+          }));
+
+        const allDiscovered = [...mappedBooks, ...invalidBooks];
+        if (allDiscovered.length > 0) {
+          setBooks(allDiscovered);
+          setBookId((prevId) => {
+            const stillExists = allDiscovered.some((b) => b.id === prevId);
+            if (!stillExists) {
+              setView("library");
+              setLeafId(null);
+              return allDiscovered[0]?.id || "";
+            }
+            return prevId;
+          });
+        }
+
+        if (!silent) {
+          setExportToast({
+            type: "success",
+            message:
+              lang === "ar"
+                ? `تم تحديث المكتبة بنجاح (${scanResult.valid_count} كتاب صالح)`
+                : `Library updated successfully (${scanResult.valid_count} valid books)`,
+          });
+        }
+      }
+    } catch (err) {
+      console.error("[EDUcraft BookManager] Rescan error:", err);
+      if (!silent) {
+        setExportToast({
+          type: "error",
+          message: lang === "ar" ? `فشل فحص مجلد الكتب: ${err?.message || err}` : `Failed to scan books: ${err?.message || err}`,
+        });
+      }
+    } finally {
+      setIsScanning(false);
+      if (!silent) {
+        setTimeout(() => {
+          setExportToast((prev) => (prev?.type === "success" ? null : prev));
+        }, 3500);
+      }
+    }
+  };
+
+  useEffect(() => {
+    rescanBooks(true);
+  }, []);
 
   const handleExportBook = async (bookToExport, exportLang, exportTheme, exportUi, exportSkin, exportCovers) => {
     if (isExporting || !onExportBook) return;
@@ -5742,39 +5886,73 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
 
   const setBookFlavor = (bid, fid) => setBookFlavors((prev) => ({ ...prev, [bid]: fid }));
 
-  const deleteBook = (deleteId) => {
-    const nextDeleted = [...new Set([...(deletedBookIds || []), deleteId])];
-    setDeletedBookIds(nextDeleted);
-    setBooks((prev) => prev.filter((b) => b.id !== deleteId));
-    setCovers((prev) => {
-      const next = { ...prev };
-      delete next[deleteId];
-      return next;
-    });
-    setPlans((prev) => {
-      const next = { ...prev };
-      delete next[deleteId];
-      return next;
-    });
-    setBookFlavors((prev) => {
-      const next = { ...prev };
-      delete next[deleteId];
-      return next;
-    });
-    setCollections((prev) =>
-      prev.map((c) => ({
-        ...c,
-        itemIds: (c.itemIds || []).filter((id) => id !== deleteId)
-      }))
-    );
-    if (typeof window !== "undefined") {
-      try {
-        window.localStorage.setItem("educraft_deleted_books", JSON.stringify(nextDeleted));
-      } catch (e) {}
+  const requestDeleteBook = (bookToDelete) => {
+    const target = typeof bookToDelete === "string" ? books.find((b) => b.id === bookToDelete) : bookToDelete;
+    if (target) {
+      setConfirmDeleteBook(target);
     }
-    if (bookId === deleteId) {
-      setView("library");
-      setLeafId(null);
+  };
+
+  const executeDeleteBook = async () => {
+    if (!confirmDeleteBook || isDeleting) return;
+    setIsDeleting(true);
+    const target = confirmDeleteBook;
+    const pathToDelete = target._sourcePath || target.path;
+    const targetId = target.id;
+    const title = target[lang]?.title || targetId;
+
+    try {
+      if (pathToDelete) {
+        await deleteBookFs(pathToDelete, targetId);
+      }
+      setExportToast({
+        type: "success",
+        message: lang === "ar" ? `تم حذف كتاب "${title}" نهائيًا من القرص` : `Permanently deleted "${title}" from disk`,
+      });
+      setConfirmDeleteBook(null);
+
+      // Remove locally from state immediately
+      setBooks((prev) => prev.filter((b) => b.id !== targetId));
+      setCovers((prev) => {
+        const next = { ...prev };
+        delete next[targetId];
+        return next;
+      });
+      setPlans((prev) => {
+        const next = { ...prev };
+        delete next[targetId];
+        return next;
+      });
+      setBookFlavors((prev) => {
+        const next = { ...prev };
+        delete next[targetId];
+        return next;
+      });
+      setCollections((prev) =>
+        prev.map((c) => ({
+          ...c,
+          itemIds: (c.itemIds || []).filter((id) => id !== targetId),
+        }))
+      );
+
+      if (bookId === targetId) {
+        setView("library");
+        setLeafId(null);
+      }
+
+      // Rescan in background to keep full sync
+      await rescanBooks(true);
+    } catch (err) {
+      console.error("[EDUcraft BookManager] Delete failed:", err);
+      setExportToast({
+        type: "error",
+        message: lang === "ar" ? `فشل حذف الكتاب من القرص: ${err?.message || err}` : `Failed to delete book from disk: ${err?.message || err}`,
+      });
+    } finally {
+      setIsDeleting(false);
+      setTimeout(() => {
+        setExportToast((prev) => (prev?.type === "success" ? null : prev));
+      }, 4000);
     }
   };
 
@@ -5785,7 +5963,6 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
       setPlans((prev) => ({ ...prev, ...newPlans }));
     }
     if (targetBookId) {
-      setDeletedBookIds((prev) => (prev || []).filter((id) => id !== targetBookId));
       setBookId(targetBookId);
     }
   };
@@ -5844,10 +6021,9 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
       covers,
       plans,
       collections,
-      deletedBookIds,
       customBooks
     });
-  }, [lang, mode, skinId, flavorId, bookFlavors, cardMode, scrollDir, voiceEnabled, covers, plans, collections, deletedBookIds, books]);
+  }, [lang, mode, skinId, flavorId, bookFlavors, cardMode, scrollDir, voiceEnabled, covers, plans, collections, books]);
 
   const resetAll = () => {
     if (typeof window !== "undefined") {
@@ -6099,8 +6275,10 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
               onExportBook={onExportBook ? (book) => handleExportBook(book, lang, theme, ui, skin, covers) : undefined}
               onExportCollection={onExportCollection ? (col) => handleExportCollection(col, books, collections, lang, theme, ui, skin, covers) : undefined}
               isExporting={isExporting}
+              onRescan={() => rescanBooks(false)}
+              isScanning={isScanning}
               onOpenImportModal={() => setImportModalOpen(true)}
-              onDeleteBook={deleteBook}
+              onDeleteBook={requestDeleteBook}
               plans={plans}
             />
           ) : view === "tree" ? (
@@ -6124,7 +6302,7 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
               onClearCover={clearCover}
               bookFlavorId={currentBookFlavorId}
               onChangeBookFlavor={(fid) => setBookFlavor(currentBook.id, fid)}
-              onDeleteBook={deleteBook}
+              onDeleteBook={requestDeleteBook}
               plan={currentPlan}
             />
           ) : view === "browse" ? (
@@ -6270,6 +6448,83 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
           >
             <X size={14} />
           </button>
+        </div>
+      )}
+
+      {/* Real Filesystem Delete Confirmation Modal (Web Interface Guidelines compliant) */}
+      {confirmDeleteBook && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="delete-dialog-title"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          style={{ background: "rgba(0, 0, 0, 0.6)", backdropFilter: "blur(4px)" }}
+          onClick={() => !isDeleting && setConfirmDeleteBook(null)}
+        >
+          <div
+            className="w-full max-w-md p-6 rounded-2xl shadow-2xl border flex flex-col gap-4 animate-in fade-in zoom-in-95 duration-150"
+            style={{
+              background: theme.surface,
+              borderColor: theme.hairlineStrong,
+              color: theme.ink,
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full flex items-center justify-center bg-red-500/10 text-red-500 shrink-0">
+                <Trash2 size={20} />
+              </div>
+              <div className="min-w-0 flex-1">
+                <h3 id="delete-dialog-title" className="text-base font-bold">
+                  {lang === "ar" ? "حذف كتاب نهائيًا من القرص" : "Permanently Delete Book"}
+                </h3>
+                <p className="text-xs truncate font-medium mt-0.5" style={{ color: theme.inkSoft }}>
+                  {confirmDeleteBook[lang]?.title || confirmDeleteBook.id}
+                </p>
+              </div>
+            </div>
+
+            <div className="text-xs leading-relaxed p-3 rounded-xl bg-red-500/5 border border-red-500/20 text-red-600 dark:text-red-400">
+              <p className="font-semibold mb-1">
+                {lang === "ar" ? "تحذير: هذا الحذف حقيقي على نظام الملفات!" : "Warning: This action deletes physical files!"}
+              </p>
+              <p>
+                {lang === "ar"
+                  ? "سيتم مسح مجلد الكتاب وملفاته بالكامل من القرص الصلب. لا يمكن التراجع عن هذا الإجراء."
+                  : "The book folder and its contents will be permanently deleted from your storage. This cannot be undone."}
+              </p>
+              {confirmDeleteBook._sourcePath && (
+                <code className="block mt-2 text-[11px] p-1.5 rounded bg-black/10 dark:bg-white/5 truncate font-mono text-gray-700 dark:text-gray-300">
+                  {confirmDeleteBook._sourcePath}
+                </code>
+              )}
+            </div>
+
+            <div className="flex items-center justify-end gap-2.5 pt-2">
+              <button
+                type="button"
+                onClick={() => setConfirmDeleteBook(null)}
+                disabled={isDeleting}
+                className="px-4 py-2 text-xs font-bold rounded-xl border transition-opacity hover:opacity-80 disabled:opacity-50"
+                style={{ borderColor: theme.hairlineStrong, color: theme.ink }}
+              >
+                {ui.cancel || (lang === "ar" ? "إلغاء" : "Cancel")}
+              </button>
+              <button
+                type="button"
+                onClick={executeDeleteBook}
+                disabled={isDeleting}
+                className="px-4 py-2 text-xs font-bold rounded-xl text-white bg-red-600 hover:bg-red-700 flex items-center gap-1.5 transition-colors disabled:opacity-50"
+              >
+                {isDeleting ? (
+                  <span className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  <Trash2 size={13} />
+                )}
+                {lang === "ar" ? (isDeleting ? "جارٍ الحذف..." : "حذف نهائي من القرص") : (isDeleting ? "Deleting..." : "Delete from disk")}
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
