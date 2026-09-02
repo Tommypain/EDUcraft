@@ -1,6 +1,6 @@
 [package]
 name = "educraft"
-version = "0.0.3"
+version = "0.0.3.2"
 description = "EDUcraft - Cross-Platform Desktop Application"
 authors = ["EDUcraft Contributors"]
 edition = "2021"
