@@ -59,21 +59,21 @@
       },
       "crossLinks": [
         [
-          "l_01",
-          "l_15"
+          "html-l_01",
+          "html-l_15"
         ],
         [
-          "l_02",
-          "l_29"
+          "html-l_02",
+          "html-l_29"
         ],
         [
-          "l_04",
-          "l_27"
+          "html-l_04",
+          "html-l_27"
         ]
       ],
       "nodes": [
         {
-          "id": "b1",
+          "id": "html-b1",
           "level": "branch",
           "parent": null,
           "x": 160,
@@ -82,7 +82,7 @@
           "ar": "الأساسيات والمعمارية"
         },
         {
-          "id": "b2",
+          "id": "html-b2",
           "level": "branch",
           "parent": null,
           "x": 400,
@@ -91,7 +91,7 @@
           "ar": "المفاهيم والتطبيق"
         },
         {
-          "id": "b3",
+          "id": "html-b3",
           "level": "branch",
           "parent": null,
           "x": 640,
@@ -100,18 +100,18 @@
           "ar": "الاحتراف والإنتاجية"
         },
         {
-          "id": "s1_0",
+          "id": "html-s1_0",
           "level": "sub",
-          "parent": "b1",
+          "parent": "html-b1",
           "x": 100,
           "y": 156,
           "en": "Module 1",
           "ar": "الوحدة 1"
         },
         {
-          "id": "l_01",
+          "id": "html-l_01",
           "level": "leaf",
-          "parent": "s1_0",
+          "parent": "html-s1_0",
           "x": 50,
           "y": 262,
           "en": "Chapter 01 — HTML Foundations (أساسيات ومعمارية الـ HTML)",
@@ -475,9 +475,9 @@
           ]
         },
         {
-          "id": "l_02",
+          "id": "html-l_02",
           "level": "leaf",
-          "parent": "s1_0",
+          "parent": "html-s1_0",
           "x": 75,
           "y": 262,
           "en": "Chapter 02 — Text & Content (النصوص والمحتوى ودلالاتها)",
@@ -827,9 +827,9 @@
           ]
         },
         {
-          "id": "l_03",
+          "id": "html-l_03",
           "level": "leaf",
-          "parent": "s1_0",
+          "parent": "html-s1_0",
           "x": 100,
           "y": 262,
           "en": "Chapter 03 — Links & Navigation (الروابط وهياكل التنقل)",
@@ -1157,18 +1157,18 @@
           ]
         },
         {
-          "id": "s1_1",
+          "id": "html-s1_1",
           "level": "sub",
-          "parent": "b1",
+          "parent": "html-b1",
           "x": 100,
           "y": 156,
           "en": "Module 2",
           "ar": "الوحدة 2"
         },
         {
-          "id": "l_04",
+          "id": "html-l_04",
           "level": "leaf",
-          "parent": "s1_1",
+          "parent": "html-s1_1",
           "x": 125,
           "y": 262,
           "en": "Chapter 04 — Images & Graphics (الصور والرسومات التفاعلية)",
@@ -1501,9 +1501,9 @@
           ]
         },
         {
-          "id": "l_05",
+          "id": "html-l_05",
           "level": "leaf",
-          "parent": "s1_1",
+          "parent": "html-s1_1",
           "x": 150,
           "y": 262,
           "en": "Chapter 05 — Audio & Video (الوسائط المتعددة والصوت والفيديو)",
@@ -1840,9 +1840,9 @@
           ]
         },
         {
-          "id": "l_06",
+          "id": "html-l_06",
           "level": "leaf",
-          "parent": "s1_1",
+          "parent": "html-s1_1",
           "x": 175,
           "y": 262,
           "en": "Chapter 06 — Semantic HTML (العناصر الدلالية وهيكلة الصفحة)",
@@ -2164,18 +2164,18 @@
           ]
         },
         {
-          "id": "s1_2",
+          "id": "html-s1_2",
           "level": "sub",
-          "parent": "b1",
+          "parent": "html-b1",
           "x": 100,
           "y": 156,
           "en": "Module 3",
           "ar": "الوحدة 3"
         },
         {
-          "id": "l_07",
+          "id": "html-l_07",
           "level": "leaf",
-          "parent": "s1_2",
+          "parent": "html-s1_2",
           "x": 200,
           "y": 262,
           "en": "Chapter 07 — Page Architecture (هندسة وتخطيط الصفحة والواجهات)",
@@ -2503,9 +2503,9 @@
           ]
         },
         {
-          "id": "l_08",
+          "id": "html-l_08",
           "level": "leaf",
-          "parent": "s1_2",
+          "parent": "html-s1_2",
           "x": 225,
           "y": 262,
           "en": "Chapter 08 — Forms (نماذج الإدخال وهيكلة البيانات)",
@@ -2826,9 +2826,9 @@
           ]
         },
         {
-          "id": "l_09",
+          "id": "html-l_09",
           "level": "leaf",
-          "parent": "s1_2",
+          "parent": "html-s1_2",
           "x": 250,
           "y": 262,
           "en": "Chapter 09 — Input Types (أنواع المدخلات الـ 19 بالتفصيل)",
@@ -3144,18 +3144,18 @@
           ]
         },
         {
-          "id": "s1_3",
+          "id": "html-s1_3",
           "level": "sub",
-          "parent": "b1",
+          "parent": "html-b1",
           "x": 100,
           "y": 156,
           "en": "Module 4",
           "ar": "الوحدة 4"
         },
         {
-          "id": "l_10",
+          "id": "html-l_10",
           "level": "leaf",
-          "parent": "s1_3",
+          "parent": "html-s1_3",
           "x": 275,
           "y": 262,
           "en": "Chapter 10 — Form Validation (التحقق الأصلي من صحة البيانات)",
@@ -3469,18 +3469,18 @@
           ]
         },
         {
-          "id": "s2_3",
+          "id": "html-s2_3",
           "level": "sub",
-          "parent": "b2",
+          "parent": "html-b2",
           "x": 400,
           "y": 156,
           "en": "Module 4",
           "ar": "الوحدة 4"
         },
         {
-          "id": "l_11",
+          "id": "html-l_11",
           "level": "leaf",
-          "parent": "s2_3",
+          "parent": "html-s2_3",
           "x": 300,
           "y": 262,
           "en": "Chapter 11 — Tables (الجداول الدلالية وعرض البيانات المعقدة)",
@@ -3789,9 +3789,9 @@
           ]
         },
         {
-          "id": "l_12",
+          "id": "html-l_12",
           "level": "leaf",
-          "parent": "s2_3",
+          "parent": "html-s2_3",
           "x": 325,
           "y": 262,
           "en": "Chapter 12 — HTML Head & Resource Hints (رأس المستند وتحسين تحميل الموارد)",
@@ -4100,18 +4100,18 @@
           ]
         },
         {
-          "id": "s2_4",
+          "id": "html-s2_4",
           "level": "sub",
-          "parent": "b2",
+          "parent": "html-b2",
           "x": 340,
           "y": 156,
           "en": "Module 5",
           "ar": "الوحدة 5"
         },
         {
-          "id": "l_13",
+          "id": "html-l_13",
           "level": "leaf",
-          "parent": "s2_4",
+          "parent": "html-s2_4",
           "x": 350,
           "y": 262,
           "en": "Chapter 13 — Accessibility & ARIA (إتاحة الوصول الشاملة وأساسيات الـ ARIA)",
@@ -4414,9 +4414,9 @@
           ]
         },
         {
-          "id": "l_14",
+          "id": "html-l_14",
           "level": "leaf",
-          "parent": "s2_4",
+          "parent": "html-s2_4",
           "x": 375,
           "y": 262,
           "en": "Chapter 14 — HTML + CSS (التكامل مع الستايل وفصل الهيكل عن الشكل)",
@@ -4742,9 +4742,9 @@
           ]
         },
         {
-          "id": "l_15",
+          "id": "html-l_15",
           "level": "leaf",
-          "parent": "s2_4",
+          "parent": "html-s2_4",
           "x": 400,
           "y": 262,
           "en": "Chapter 15 — HTML + JavaScript (التكامل مع الجافاسكربت وشجرة الـ DOM)",
@@ -5071,18 +5071,18 @@
           ]
         },
         {
-          "id": "s2_5",
+          "id": "html-s2_5",
           "level": "sub",
-          "parent": "b2",
+          "parent": "html-b2",
           "x": 340,
           "y": 156,
           "en": "Module 6",
           "ar": "الوحدة 6"
         },
         {
-          "id": "l_16",
+          "id": "html-l_16",
           "level": "leaf",
-          "parent": "s2_5",
+          "parent": "html-s2_5",
           "x": 425,
           "y": 262,
           "en": "Chapter 16 — Modern Native HTML Elements (عناصر الـ HTML الحديثة ومميزات المتصفح الأصلية)",
@@ -5404,9 +5404,9 @@
           ]
         },
         {
-          "id": "l_17",
+          "id": "html-l_17",
           "level": "leaf",
-          "parent": "s2_5",
+          "parent": "html-s2_5",
           "x": 450,
           "y": 262,
           "en": "Chapter 17 — Embedding & External Content (تضمين المحتوى الخارجي والأمان)",
@@ -5720,9 +5720,9 @@
           ]
         },
         {
-          "id": "l_18",
+          "id": "html-l_18",
           "level": "leaf",
-          "parent": "s2_5",
+          "parent": "html-s2_5",
           "x": 474,
           "y": 262,
           "en": "Chapter 18 — SEO & Metadata (تهيئة محركات البحث والبيانات الوصفية)",
@@ -6037,18 +6037,18 @@
           ]
         },
         {
-          "id": "s2_6",
+          "id": "html-s2_6",
           "level": "sub",
-          "parent": "b2",
+          "parent": "html-b2",
           "x": 340,
           "y": 156,
           "en": "Module 7",
           "ar": "الوحدة 7"
         },
         {
-          "id": "l_19",
+          "id": "html-l_19",
           "level": "leaf",
-          "parent": "s2_6",
+          "parent": "html-s2_6",
           "x": 500,
           "y": 262,
           "en": "Chapter 19 — HTML Performance & Core Web Vitals (أداء وسرعة تحميل الـ HTML)",
@@ -6363,9 +6363,9 @@
           ]
         },
         {
-          "id": "l_20",
+          "id": "html-l_20",
           "level": "leaf",
-          "parent": "s2_6",
+          "parent": "html-s2_6",
           "x": 525,
           "y": 262,
           "en": "Chapter 20 — Self-Contained Portable HTML (الملفات المستقلة وتضمين الأصول من غير إنترنت) ⭐⭐⭐",
@@ -6686,18 +6686,18 @@
           ]
         },
         {
-          "id": "s3_6",
+          "id": "html-s3_6",
           "level": "sub",
-          "parent": "b3",
+          "parent": "html-b3",
           "x": 700,
           "y": 156,
           "en": "Module 7",
           "ar": "الوحدة 7"
         },
         {
-          "id": "l_21",
+          "id": "html-l_21",
           "level": "leaf",
-          "parent": "s3_6",
+          "parent": "html-s3_6",
           "x": 550,
           "y": 262,
           "en": "Chapter 21 — HTML Debugging Engine (فحص وتصحيح أخطاء الـ HTML)",
@@ -7035,18 +7035,18 @@
           ]
         },
         {
-          "id": "s3_7",
+          "id": "html-s3_7",
           "level": "sub",
-          "parent": "b3",
+          "parent": "html-b3",
           "x": 580,
           "y": 156,
           "en": "Module 8",
           "ar": "الوحدة 8"
         },
         {
-          "id": "l_22",
+          "id": "html-l_22",
           "level": "leaf",
-          "parent": "s3_7",
+          "parent": "html-s3_7",
           "x": 575,
           "y": 262,
           "en": "Chapter 22 — Clean & Maintainable HTML (كتابة كود نظيف وقابل للصيانة)",
@@ -7339,9 +7339,9 @@
           ]
         },
         {
-          "id": "l_23",
+          "id": "html-l_23",
           "level": "leaf",
-          "parent": "s3_7",
+          "parent": "html-s3_7",
           "x": 600,
           "y": 262,
           "en": "Chapter 23 — HTML → React & Vite (جسر العبور إلى React و JSX)",
@@ -7605,9 +7605,9 @@
           ]
         },
         {
-          "id": "l_24",
+          "id": "html-l_24",
           "level": "leaf",
-          "parent": "s3_7",
+          "parent": "html-s3_7",
           "x": 625,
           "y": 262,
           "en": "Chapter 24 — Real-World Production HTML (نماذج وتطبيقات عملية حقيقية من سوق العمل)",
@@ -7845,18 +7845,18 @@
           ]
         },
         {
-          "id": "s3_8",
+          "id": "html-s3_8",
           "level": "sub",
-          "parent": "b3",
+          "parent": "html-b3",
           "x": 580,
           "y": 156,
           "en": "Module 9",
           "ar": "الوحدة 9"
         },
         {
-          "id": "l_25",
+          "id": "html-l_25",
           "level": "leaf",
-          "parent": "s3_8",
+          "parent": "html-s3_8",
           "x": 650,
           "y": 262,
           "en": "HTML Accessibility (a11y) Master Reference Map",
@@ -8291,9 +8291,9 @@
           ]
         },
         {
-          "id": "l_26",
+          "id": "html-l_26",
           "level": "leaf",
-          "parent": "s3_8",
+          "parent": "html-s3_8",
           "x": 675,
           "y": 262,
           "en": "HTML Future Stack Map — جسر العبور للتقنيات المتقدمة",
@@ -8694,9 +8694,9 @@
           ]
         },
         {
-          "id": "l_27",
+          "id": "html-l_27",
           "level": "leaf",
-          "parent": "s3_8",
+          "parent": "html-s3_8",
           "x": 700,
           "y": 262,
           "en": "HTML Semantic Decision Map — خريطة اختيار العناصر الدلالية",
@@ -9084,18 +9084,18 @@
           ]
         },
         {
-          "id": "s3_9",
+          "id": "html-s3_9",
           "level": "sub",
-          "parent": "b3",
+          "parent": "html-b3",
           "x": 580,
           "y": 156,
           "en": "Module 10",
           "ar": "الوحدة 10"
         },
         {
-          "id": "l_28",
+          "id": "html-l_28",
           "level": "leaf",
-          "parent": "s3_9",
+          "parent": "html-s3_9",
           "x": 725,
           "y": 262,
           "en": "Self-Contained Portable HTML Guide — الدليل الشامل لملفات الـ HTML المستقلة ⭐⭐⭐",
@@ -9544,9 +9544,9 @@
           ]
         },
         {
-          "id": "l_29",
+          "id": "html-l_29",
           "level": "leaf",
-          "parent": "s3_9",
+          "parent": "html-s3_9",
           "x": 750,
           "y": 262,
           "en": "HTML Curriculum Knowledge Map — خريطة المنهج المعرفية",
@@ -9942,21 +9942,21 @@
       },
       "crossLinks": [
         [
-          "l_01",
-          "l_20"
+          "css-l_01",
+          "css-l_20"
         ],
         [
-          "l_02",
-          "l_38"
+          "css-l_02",
+          "css-l_38"
         ],
         [
-          "l_04",
-          "l_36"
+          "css-l_04",
+          "css-l_36"
         ]
       ],
       "nodes": [
         {
-          "id": "b1",
+          "id": "css-b1",
           "level": "branch",
           "parent": null,
           "x": 160,
@@ -9965,7 +9965,7 @@
           "ar": "الأساسيات والمعمارية"
         },
         {
-          "id": "b2",
+          "id": "css-b2",
           "level": "branch",
           "parent": null,
           "x": 400,
@@ -9974,7 +9974,7 @@
           "ar": "المفاهيم والتطبيق"
         },
         {
-          "id": "b3",
+          "id": "css-b3",
           "level": "branch",
           "parent": null,
           "x": 640,
@@ -9983,18 +9983,18 @@
           "ar": "الاحتراف والإنتاجية"
         },
         {
-          "id": "s1_0",
+          "id": "css-s1_0",
           "level": "sub",
-          "parent": "b1",
+          "parent": "css-b1",
           "x": 100,
           "y": 156,
           "en": "Module 1",
           "ar": "الوحدة 1"
         },
         {
-          "id": "l_01",
+          "id": "css-l_01",
           "level": "leaf",
-          "parent": "s1_0",
+          "parent": "css-s1_0",
           "x": 50,
           "y": 262,
           "en": "الفصل 01 — أساسيات الويب والواجهات (Web & UI Foundations)",
@@ -10325,9 +10325,9 @@
           ]
         },
         {
-          "id": "l_02",
+          "id": "css-l_02",
           "level": "leaf",
-          "parent": "s1_0",
+          "parent": "css-s1_0",
           "x": 68,
           "y": 262,
           "en": "الفصل 02 — نموذج الصندوق والأبعاد (Box Model)",
@@ -10646,9 +10646,9 @@
           ]
         },
         {
-          "id": "l_03",
+          "id": "css-l_03",
           "level": "leaf",
-          "parent": "s1_0",
+          "parent": "css-s1_0",
           "x": 87,
           "y": 262,
           "en": "الفصل 03 — أنواع العرض وسلوك العناصر (Display & Element Behavior)",
@@ -10931,18 +10931,18 @@
           ]
         },
         {
-          "id": "s1_1",
+          "id": "css-s1_1",
           "level": "sub",
-          "parent": "b1",
+          "parent": "css-b1",
           "x": 100,
           "y": 156,
           "en": "Module 2",
           "ar": "الوحدة 2"
         },
         {
-          "id": "l_04",
+          "id": "css-l_04",
           "level": "leaf",
-          "parent": "s1_1",
+          "parent": "css-s1_1",
           "x": 106,
           "y": 262,
           "en": "الفصل 04 — النموذج الذهني لتخطيط الصفحات (Layout Mental Model)",
@@ -11238,9 +11238,9 @@
           ]
         },
         {
-          "id": "l_05",
+          "id": "css-l_05",
           "level": "leaf",
-          "parent": "s1_1",
+          "parent": "css-s1_1",
           "x": 125,
           "y": 262,
           "en": "الفصل 05 — محرك التخطيط أحادي البعد (Flexbox)",
@@ -11519,9 +11519,9 @@
           ]
         },
         {
-          "id": "l_06",
+          "id": "css-l_06",
           "level": "leaf",
-          "parent": "s1_1",
+          "parent": "css-s1_1",
           "x": 144,
           "y": 262,
           "en": "الفصل 06 — محرك التخطيط الشبكي ثنائي الأبعاد (CSS Grid)",
@@ -11807,18 +11807,18 @@
           ]
         },
         {
-          "id": "s1_2",
+          "id": "css-s1_2",
           "level": "sub",
-          "parent": "b1",
+          "parent": "css-b1",
           "x": 100,
           "y": 156,
           "en": "Module 3",
           "ar": "الوحدة 3"
         },
         {
-          "id": "l_07",
+          "id": "css-l_07",
           "level": "leaf",
-          "parent": "s1_2",
+          "parent": "css-s1_2",
           "x": 163,
           "y": 262,
           "en": "الفصل 07 — التموضع والتحكم في إحداثيات العناصر (Positioning)",
@@ -12097,9 +12097,9 @@
           ]
         },
         {
-          "id": "l_08",
+          "id": "css-l_08",
           "level": "leaf",
-          "parent": "s1_2",
+          "parent": "css-s1_2",
           "x": 182,
           "y": 262,
           "en": "الفصل 08 — الطبقات وسياق التكديس (Z-Index & Stacking Context)",
@@ -12364,9 +12364,9 @@
           ]
         },
         {
-          "id": "l_09",
+          "id": "css-l_09",
           "level": "leaf",
-          "parent": "s1_2",
+          "parent": "css-s1_2",
           "x": 201,
           "y": 262,
           "en": "الفصل 09 — نظم الأبعاد ووحدات القياس والتباعد (Sizing & Spacing System)",
@@ -12639,18 +12639,18 @@
           ]
         },
         {
-          "id": "s1_3",
+          "id": "css-s1_3",
           "level": "sub",
-          "parent": "b1",
+          "parent": "css-b1",
           "x": 100,
           "y": 156,
           "en": "Module 4",
           "ar": "الوحدة 4"
         },
         {
-          "id": "l_10",
+          "id": "css-l_10",
           "level": "leaf",
-          "parent": "s1_3",
+          "parent": "css-s1_3",
           "x": 220,
           "y": 262,
           "en": "الفصل 10 — نظام وهندسة الخطوط والنصوص (Typography)",
@@ -12913,9 +12913,9 @@
           ]
         },
         {
-          "id": "l_11",
+          "id": "css-l_11",
           "level": "leaf",
-          "parent": "s1_3",
+          "parent": "css-s1_3",
           "x": 239,
           "y": 262,
           "en": "الفصل 11 — أنظمة ونظرية الألوان والشفافية (Colors)",
@@ -13155,9 +13155,9 @@
           ]
         },
         {
-          "id": "l_12",
+          "id": "css-l_12",
           "level": "leaf",
-          "parent": "s1_3",
+          "parent": "css-s1_3",
           "x": 258,
           "y": 262,
           "en": "الفصل 12 — هندسة الخلفيات والتدرجات اللونية (Backgrounds)",
@@ -13420,18 +13420,18 @@
           ]
         },
         {
-          "id": "s1_4",
+          "id": "css-s1_4",
           "level": "sub",
-          "parent": "b1",
+          "parent": "css-b1",
           "x": 100,
           "y": 156,
           "en": "Module 5",
           "ar": "الوحدة 5"
         },
         {
-          "id": "l_13",
+          "id": "css-l_13",
           "level": "leaf",
-          "parent": "s1_4",
+          "parent": "css-s1_4",
           "x": 277,
           "y": 262,
           "en": "الفصل 13 — الحدود والحواف والمنحنيات (Borders & Radius)",
@@ -13706,18 +13706,18 @@
           ]
         },
         {
-          "id": "s2_4",
+          "id": "css-s2_4",
           "level": "sub",
-          "parent": "b2",
+          "parent": "css-b2",
           "x": 400,
           "y": 156,
           "en": "Module 5",
           "ar": "الوحدة 5"
         },
         {
-          "id": "l_14",
+          "id": "css-l_14",
           "level": "leaf",
-          "parent": "s2_4",
+          "parent": "css-s2_4",
           "x": 295,
           "y": 262,
           "en": "الفصل 14 — الظلال ومستويات العمق والارتفاع البصري (Shadows & Depth)",
@@ -13968,9 +13968,9 @@
           ]
         },
         {
-          "id": "l_15",
+          "id": "css-l_15",
           "level": "leaf",
-          "parent": "s2_4",
+          "parent": "css-s2_4",
           "x": 314,
           "y": 262,
           "en": "الفصل 15 — هندسة الصور والوسائط المتجاوبة (Images & Media)",
@@ -14239,18 +14239,18 @@
           ]
         },
         {
-          "id": "s2_5",
+          "id": "css-s2_5",
           "level": "sub",
-          "parent": "b2",
+          "parent": "css-b2",
           "x": 340,
           "y": 156,
           "en": "Module 6",
           "ar": "الوحدة 6"
         },
         {
-          "id": "l_16",
+          "id": "css-l_16",
           "level": "leaf",
-          "parent": "s2_5",
+          "parent": "css-s2_5",
           "x": 333,
           "y": 262,
           "en": "الفصل 16 — التصميم المتجاوب وهندسة الشاشات (Responsive Design)",
@@ -14484,9 +14484,9 @@
           ]
         },
         {
-          "id": "l_17",
+          "id": "css-l_17",
           "level": "leaf",
-          "parent": "s2_5",
+          "parent": "css-s2_5",
           "x": 352,
           "y": 262,
           "en": "الفصل 17 — حالات الواجهة والتفاعل (UI States)",
@@ -14726,9 +14726,9 @@
           ]
         },
         {
-          "id": "l_18",
+          "id": "css-l_18",
           "level": "leaf",
-          "parent": "s2_5",
+          "parent": "css-s2_5",
           "x": 371,
           "y": 262,
           "en": "الفصل 18 — هندسة النماذج وحقول الإدخال (Forms & Controls)",
@@ -14956,18 +14956,18 @@
           ]
         },
         {
-          "id": "s2_6",
+          "id": "css-s2_6",
           "level": "sub",
-          "parent": "b2",
+          "parent": "css-b2",
           "x": 340,
           "y": 156,
           "en": "Module 7",
           "ar": "الوحدة 7"
         },
         {
-          "id": "l_19",
+          "id": "css-l_19",
           "level": "leaf",
-          "parent": "s2_6",
+          "parent": "css-s2_6",
           "x": 390,
           "y": 262,
           "en": "الفصل 19 — الانتقالات والتحريك التفاعلي الناعم (Transitions)",
@@ -15206,9 +15206,9 @@
           ]
         },
         {
-          "id": "l_20",
+          "id": "css-l_20",
           "level": "leaf",
-          "parent": "s2_6",
+          "parent": "css-s2_6",
           "x": 409,
           "y": 262,
           "en": "الفصل 20 — التحولات الهندسية والأنيميشن المتقدم (Transforms & Animation)",
@@ -15448,9 +15448,9 @@
           ]
         },
         {
-          "id": "l_21",
+          "id": "css-l_21",
           "level": "leaf",
-          "parent": "s2_6",
+          "parent": "css-s2_6",
           "x": 428,
           "y": 262,
           "en": "الفصل 21 — المؤثرات البصرية وتصميم الزجاج العصري (Effects & Modern UI)",
@@ -15696,18 +15696,18 @@
           ]
         },
         {
-          "id": "s2_7",
+          "id": "css-s2_7",
           "level": "sub",
-          "parent": "b2",
+          "parent": "css-b2",
           "x": 340,
           "y": 156,
           "en": "Module 8",
           "ar": "الوحدة 8"
         },
         {
-          "id": "l_22",
+          "id": "css-l_22",
           "level": "leaf",
-          "parent": "s2_7",
+          "parent": "css-s2_7",
           "x": 447,
           "y": 262,
           "en": "الفصل 22 — المتغيرات المخصصة وبناء الثيمات الديناميكية (CSS Variables & Theming)",
@@ -15940,9 +15940,9 @@
           ]
         },
         {
-          "id": "l_23",
+          "id": "css-l_23",
           "level": "leaf",
-          "parent": "s2_7",
+          "parent": "css-s2_7",
           "x": 466,
           "y": 262,
           "en": "الفصل 23 — الوضع الداكن وهندسة التباين الليلي (Dark Mode)",
@@ -16176,9 +16176,9 @@
           ]
         },
         {
-          "id": "l_24",
+          "id": "css-l_24",
           "level": "leaf",
-          "parent": "s2_7",
+          "parent": "css-s2_7",
           "x": 485,
           "y": 262,
           "en": "الفصل 24 — المحددات المتقدمة والفئات الدلالية الحديثة (Advanced Selectors)",
@@ -16446,18 +16446,18 @@
           ]
         },
         {
-          "id": "s2_8",
+          "id": "css-s2_8",
           "level": "sub",
-          "parent": "b2",
+          "parent": "css-b2",
           "x": 340,
           "y": 156,
           "en": "Module 9",
           "ar": "الوحدة 9"
         },
         {
-          "id": "l_25",
+          "id": "css-l_25",
           "level": "leaf",
-          "parent": "s2_8",
+          "parent": "css-s2_8",
           "x": 504,
           "y": 262,
           "en": "الفصل 25 — هندسة وبناء نظم التصميم (Design Systems)",
@@ -16702,9 +16702,9 @@
           ]
         },
         {
-          "id": "l_26",
+          "id": "css-l_26",
           "level": "leaf",
-          "parent": "s2_8",
+          "parent": "css-s2_8",
           "x": 522,
           "y": 262,
           "en": "الفصل 26 — التخطيط الهندسي وتصميم الواجهات وتجربة المستخدم (UI/UX Layout Planning)",
@@ -16926,18 +16926,18 @@
           ]
         },
         {
-          "id": "s3_8",
+          "id": "css-s3_8",
           "level": "sub",
-          "parent": "b3",
+          "parent": "css-b3",
           "x": 700,
           "y": 156,
           "en": "Module 9",
           "ar": "الوحدة 9"
         },
         {
-          "id": "l_27",
+          "id": "css-l_27",
           "level": "leaf",
-          "parent": "s3_8",
+          "parent": "css-s3_8",
           "x": 541,
           "y": 262,
           "en": "الفصل 27 — دراسات حالة لنظم التصميم العالمية (Design System Case Studies)",
@@ -17165,18 +17165,18 @@
           ]
         },
         {
-          "id": "s3_9",
+          "id": "css-s3_9",
           "level": "sub",
-          "parent": "b3",
+          "parent": "css-b3",
           "x": 580,
           "y": 156,
           "en": "Module 10",
           "ar": "الوحدة 10"
         },
         {
-          "id": "l_28",
+          "id": "css-l_28",
           "level": "leaf",
-          "parent": "s3_9",
+          "parent": "css-s3_9",
           "x": 560,
           "y": 262,
           "en": "الفصل 28 — إمكانية الوصول والتوافقية الشاملة (Accessibility - a11y)",
@@ -17410,9 +17410,9 @@
           ]
         },
         {
-          "id": "l_29",
+          "id": "css-l_29",
           "level": "leaf",
-          "parent": "s3_9",
+          "parent": "css-s3_9",
           "x": 579,
           "y": 262,
           "en": "الفصل 29 — معمارية الواجهات المتجاوبة للتطبيقات الضخمة (Responsive UI Architecture)",
@@ -17646,9 +17646,9 @@
           ]
         },
         {
-          "id": "l_30",
+          "id": "css-l_30",
           "level": "leaf",
-          "parent": "s3_9",
+          "parent": "css-s3_9",
           "x": 598,
           "y": 262,
           "en": "الفصل 30 — المعمارية المتقدمة لكود CSS (CSS Architecture)",
@@ -17887,18 +17887,18 @@
           ]
         },
         {
-          "id": "s3_10",
+          "id": "css-s3_10",
           "level": "sub",
-          "parent": "b3",
+          "parent": "css-b3",
           "x": 580,
           "y": 156,
           "en": "Module 11",
           "ar": "الوحدة 11"
         },
         {
-          "id": "l_31",
+          "id": "css-l_31",
           "level": "leaf",
-          "parent": "s3_10",
+          "parent": "css-s3_10",
           "x": 617,
           "y": 262,
           "en": "الفصل 31 — المعمارية المتقدمة لـ Tailwind CSS وتكامل React (Tailwind Architecture)",
@@ -18143,9 +18143,9 @@
           ]
         },
         {
-          "id": "l_32",
+          "id": "css-l_32",
           "level": "leaf",
-          "parent": "s3_10",
+          "parent": "css-s3_10",
           "x": 636,
           "y": 262,
           "en": "الفصل 32 — ورشة الترجمة والتحويل الهندسي (CSS ↔ Tailwind Translation)",
@@ -18379,9 +18379,9 @@
           ]
         },
         {
-          "id": "l_33",
+          "id": "css-l_33",
           "level": "leaf",
-          "parent": "s3_10",
+          "parent": "css-s3_10",
           "x": 655,
           "y": 262,
           "en": "الفصل 33 — هندسة الواجهات العكسية (UI Reconstruction: Screenshot → Code)",
@@ -18603,18 +18603,18 @@
           ]
         },
         {
-          "id": "s3_11",
+          "id": "css-s3_11",
           "level": "sub",
-          "parent": "b3",
+          "parent": "css-b3",
           "x": 580,
           "y": 156,
           "en": "Module 12",
           "ar": "الوحدة 12"
         },
         {
-          "id": "l_34",
+          "id": "css-l_34",
           "level": "leaf",
-          "parent": "s3_11",
+          "parent": "css-s3_11",
           "x": 674,
           "y": 262,
           "en": "الفصل 34 — مسار العمل الهندسي: من الفكرة إلى الإنتاج (Design → Code Workflow)",
@@ -18840,9 +18840,9 @@
           ]
         },
         {
-          "id": "l_35",
+          "id": "css-l_35",
           "level": "leaf",
-          "parent": "s3_11",
+          "parent": "css-s3_11",
           "x": 693,
           "y": 262,
           "en": "الفصل 35 — بناء الواجهات الاحترافية وتطبيقات الإنتاج (Professional UI Building)",
@@ -19039,9 +19039,9 @@
           ]
         },
         {
-          "id": "l_36",
+          "id": "css-l_36",
           "level": "leaf",
-          "parent": "s3_11",
+          "parent": "css-s3_11",
           "x": 712,
           "y": 262,
           "en": "قاموس التحويل الشامل: CSS ↔ Tailwind CSS (Master Translation Map)",
@@ -19425,18 +19425,18 @@
           ]
         },
         {
-          "id": "s3_12",
+          "id": "css-s3_12",
           "level": "sub",
-          "parent": "b3",
+          "parent": "css-b3",
           "x": 580,
           "y": 156,
           "en": "Module 13",
           "ar": "الوحدة 13"
         },
         {
-          "id": "l_37",
+          "id": "css-l_37",
           "level": "leaf",
-          "parent": "s3_12",
+          "parent": "css-s3_12",
           "x": 731,
           "y": 262,
           "en": "خريطة نظم التصميم والـ Design Tokens (Design System Architecture Map)",
@@ -19814,9 +19814,9 @@
           ]
         },
         {
-          "id": "l_38",
+          "id": "css-l_38",
           "level": "leaf",
-          "parent": "s3_12",
+          "parent": "css-s3_12",
           "x": 750,
           "y": 262,
           "en": "خريطة المنهج والترابط المعرفي (Curriculum Knowledge Map)",
@@ -20182,21 +20182,21 @@
       },
       "crossLinks": [
         [
-          "l_01",
-          "l_15"
+          "js-l_01",
+          "js-l_15"
         ],
         [
-          "l_02",
-          "l_29"
+          "js-l_02",
+          "js-l_29"
         ],
         [
-          "l_04",
-          "l_27"
+          "js-l_04",
+          "js-l_27"
         ]
       ],
       "nodes": [
         {
-          "id": "b1",
+          "id": "js-b1",
           "level": "branch",
           "parent": null,
           "x": 160,
@@ -20205,7 +20205,7 @@
           "ar": "الأساسيات والمعمارية"
         },
         {
-          "id": "b2",
+          "id": "js-b2",
           "level": "branch",
           "parent": null,
           "x": 400,
@@ -20214,7 +20214,7 @@
           "ar": "المفاهيم والتطبيق"
         },
         {
-          "id": "b3",
+          "id": "js-b3",
           "level": "branch",
           "parent": null,
           "x": 640,
@@ -20223,18 +20223,18 @@
           "ar": "الاحتراف والإنتاجية"
         },
         {
-          "id": "s1_0",
+          "id": "js-s1_0",
           "level": "sub",
-          "parent": "b1",
+          "parent": "js-b1",
           "x": 100,
           "y": 156,
           "en": "Module 1",
           "ar": "الوحدة 1"
         },
         {
-          "id": "l_01",
+          "id": "js-l_01",
           "level": "leaf",
-          "parent": "s1_0",
+          "parent": "js-s1_0",
           "x": 50,
           "y": 262,
           "en": "Chapter 01 — JavaScript Fundamentals",
@@ -20913,9 +20913,9 @@
           ]
         },
         {
-          "id": "l_02",
+          "id": "js-l_02",
           "level": "leaf",
-          "parent": "s1_0",
+          "parent": "js-s1_0",
           "x": 75,
           "y": 262,
           "en": "Chapter 02 — Operators & Expressions",
@@ -21416,9 +21416,9 @@
           ]
         },
         {
-          "id": "l_03",
+          "id": "js-l_03",
           "level": "leaf",
-          "parent": "s1_0",
+          "parent": "js-s1_0",
           "x": 100,
           "y": 262,
           "en": "Chapter 03 — Control Flow",
@@ -21890,18 +21890,18 @@
           ]
         },
         {
-          "id": "s1_1",
+          "id": "js-s1_1",
           "level": "sub",
-          "parent": "b1",
+          "parent": "js-b1",
           "x": 100,
           "y": 156,
           "en": "Module 2",
           "ar": "الوحدة 2"
         },
         {
-          "id": "l_04",
+          "id": "js-l_04",
           "level": "leaf",
-          "parent": "s1_1",
+          "parent": "js-s1_1",
           "x": 125,
           "y": 262,
           "en": "Chapter 04 — Functions",
@@ -22379,9 +22379,9 @@
           ]
         },
         {
-          "id": "l_05",
+          "id": "js-l_05",
           "level": "leaf",
-          "parent": "s1_1",
+          "parent": "js-s1_1",
           "x": 150,
           "y": 262,
           "en": "Chapter 05 — Scope & Closures",
@@ -22854,9 +22854,9 @@
           ]
         },
         {
-          "id": "l_06",
+          "id": "js-l_06",
           "level": "leaf",
-          "parent": "s1_1",
+          "parent": "js-s1_1",
           "x": 175,
           "y": 262,
           "en": "Chapter 06 — Arrays",
@@ -23325,18 +23325,18 @@
           ]
         },
         {
-          "id": "s1_2",
+          "id": "js-s1_2",
           "level": "sub",
-          "parent": "b1",
+          "parent": "js-b1",
           "x": 100,
           "y": 156,
           "en": "Module 3",
           "ar": "الوحدة 3"
         },
         {
-          "id": "l_07",
+          "id": "js-l_07",
           "level": "leaf",
-          "parent": "s1_2",
+          "parent": "js-s1_2",
           "x": 200,
           "y": 262,
           "en": "Chapter 07 — Objects",
@@ -23772,9 +23772,9 @@
           ]
         },
         {
-          "id": "l_08",
+          "id": "js-l_08",
           "level": "leaf",
-          "parent": "s1_2",
+          "parent": "js-s1_2",
           "x": 225,
           "y": 262,
           "en": "Chapter 08 — Strings, Numbers & Common Built-ins",
@@ -24190,9 +24190,9 @@
           ]
         },
         {
-          "id": "l_09",
+          "id": "js-l_09",
           "level": "leaf",
-          "parent": "s1_2",
+          "parent": "js-s1_2",
           "x": 250,
           "y": 262,
           "en": "Chapter 09 — JavaScript Type System & Coercion",
@@ -24634,18 +24634,18 @@
           ]
         },
         {
-          "id": "s1_3",
+          "id": "js-s1_3",
           "level": "sub",
-          "parent": "b1",
+          "parent": "js-b1",
           "x": 100,
           "y": 156,
           "en": "Module 4",
           "ar": "الوحدة 4"
         },
         {
-          "id": "l_10",
+          "id": "js-l_10",
           "level": "leaf",
-          "parent": "s1_3",
+          "parent": "js-s1_3",
           "x": 275,
           "y": 262,
           "en": "Chapter 10 — this & Object Behavior",
@@ -25078,18 +25078,18 @@
           ]
         },
         {
-          "id": "s2_3",
+          "id": "js-s2_3",
           "level": "sub",
-          "parent": "b2",
+          "parent": "js-b2",
           "x": 400,
           "y": 156,
           "en": "Module 4",
           "ar": "الوحدة 4"
         },
         {
-          "id": "l_11",
+          "id": "js-l_11",
           "level": "leaf",
-          "parent": "s2_3",
+          "parent": "js-s2_3",
           "x": 300,
           "y": 262,
           "en": "Chapter 11 — Modern JavaScript Patterns",
@@ -25475,9 +25475,9 @@
           ]
         },
         {
-          "id": "l_12",
+          "id": "js-l_12",
           "level": "leaf",
-          "parent": "s2_3",
+          "parent": "js-s2_3",
           "x": 325,
           "y": 262,
           "en": "Chapter 12 — Modules",
@@ -25902,18 +25902,18 @@
           ]
         },
         {
-          "id": "s2_4",
+          "id": "js-s2_4",
           "level": "sub",
-          "parent": "b2",
+          "parent": "js-b2",
           "x": 340,
           "y": 156,
           "en": "Module 5",
           "ar": "الوحدة 5"
         },
         {
-          "id": "l_13",
+          "id": "js-l_13",
           "level": "leaf",
-          "parent": "s2_4",
+          "parent": "js-s2_4",
           "x": 350,
           "y": 262,
           "en": "Chapter 13 — Error Handling",
@@ -26304,9 +26304,9 @@
           ]
         },
         {
-          "id": "l_14",
+          "id": "js-l_14",
           "level": "leaf",
-          "parent": "s2_4",
+          "parent": "js-s2_4",
           "x": 375,
           "y": 262,
           "en": "Chapter 14 — Asynchronous JavaScript",
@@ -26715,9 +26715,9 @@
           ]
         },
         {
-          "id": "l_15",
+          "id": "js-l_15",
           "level": "leaf",
-          "parent": "s2_4",
+          "parent": "js-s2_4",
           "x": 400,
           "y": 262,
           "en": "Chapter 15 — JavaScript Runtime & Event Loop",
@@ -27084,18 +27084,18 @@
           ]
         },
         {
-          "id": "s2_5",
+          "id": "js-s2_5",
           "level": "sub",
-          "parent": "b2",
+          "parent": "js-b2",
           "x": 340,
           "y": 156,
           "en": "Module 6",
           "ar": "الوحدة 6"
         },
         {
-          "id": "l_16",
+          "id": "js-l_16",
           "level": "leaf",
-          "parent": "s2_5",
+          "parent": "js-s2_5",
           "x": 425,
           "y": 262,
           "en": "Chapter 16 — Fetch & HTTP Basics",
@@ -27452,9 +27452,9 @@
           ]
         },
         {
-          "id": "l_17",
+          "id": "js-l_17",
           "level": "leaf",
-          "parent": "s2_5",
+          "parent": "js-s2_5",
           "x": 450,
           "y": 262,
           "en": "Chapter 17 — Browser JavaScript Essentials",
@@ -27835,9 +27835,9 @@
           ]
         },
         {
-          "id": "l_18",
+          "id": "js-l_18",
           "level": "leaf",
-          "parent": "s2_5",
+          "parent": "js-s2_5",
           "x": 474,
           "y": 262,
           "en": "Chapter 18 — Node.js JavaScript Essentials",
@@ -28200,18 +28200,18 @@
           ]
         },
         {
-          "id": "s2_6",
+          "id": "js-s2_6",
           "level": "sub",
-          "parent": "b2",
+          "parent": "js-b2",
           "x": 340,
           "y": 156,
           "en": "Module 7",
           "ar": "الوحدة 7"
         },
         {
-          "id": "l_19",
+          "id": "js-l_19",
           "level": "leaf",
-          "parent": "s2_6",
+          "parent": "js-s2_6",
           "x": 500,
           "y": 262,
           "en": "Chapter 19 — npm & JavaScript Tooling",
@@ -28579,9 +28579,9 @@
           ]
         },
         {
-          "id": "l_20",
+          "id": "js-l_20",
           "level": "leaf",
-          "parent": "s2_6",
+          "parent": "js-s2_6",
           "x": 525,
           "y": 262,
           "en": "Chapter 20 — Debugging JavaScript",
@@ -28927,18 +28927,18 @@
           ]
         },
         {
-          "id": "s3_6",
+          "id": "js-s3_6",
           "level": "sub",
-          "parent": "b3",
+          "parent": "js-b3",
           "x": 700,
           "y": 156,
           "en": "Module 7",
           "ar": "الوحدة 7"
         },
         {
-          "id": "l_21",
+          "id": "js-l_21",
           "level": "leaf",
-          "parent": "s3_6",
+          "parent": "js-s3_6",
           "x": 550,
           "y": 262,
           "en": "Chapter 21 — JavaScript Code Quality",
@@ -29273,18 +29273,18 @@
           ]
         },
         {
-          "id": "s3_7",
+          "id": "js-s3_7",
           "level": "sub",
-          "parent": "b3",
+          "parent": "js-b3",
           "x": 580,
           "y": 156,
           "en": "Module 8",
           "ar": "الوحدة 8"
         },
         {
-          "id": "l_22",
+          "id": "js-l_22",
           "level": "leaf",
-          "parent": "s3_7",
+          "parent": "js-s3_7",
           "x": 575,
           "y": 262,
           "en": "Chapter 22 — JavaScript for Modern Frontend",
@@ -29629,9 +29629,9 @@
           ]
         },
         {
-          "id": "l_23",
+          "id": "js-l_23",
           "level": "leaf",
-          "parent": "s3_7",
+          "parent": "js-s3_7",
           "x": 600,
           "y": 262,
           "en": "Chapter 23 — JavaScript for Modern Backend",
@@ -29982,9 +29982,9 @@
           ]
         },
         {
-          "id": "l_24",
+          "id": "js-l_24",
           "level": "leaf",
-          "parent": "s3_7",
+          "parent": "js-s3_7",
           "x": 625,
           "y": 262,
           "en": "Chapter 24 — JavaScript Professional Essentials",
@@ -30279,18 +30279,18 @@
           ]
         },
         {
-          "id": "s3_8",
+          "id": "js-s3_8",
           "level": "sub",
-          "parent": "b3",
+          "parent": "js-b3",
           "x": 580,
           "y": 156,
           "en": "Module 9",
           "ar": "الوحدة 9"
         },
         {
-          "id": "l_25",
+          "id": "js-l_25",
           "level": "leaf",
-          "parent": "s3_8",
+          "parent": "js-s3_8",
           "x": 650,
           "y": 262,
           "en": "Chapter 25 — JavaScript → TypeScript Bridge",
@@ -30642,9 +30642,9 @@
           ]
         },
         {
-          "id": "l_26",
+          "id": "js-l_26",
           "level": "leaf",
-          "parent": "s3_8",
+          "parent": "js-s3_8",
           "x": 675,
           "y": 262,
           "en": "Chapter 26 — JavaScript → React Bridge",
@@ -30979,9 +30979,9 @@
           ]
         },
         {
-          "id": "l_27",
+          "id": "js-l_27",
           "level": "leaf",
-          "parent": "s3_8",
+          "parent": "js-s3_8",
           "x": 700,
           "y": 262,
           "en": "Chapter 27 — JavaScript → Node.js Bridge",
@@ -31310,18 +31310,18 @@
           ]
         },
         {
-          "id": "s3_9",
+          "id": "js-s3_9",
           "level": "sub",
-          "parent": "b3",
+          "parent": "js-b3",
           "x": 580,
           "y": 156,
           "en": "Module 10",
           "ar": "الوحدة 10"
         },
         {
-          "id": "l_28",
+          "id": "js-l_28",
           "level": "leaf",
-          "parent": "s3_9",
+          "parent": "js-s3_9",
           "x": 725,
           "y": 262,
           "en": "Chapter 28 — JavaScript → Vite Bridge",
@@ -31671,9 +31671,9 @@
           ]
         },
         {
-          "id": "l_29",
+          "id": "js-l_29",
           "level": "leaf",
-          "parent": "s3_9",
+          "parent": "js-s3_9",
           "x": 750,
           "y": 262,
           "en": "JavaScript Curriculum Knowledge Map & Dependency Graph",
@@ -32045,21 +32045,21 @@
       },
       "crossLinks": [
         [
-          "l_01",
-          "l_13"
+          "ts-l_01",
+          "ts-l_13"
         ],
         [
-          "l_02",
-          "l_25"
+          "ts-l_02",
+          "ts-l_25"
         ],
         [
-          "l_04",
-          "l_23"
+          "ts-l_04",
+          "ts-l_23"
         ]
       ],
       "nodes": [
         {
-          "id": "b1",
+          "id": "ts-b1",
           "level": "branch",
           "parent": null,
           "x": 160,
@@ -32068,7 +32068,7 @@
           "ar": "الأساسيات والمعمارية"
         },
         {
-          "id": "b2",
+          "id": "ts-b2",
           "level": "branch",
           "parent": null,
           "x": 400,
@@ -32077,7 +32077,7 @@
           "ar": "المفاهيم والتطبيق"
         },
         {
-          "id": "b3",
+          "id": "ts-b3",
           "level": "branch",
           "parent": null,
           "x": 640,
@@ -32086,18 +32086,18 @@
           "ar": "الاحتراف والإنتاجية"
         },
         {
-          "id": "s1_0",
+          "id": "ts-s1_0",
           "level": "sub",
-          "parent": "b1",
+          "parent": "ts-b1",
           "x": 100,
           "y": 156,
           "en": "Module 1",
           "ar": "الوحدة 1"
         },
         {
-          "id": "l_01",
+          "id": "ts-l_01",
           "level": "leaf",
-          "parent": "s1_0",
+          "parent": "ts-s1_0",
           "x": 50,
           "y": 262,
           "en": "Chapter 01 — TypeScript Foundations (أساسيات وبنية TypeScript)",
@@ -32599,9 +32599,9 @@
           ]
         },
         {
-          "id": "l_02",
+          "id": "ts-l_02",
           "level": "leaf",
-          "parent": "s1_0",
+          "parent": "ts-s1_0",
           "x": 79,
           "y": 262,
           "en": "Chapter 02 — Basic Types (الأنواع الأساسية والخاصة)",
@@ -32990,9 +32990,9 @@
           ]
         },
         {
-          "id": "l_03",
+          "id": "ts-l_03",
           "level": "leaf",
-          "parent": "s1_0",
+          "parent": "ts-s1_0",
           "x": 108,
           "y": 262,
           "en": "Chapter 03 — Arrays, Tuples & Objects (المصفوفات، التيوبلز، والكائنات)",
@@ -33386,18 +33386,18 @@
           ]
         },
         {
-          "id": "s1_1",
+          "id": "ts-s1_1",
           "level": "sub",
-          "parent": "b1",
+          "parent": "ts-b1",
           "x": 100,
           "y": 156,
           "en": "Module 2",
           "ar": "الوحدة 2"
         },
         {
-          "id": "l_04",
+          "id": "ts-l_04",
           "level": "leaf",
-          "parent": "s1_1",
+          "parent": "ts-s1_1",
           "x": 137,
           "y": 262,
           "en": "Chapter 04 — Functions (الدوال وتحديد التواقيع والأنواع)",
@@ -33767,9 +33767,9 @@
           ]
         },
         {
-          "id": "l_05",
+          "id": "ts-l_05",
           "level": "leaf",
-          "parent": "s1_1",
+          "parent": "ts-s1_1",
           "x": 166,
           "y": 262,
           "en": "Chapter 05 — Type Aliases & Interfaces (الأسماء المستعارة والواجهات)",
@@ -34128,9 +34128,9 @@
           ]
         },
         {
-          "id": "l_06",
+          "id": "ts-l_06",
           "level": "leaf",
-          "parent": "s1_1",
+          "parent": "ts-s1_1",
           "x": 195,
           "y": 262,
           "en": "Chapter 06 — Union & Literal Types (أنواع الاتحاد والقيم الحرفية المقيدة)",
@@ -34476,18 +34476,18 @@
           ]
         },
         {
-          "id": "s1_2",
+          "id": "ts-s1_2",
           "level": "sub",
-          "parent": "b1",
+          "parent": "ts-b1",
           "x": 100,
           "y": 156,
           "en": "Module 3",
           "ar": "الوحدة 3"
         },
         {
-          "id": "l_07",
+          "id": "ts-l_07",
           "level": "leaf",
-          "parent": "s1_2",
+          "parent": "ts-s1_2",
           "x": 225,
           "y": 262,
           "en": "Chapter 07 — Type Narrowing & Guards (تضييق الأنواع وحراس الأمان)",
@@ -34829,9 +34829,9 @@
           ]
         },
         {
-          "id": "l_08",
+          "id": "ts-l_08",
           "level": "leaf",
-          "parent": "s1_2",
+          "parent": "ts-s1_2",
           "x": 254,
           "y": 262,
           "en": "Chapter 08 — Enums & Alternatives (التعدادات وبدائلها الحديثة)",
@@ -35154,9 +35154,9 @@
           ]
         },
         {
-          "id": "l_09",
+          "id": "ts-l_09",
           "level": "leaf",
-          "parent": "s1_2",
+          "parent": "ts-s1_2",
           "x": 283,
           "y": 262,
           "en": "Chapter 09 — Generics (الأنواع العامة وإعادة الاستخدام)",
@@ -35496,18 +35496,18 @@
           ]
         },
         {
-          "id": "s2_3",
+          "id": "ts-s2_3",
           "level": "sub",
-          "parent": "b2",
+          "parent": "ts-b2",
           "x": 340,
           "y": 156,
           "en": "Module 4",
           "ar": "الوحدة 4"
         },
         {
-          "id": "l_10",
+          "id": "ts-l_10",
           "level": "leaf",
-          "parent": "s2_3",
+          "parent": "ts-s2_3",
           "x": 312,
           "y": 262,
           "en": "Chapter 10 — Utility Types (أنواع الأدوات والتحويلات الجاهزة)",
@@ -35867,9 +35867,9 @@
           ]
         },
         {
-          "id": "l_11",
+          "id": "ts-l_11",
           "level": "leaf",
-          "parent": "s2_3",
+          "parent": "ts-s2_3",
           "x": 341,
           "y": 262,
           "en": "Chapter 11 — Type Operators (معاملات الأنواع المتقدمة)",
@@ -36187,9 +36187,9 @@
           ]
         },
         {
-          "id": "l_12",
+          "id": "ts-l_12",
           "level": "leaf",
-          "parent": "s2_3",
+          "parent": "ts-s2_3",
           "x": 370,
           "y": 262,
           "en": "Chapter 12 — Classes & Object-Oriented TypeScript (الكلاسات والبرمجة الكائنية)",
@@ -36465,18 +36465,18 @@
           ]
         },
         {
-          "id": "s2_4",
+          "id": "ts-s2_4",
           "level": "sub",
-          "parent": "b2",
+          "parent": "ts-b2",
           "x": 340,
           "y": 156,
           "en": "Module 5",
           "ar": "الوحدة 5"
         },
         {
-          "id": "l_13",
+          "id": "ts-l_13",
           "level": "leaf",
-          "parent": "s2_4",
+          "parent": "ts-s2_4",
           "x": 400,
           "y": 262,
           "en": "Chapter 13 — Modules & TypeScript Projects (الموديولز وتنظيم المشاريع)",
@@ -36782,9 +36782,9 @@
           ]
         },
         {
-          "id": "l_14",
+          "id": "ts-l_14",
           "level": "leaf",
-          "parent": "s2_4",
+          "parent": "ts-s2_4",
           "x": 429,
           "y": 262,
           "en": "Chapter 14 — tsconfig & Compiler Options (إعدادات الكومبايلر الاحترافية)",
@@ -37096,9 +37096,9 @@
           ]
         },
         {
-          "id": "l_15",
+          "id": "ts-l_15",
           "level": "leaf",
-          "parent": "s2_4",
+          "parent": "ts-s2_4",
           "x": 458,
           "y": 262,
           "en": "Chapter 15 — TypeScript with JavaScript Ecosystem (التعامل مع منظومة ومكتبات JavaScript)",
@@ -37415,18 +37415,18 @@
           ]
         },
         {
-          "id": "s2_5",
+          "id": "ts-s2_5",
           "level": "sub",
-          "parent": "b2",
+          "parent": "ts-b2",
           "x": 340,
           "y": 156,
           "en": "Module 6",
           "ar": "الوحدة 6"
         },
         {
-          "id": "l_16",
+          "id": "ts-l_16",
           "level": "leaf",
-          "parent": "s2_5",
+          "parent": "ts-s2_5",
           "x": 487,
           "y": 262,
           "en": "Chapter 16 — Error Handling & Safe Data (معالجة الأخطاء وحماية البيانات)",
@@ -37708,9 +37708,9 @@
           ]
         },
         {
-          "id": "l_17",
+          "id": "ts-l_17",
           "level": "leaf",
-          "parent": "s2_5",
+          "parent": "ts-s2_5",
           "x": 516,
           "y": 262,
           "en": "Chapter 17 — Async TypeScript (البرمجة غير المتزامنة والوعود)",
@@ -38022,9 +38022,9 @@
           ]
         },
         {
-          "id": "l_18",
+          "id": "ts-l_18",
           "level": "leaf",
-          "parent": "s2_5",
+          "parent": "ts-s2_5",
           "x": 545,
           "y": 262,
           "en": "Chapter 18 — API & Data Modeling (نمذجة بيانات الواجهات البرمجية والـ DTOs)",
@@ -38316,18 +38316,18 @@
           ]
         },
         {
-          "id": "s3_6",
+          "id": "ts-s3_6",
           "level": "sub",
-          "parent": "b3",
+          "parent": "ts-b3",
           "x": 580,
           "y": 156,
           "en": "Module 7",
           "ar": "الوحدة 7"
         },
         {
-          "id": "l_19",
+          "id": "ts-l_19",
           "level": "leaf",
-          "parent": "s3_6",
+          "parent": "ts-s3_6",
           "x": 575,
           "y": 262,
           "en": "Chapter 19 — Runtime Validation (التحقق وقت التشغيل ومكتبة Zod)",
@@ -38627,9 +38627,9 @@
           ]
         },
         {
-          "id": "l_20",
+          "id": "ts-l_20",
           "level": "leaf",
-          "parent": "s3_6",
+          "parent": "ts-s3_6",
           "x": 604,
           "y": 262,
           "en": "Chapter 20 — TypeScript for React (تايب سكريبت مع رياكت)",
@@ -38881,9 +38881,9 @@
           ]
         },
         {
-          "id": "l_21",
+          "id": "ts-l_21",
           "level": "leaf",
-          "parent": "s3_6",
+          "parent": "ts-s3_6",
           "x": 633,
           "y": 262,
           "en": "Chapter 21 — TypeScript for Node.js (تايب سكريبت مع نود جي إس والباك إند)",
@@ -39169,18 +39169,18 @@
           ]
         },
         {
-          "id": "s3_7",
+          "id": "ts-s3_7",
           "level": "sub",
-          "parent": "b3",
+          "parent": "ts-b3",
           "x": 580,
           "y": 156,
           "en": "Module 8",
           "ar": "الوحدة 8"
         },
         {
-          "id": "l_22",
+          "id": "ts-l_22",
           "level": "leaf",
-          "parent": "s3_7",
+          "parent": "ts-s3_7",
           "x": 662,
           "y": 262,
           "en": "Chapter 22 — TypeScript Tooling & Workflow (الأدوات وسير العمل الهندسي)",
@@ -39484,9 +39484,9 @@
           ]
         },
         {
-          "id": "l_23",
+          "id": "ts-l_23",
           "level": "leaf",
-          "parent": "s3_7",
+          "parent": "ts-s3_7",
           "x": 691,
           "y": 262,
           "en": "Chapter 23 — Professional TypeScript (الممارسات الاحترافية وتجنب التعقيد)",
@@ -39786,9 +39786,9 @@
           ]
         },
         {
-          "id": "l_24",
+          "id": "ts-l_24",
           "level": "leaf",
-          "parent": "s3_7",
+          "parent": "ts-s3_7",
           "x": 720,
           "y": 262,
           "en": "Chapter 24 — Job-Ready TypeScript (التطبيق الشامل والجاهزية لسوق العمل)",
@@ -40033,18 +40033,18 @@
           ]
         },
         {
-          "id": "s3_8",
+          "id": "ts-s3_8",
           "level": "sub",
-          "parent": "b3",
+          "parent": "ts-b3",
           "x": 580,
           "y": 156,
           "en": "Module 9",
           "ar": "الوحدة 9"
         },
         {
-          "id": "l_25",
+          "id": "ts-l_25",
           "level": "leaf",
-          "parent": "s3_8",
+          "parent": "ts-s3_8",
           "x": 750,
           "y": 262,
           "en": "خريطة شجرة المفاهيم وعلاقات TypeScript (Curriculum Map)",
@@ -40422,21 +40422,21 @@
       },
       "crossLinks": [
         [
-          "l_01",
-          "l_16"
+          "react-l_01",
+          "react-l_16"
         ],
         [
-          "l_02",
-          "l_31"
+          "react-l_02",
+          "react-l_31"
         ],
         [
-          "l_04",
-          "l_29"
+          "react-l_04",
+          "react-l_29"
         ]
       ],
       "nodes": [
         {
-          "id": "b1",
+          "id": "react-b1",
           "level": "branch",
           "parent": null,
           "x": 160,
@@ -40445,7 +40445,7 @@
           "ar": "الأساسيات والمعمارية"
         },
         {
-          "id": "b2",
+          "id": "react-b2",
           "level": "branch",
           "parent": null,
           "x": 400,
@@ -40454,7 +40454,7 @@
           "ar": "المفاهيم والتطبيق"
         },
         {
-          "id": "b3",
+          "id": "react-b3",
           "level": "branch",
           "parent": null,
           "x": 640,
@@ -40463,18 +40463,18 @@
           "ar": "الاحتراف والإنتاجية"
         },
         {
-          "id": "s1_0",
+          "id": "react-s1_0",
           "level": "sub",
-          "parent": "b1",
+          "parent": "react-b1",
           "x": 100,
           "y": 156,
           "en": "Module 1",
           "ar": "الوحدة 1"
         },
         {
-          "id": "l_01",
+          "id": "react-l_01",
           "level": "leaf",
-          "parent": "s1_0",
+          "parent": "react-s1_0",
           "x": 50,
           "y": 262,
           "en": "الفصل 01 — أساسيات React ونموذج التفكير (React Foundations)",
@@ -40827,9 +40827,9 @@
           ]
         },
         {
-          "id": "l_02",
+          "id": "react-l_02",
           "level": "leaf",
-          "parent": "s1_0",
+          "parent": "react-s1_0",
           "x": 73,
           "y": 262,
           "en": "الفصل 02 — المكونات وشجرة الواجهة (Components & Component Tree)",
@@ -41141,9 +41141,9 @@
           ]
         },
         {
-          "id": "l_03",
+          "id": "react-l_03",
           "level": "leaf",
-          "parent": "s1_0",
+          "parent": "react-s1_0",
           "x": 96,
           "y": 262,
           "en": "الفصل 03 — لغة كتابة الواجهات (JSX)",
@@ -41470,18 +41470,18 @@
           ]
         },
         {
-          "id": "s1_1",
+          "id": "react-s1_1",
           "level": "sub",
-          "parent": "b1",
+          "parent": "react-b1",
           "x": 100,
           "y": 156,
           "en": "Module 2",
           "ar": "الوحدة 2"
         },
         {
-          "id": "l_04",
+          "id": "react-l_04",
           "level": "leaf",
-          "parent": "s1_1",
+          "parent": "react-s1_1",
           "x": 120,
           "y": 262,
           "en": "الفصل 04 — تمرير البيانات والخصائص (Props & Component Composition)",
@@ -41798,9 +41798,9 @@
           ]
         },
         {
-          "id": "l_05",
+          "id": "react-l_05",
           "level": "leaf",
-          "parent": "s1_1",
+          "parent": "react-s1_1",
           "x": 143,
           "y": 262,
           "en": "الفصل 05 — الذاكرة التفاعلية والحالة (State & useState)",
@@ -42114,9 +42114,9 @@
           ]
         },
         {
-          "id": "l_06",
+          "id": "react-l_06",
           "level": "leaf",
-          "parent": "s1_1",
+          "parent": "react-s1_1",
           "x": 166,
           "y": 262,
           "en": "الفصل 06 — التفاعل مع المستخدم والأحداث (Events & User Interaction)",
@@ -42427,18 +42427,18 @@
           ]
         },
         {
-          "id": "s1_2",
+          "id": "react-s1_2",
           "level": "sub",
-          "parent": "b1",
+          "parent": "react-b1",
           "x": 100,
           "y": 156,
           "en": "Module 3",
           "ar": "الوحدة 3"
         },
         {
-          "id": "l_07",
+          "id": "react-l_07",
           "level": "leaf",
-          "parent": "s1_2",
+          "parent": "react-s1_2",
           "x": 190,
           "y": 262,
           "en": "الفصل 07 — الرندرة الشرطية والتحكم في الواجهة (Conditional Rendering)",
@@ -42742,9 +42742,9 @@
           ]
         },
         {
-          "id": "l_08",
+          "id": "react-l_08",
           "level": "leaf",
-          "parent": "s1_2",
+          "parent": "react-s1_2",
           "x": 213,
           "y": 262,
           "en": "الفصل 08 — رندرة القوائم والمفاتيح (Lists & Keys)",
@@ -43018,9 +43018,9 @@
           ]
         },
         {
-          "id": "l_09",
+          "id": "react-l_09",
           "level": "leaf",
-          "parent": "s1_2",
+          "parent": "react-s1_2",
           "x": 236,
           "y": 262,
           "en": "الفصل 09 — استمارات الإدخال والتحقق (Forms & Validation)",
@@ -43283,18 +43283,18 @@
           ]
         },
         {
-          "id": "s1_3",
+          "id": "react-s1_3",
           "level": "sub",
-          "parent": "b1",
+          "parent": "react-b1",
           "x": 100,
           "y": 156,
           "en": "Module 4",
           "ar": "الوحدة 4"
         },
         {
-          "id": "l_10",
+          "id": "react-l_10",
           "level": "leaf",
-          "parent": "s1_3",
+          "parent": "react-s1_3",
           "x": 260,
           "y": 262,
           "en": "الفصل 10 — تواصل المكونات ومشاركة الحالة (Component Communication & Lifting State Up)",
@@ -43578,9 +43578,9 @@
           ]
         },
         {
-          "id": "l_11",
+          "id": "react-l_11",
           "level": "leaf",
-          "parent": "s1_3",
+          "parent": "react-s1_3",
           "x": 283,
           "y": 262,
           "en": "الفصل 11 — نموذج التفكير العميق ودورة الرندرة (Rendering & React Mental Model)",
@@ -43886,18 +43886,18 @@
           ]
         },
         {
-          "id": "s2_3",
+          "id": "react-s2_3",
           "level": "sub",
-          "parent": "b2",
+          "parent": "react-b2",
           "x": 460,
           "y": 156,
           "en": "Module 4",
           "ar": "الوحدة 4"
         },
         {
-          "id": "l_12",
+          "id": "react-l_12",
           "level": "leaf",
-          "parent": "s2_3",
+          "parent": "react-s2_3",
           "x": 306,
           "y": 262,
           "en": "الفصل 12 — الآثار الجانبية ومزامنة النظم (useEffect)",
@@ -44172,18 +44172,18 @@
           ]
         },
         {
-          "id": "s2_4",
+          "id": "react-s2_4",
           "level": "sub",
-          "parent": "b2",
+          "parent": "react-b2",
           "x": 340,
           "y": 156,
           "en": "Module 5",
           "ar": "الوحدة 5"
         },
         {
-          "id": "l_13",
+          "id": "react-l_13",
           "level": "leaf",
-          "parent": "s2_4",
+          "parent": "react-s2_4",
           "x": 330,
           "y": 262,
           "en": "الفصل 13 — المراجع والوصول للـ DOM (useRef)",
@@ -44441,9 +44441,9 @@
           ]
         },
         {
-          "id": "l_14",
+          "id": "react-l_14",
           "level": "leaf",
-          "parent": "s2_4",
+          "parent": "react-s2_4",
           "x": 353,
           "y": 262,
           "en": "الفصل 14 — الخطافات وبناء الـ Custom Hooks (Hooks Architecture)",
@@ -44713,9 +44713,9 @@
           ]
         },
         {
-          "id": "l_15",
+          "id": "react-l_15",
           "level": "leaf",
-          "parent": "s2_4",
+          "parent": "react-s2_4",
           "x": 376,
           "y": 262,
           "en": "الفصل 15 — مشاركة البيانات العامة (Context API)",
@@ -44990,18 +44990,18 @@
           ]
         },
         {
-          "id": "s2_5",
+          "id": "react-s2_5",
           "level": "sub",
-          "parent": "b2",
+          "parent": "react-b2",
           "x": 340,
           "y": 156,
           "en": "Module 6",
           "ar": "الوحدة 6"
         },
         {
-          "id": "l_16",
+          "id": "react-l_16",
           "level": "leaf",
-          "parent": "s2_5",
+          "parent": "react-s2_5",
           "x": 400,
           "y": 262,
           "en": "الفصل 16 — إدارة الحالة المعقدة والانتقالات (useReducer)",
@@ -45247,9 +45247,9 @@
           ]
         },
         {
-          "id": "l_17",
+          "id": "react-l_17",
           "level": "leaf",
-          "parent": "s2_5",
+          "parent": "react-s2_5",
           "x": 423,
           "y": 262,
           "en": "الفصل 17 — جلب البيانات والتعامل مع الـ APIs (Data Fetching & APIs)",
@@ -45506,9 +45506,9 @@
           ]
         },
         {
-          "id": "l_18",
+          "id": "react-l_18",
           "level": "leaf",
-          "parent": "s2_5",
+          "parent": "react-s2_5",
           "x": 446,
           "y": 262,
           "en": "الفصل 18 — إدارة المسارات والتنقل (Routing with React Router)",
@@ -45772,18 +45772,18 @@
           ]
         },
         {
-          "id": "s2_6",
+          "id": "react-s2_6",
           "level": "sub",
-          "parent": "b2",
+          "parent": "react-b2",
           "x": 340,
           "y": 156,
           "en": "Module 7",
           "ar": "الوحدة 7"
         },
         {
-          "id": "l_19",
+          "id": "react-l_19",
           "level": "leaf",
-          "parent": "s2_6",
+          "parent": "react-s2_6",
           "x": 470,
           "y": 262,
           "en": "الفصل 19 — هندسة وتصنيف حالة التطبيق (Application State Architecture)",
@@ -46044,9 +46044,9 @@
           ]
         },
         {
-          "id": "l_20",
+          "id": "react-l_20",
           "level": "leaf",
-          "parent": "s2_6",
+          "parent": "react-s2_6",
           "x": 493,
           "y": 262,
           "en": "الفصل 20 — حالة السيرفر وإدارتها الحديثة (Server State & TanStack Query)",
@@ -46292,9 +46292,9 @@
           ]
         },
         {
-          "id": "l_21",
+          "id": "react-l_21",
           "level": "leaf",
-          "parent": "s2_6",
+          "parent": "react-s2_6",
           "x": 516,
           "y": 262,
           "en": "الفصل 21 — تحسين الأداء وإدارة الذاكرة (Performance Optimization)",
@@ -46574,18 +46574,18 @@
           ]
         },
         {
-          "id": "s2_7",
+          "id": "react-s2_7",
           "level": "sub",
-          "parent": "b2",
+          "parent": "react-b2",
           "x": 340,
           "y": 156,
           "en": "Module 8",
           "ar": "الوحدة 8"
         },
         {
-          "id": "l_22",
+          "id": "react-l_22",
           "level": "leaf",
-          "parent": "s2_7",
+          "parent": "react-s2_7",
           "x": 540,
           "y": 262,
           "en": "الفصل 22 — معالجة الأخطاء وحدود الأمان (Error Handling & Error Boundaries)",
@@ -46848,18 +46848,18 @@
           ]
         },
         {
-          "id": "s3_7",
+          "id": "react-s3_7",
           "level": "sub",
-          "parent": "b3",
+          "parent": "react-b3",
           "x": 640,
           "y": 156,
           "en": "Module 8",
           "ar": "الوحدة 8"
         },
         {
-          "id": "l_23",
+          "id": "react-l_23",
           "level": "leaf",
-          "parent": "s3_7",
+          "parent": "react-s3_7",
           "x": 563,
           "y": 262,
           "en": "الفصل 23 — إتقان React مع TypeScript (React + TypeScript Mastery)",
@@ -47151,9 +47151,9 @@
           ]
         },
         {
-          "id": "l_24",
+          "id": "react-l_24",
           "level": "leaf",
-          "parent": "s3_7",
+          "parent": "react-s3_7",
           "x": 586,
           "y": 262,
           "en": "الفصل 24 — تنسيق وهندسة الواجهات (Styling React Applications)",
@@ -47433,18 +47433,18 @@
           ]
         },
         {
-          "id": "s3_8",
+          "id": "react-s3_8",
           "level": "sub",
-          "parent": "b3",
+          "parent": "react-b3",
           "x": 580,
           "y": 156,
           "en": "Module 9",
           "ar": "الوحدة 9"
         },
         {
-          "id": "l_25",
+          "id": "react-l_25",
           "level": "leaf",
-          "parent": "s3_8",
+          "parent": "react-s3_8",
           "x": 610,
           "y": 262,
           "en": "الفصل 25 — معمارية وتنظيم المشاريع الضخمة (Project Architecture)",
@@ -47683,9 +47683,9 @@
           ]
         },
         {
-          "id": "l_26",
+          "id": "react-l_26",
           "level": "leaf",
-          "parent": "s3_8",
+          "parent": "react-s3_8",
           "x": 633,
           "y": 262,
           "en": "الفصل 26 — المصادقة وإدارة الجلسات والأمان (Authentication & Security)",
@@ -47925,9 +47925,9 @@
           ]
         },
         {
-          "id": "l_27",
+          "id": "react-l_27",
           "level": "leaf",
-          "parent": "s3_8",
+          "parent": "react-s3_8",
           "x": 656,
           "y": 262,
           "en": "الفصل 27 — اختبار التطبيقات وسلوك المستخدم (Testing React with Vitest & RTL)",
@@ -48190,18 +48190,18 @@
           ]
         },
         {
-          "id": "s3_9",
+          "id": "react-s3_9",
           "level": "sub",
-          "parent": "b3",
+          "parent": "react-b3",
           "x": 580,
           "y": 156,
           "en": "Module 10",
           "ar": "الوحدة 10"
         },
         {
-          "id": "l_28",
+          "id": "react-l_28",
           "level": "leaf",
-          "parent": "s3_9",
+          "parent": "react-s3_9",
           "x": 680,
           "y": 262,
           "en": "الفصل 28 — تصحيح الأخطاء وأدوات المطورين (Debugging & React DevTools)",
@@ -48465,9 +48465,9 @@
           ]
         },
         {
-          "id": "l_29",
+          "id": "react-l_29",
           "level": "leaf",
-          "parent": "s3_9",
+          "parent": "react-s3_9",
           "x": 703,
           "y": 262,
           "en": "الفصل 29 — بيئة العمل والإنتاج مع Vite (Vite & Production Build)",
@@ -48765,9 +48765,9 @@
           ]
         },
         {
-          "id": "l_30",
+          "id": "react-l_30",
           "level": "leaf",
-          "parent": "s3_9",
+          "parent": "react-s3_9",
           "x": 726,
           "y": 262,
           "en": "الفصل 30 — الجاهزية لسوق العمل والإنتاج الحقيقي (Job-Ready React Mastery)",
@@ -49031,18 +49031,18 @@
           ]
         },
         {
-          "id": "s3_10",
+          "id": "react-s3_10",
           "level": "sub",
-          "parent": "b3",
+          "parent": "react-b3",
           "x": 580,
           "y": 156,
           "en": "Module 11",
           "ar": "الوحدة 11"
         },
         {
-          "id": "l_31",
+          "id": "react-l_31",
           "level": "leaf",
-          "parent": "s3_10",
+          "parent": "react-s3_10",
           "x": 750,
           "y": 262,
           "en": "خريطة مسار تعلم React (Curriculum Map)",
@@ -49426,21 +49426,21 @@
       },
       "crossLinks": [
         [
-          "l_01",
-          "l_17"
+          "node-l_01",
+          "node-l_17"
         ],
         [
-          "l_02",
-          "l_32"
+          "node-l_02",
+          "node-l_32"
         ],
         [
-          "l_04",
-          "l_30"
+          "node-l_04",
+          "node-l_30"
         ]
       ],
       "nodes": [
         {
-          "id": "b1",
+          "id": "node-b1",
           "level": "branch",
           "parent": null,
           "x": 160,
@@ -49449,7 +49449,7 @@
           "ar": "الأساسيات والمعمارية"
         },
         {
-          "id": "b2",
+          "id": "node-b2",
           "level": "branch",
           "parent": null,
           "x": 400,
@@ -49458,7 +49458,7 @@
           "ar": "المفاهيم والتطبيق"
         },
         {
-          "id": "b3",
+          "id": "node-b3",
           "level": "branch",
           "parent": null,
           "x": 640,
@@ -49467,18 +49467,18 @@
           "ar": "الاحتراف والإنتاجية"
         },
         {
-          "id": "s1_0",
+          "id": "node-s1_0",
           "level": "sub",
-          "parent": "b1",
+          "parent": "node-b1",
           "x": 100,
           "y": 156,
           "en": "Module 1",
           "ar": "الوحدة 1"
         },
         {
-          "id": "l_01",
+          "id": "node-l_01",
           "level": "leaf",
-          "parent": "s1_0",
+          "parent": "node-s1_0",
           "x": 50,
           "y": 262,
           "en": "Chapter 01 — Backend Foundations (أساسيات هندسة الـ Backend)",
@@ -49819,9 +49819,9 @@
           ]
         },
         {
-          "id": "l_02",
+          "id": "node-l_02",
           "level": "leaf",
-          "parent": "s1_0",
+          "parent": "node-s1_0",
           "x": 72,
           "y": 262,
           "en": "Chapter 02 — Node.js Fundamentals (أساسيات Node.js والـ Modules)",
@@ -50171,9 +50171,9 @@
           ]
         },
         {
-          "id": "l_03",
+          "id": "node-l_03",
           "level": "leaf",
-          "parent": "s1_0",
+          "parent": "node-s1_0",
           "x": 95,
           "y": 262,
           "en": "Chapter 03 — Node.js Runtime & Async (الـ Runtime، الـ Event Loop والـ Async)",
@@ -50510,18 +50510,18 @@
           ]
         },
         {
-          "id": "s1_1",
+          "id": "node-s1_1",
           "level": "sub",
-          "parent": "b1",
+          "parent": "node-b1",
           "x": 100,
           "y": 156,
           "en": "Module 2",
           "ar": "الوحدة 2"
         },
         {
-          "id": "l_04",
+          "id": "node-l_04",
           "level": "leaf",
-          "parent": "s1_1",
+          "parent": "node-s1_1",
           "x": 117,
           "y": 262,
           "en": "Chapter 04 — Node.js Core APIs (موديولات Node.js الأساسية)",
@@ -50854,9 +50854,9 @@
           ]
         },
         {
-          "id": "l_05",
+          "id": "node-l_05",
           "level": "leaf",
-          "parent": "s1_1",
+          "parent": "node-s1_1",
           "x": 140,
           "y": 262,
           "en": "Chapter 05 — NPM & Node.js Ecosystem (إدارة الحزم والـ Dependencies في NPM)",
@@ -51250,9 +51250,9 @@
           ]
         },
         {
-          "id": "l_06",
+          "id": "node-l_06",
           "level": "leaf",
-          "parent": "s1_1",
+          "parent": "node-s1_1",
           "x": 162,
           "y": 262,
           "en": "Chapter 06 — TypeScript with Node.js (استخدام TypeScript الاحترافي في الـ Backend)",
@@ -51592,18 +51592,18 @@
           ]
         },
         {
-          "id": "s1_2",
+          "id": "node-s1_2",
           "level": "sub",
-          "parent": "b1",
+          "parent": "node-b1",
           "x": 100,
           "y": 156,
           "en": "Module 3",
           "ar": "الوحدة 3"
         },
         {
-          "id": "l_07",
+          "id": "node-l_07",
           "level": "leaf",
-          "parent": "s1_2",
+          "parent": "node-s1_2",
           "x": 185,
           "y": 262,
           "en": "Chapter 07 — HTTP Deep Dive (بروتوكول HTTP بالتفصيل)",
@@ -51973,9 +51973,9 @@
           ]
         },
         {
-          "id": "l_08",
+          "id": "node-l_08",
           "level": "leaf",
-          "parent": "s1_2",
+          "parent": "node-s1_2",
           "x": 208,
           "y": 262,
           "en": "Chapter 08 — REST API Design (تصميم الـ RESTful APIs والمعايير الاحترافية)",
@@ -52314,9 +52314,9 @@
           ]
         },
         {
-          "id": "l_09",
+          "id": "node-l_09",
           "level": "leaf",
-          "parent": "s1_2",
+          "parent": "node-s1_2",
           "x": 230,
           "y": 262,
           "en": "Chapter 09 — Node.js Web Framework (فريم ورك الويب Express والـ Request Lifecycle)",
@@ -52650,18 +52650,18 @@
           ]
         },
         {
-          "id": "s1_3",
+          "id": "node-s1_3",
           "level": "sub",
-          "parent": "b1",
+          "parent": "node-b1",
           "x": 100,
           "y": 156,
           "en": "Module 4",
           "ar": "الوحدة 4"
         },
         {
-          "id": "l_10",
+          "id": "node-l_10",
           "level": "leaf",
-          "parent": "s1_3",
+          "parent": "node-s1_3",
           "x": 253,
           "y": 262,
           "en": "Chapter 10 — Middleware & Validation (الـ Middlewares والـ Runtime Validation)",
@@ -52995,9 +52995,9 @@
           ]
         },
         {
-          "id": "l_11",
+          "id": "node-l_11",
           "level": "leaf",
-          "parent": "s1_3",
+          "parent": "node-s1_3",
           "x": 275,
           "y": 262,
           "en": "Chapter 11 — Backend Architecture (هيكلة الـ Backend والطبقات المعمارية)",
@@ -53314,18 +53314,18 @@
           ]
         },
         {
-          "id": "s2_3",
+          "id": "node-s2_3",
           "level": "sub",
-          "parent": "b2",
+          "parent": "node-b2",
           "x": 460,
           "y": 156,
           "en": "Module 4",
           "ar": "الوحدة 4"
         },
         {
-          "id": "l_12",
+          "id": "node-l_12",
           "level": "leaf",
-          "parent": "s2_3",
+          "parent": "node-s2_3",
           "x": 298,
           "y": 262,
           "en": "Chapter 12 — Database Fundamentals (أساسيات قواعد البيانات ونظم التخزين)",
@@ -53675,18 +53675,18 @@
           ]
         },
         {
-          "id": "s2_4",
+          "id": "node-s2_4",
           "level": "sub",
-          "parent": "b2",
+          "parent": "node-b2",
           "x": 340,
           "y": 156,
           "en": "Module 5",
           "ar": "الوحدة 5"
         },
         {
-          "id": "l_13",
+          "id": "node-l_13",
           "level": "leaf",
-          "parent": "s2_4",
+          "parent": "node-s2_4",
           "x": 320,
           "y": 262,
           "en": "Chapter 13 — Relational Databases (قواعد البيانات العلائقية ونمذجة العلاقات)",
@@ -54029,9 +54029,9 @@
           ]
         },
         {
-          "id": "l_14",
+          "id": "node-l_14",
           "level": "leaf",
-          "parent": "s2_4",
+          "parent": "node-s2_4",
           "x": 343,
           "y": 262,
           "en": "Chapter 14 — SQL Fundamentals (أساسيات لغة SQL واستعلامات البيانات)",
@@ -54432,9 +54432,9 @@
           ]
         },
         {
-          "id": "l_15",
+          "id": "node-l_15",
           "level": "leaf",
-          "parent": "s2_4",
+          "parent": "node-s2_4",
           "x": 366,
           "y": 262,
           "en": "Chapter 15 — SQL Queries (استعلامات SQL المتقدمة والربط والتجميع)",
@@ -54786,18 +54786,18 @@
           ]
         },
         {
-          "id": "s2_5",
+          "id": "node-s2_5",
           "level": "sub",
-          "parent": "b2",
+          "parent": "node-b2",
           "x": 340,
           "y": 156,
           "en": "Module 6",
           "ar": "الوحدة 6"
         },
         {
-          "id": "l_16",
+          "id": "node-l_16",
           "level": "leaf",
-          "parent": "s2_5",
+          "parent": "node-s2_5",
           "x": 388,
           "y": 262,
           "en": "Chapter 16 — SQL Database Design (تصميم قواعد البيانات والـ Indexes المتقدمة)",
@@ -55157,9 +55157,9 @@
           ]
         },
         {
-          "id": "l_17",
+          "id": "node-l_17",
           "level": "leaf",
-          "parent": "s2_5",
+          "parent": "node-s2_5",
           "x": 411,
           "y": 262,
           "en": "Chapter 17 — Transactions & Concurrency (الـ Transactions، مبادئ ACID والـ Race Conditions)",
@@ -55504,9 +55504,9 @@
           ]
         },
         {
-          "id": "l_18",
+          "id": "node-l_18",
           "level": "leaf",
-          "parent": "s2_5",
+          "parent": "node-s2_5",
           "x": 433,
           "y": 262,
           "en": "Chapter 18 — Node.js + SQL Database (ربط Node.js بقواعد البيانات والـ Migrations)",
@@ -55862,18 +55862,18 @@
           ]
         },
         {
-          "id": "s2_6",
+          "id": "node-s2_6",
           "level": "sub",
-          "parent": "b2",
+          "parent": "node-b2",
           "x": 340,
           "y": 156,
           "en": "Module 7",
           "ar": "الوحدة 7"
         },
         {
-          "id": "l_19",
+          "id": "node-l_19",
           "level": "leaf",
-          "parent": "s2_6",
+          "parent": "node-s2_6",
           "x": 456,
           "y": 262,
           "en": "Chapter 19 — ORM & Query Builders (الـ ORMs والـ Query Builders والمفاضلة الهندسية)",
@@ -56223,9 +56223,9 @@
           ]
         },
         {
-          "id": "l_20",
+          "id": "node-l_20",
           "level": "leaf",
-          "parent": "s2_6",
+          "parent": "node-s2_6",
           "x": 479,
           "y": 262,
           "en": "Chapter 20 — NoSQL Fundamentals (مدخل إلى NoSQL ومتى نختاره)",
@@ -56548,9 +56548,9 @@
           ]
         },
         {
-          "id": "l_21",
+          "id": "node-l_21",
           "level": "leaf",
-          "parent": "s2_6",
+          "parent": "node-s2_6",
           "x": 501,
           "y": 262,
           "en": "Chapter 21 — Document Databases (قواعد البيانات المستندية ونمذجة MongoDB)",
@@ -56911,18 +56911,18 @@
           ]
         },
         {
-          "id": "s2_7",
+          "id": "node-s2_7",
           "level": "sub",
-          "parent": "b2",
+          "parent": "node-b2",
           "x": 340,
           "y": 156,
           "en": "Module 8",
           "ar": "الوحدة 8"
         },
         {
-          "id": "l_22",
+          "id": "node-l_22",
           "level": "leaf",
-          "parent": "s2_7",
+          "parent": "node-s2_7",
           "x": 524,
           "y": 262,
           "en": "Chapter 22 — Node.js + NoSQL (ربط Node.js بـ MongoDB واستخدام Mongoose)",
@@ -57274,18 +57274,18 @@
           ]
         },
         {
-          "id": "s3_7",
+          "id": "node-s3_7",
           "level": "sub",
-          "parent": "b3",
+          "parent": "node-b3",
           "x": 640,
           "y": 156,
           "en": "Module 8",
           "ar": "الوحدة 8"
         },
         {
-          "id": "l_23",
+          "id": "node-l_23",
           "level": "leaf",
-          "parent": "s3_7",
+          "parent": "node-s3_7",
           "x": 546,
           "y": 262,
           "en": "Chapter 23 — Authentication (التوثيق وتأكيد الهوية)",
@@ -57608,9 +57608,9 @@
           ]
         },
         {
-          "id": "l_24",
+          "id": "node-l_24",
           "level": "leaf",
-          "parent": "s3_7",
+          "parent": "node-s3_7",
           "x": 569,
           "y": 262,
           "en": "Chapter 24 — Authorization & Security (الصلاحيات والأمان الدفاعي للـ APIs)",
@@ -57944,18 +57944,18 @@
           ]
         },
         {
-          "id": "s3_8",
+          "id": "node-s3_8",
           "level": "sub",
-          "parent": "b3",
+          "parent": "node-b3",
           "x": 580,
           "y": 156,
           "en": "Module 9",
           "ar": "الوحدة 9"
         },
         {
-          "id": "l_25",
+          "id": "node-l_25",
           "level": "leaf",
-          "parent": "s3_8",
+          "parent": "node-s3_8",
           "x": 591,
           "y": 262,
           "en": "Chapter 25 — Error Handling (إدارة الأخطاء في الـ Backend)",
@@ -58267,9 +58267,9 @@
           ]
         },
         {
-          "id": "l_26",
+          "id": "node-l_26",
           "level": "leaf",
-          "parent": "s3_8",
+          "parent": "node-s3_8",
           "x": 614,
           "y": 262,
           "en": "Chapter 26 — External APIs & Webhooks (استهلاك الـ APIs الخارجية والـ Webhooks)",
@@ -58601,9 +58601,9 @@
           ]
         },
         {
-          "id": "l_27",
+          "id": "node-l_27",
           "level": "leaf",
-          "parent": "s3_8",
+          "parent": "node-s3_8",
           "x": 637,
           "y": 262,
           "en": "Chapter 27 — Caching & Background Jobs (الـ Caching والمهام الخلفية مع Redis)",
@@ -58920,18 +58920,18 @@
           ]
         },
         {
-          "id": "s3_9",
+          "id": "node-s3_9",
           "level": "sub",
-          "parent": "b3",
+          "parent": "node-b3",
           "x": 580,
           "y": 156,
           "en": "Module 10",
           "ar": "الوحدة 10"
         },
         {
-          "id": "l_28",
+          "id": "node-l_28",
           "level": "leaf",
-          "parent": "s3_9",
+          "parent": "node-s3_9",
           "x": 659,
           "y": 262,
           "en": "Chapter 28 — Testing & Debugging (اختبار وتصحيح تطبيقات الـ Backend)",
@@ -59266,9 +59266,9 @@
           ]
         },
         {
-          "id": "l_29",
+          "id": "node-l_29",
           "level": "leaf",
-          "parent": "s3_9",
+          "parent": "node-s3_9",
           "x": 682,
           "y": 262,
           "en": "Chapter 29 — Performance & Production (تحسين الأداء، الـ Observability والجاهزية للإنتاج)",
@@ -59602,9 +59602,9 @@
           ]
         },
         {
-          "id": "l_30",
+          "id": "node-l_30",
           "level": "leaf",
-          "parent": "s3_9",
+          "parent": "node-s3_9",
           "x": 704,
           "y": 262,
           "en": "Chapter 30 — Docker & Deployment (حاويات Docker والـ Deployment والجاهزية للإنتاج)",
@@ -59956,18 +59956,18 @@
           ]
         },
         {
-          "id": "s3_10",
+          "id": "node-s3_10",
           "level": "sub",
-          "parent": "b3",
+          "parent": "node-b3",
           "x": 580,
           "y": 156,
           "en": "Module 11",
           "ar": "الوحدة 11"
         },
         {
-          "id": "l_31",
+          "id": "node-l_31",
           "level": "leaf",
-          "parent": "s3_10",
+          "parent": "node-s3_10",
           "x": 727,
           "y": 262,
           "en": "FINAL — Production-Ready Backend System (المشروع النهائي الشامل لنظام إنتاجي متكامل)",
@@ -60370,9 +60370,9 @@
           ]
         },
         {
-          "id": "l_32",
+          "id": "node-l_32",
           "level": "leaf",
-          "parent": "s3_10",
+          "parent": "node-s3_10",
           "x": 750,
           "y": 262,
           "en": "Curriculum Knowledge Map & Dependency Graph",
@@ -60772,17 +60772,17 @@
       },
       "crossLinks": [
         [
-          "l_01",
-          "l_05"
+          "rust01-l_01",
+          "rust01-l_05"
         ],
         [
-          "l_02",
-          "l_09"
+          "rust01-l_02",
+          "rust01-l_09"
         ]
       ],
       "nodes": [
         {
-          "id": "b1",
+          "id": "rust01-b1",
           "level": "branch",
           "parent": null,
           "x": 160,
@@ -60791,7 +60791,7 @@
           "ar": "الأساسيات والمعمارية"
         },
         {
-          "id": "b2",
+          "id": "rust01-b2",
           "level": "branch",
           "parent": null,
           "x": 400,
@@ -60800,7 +60800,7 @@
           "ar": "المفاهيم والتطبيق"
         },
         {
-          "id": "b3",
+          "id": "rust01-b3",
           "level": "branch",
           "parent": null,
           "x": 640,
@@ -60809,18 +60809,18 @@
           "ar": "الاحتراف والإنتاجية"
         },
         {
-          "id": "s1_0",
+          "id": "rust01-s1_0",
           "level": "sub",
-          "parent": "b1",
+          "parent": "rust01-b1",
           "x": 100,
           "y": 156,
           "en": "Module 1",
           "ar": "الوحدة 1"
         },
         {
-          "id": "l_01",
+          "id": "rust01-l_01",
           "level": "leaf",
-          "parent": "s1_0",
+          "parent": "rust01-s1_0",
           "x": 50,
           "y": 262,
           "en": "01. المتغيرات والـ Immutability التلقائية (Variables & Mutability)",
@@ -61157,9 +61157,9 @@
           ]
         },
         {
-          "id": "l_02",
+          "id": "rust01-l_02",
           "level": "leaf",
-          "parent": "s1_0",
+          "parent": "rust01-s1_0",
           "x": 137,
           "y": 262,
           "en": "01. الذاكرة في العمق: Stack vs Heap (Memory Foundations)",
@@ -61403,9 +61403,9 @@
           ]
         },
         {
-          "id": "l_03",
+          "id": "rust01-l_03",
           "level": "leaf",
-          "parent": "s1_0",
+          "parent": "rust01-s1_0",
           "x": 225,
           "y": 262,
           "en": "02. قواعد الملكية الثلاثة والـ Move Semantics (Ownership & Move)",
@@ -61714,18 +61714,18 @@
           ]
         },
         {
-          "id": "s2_1",
+          "id": "rust01-s2_1",
           "level": "sub",
-          "parent": "b2",
+          "parent": "rust01-b2",
           "x": 340,
           "y": 156,
           "en": "Module 2",
           "ar": "الوحدة 2"
         },
         {
-          "id": "l_04",
+          "id": "rust01-l_04",
           "level": "leaf",
-          "parent": "s2_1",
+          "parent": "rust01-s2_1",
           "x": 312,
           "y": 262,
           "en": "03. الاستعارة والمراجع (Borrowing & References)",
@@ -62039,9 +62039,9 @@
           ]
         },
         {
-          "id": "l_05",
+          "id": "rust01-l_05",
           "level": "leaf",
-          "parent": "s2_1",
+          "parent": "rust01-s2_1",
           "x": 400,
           "y": 262,
           "en": "01. الـ Structs والتوابع والـ Methods (Data Modeling)",
@@ -62269,9 +62269,9 @@
           ]
         },
         {
-          "id": "l_06",
+          "id": "rust01-l_06",
           "level": "leaf",
-          "parent": "s2_1",
+          "parent": "rust01-s2_1",
           "x": 487,
           "y": 262,
           "en": "02. الـ Enums والـ Pattern Matching (Algebraic Data Types)",
@@ -62493,18 +62493,18 @@
           ]
         },
         {
-          "id": "s3_2",
+          "id": "rust01-s3_2",
           "level": "sub",
-          "parent": "b3",
+          "parent": "rust01-b3",
           "x": 580,
           "y": 156,
           "en": "Module 3",
           "ar": "الوحدة 3"
         },
         {
-          "id": "l_07",
+          "id": "rust01-l_07",
           "level": "leaf",
-          "parent": "s3_2",
+          "parent": "rust01-s3_2",
           "x": 575,
           "y": 262,
           "en": "02. الـ Traits: تعريف السلوك المشترك (Defining Shared Behavior)",
@@ -62720,9 +62720,9 @@
           ]
         },
         {
-          "id": "l_08",
+          "id": "rust01-l_08",
           "level": "leaf",
-          "parent": "s3_2",
+          "parent": "rust01-s3_2",
           "x": 662,
           "y": 262,
           "en": "01. أنماط وفلسفة الـ Lifetimes والـ Borrow Checker (Lifetime Syntax)",
@@ -62955,9 +62955,9 @@
           ]
         },
         {
-          "id": "l_09",
+          "id": "rust01-l_09",
           "level": "leaf",
-          "parent": "s3_2",
+          "parent": "rust01-s3_2",
           "x": 750,
           "y": 262,
           "en": "02. التعامل مع الأخطاء القابلة للاسترداد (`Result<T, E>`)",
@@ -63192,7 +63192,7 @@
       "crossLinks": [],
       "nodes": [
         {
-          "id": "b1",
+          "id": "rust02-b1",
           "level": "branch",
           "parent": null,
           "x": 160,
@@ -63201,7 +63201,7 @@
           "ar": "الأساسيات والمعمارية"
         },
         {
-          "id": "b2",
+          "id": "rust02-b2",
           "level": "branch",
           "parent": null,
           "x": 400,
@@ -63210,7 +63210,7 @@
           "ar": "المفاهيم والتطبيق"
         },
         {
-          "id": "b3",
+          "id": "rust02-b3",
           "level": "branch",
           "parent": null,
           "x": 640,
@@ -63219,18 +63219,18 @@
           "ar": "الاحتراف والإنتاجية"
         },
         {
-          "id": "s1_0",
+          "id": "rust02-s1_0",
           "level": "sub",
-          "parent": "b1",
+          "parent": "rust02-b1",
           "x": 100,
           "y": 156,
           "en": "Module 1",
           "ar": "الوحدة 1"
         },
         {
-          "id": "l_01",
+          "id": "rust02-l_01",
           "level": "leaf",
-          "parent": "s1_0",
+          "parent": "rust02-s1_0",
           "x": 50,
           "y": 262,
           "en": "02. المؤشرات الذكية: `Rc<T>` و `Arc<T>` (Reference Counting)",
@@ -63463,9 +63463,9 @@
           ]
         },
         {
-          "id": "l_02",
+          "id": "rust02-l_02",
           "level": "leaf",
-          "parent": "s1_0",
+          "parent": "rust02-s1_0",
           "x": 283,
           "y": 262,
           "en": "01. المعالجة غير المتزامنة: الـ Futures ونموذج الـ Polling (Async Internals)",
@@ -63704,18 +63704,18 @@
           ]
         },
         {
-          "id": "s2_0",
+          "id": "rust02-s2_0",
           "level": "sub",
-          "parent": "b2",
+          "parent": "rust02-b2",
           "x": 460,
           "y": 156,
           "en": "Module 1",
           "ar": "الوحدة 1"
         },
         {
-          "id": "l_03",
+          "id": "rust02-l_03",
           "level": "leaf",
-          "parent": "s2_0",
+          "parent": "rust02-s2_0",
           "x": 516,
           "y": 262,
           "en": "02. لغز الـ `Pin<P>` والـ `Unpin` (Self-Referential Safety)",
@@ -63943,18 +63943,18 @@
           ]
         },
         {
-          "id": "s2_1",
+          "id": "rust02-s2_1",
           "level": "sub",
-          "parent": "b2",
+          "parent": "rust02-b2",
           "x": 340,
           "y": 156,
           "en": "Module 2",
           "ar": "الوحدة 2"
         },
         {
-          "id": "l_04",
+          "id": "rust02-l_04",
           "level": "leaf",
-          "parent": "s2_1",
+          "parent": "rust02-s2_1",
           "x": 750,
           "y": 262,
           "en": "01. الـ Unsafe Rust والمؤشرات الخام (Raw Pointers & Unsafe Boundaries)",
@@ -64194,7 +64194,7 @@
       "crossLinks": [],
       "nodes": [
         {
-          "id": "b1",
+          "id": "rust03-b1",
           "level": "branch",
           "parent": null,
           "x": 160,
@@ -64203,7 +64203,7 @@
           "ar": "الأساسيات والمعمارية"
         },
         {
-          "id": "b2",
+          "id": "rust03-b2",
           "level": "branch",
           "parent": null,
           "x": 400,
@@ -64212,7 +64212,7 @@
           "ar": "المفاهيم والتطبيق"
         },
         {
-          "id": "b3",
+          "id": "rust03-b3",
           "level": "branch",
           "parent": null,
           "x": 640,
@@ -64221,18 +64221,18 @@
           "ar": "الاحتراف والإنتاجية"
         },
         {
-          "id": "s1_0",
+          "id": "rust03-s1_0",
           "level": "sub",
-          "parent": "b1",
+          "parent": "rust03-b1",
           "x": 100,
           "y": 156,
           "en": "Module 1",
           "ar": "الوحدة 1"
         },
         {
-          "id": "l_01",
+          "id": "rust03-l_01",
           "level": "leaf",
-          "parent": "s1_0",
+          "parent": "rust03-s1_0",
           "x": 50,
           "y": 262,
           "en": "01. الـ Routers والـ Extractors في إطار عمل Axum (Modern Web APIs)",
@@ -64448,18 +64448,18 @@
           ]
         },
         {
-          "id": "s2_0",
+          "id": "rust03-s2_0",
           "level": "sub",
-          "parent": "b2",
+          "parent": "rust03-b2",
           "x": 400,
           "y": 156,
           "en": "Module 1",
           "ar": "الوحدة 1"
         },
         {
-          "id": "l_02",
+          "id": "rust03-l_02",
           "level": "leaf",
-          "parent": "s2_0",
+          "parent": "rust03-s2_0",
           "x": 750,
           "y": 262,
           "en": "01. تشفير كلمات المرور بمعيار Argon2id المقاوم لهجمات الـ GPU (Secure Auth)",
@@ -64682,7 +64682,7 @@
       "crossLinks": [],
       "nodes": [
         {
-          "id": "b1",
+          "id": "rust04-b1",
           "level": "branch",
           "parent": null,
           "x": 160,
@@ -64691,7 +64691,7 @@
           "ar": "الأساسيات والمعمارية"
         },
         {
-          "id": "b2",
+          "id": "rust04-b2",
           "level": "branch",
           "parent": null,
           "x": 400,
@@ -64700,7 +64700,7 @@
           "ar": "المفاهيم والتطبيق"
         },
         {
-          "id": "b3",
+          "id": "rust04-b3",
           "level": "branch",
           "parent": null,
           "x": 640,
@@ -64709,18 +64709,18 @@
           "ar": "الاحتراف والإنتاجية"
         },
         {
-          "id": "s1_0",
+          "id": "rust04-s1_0",
           "level": "sub",
-          "parent": "b1",
+          "parent": "rust04-b1",
           "x": 100,
           "y": 156,
           "en": "Module 1",
           "ar": "الوحدة 1"
         },
         {
-          "id": "l_01",
+          "id": "rust04-l_01",
           "level": "leaf",
-          "parent": "s1_0",
+          "parent": "rust04-s1_0",
           "x": 50,
           "y": 262,
           "en": "01. السحر الحقيقي لمكتبة SQLx: التحقق في الـ Compile-Time (SQLx Mastery)",
@@ -64966,7 +64966,7 @@
       "crossLinks": [],
       "nodes": [
         {
-          "id": "b1",
+          "id": "rust05-b1",
           "level": "branch",
           "parent": null,
           "x": 160,
@@ -64975,7 +64975,7 @@
           "ar": "الأساسيات والمعمارية"
         },
         {
-          "id": "b2",
+          "id": "rust05-b2",
           "level": "branch",
           "parent": null,
           "x": 400,
@@ -64984,7 +64984,7 @@
           "ar": "المفاهيم والتطبيق"
         },
         {
-          "id": "b3",
+          "id": "rust05-b3",
           "level": "branch",
           "parent": null,
           "x": 640,
@@ -64993,18 +64993,18 @@
           "ar": "الاحتراف والإنتاجية"
         },
         {
-          "id": "s1_0",
+          "id": "rust05-s1_0",
           "level": "sub",
-          "parent": "b1",
+          "parent": "rust05-b1",
           "x": 100,
           "y": 156,
           "en": "Module 1",
           "ar": "الوحدة 1"
         },
         {
-          "id": "l_01",
+          "id": "rust05-l_01",
           "level": "leaf",
-          "parent": "s1_0",
+          "parent": "rust05-s1_0",
           "x": 50,
           "y": 262,
           "en": "02. الـ Framing والـ Codecs في Tokio (Message Boundaries)",
@@ -65115,7 +65115,7 @@
       "crossLinks": [],
       "nodes": [
         {
-          "id": "b1",
+          "id": "rust06-b1",
           "level": "branch",
           "parent": null,
           "x": 160,
@@ -65124,7 +65124,7 @@
           "ar": "الأساسيات والمعمارية"
         },
         {
-          "id": "b2",
+          "id": "rust06-b2",
           "level": "branch",
           "parent": null,
           "x": 400,
@@ -65133,7 +65133,7 @@
           "ar": "المفاهيم والتطبيق"
         },
         {
-          "id": "b3",
+          "id": "rust06-b3",
           "level": "branch",
           "parent": null,
           "x": 640,
@@ -65142,18 +65142,18 @@
           "ar": "الاحتراف والإنتاجية"
         },
         {
-          "id": "s1_0",
+          "id": "rust06-s1_0",
           "level": "sub",
-          "parent": "b1",
+          "parent": "rust06-b1",
           "x": 100,
           "y": 156,
           "en": "Module 1",
           "ar": "الوحدة 1"
         },
         {
-          "id": "l_01",
+          "id": "rust06-l_01",
           "level": "leaf",
-          "parent": "s1_0",
+          "parent": "rust06-s1_0",
           "x": 50,
           "y": 262,
           "en": "01. خوارزمية التحكم والتوازن PID في الروبوتات (PID Controller in Rust)",
@@ -65376,7 +65376,7 @@
       "crossLinks": [],
       "nodes": [
         {
-          "id": "b1",
+          "id": "rust07-b1",
           "level": "branch",
           "parent": null,
           "x": 160,
@@ -65385,7 +65385,7 @@
           "ar": "الأساسيات والمعمارية"
         },
         {
-          "id": "b2",
+          "id": "rust07-b2",
           "level": "branch",
           "parent": null,
           "x": 400,
@@ -65394,7 +65394,7 @@
           "ar": "المفاهيم والتطبيق"
         },
         {
-          "id": "b3",
+          "id": "rust07-b3",
           "level": "branch",
           "parent": null,
           "x": 640,
@@ -65403,18 +65403,18 @@
           "ar": "الاحتراف والإنتاجية"
         },
         {
-          "id": "s1_0",
+          "id": "rust07-s1_0",
           "level": "sub",
-          "parent": "b1",
+          "parent": "rust07-b1",
           "x": 100,
           "y": 156,
           "en": "Module 1",
           "ar": "الوحدة 1"
         },
         {
-          "id": "l_01",
+          "id": "rust07-l_01",
           "level": "leaf",
-          "parent": "s1_0",
+          "parent": "rust07-s1_0",
           "x": 50,
           "y": 262,
           "en": "01. تصدير واستيراد الدوال بـ `[wasm_bindgen]` (Wasm Interop)",
@@ -65648,7 +65648,7 @@
       "crossLinks": [],
       "nodes": [
         {
-          "id": "b1",
+          "id": "rust08-b1",
           "level": "branch",
           "parent": null,
           "x": 160,
@@ -65657,7 +65657,7 @@
           "ar": "الأساسيات والمعمارية"
         },
         {
-          "id": "b2",
+          "id": "rust08-b2",
           "level": "branch",
           "parent": null,
           "x": 400,
@@ -65666,7 +65666,7 @@
           "ar": "المفاهيم والتطبيق"
         },
         {
-          "id": "b3",
+          "id": "rust08-b3",
           "level": "branch",
           "parent": null,
           "x": 640,
@@ -65675,18 +65675,18 @@
           "ar": "الاحتراف والإنتاجية"
         },
         {
-          "id": "s1_0",
+          "id": "rust08-s1_0",
           "level": "sub",
-          "parent": "b1",
+          "parent": "rust08-b1",
           "x": 100,
           "y": 156,
           "en": "Module 1",
           "ar": "الوحدة 1"
         },
         {
-          "id": "l_01",
+          "id": "rust08-l_01",
           "level": "leaf",
-          "parent": "s1_0",
+          "parent": "rust08-s1_0",
           "x": 50,
           "y": 262,
           "en": "01. معمارية إدارة الأخطاء في الإنتاج: `thiserror` vs `anyhow` (Production Error Handling)",
@@ -65908,18 +65908,18 @@
           ]
         },
         {
-          "id": "s2_0",
+          "id": "rust08-s2_0",
           "level": "sub",
-          "parent": "b2",
+          "parent": "rust08-b2",
           "x": 400,
           "y": 156,
           "en": "Module 1",
           "ar": "الوحدة 1"
         },
         {
-          "id": "l_02",
+          "id": "rust08-l_02",
           "level": "leaf",
-          "parent": "s2_0",
+          "parent": "rust08-s2_0",
           "x": 750,
           "y": 262,
           "en": "02. بناء صور Docker فائقة الصغر والأمان (`FROM scratch` Multi-Stage)",
