@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect, useRef } from "react";
+import React, { useState, useMemo, useEffect, useRef, Component } from "react";
 import {
   BookOpen,
   Library,
@@ -676,23 +676,32 @@ function isCorrect(q, c, value) {
   switch (q.type) {
     case "single":
       return value === c.correct;
-    case "multi":
-      if (!Array.isArray(value)) return false;
-      return [...value].sort().join(",") === [...c.correct].sort().join(",");
+    case "multi": {
+      if (!Array.isArray(value) || !Array.isArray(c.correct)) return false;
+      const numSort = (a, b) => a - b;
+      return [...value].sort(numSort).join(",") === [...c.correct].sort(numSort).join(",");
+    }
     case "tf":
       return value === c.correct;
-    case "short":
-      return c.accepted.includes(String(value || "").trim().toLowerCase());
+    case "short": {
+      const normalized = String(value || "").trim().toLowerCase();
+      const accepted = Array.isArray(c.accepted) ? c.accepted.map((a) => String(a).trim().toLowerCase()) : [];
+      return accepted.includes(normalized);
+    }
     case "fill":
-      return c.blanks.every((b, i) => (value[i] || "").trim().toLowerCase() === b.toLowerCase());
+      if (!Array.isArray(value)) return false;
+      return (c.blanks || []).every((b, i) => (value[i] || "").trim().toLowerCase() === String(b).toLowerCase());
     case "cloze":
       return value === c.correct;
     case "match":
-      return c.left.every((_, i) => value[i] === c.correct[i]);
+      if (!Array.isArray(value)) return false;
+      return (c.left || []).every((_, i) => value[i] === (c.correct || [])[i]);
     case "order":
-      return c.correct.every((v, i) => value[i] === v);
+      if (!Array.isArray(value)) return false;
+      return (c.correct || []).every((v, i) => value[i] === v);
     case "sort":
-      return c.items.every((it, i) => value[i] === it[1]);
+      if (!Array.isArray(value)) return false;
+      return (c.items || []).every((it, i) => value[i] === it[1]);
     case "numeric":
       return Math.abs(Number(value) - c.correct) <= (c.tolerance ?? 0);
     case "slider":
@@ -711,8 +720,9 @@ function isCorrect(q, c, value) {
    so nothing changes for a leaf until it opts into bundling.
 ================================================================== */
 function leafCards(leaf) {
+  if (!leaf) return [];
   if (leaf.cards) return leaf.cards;
-  return leaf.questions.map((q, i) => ({
+  return (leaf.questions || []).map((q, i) => ({
     id: `${leaf.id}-auto-${i}`,
     image: (q.en && q.en.image) || (q.ar && q.ar.image) || q.image || null,
     imagePosition: "top",
@@ -1835,6 +1845,62 @@ function NodeQuestionDeck({ node, book, lang, ui, theme, dir, skin, cardMode = "
 }
 
 /* =================================================================
+   TreeErrorBoundary — catches any uncaught render error inside the
+   Knowledge Tree and shows a friendly message + retry button instead
+   of the dreaded blank white screen.
+================================================================== */
+class TreeErrorBoundary extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+  componentDidCatch(error, info) {
+    console.error("[KnowledgeTree] Render error:", error, info);
+  }
+  render() {
+    if (this.state.hasError) {
+      const { theme, skin, lang } = this.props;
+      return (
+        <div
+          className="flex flex-col items-center justify-center gap-4 p-10 rounded-2xl border"
+          style={{
+            background: theme?.surface || "#fff",
+            borderColor: theme?.hairline || "#eee",
+            color: theme?.ink || "#111",
+            minHeight: 240,
+          }}
+        >
+          <span style={{ fontSize: 36 }}>⚠️</span>
+          <p className="text-sm font-semibold text-center" style={{ color: theme?.inkSoft }}>
+            {lang === "ar"
+              ? "حدث خطأ أثناء تحميل شجرة المعرفة."
+              : "An error occurred while rendering the Knowledge Tree."}
+          </p>
+          <p className="text-xs font-mono text-center opacity-60" style={{ maxWidth: 420 }}>
+            {String(this.state.error?.message || this.state.error || "")}
+          </p>
+          <button
+            onClick={() => this.setState({ hasError: false, error: null })}
+            className="text-xs font-bold px-4 py-2"
+            style={{
+              borderRadius: skin?.radiusSm || 8,
+              background: theme?.accent || "#4F46E5",
+              color: theme?.accentInk || "#fff",
+            }}
+          >
+            {lang === "ar" ? "إعادة المحاولة" : "Retry"}
+          </button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
+/* =================================================================
    KnowledgeTree — three rendered levels (branch → sub-branch →
    leaf). Edges are derived generically from each node's `parent`,
    so the same renderer works for any depth. Cross-branch links are
@@ -1844,18 +1910,20 @@ function NodeQuestionDeck({ node, book, lang, ui, theme, dir, skin, cardMode = "
 ================================================================== */
 function KnowledgeTree({ book, lang, dir, theme, ui, skin, selected, onSelect, doneLeafIds = [] }) {
   return (
-    <KnowledgeTreeEnhanced
-      book={book}
-      lang={lang}
-      dir={dir}
-      theme={theme}
-      ui={ui}
-      skin={skin}
-      selected={selected}
-      onSelect={onSelect}
-      doneLeafIds={doneLeafIds}
-      leafCards={leafCards}
-    />
+    <TreeErrorBoundary theme={theme} skin={skin} lang={lang}>
+      <KnowledgeTreeEnhanced
+        book={book}
+        lang={lang}
+        dir={dir}
+        theme={theme}
+        ui={ui}
+        skin={skin}
+        selected={selected}
+        onSelect={onSelect}
+        doneLeafIds={doneLeafIds}
+        leafCards={leafCards}
+      />
+    </TreeErrorBoundary>
   );
 }
 
@@ -2120,7 +2188,7 @@ function LibraryView({ lang, ui, theme, dir, onOpen, skin, covers, onChangeCover
                     col.kind === "encyclopedia" && foldersAvailable.length > 0 ? (
                       <select
                         onClick={(e) => e.stopPropagation()}
-                        onChange={(e) => e.target.value && onAssignToCollection(col.id, e.target.value)}
+                        onChange={(e) => { if (e.target.value) { onAssignToCollection(col.id, e.target.value); e.target.value = ""; } }}
                         defaultValue=""
                         className="text-[11px] font-bold px-2 py-1"
                         style={{ borderRadius: skin.radiusSm, border: `1.5px solid ${skinBorderColor(skin, theme)}`, background: theme.surface, color: theme.ink }}
@@ -2236,7 +2304,7 @@ function LibraryView({ lang, ui, theme, dir, onOpen, skin, covers, onChangeCover
                     targets.length > 0 ? (
                       <select
                         onClick={(e) => e.stopPropagation()}
-                        onChange={(e) => e.target.value && onAssignToCollection(book.id, e.target.value)}
+                        onChange={(e) => { if (e.target.value) { onAssignToCollection(book.id, e.target.value); e.target.value = ""; } }}
                         defaultValue=""
                         className="text-[11px] font-bold px-2 py-1"
                         style={{ borderRadius: skin.radiusSm, border: `1.5px solid ${skinBorderColor(skin, theme)}`, background: theme.surface, color: theme.ink }}
@@ -2282,7 +2350,7 @@ function LibraryView({ lang, ui, theme, dir, onOpen, skin, covers, onChangeCover
    cover + title, its knowledge tree, and — once a leaf is picked —
    the question deck for that leaf.
 ================================================================== */
-function TreeView({ book, lang, ui, theme, dir, onBack, skin, selectedLeaf, onSelectLeaf, onBrowse, onReadThrough, onPlanner, onExport, covers, onChangeCover, onClearCover, bookFlavorId, onChangeBookFlavor, onDeleteBook }) {
+function TreeView({ book, lang, ui, theme, dir, onBack, skin, selectedLeaf, onSelectLeaf, onBrowse, onReadThrough, onPlanner, onExport, covers, onChangeCover, onClearCover, bookFlavorId, onChangeBookFlavor, onDeleteBook, plan }) {
   const BackIcon = dir === "rtl" ? ArrowRight : ArrowLeft;
 
   return (
@@ -3783,6 +3851,21 @@ function EditorLeafNav({ book, lang, theme, selectedLeafId, onSelect }) {
   const branches = book.nodes.filter((n) => n.level === "branch");
   const subOf = (bid) => book.nodes.filter((n) => n.level === "sub" && n.parent === bid);
   const leavesOf = (sid) => book.nodes.filter((n) => n.level === "leaf" && n.parent === sid);
+
+  const LeafButton = ({ l }) => (
+    <button
+      key={l.id}
+      onClick={() => onSelect(l.id)}
+      className="text-start text-xs font-semibold px-2.5 py-1.5 flex items-center justify-between gap-2"
+      style={{ borderRadius: 8, background: selectedLeafId === l.id ? theme.accentSoft : "transparent", color: theme.ink, border: `1px solid ${selectedLeafId === l.id ? theme.accent : "transparent"}` }}
+    >
+      <span>{lang === "ar" ? l.ar : l.en}</span>
+      <span className="text-[10px]" style={{ color: theme.inkSoft }}>
+        {(l.questions || []).length}
+      </span>
+    </button>
+  );
+
   return (
     <div className="flex flex-col gap-3">
       {branches.map((b) => (
@@ -3791,25 +3874,20 @@ function EditorLeafNav({ book, lang, theme, selectedLeafId, onSelect }) {
             <GitBranch size={12} /> {lang === "ar" ? b.ar : b.en}
           </p>
           <div className="flex flex-col gap-2 ps-3" style={{ borderInlineStart: `2px solid ${theme.hairline}` }}>
+            {/* Direct branch leaves (parent === branch id) */}
+            {leavesOf(b.id).length > 0 && (
+              <div className="flex flex-col gap-1">
+                {leavesOf(b.id).map((l) => <LeafButton key={l.id} l={l} />)}
+              </div>
+            )}
+            {/* Sub-branch and their leaves */}
             {subOf(b.id).map((s) => (
               <div key={s.id}>
                 <p className="text-[11px] font-bold mb-1" style={{ color: theme.inkSoft }}>
                   {lang === "ar" ? s.ar : s.en}
                 </p>
                 <div className="flex flex-col gap-1 ps-2">
-                  {leavesOf(s.id).map((l) => (
-                    <button
-                      key={l.id}
-                      onClick={() => onSelect(l.id)}
-                      className="text-start text-xs font-semibold px-2.5 py-1.5 flex items-center justify-between gap-2"
-                      style={{ borderRadius: 8, background: selectedLeafId === l.id ? theme.accentSoft : "transparent", color: theme.ink, border: `1px solid ${selectedLeafId === l.id ? theme.accent : "transparent"}` }}
-                    >
-                      <span>{lang === "ar" ? l.ar : l.en}</span>
-                      <span className="text-[10px]" style={{ color: theme.inkSoft }}>
-                        {(l.questions || []).length}
-                      </span>
-                    </button>
-                  ))}
+                  {leavesOf(s.id).map((l) => <LeafButton key={l.id} l={l} />)}
                 </div>
               </div>
             ))}
@@ -4686,7 +4764,9 @@ function EditorBreadcrumb({ book, lang, leaf, card, theme }) {
 function EditorView({ book, lang, theme, skin, voiceEnabled, onVoiceEnabledChange, onUpdateBook }) {
   const t = EDITOR_STR[lang];
   const [tab, setTab] = useState("cards");
-  const [selectedLeafId, setSelectedLeafId] = useState(null);
+  const [selectedLeafId, setSelectedLeafId] = useState(
+    () => book.nodes.find((n) => n.level === "leaf")?.id || null,
+  );
   const [selectedCardIdx, setSelectedCardIdx] = useState(0);
   const [previewWholeBook, setPreviewWholeBook] = useState(false);
 
@@ -4948,7 +5028,7 @@ function PlannerView({ book, lang, ui, theme, dir, skin, plan, onUpdatePlan }) {
   const leaves = useMemo(() => book.nodes.filter((n) => n.level === "leaf"), [book]);
   const totalLeaves = leaves.length;
   const validIds = useMemo(() => new Set(leaves.map((l) => l.id)), [leaves]);
-  const doneSet = useMemo(() => new Set(plan.doneLeafIds.filter((id) => validIds.has(id))), [plan.doneLeafIds, validIds]);
+  const doneSet = useMemo(() => new Set((plan.doneLeafIds || []).filter((id) => validIds.has(id))), [plan.doneLeafIds, validIds]);
   const doneCount = doneSet.size;
 
   const today = new Date();
@@ -4989,10 +5069,11 @@ function PlannerView({ book, lang, ui, theme, dir, skin, plan, onUpdatePlan }) {
   }[status];
 
   const streak = useMemo(() => {
+    const log = plan.log || {};
     let s = 0;
     let cursor = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-    if (!plan.log[toDateStr(cursor)]) cursor.setDate(cursor.getDate() - 1);
-    while ((plan.log[toDateStr(cursor)] || 0) > 0) {
+    if (!log[toDateStr(cursor)]) cursor.setDate(cursor.getDate() - 1);
+    while ((log[toDateStr(cursor)] || 0) > 0) {
       s++;
       cursor.setDate(cursor.getDate() - 1);
     }
@@ -5004,9 +5085,11 @@ function PlannerView({ book, lang, ui, theme, dir, skin, plan, onUpdatePlan }) {
 
   const toggleLeaf = (leafId) => {
     onUpdatePlan((p) => {
-      const isDone = p.doneLeafIds.includes(leafId);
-      const nextIds = isDone ? p.doneLeafIds.filter((id) => id !== leafId) : [...p.doneLeafIds, leafId];
-      const nextLog = { ...p.log, [todayStr]: Math.max(0, (p.log[todayStr] || 0) + (isDone ? -1 : 1)) };
+      const donePrev = p.doneLeafIds || [];
+      const logPrev = p.log || {};
+      const isDone = donePrev.includes(leafId);
+      const nextIds = isDone ? donePrev.filter((id) => id !== leafId) : [...donePrev, leafId];
+      const nextLog = { ...logPrev, [todayStr]: Math.max(0, (logPrev[todayStr] || 0) + (isDone ? -1 : 1)) };
       return { ...p, doneLeafIds: nextIds, log: nextLog };
     });
   };

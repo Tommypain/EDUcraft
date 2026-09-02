@@ -16,6 +16,23 @@ async function buildExport() {
     fs.mkdirSync(tempDir, { recursive: true });
   }
 
+  const stubExportDataPlugin = {
+    name: "stub-export-bundle-data",
+    setup(build) {
+      build.onResolve({ filter: /export_bundle_data(\.js)?$/ }, (args) => ({
+        path: args.path,
+        namespace: "stub-export-data",
+      }));
+      build.onLoad({ filter: /.*/, namespace: "stub-export-data" }, () => ({
+        contents: `
+          export const EDUCRAFT_EXPORT_BUNDLE_JS = "";
+          export const EDUCRAFT_EXPORT_TAILWIND_CSS = "";
+        `,
+        loader: "js",
+      }));
+    },
+  };
+
   // 1. Bundle standalone React application
   const result = await esbuild.build({
     entryPoints: [path.join(rootDir, "src", "standalone.jsx")],
@@ -26,6 +43,7 @@ async function buildExport() {
     jsx: "automatic",
     outfile: path.join(tempDir, "bundle.js"),
     external: ["tailwindcss"],
+    plugins: [stubExportDataPlugin],
     define: {
       "process.env.NODE_ENV": '"production"'
     },

@@ -511,7 +511,7 @@ export function KnowledgeTreeEnhanced({
               const isLeaf = n.level === "leaf";
               const isBranch = n.level === "branch";
               const isSub = n.level === "sub";
-              const count = isLeaf ? leafCards(n).reduce((sum, g) => sum + g.questions.length, 0) : 0;
+              const count = isLeaf ? leafCards(n).reduce((sum, g) => sum + (g.questions?.length || 0), 0) : 0;
               const isCollapsed = collapsedNodes.has(n.id);
 
               const hasChildren = (isBranch || isSub) && nodes.some((child) => child.parent === n.id);
