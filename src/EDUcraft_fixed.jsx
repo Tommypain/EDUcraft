@@ -70,6 +70,7 @@ import {
   CornerDownLeft,
   Wand2,
 } from "lucide-react";
+import { ImportModal } from "./utils/ImportModal.jsx";
 
 /* =================================================================
    THEME — one warm system shared by every screen. Untouched from
@@ -460,6 +461,23 @@ const UI = {
     encyclopediaBadge: "Encyclopedia",
     booksCountLabel: "books",
     libraryRootCrumb: "Library",
+    libraryImportJson: "Import JSON",
+    importModalTitle: "Smart JSON Import",
+    importModalSub: "Import books, trees, and encyclopedias conforming to EDUcraft Data Schema.",
+    importTabUpload: "Upload .json",
+    importTabPaste: "Paste JSON",
+    importDropzone: "Click or drag & drop a .json file here",
+    importPastePlaceholder: "Paste raw JSON content here...",
+    importValidateBtn: "Validate & Preview",
+    importConfirmBtn: "Confirm & Import to Library",
+    importErrorsTitle: "Validation Errors Found",
+    importPreviewTitle: "Validated Successfully — Data Preview",
+    importConflictTitle: "Book ID already exists in library",
+    importConflictReplace: "Replace existing book",
+    importConflictRename: "Import as new copy",
+    importSuccessTitle: "Import Successful!",
+    importSuccessDesc: "Content has been validated and imported into your library.",
+    importDoneBtn: "Open Library",
   },
   ar: {
     dir: "rtl",
@@ -587,6 +605,23 @@ const UI = {
     encyclopediaBadge: "موسوعة",
     booksCountLabel: "كتب",
     libraryRootCrumb: "المكتبة",
+    libraryImportJson: "استيراد JSON",
+    importModalTitle: "استيراد JSON الذكي",
+    importModalSub: "استيراد كتب، فروع، وموسوعات مطابقة لمعايير EDUcraft Data Schema.",
+    importTabUpload: "رفع ملف .json",
+    importTabPaste: "لصق نص JSON",
+    importDropzone: "اضغط هنا لاختيار ملف .json أو اسحبه وأفلته",
+    importPastePlaceholder: "الصق كود الـ JSON هنا...",
+    importValidateBtn: "فحص ومعاينة",
+    importConfirmBtn: "تأكيد واستيراد إلى المكتبة",
+    importErrorsTitle: "أخطاء الفحص (يجب تصحيحها)",
+    importPreviewTitle: "تم الفحص بنجاح — معاينة البيانات",
+    importConflictTitle: "الكتاب موجود بالفعل في مكتبتك",
+    importConflictReplace: "استبدال الموجود بالكامل",
+    importConflictRename: "استيراد كنسخة جديدة",
+    importSuccessTitle: "تم الاستيراد بنجاح!",
+    importSuccessDesc: "تم التحقق من صحة كافة الفروع والأسئلة والصفحات وحفظها في مكتبتك بنجاح.",
+    importDoneBtn: "عرض المكتبة الآن",
   },
 };
 
@@ -2389,7 +2424,7 @@ function EditableCover({ book, theme, skin, ui, coverUrl, onChangeCover, onClear
    LibraryView — the shelf. Each card is the cover + title + a
    quick tally of branches / questions inside that book's tree.
 ================================================================== */
-function LibraryView({ lang, ui, theme, dir, onOpen, skin, covers, onChangeCover, onClearCover, books, collections, libraryPath, onEnterCollection, onCrumb, onCreateCollection, onDeleteCollection, onAssignToCollection, onRemoveFromCollection, onExportBook, onExportCollection }) {
+function LibraryView({ lang, ui, theme, dir, onOpen, skin, covers, onChangeCover, onClearCover, books, collections, libraryPath, onEnterCollection, onCrumb, onCreateCollection, onDeleteCollection, onAssignToCollection, onRemoveFromCollection, onExportBook, onExportCollection, onOpenImportModal }) {
   const ArrowIcon = dir === "rtl" ? ArrowLeft : ArrowRight;
   const atRoot = libraryPath.length === 0;
   const currentCollection = atRoot ? null : collections.find((c) => c.id === libraryPath[libraryPath.length - 1]);
@@ -2463,7 +2498,16 @@ function LibraryView({ lang, ui, theme, dir, onOpen, skin, covers, onChangeCover
       )}
 
       {atRoot && (
-        <div className="flex items-center gap-2 mb-6">
+        <div className="flex items-center gap-2 mb-6 flex-wrap">
+          <button
+            onClick={onOpenImportModal}
+            className="flex items-center gap-1.5 text-xs font-bold px-3.5 py-2 text-white shadow-sm"
+            style={{ borderRadius: skin.radiusSm, background: theme.accent, border: `1.5px solid ${theme.accent}`, minHeight: 36 }}
+            title={ui.libraryImportJson}
+          >
+            <FileUp size={13} />
+            {ui.libraryImportJson}
+          </button>
           <button
             onClick={() => onCreateCollection("folder")}
             className="flex items-center gap-1.5 text-xs font-bold px-3.5 py-2"
@@ -5632,7 +5676,19 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
   const [collections, setCollections] = useState(saved.collections || (EXPORT && EXPORT.collections) || []);
   const [libraryPath, setLibraryPath] = useState([]);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [importModalOpen, setImportModalOpen] = useState(false);
   const [voiceEnabled, setVoiceEnabled] = useState(saved.voiceEnabled !== false);
+
+  const handleImportSuccess = ({ books: newBooks, collections: newCols, plans: newPlans, targetBookId }) => {
+    setBooks(newBooks);
+    setCollections(newCols);
+    if (newPlans && Object.keys(newPlans).length > 0) {
+      setPlans((prev) => ({ ...prev, ...newPlans }));
+    }
+    if (targetBookId) {
+      setBookId(targetBookId);
+    }
+  };
 
   const ui = UI[lang];
   const theme = FLAVORS[flavorId][mode];
@@ -5889,6 +5945,7 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
               onRemoveFromCollection={removeFromCollection}
               onExportBook={onExportBook ? (book) => onExportBook(book, lang, theme, ui, skin, covers) : undefined}
               onExportCollection={onExportCollection ? (col) => onExportCollection(col, books, collections, lang, theme, ui, skin, covers) : undefined}
+              onOpenImportModal={() => setImportModalOpen(true)}
             />
           ) : view === "tree" ? (
             <TreeView
@@ -6000,6 +6057,21 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
           onVoiceEnabledChange={setVoiceEnabled}
           onClose={() => setSettingsOpen(false)}
           onReset={resetAll}
+        />
+      )}
+
+      {importModalOpen && (
+        <ImportModal
+          isOpen={importModalOpen}
+          onClose={() => setImportModalOpen(false)}
+          onImportSuccess={handleImportSuccess}
+          existingBooks={books}
+          existingCollections={collections}
+          ui={ui}
+          lang={lang}
+          dir={dir}
+          theme={theme}
+          skin={skin}
         />
       )}
     </div>
