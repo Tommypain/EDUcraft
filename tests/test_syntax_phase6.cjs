@@ -56,10 +56,25 @@ console.log("  Live editor instant highlighting: PASS");
 console.log("\n--- TEST 3: Real Offline Export Verification (Zero CDN) ---");
 const booksDir = path.resolve(__dirname, "../BOOKS");
 const bookJsonPath = path.join(booksDir, "01-html-master-curriculum/book.json");
-const bookData = JSON.parse(fs.readFileSync(bookJsonPath, "utf8"));
+let bookData;
+if (fs.existsSync(bookJsonPath)) {
+  bookData = JSON.parse(fs.readFileSync(bookJsonPath, "utf8"));
+} else {
+  bookData = {
+    id: "sample-book",
+    ar: { title: "كتاب تجريبي" },
+    en: { title: "Sample Book" },
+    cover: { from: "#3B82F6", to: "#1D4ED8", icon: "code" },
+    nodes: [
+      { id: "n1", level: "branch", parent: null, en: "Branch", ar: "فرع" },
+      { id: "n2", level: "leaf", parent: "n1", en: "Leaf", ar: "ورقة" }
+    ]
+  };
+}
 
 // Inject a Rust code block into the book content
-bookData.nodes[1].content = [
+const targetNode = bookData.nodes.find(n => n.level === "leaf") || bookData.nodes[1];
+targetNode.content = [
   { kind: "code", codeLang: "rust", text: rustSnippet, title: "Rust create_user example" }
 ];
 

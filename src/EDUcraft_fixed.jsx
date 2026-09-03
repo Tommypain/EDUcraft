@@ -7128,7 +7128,6 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
           from { opacity: 0; transform: translateY(14px) scale(0.98); }
           to { opacity: 1; transform: translateY(0) scale(1); }
         }
-        .educraft-hero-in { animation: educraft-rise .45s ease both; }
         .educraft-panel-in { animation: educraft-rise .3s ease both; }
         .educraft-modal-in { animation: educraft-pop .22s ease both; }
       `}</style>
@@ -7254,7 +7253,7 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
           </nav>
         </header>
 
-        <div className="educraft-hero-in pt-8">
+        <div className="pt-8">
           {view === "library" ? (
             <LibraryView
               lang={lang}

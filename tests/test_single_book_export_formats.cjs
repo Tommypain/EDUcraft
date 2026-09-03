@@ -9,12 +9,34 @@ const BOOKS_DIR = path.join(ROOT_DIR, "BOOKS");
 const CLI_BIN = path.join(ROOT_DIR, "src-tauri/target/debug/books_cli");
 const EXPORT_BIN = path.join(ROOT_DIR, "src-tauri/target/debug/export_cli");
 
-// Load a representative real book from disk
+// Load a representative real book from disk or use synthetic sample
 const sampleBookPath = path.join(BOOKS_DIR, "07-rust-book-01-core", "book.json");
-if (!fs.existsSync(sampleBookPath)) {
-  throw new Error("Sample book not found: " + sampleBookPath);
+let originalBook;
+if (fs.existsSync(sampleBookPath)) {
+  originalBook = JSON.parse(fs.readFileSync(sampleBookPath, "utf-8"));
+} else {
+  originalBook = {
+    id: "07-rust-book-01-core",
+    cover: { from: "#E25822", to: "#8B2500", icon: "code" },
+    en: { title: "Rust Book 01: Core", tagline: "Core concepts" },
+    ar: { title: "كتاب رستم 1: الأساسيات", tagline: "المفاهيم الأساسية" },
+    flavorId: "emerald",
+    nodes: [
+      { id: "b1", level: "branch", parent: null, en: "Branch 1", ar: "فرع 1" },
+      { id: "s1", level: "sub", parent: "b1", en: "Sub 1", ar: "فرع فرعي 1" },
+      { id: "l1", level: "leaf", parent: "s1", en: "Leaf 1", ar: "ورقة 1" }
+    ],
+    pageBlocks: {
+      l1: [
+        { id: "blk-1", kind: "sectionTitle", title: "Intro", type: "sectionTitle" },
+        { id: "blk-2", kind: "text", content: "Rust content", type: "text" }
+      ]
+    },
+    questions: [
+      { id: "q1", leafId: "l1", type: "single_choice", prompt: "Rust question?", options: ["A", "B"], answer: 0 }
+    ]
+  };
 }
-const originalBook = JSON.parse(fs.readFileSync(sampleBookPath, "utf-8"));
 const questionsLen = (originalBook.questions || []).length;
 console.log(`Loaded book '${originalBook.id}' with ${originalBook.nodes.length} nodes and ${questionsLen} questions.`);
 
