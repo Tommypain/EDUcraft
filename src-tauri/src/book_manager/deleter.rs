@@ -1,10 +1,21 @@
 use std::fs;
 use std::path::{Path, PathBuf};
 
+/// Defensively un-stage / remove from git index if tracked, with ZERO auto-commit.
+pub fn run_defensive_git_rm(path: &Path) {
+    let _ = std::process::Command::new("git")
+        .args(["rm", "-r", "--cached", "--ignore-unmatch"])
+        .arg(path)
+        .output();
+}
+
 pub fn delete_book_from_fs(path: &Path) -> Result<(), String> {
     if !path.exists() {
         return Err(format!("Path does not exist: {}", path.display()));
     }
+
+    // Defensive git rm --cached if tracked (Zero auto-commit, safe and non-blocking)
+    run_defensive_git_rm(path);
 
     if path.is_dir() {
         fs::remove_dir_all(path).map_err(|e| {

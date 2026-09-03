@@ -6184,6 +6184,31 @@ async function scanBooksFs(customDir = null) {
   return null;
 }
 
+async function saveImportedBookFs(bookId, finalJson) {
+  if (isTauriEnv()) {
+    try {
+      const { invoke } = await import("@tauri-apps/api/core");
+      return await invoke("import_book_commit_cmd", { bookId, finalJson });
+    } catch (err) {
+      console.error("[EDUcraft BookManager] Tauri import_book_commit_cmd error:", err);
+      throw err;
+    }
+  }
+
+  // Web Browser / Dev Server Bridge
+  const res = await fetch("/__api/books/import_commit", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ bookId, finalJson }),
+  });
+  if (res.ok) {
+    return await res.json().catch(() => ({ ok: true }));
+  } else {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error || `HTTP ${res.status}`);
+  }
+}
+
 async function deleteBookFs(id, path = null) {
   if (isTauriEnv()) {
     try {
@@ -6441,13 +6466,14 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
   const EXPORT = useMemo(() => getExportSeed(), []);
   const [saved] = useState(() => loadAppState());
   const initialBooks = useMemo(() => {
-    const sourceBooks = (EXPORT ? EXPORT.books : BOOKS) || [];
+    const deletedIds = new Set(saved.deletedBookIds || []);
+    const sourceBooks = ((EXPORT ? EXPORT.books : BOOKS) || []).filter((b) => !deletedIds.has(b.id));
     if (saved.customBooks && Array.isArray(saved.customBooks)) {
       const existingIds = new Set(sourceBooks.map((b) => b.id));
-      return [...sourceBooks, ...saved.customBooks.filter((b) => !existingIds.has(b.id))];
+      return [...sourceBooks, ...saved.customBooks.filter((b) => !existingIds.has(b.id) && !deletedIds.has(b.id))];
     }
     return sourceBooks;
-  }, [EXPORT, saved.customBooks]);
+  }, [EXPORT, saved.customBooks, saved.deletedBookIds]);
 
   const [lang, setLang] = useState(saved.lang || (EXPORT && EXPORT.lang) || "en");
   const [mode, setMode] = useState(saved.mode || "light");
@@ -6627,6 +6653,20 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
 
         const allDiscovered = [...mappedBooks, ...invalidBooks];
         setBooks(allDiscovered);
+
+        // Keep deletedBookIds strictly in sync with disk truth
+        try {
+          const currentSaved = loadAppState();
+          const diskIdSet = new Set(allDiscovered.map((b) => b.id));
+          const updatedDeletedIds = (BOOKS || [])
+            .map((b) => b.id)
+            .filter((id) => !diskIdSet.has(id));
+          saveAppState({
+            ...currentSaved,
+            deletedBookIds: updatedDeletedIds,
+          });
+        } catch (_) {}
+
         setBookId((prevId) => {
           const stillExists = allDiscovered.some((b) => b.id === prevId);
           if (!stillExists) {
@@ -6831,6 +6871,9 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
 
       // 3. Clear all associated metadata from persistent storage
       const currentSaved = loadAppState();
+      const existingDeleted = new Set(currentSaved.deletedBookIds || []);
+      existingDeleted.add(targetId);
+      currentSaved.deletedBookIds = Array.from(existingDeleted);
       if (currentSaved.customBooks) {
         currentSaved.customBooks = currentSaved.customBooks.filter((b) => b.id !== targetId);
       }
@@ -6866,12 +6909,60 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
     }
   };
 
-  const handleImportSuccess = ({ books: newBooks, collections: newCols, plans: newPlans, targetBookId }) => {
-    setBooks(newBooks);
+  const handleImportSuccess = async ({ books: newBooks, collections: newCols, plans: newPlans, targetBookId, newlyImportedBooks = [] }) => {
+    // 1. Physical commit of all imported books to BOOKS/{book_id}/book.json on disk
+    const booksToCommit = newlyImportedBooks.length > 0
+      ? newlyImportedBooks
+      : (newBooks || []).filter((b) => !BOOKS.some((def) => def.id === b.id));
+
+    const currentSaved = loadAppState();
+    const deletedSet = new Set(currentSaved.deletedBookIds || []);
+
+    for (const book of booksToCommit) {
+      deletedSet.delete(book.id);
+      try {
+        const cleanBook = { ...book };
+        // Process inline base64 images if present
+        if (cleanBook.pageBlocks) {
+          for (const [leafId, blocks] of Object.entries(cleanBook.pageBlocks)) {
+            if (Array.isArray(blocks)) {
+              for (let i = 0; i < blocks.length; i++) {
+                const blk = blocks[i];
+                if ((blk.kind === "image" || blk.type === "image") && blk.url?.startsWith("data:image/")) {
+                  const ext = blk.url.includes("image/png") ? "png" : blk.url.includes("image/jpeg") ? "jpg" : "png";
+                  const imgName = `img_${leafId}_${i}_${Date.now()}.${ext}`;
+                  try {
+                    const savedImg = await saveBookImageFs(cleanBook.id, imgName, blk.url);
+                    if (savedImg?.path) {
+                      blk.url = savedImg.path;
+                    }
+                  } catch (e) {
+                    console.warn("[EDUcraft Import] Failed to save inline base64 image:", e);
+                  }
+                }
+              }
+            }
+          }
+        }
+
+        const jsonStr = JSON.stringify(cleanBook, null, 2);
+        await saveImportedBookFs(cleanBook.id, jsonStr);
+      } catch (err) {
+        console.error(`[EDUcraft Import] Failed to physically save book ${book.id} to disk:`, err);
+      }
+    }
+
+    currentSaved.deletedBookIds = Array.from(deletedSet);
+    saveAppState(currentSaved);
+
     setCollections(newCols);
     if (newPlans && Object.keys(newPlans).length > 0) {
       setPlans((prev) => ({ ...prev, ...newPlans }));
     }
+
+    // 2. Physical Rescan from disk (single source of truth) so newly written book appears natively
+    await rescanBooks(true);
+
     if (targetBookId) {
       setBookId(targetBookId);
     }
@@ -6919,7 +7010,9 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
 
   useEffect(() => {
     const customBooks = books.filter((b) => !BOOKS.some((def) => def.id === b.id));
+    const currentSaved = loadAppState();
     saveAppState({
+      ...currentSaved,
       lang,
       mode,
       skinId,
@@ -6931,7 +7024,7 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
       covers,
       plans,
       collections,
-      customBooks
+      customBooks,
     });
   }, [lang, mode, skinId, flavorId, bookFlavors, cardMode, scrollDir, voiceEnabled, covers, plans, collections, books]);
 

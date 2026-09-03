@@ -31,23 +31,28 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
         "delete" => {
             let target_arg = args.get(2).ok_or("Missing book id or path to delete")?;
-            let target_path = Path::new(target_arg);
+            let books_dir = args
+                .get(3)
+                .map(PathBuf::from)
+                .unwrap_or_else(resolve_default_books_dir);
 
-            if target_path.exists() {
-                delete_book_from_fs(target_path)?;
-                println!(r#"{{"ok":true,"deleted":"{}"}}"#, target_arg);
-            } else {
-                let books_dir = args
-                    .get(3)
-                    .map(PathBuf::from)
-                    .unwrap_or_else(resolve_default_books_dir);
-
-                let deleted_path = delete_book_by_id(&books_dir, target_arg)?;
-                println!(
-                    r#"{{"ok":true,"deleted":"{}","path":"{}"}}"#,
-                    target_arg,
-                    deleted_path.display()
-                );
+            match delete_book_by_id(&books_dir, target_arg) {
+                Ok(deleted_path) => {
+                    println!(
+                        r#"{{"ok":true,"deleted":"{}","path":"{}"}}"#,
+                        target_arg,
+                        deleted_path.display()
+                    );
+                }
+                Err(_) => {
+                    let target_path = Path::new(target_arg);
+                    if target_path.is_absolute() && target_path.exists() {
+                        delete_book_from_fs(target_path)?;
+                        println!(r#"{{"ok":true,"deleted":"{}"}}"#, target_arg);
+                    } else {
+                        return Err(format!("Book '{}' not found in '{}'", target_arg, books_dir.display()).into());
+                    }
+                }
             }
         }
         "import_dry_run" => {

@@ -11,7 +11,7 @@ pub use database_dump::{
     export_full_database_dump, restore_full_database_dump, FullDatabaseDump, RestoreMode,
     RestoreReport, CURRENT_DATA_VERSION,
 };
-pub use deleter::{delete_book_by_id, delete_book_from_fs};
+pub use deleter::{delete_book_by_id, delete_book_from_fs, run_defensive_git_rm};
 pub use importer::{
     import_book_dry_run, import_book_with_sink, save_imported_book_transactional, AutoFillEntry,
     DryRunReport, ImportEventSink, ImportIssue, IssueSeverity, NoopEventSink, StdoutEventSink,

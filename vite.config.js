@@ -143,6 +143,9 @@ function rustExporterPlugin() {
             proc.on("close", (code) => {
               if (res.headersSent) return;
               if (code === 0) {
+                try {
+                  spawn("git", ["rm", "-r", "--cached", "--ignore-unmatch", path.resolve(booksDir, target)]);
+                } catch (_) {}
                 res.statusCode = 200;
                 res.setHeader("Content-Type", "application/json; charset=utf-8");
                 res.end(stdout || JSON.stringify({ ok: true }));
@@ -156,6 +159,62 @@ function rustExporterPlugin() {
             res.statusCode = 400;
             res.setHeader("Content-Type", "application/json; charset=utf-8");
             res.end(JSON.stringify({ ok: false, error: "Invalid JSON body" }));
+          }
+        });
+      });
+
+      server.middlewares.use("/__api/books/import_commit", (req, res, next) => {
+        if (req.method !== "POST") return next();
+        let body = "";
+        req.on("data", (chunk) => (body += chunk));
+        req.on("end", () => {
+          try {
+            const data = JSON.parse(body);
+            const { bookId, finalJson } = data;
+            if (!bookId || !finalJson) {
+              res.statusCode = 400;
+              res.setHeader("Content-Type", "application/json");
+              res.end(JSON.stringify({ error: "Missing bookId or finalJson" }));
+              return;
+            }
+
+            const binPath = path.resolve(__dirname, "src-tauri/target/debug/books_cli");
+            const booksDir = path.resolve(__dirname, "BOOKS");
+            const tempJsonPath = path.resolve(__dirname, `.temp_import_${bookId}_${Date.now()}.json`);
+            fs.writeFileSync(tempJsonPath, finalJson);
+
+            const proc = spawn(binPath, ["import_commit", bookId, tempJsonPath, booksDir], {
+              env: {
+                ...process.env,
+                LIBRARY_PATH: path.resolve(__dirname, "src-tauri/.pkgconfig/lib"),
+                PKG_CONFIG_PATH: path.resolve(__dirname, "src-tauri/.pkgconfig"),
+              },
+            });
+
+            let stdout = "";
+            let stderr = "";
+            proc.stdout.on("data", (d) => (stdout += d.toString()));
+            proc.stderr.on("data", (d) => (stderr += d.toString()));
+
+            proc.on("close", (code) => {
+              if (fs.existsSync(tempJsonPath)) {
+                try { fs.unlinkSync(tempJsonPath); } catch (_) {}
+              }
+              if (res.headersSent) return;
+              if (code === 0) {
+                res.statusCode = 200;
+                res.setHeader("Content-Type", "application/json; charset=utf-8");
+                res.end(stdout || JSON.stringify({ ok: true, bookId }));
+              } else {
+                res.statusCode = 500;
+                res.setHeader("Content-Type", "application/json; charset=utf-8");
+                res.end(JSON.stringify({ ok: false, error: stderr.trim() || `Exit code ${code}` }));
+              }
+            });
+          } catch (err) {
+            res.statusCode = 400;
+            res.setHeader("Content-Type", "application/json");
+            res.end(JSON.stringify({ error: "Invalid JSON body" }));
           }
         });
       });

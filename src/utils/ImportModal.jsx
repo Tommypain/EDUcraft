@@ -98,6 +98,8 @@ export function ImportModal({
     let finalCollections = [...existingCollections];
     let targetBookId = null;
 
+    const newlyImportedBooks = [];
+
     // Process books with conflict resolution
     validationResult.parsedBooks.forEach((importedBook) => {
       const isConflict = existingBooks.some((b) => b.id === importedBook.id);
@@ -121,6 +123,7 @@ export function ImportModal({
       } else {
         finalBooks.push(bookToAdd);
       }
+      newlyImportedBooks.push(bookToAdd);
       if (!targetBookId) targetBookId = bookToAdd.id;
     });
 
@@ -138,7 +141,8 @@ export function ImportModal({
       books: finalBooks,
       collections: finalCollections,
       plans: validationResult.parsedPlans || {},
-      targetBookId
+      targetBookId,
+      newlyImportedBooks
     });
 
     setStep("success");
