@@ -6968,7 +6968,7 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
 
   const ui = UI[lang];
   const theme = FLAVORS[flavorId][mode];
-  const currentBook = books.find((b) => b.id === bookId) || books[0] || BOOKS[0];
+  const currentBook = books.find((b) => b.id === bookId) || books[0] || BOOKS[0] || null;
   const currentBookFlavorId = (currentBook && bookFlavors[currentBook.id]) || flavorId;
   const bookTheme = FLAVORS[currentBookFlavorId] ? FLAVORS[currentBookFlavorId][mode] : theme;
   const skin = SKINS[skinId];
@@ -7061,7 +7061,7 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
     setLeafId(id);
     setView("deck");
   };
-  const leafById = useMemo(() => Object.fromEntries(currentBook.nodes.filter((n) => n.level === "leaf").map((n) => [n.id, n])), [currentBook]);
+  const leafById = useMemo(() => (currentBook && Array.isArray(currentBook.nodes) ? Object.fromEntries(currentBook.nodes.filter((n) => n.level === "leaf").map((n) => [n.id, n])) : {}), [currentBook]);
   const currentLeaf = leafId ? leafById[leafId] : null;
   const setCover = (id, url) => setCovers((c) => ({ ...c, [id]: url }));
   const clearCover = (id) =>
@@ -7160,24 +7160,27 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
               {ui.navLibrary}
             </button>
             <button
-              onClick={() => setView("tree")}
-              className="flex items-center gap-1.5 text-sm font-semibold px-3 py-2 transition-colors"
+              onClick={() => currentBook && setView("tree")}
+              disabled={!currentBook}
+              className="flex items-center gap-1.5 text-sm font-semibold px-3 py-2 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
               style={{ borderRadius: skin.radiusSm, color: view === "tree" ? theme.accentInk : theme.ink, background: view === "tree" ? theme.accent : "transparent" }}
             >
               <GitBranch size={14} />
               {ui.navTree}
             </button>
             <button
-              onClick={() => setView("editor")}
-              className="flex items-center gap-1.5 text-sm font-semibold px-3 py-2 transition-colors"
+              onClick={() => currentBook && setView("editor")}
+              disabled={!currentBook}
+              className="flex items-center gap-1.5 text-sm font-semibold px-3 py-2 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
               style={{ borderRadius: skin.radiusSm, color: view === "editor" ? theme.accentInk : theme.ink, background: view === "editor" ? theme.accent : "transparent" }}
             >
               <Settings size={14} />
               {ui.navEditor}
             </button>
             <button
-              onClick={() => setView("planner")}
-              className="flex items-center gap-1.5 text-sm font-semibold px-3 py-2 transition-colors"
+              onClick={() => currentBook && setView("planner")}
+              disabled={!currentBook}
+              className="flex items-center gap-1.5 text-sm font-semibold px-3 py-2 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
               style={{ borderRadius: skin.radiusSm, color: view === "planner" ? theme.accentInk : theme.ink, background: view === "planner" ? theme.accent : "transparent" }}
             >
               <CalendarDays size={14} />
@@ -7225,24 +7228,27 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
               {ui.navLibrary}
             </button>
             <button
-              onClick={() => setView("tree")}
-              className="flex items-center gap-1.5 text-xs font-semibold px-3 py-2 transition-colors"
+              onClick={() => currentBook && setView("tree")}
+              disabled={!currentBook}
+              className="flex items-center gap-1.5 text-xs font-semibold px-3 py-2 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
               style={{ borderRadius: skin.radiusSm, color: view === "tree" ? theme.accentInk : theme.ink, background: view === "tree" ? theme.accent : "transparent" }}
             >
               <GitBranch size={13} />
               {ui.navTree}
             </button>
             <button
-              onClick={() => setView("editor")}
-              className="flex items-center gap-1.5 text-xs font-semibold px-3 py-2 transition-colors"
+              onClick={() => currentBook && setView("editor")}
+              disabled={!currentBook}
+              className="flex items-center gap-1.5 text-xs font-semibold px-3 py-2 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
               style={{ borderRadius: skin.radiusSm, color: view === "editor" ? theme.accentInk : theme.ink, background: view === "editor" ? theme.accent : "transparent" }}
             >
               <Settings size={13} />
               {ui.navEditor}
             </button>
             <button
-              onClick={() => setView("planner")}
-              className="flex items-center gap-1.5 text-xs font-semibold px-3 py-2 transition-colors"
+              onClick={() => currentBook && setView("planner")}
+              disabled={!currentBook}
+              className="flex items-center gap-1.5 text-xs font-semibold px-3 py-2 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
               style={{ borderRadius: skin.radiusSm, color: view === "planner" ? theme.accentInk : theme.ink, background: view === "planner" ? theme.accent : "transparent" }}
             >
               <CalendarDays size={13} />
@@ -7252,7 +7258,7 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
         </header>
 
         <div className="pt-8">
-          {view === "library" ? (
+          {view === "library" || !currentBook ? (
             <LibraryView
               lang={lang}
               ui={ui}
