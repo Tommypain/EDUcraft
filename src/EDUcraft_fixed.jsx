@@ -510,6 +510,20 @@ const UI = {
     treeExpandAll: "Expand all",
     treeSearchResults: "matching nodes",
     treeNoResults: "No matching nodes found",
+    libraryNewBook: "+ New Book",
+    editorEmptyTitle: "No Book Selected",
+    editorEmptySub: "Select an existing book from your library to edit, or create a brand new book from scratch.",
+    treeEmptyTitle: "Knowledge Tree is Empty",
+    treeEmptySub: "Select a book to explore its knowledge tree, or create a new book to build one.",
+    plannerEmptyTitle: "Study Planner",
+    plannerEmptySub: "Study plans and schedules are tracked per book. Select a book to view or manage its study plan, or create a new book.",
+    createNewBookCta: "Create New Book",
+    newBookPrompt: "Enter new book title:",
+    quickSelectBook: "Or open an existing book:",
+    addBranchBtn: "+ Add Branch",
+    addLeafBtn: "+ Add Leaf",
+    branchTitlePrompt: "Enter branch title:",
+    leafTitlePrompt: "Enter leaf title:",
   },
   ar: {
     dir: "rtl",
@@ -677,6 +691,20 @@ const UI = {
     treeExpandAll: "فتح الكل",
     treeSearchResults: "عناصر مطابقة",
     treeNoResults: "لا توجد نتائج مطابقة",
+    libraryNewBook: "+ كتاب جديد",
+    editorEmptyTitle: "لا يوجد كتاب محدد حالياً",
+    editorEmptySub: "اختر كتاباً موجوداً من مكتبتك لتعديله، أو أنشئ كتاباً جديداً فارغاً من الصفر.",
+    treeEmptyTitle: "شجرة المعرفة فارغة",
+    treeEmptySub: "اختر كتاباً لاستكشاف شجرة معرفته، أو أنشئ كتاباً جديداً لبنائها.",
+    plannerEmptyTitle: "مخطط الدراسة والتقويم",
+    plannerEmptySub: "جداول وخطط الدراسة ترتبط بكل كتاب على حدة. اختر كتاباً لعرض خطته الدراسية أو إدارتها، أو أنشئ كتاباً جديداً.",
+    createNewBookCta: "إنشاء كتاب جديد",
+    newBookPrompt: "أدخل عنوان الكتاب الجديد:",
+    quickSelectBook: "أو افتح كتاباً موجوداً:",
+    addBranchBtn: "+ فرع جديد",
+    addLeafBtn: "+ ورقة جديدة",
+    branchTitlePrompt: "أدخل عنوان الفرع الجديد:",
+    leafTitlePrompt: "أدخل عنوان الورقة الجديدة:",
   },
 };
 
@@ -2113,7 +2141,7 @@ function EditableCover({ book, theme, skin, ui, coverUrl, onChangeCover, onClear
    LibraryView — the shelf. Each card is the cover + title + a
    quick tally of branches / questions inside that book's tree.
 ================================================================== */
-function LibraryView({ lang, ui, theme, dir, onOpen, skin, covers, onChangeCover, onClearCover, books, collections, libraryPath, onEnterCollection, onCrumb, onCreateCollection, onDeleteCollection, onAssignToCollection, onRemoveFromCollection, onExportBook, onExportCollection, onOpenImportModal, onDeleteBook, plans = {}, isExporting = false, onRescan, isScanning = false, onExportDatabase, onRestoreDatabase }) {
+function LibraryView({ lang, ui, theme, dir, onOpen, skin, covers, onChangeCover, onClearCover, books, collections, libraryPath, onEnterCollection, onCrumb, onCreateCollection, onDeleteCollection, onAssignToCollection, onRemoveFromCollection, onExportBook, onExportCollection, onOpenImportModal, onDeleteBook, plans = {}, isExporting = false, onRescan, isScanning = false, onExportDatabase, onRestoreDatabase, onCreateNewBook }) {
   const ArrowIcon = dir === "rtl" ? ArrowLeft : ArrowRight;
   const atRoot = libraryPath.length === 0;
   const currentCollection = atRoot ? null : collections.find((c) => c.id === libraryPath[libraryPath.length - 1]);
@@ -2208,9 +2236,20 @@ function LibraryView({ lang, ui, theme, dir, onOpen, skin, covers, onChangeCover
               {lang === "ar" ? (isScanning ? "جارٍ الفحص..." : "تحديث المكتبة") : (isScanning ? "Scanning..." : "Refresh Library")}
             </button>
           )}
+          {onCreateNewBook && (
+            <button
+              onClick={onCreateNewBook}
+              className="flex items-center gap-1.5 text-xs font-bold px-3.5 py-2 shadow-sm transition-all hover:scale-105 cursor-pointer"
+              style={{ borderRadius: skin.radiusSm, background: theme.accentSoft, border: `1.5px solid ${theme.accent}`, color: theme.accent, minHeight: 36 }}
+              title={ui.libraryNewBook}
+            >
+              <Plus size={13} />
+              {ui.libraryNewBook}
+            </button>
+          )}
           <button
             onClick={onOpenImportModal}
-            className="flex items-center gap-1.5 text-xs font-bold px-3.5 py-2 text-white shadow-sm"
+            className="flex items-center gap-1.5 text-xs font-bold px-3.5 py-2 text-white shadow-sm cursor-pointer"
             style={{ borderRadius: skin.radiusSm, background: theme.accent, border: `1.5px solid ${theme.accent}`, minHeight: 36 }}
             title={ui.libraryImportJson}
           >
@@ -2255,6 +2294,47 @@ function LibraryView({ lang, ui, theme, dir, onOpen, skin, covers, onChangeCover
             <Plus size={13} />
             {ui.libraryNewEncyclopedia}
           </button>
+        </div>
+      )}
+
+      {atRoot && itemCollections.length === 0 && itemBooks.length === 0 && (
+        <div
+          className="p-8 sm:p-14 text-center rounded-2xl border flex flex-col items-center justify-center gap-3 my-4 educraft-panel-in"
+          style={{ background: theme.surface, borderColor: theme.hairline }}
+        >
+          <div className="w-14 h-14 rounded-2xl flex items-center justify-center" style={{ background: theme.accentSoft, color: theme.accent }}>
+            <BookOpen size={28} />
+          </div>
+          <h3 className="text-xl font-bold" style={{ fontFamily: ui.displayFont, color: theme.ink }}>
+            {lang === "ar" ? "المكتبة فارغة حالياً" : "Your Library is Empty"}
+          </h3>
+          <p className="text-sm max-w-md" style={{ color: theme.inkSoft, lineHeight: 1.6 }}>
+            {lang === "ar"
+              ? "ابدأ بإنشاء كتاب جديد لبنائه يدوياً وتطوير شجرة معرفته، أو استورد كتباً مجهزة مسبقاً بصيغة JSON."
+              : "Start by creating a new book from scratch to build its knowledge tree, or import existing books via JSON."}
+          </p>
+          <div className="flex items-center gap-3 mt-3 flex-wrap justify-center">
+            {onCreateNewBook && (
+              <button
+                type="button"
+                onClick={onCreateNewBook}
+                className="flex items-center gap-2 text-sm font-bold px-4 py-2.5 shadow-sm transition-all hover:scale-105 cursor-pointer"
+                style={{ borderRadius: skin.radiusSm, background: theme.accent, color: theme.accentInk }}
+              >
+                <Plus size={15} />
+                {ui.createNewBookCta}
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={onOpenImportModal}
+              className="flex items-center gap-2 text-sm font-bold px-4 py-2.5 transition-all hover:scale-105 cursor-pointer"
+              style={{ borderRadius: skin.radiusSm, border: `1.5px solid ${skinBorderColor(skin, theme)}`, color: theme.ink }}
+            >
+              <FileUp size={15} />
+              {ui.libraryImportJson}
+            </button>
+          </div>
         </div>
       )}
 
@@ -2516,7 +2596,7 @@ function LibraryView({ lang, ui, theme, dir, onOpen, skin, covers, onChangeCover
    cover + title, its knowledge tree, and — once a leaf is picked —
    the question deck for that leaf.
 ================================================================== */
-function TreeView({ book, lang, ui, theme, dir, onBack, skin, selectedLeaf, onSelectLeaf, onBrowse, onReadThrough, onPlanner, onExport, covers, onChangeCover, onClearCover, bookFlavorId, onChangeBookFlavor, onDeleteBook, plan }) {
+function TreeView({ book, lang, ui, theme, dir, onBack, skin, selectedLeaf, onSelectLeaf, onBrowse, onReadThrough, onPlanner, onEditor, onExport, covers, onChangeCover, onClearCover, bookFlavorId, onChangeBookFlavor, onDeleteBook, plan }) {
   const BackIcon = dir === "rtl" ? ArrowRight : ArrowLeft;
 
   return (
@@ -2533,10 +2613,10 @@ function TreeView({ book, lang, ui, theme, dir, onBack, skin, selectedLeaf, onSe
           </div>
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold" style={{ fontFamily: ui.displayFont, color: theme.ink, lineHeight: 1.25 }}>
-              {book[lang].title}
+              {book[lang]?.title || book.en?.title || book.ar?.title}
             </h1>
             <p className="text-sm" style={{ color: theme.inkSoft }}>
-              {book[lang].tagline}
+              {book[lang]?.tagline || book.en?.tagline || book.ar?.tagline}
             </p>
           </div>
         </div>
@@ -2563,9 +2643,8 @@ function TreeView({ book, lang, ui, theme, dir, onBack, skin, selectedLeaf, onSe
       </div>
 
       <div className="flex items-center gap-2 mb-6 flex-wrap">
-        {/* Per-Book Flavor Swatches Picker */}
         {onChangeBookFlavor && (
-          <div className="flex items-center gap-1.5 px-3 py-1.5" style={{ borderRadius: skin.radiusSm, border: `1.5px solid ${skinBorderColor(skin, theme)}`, background: theme.surface }}>
+          <div className="flex items-center gap-1.5 px-3 py-1.5 me-auto" style={{ borderRadius: skin.radiusSm, border: `1.5px solid ${skinBorderColor(skin, theme)}`, background: theme.surface }}>
             <Palette size={13} style={{ color: theme.inkSoft }} />
             <span className="text-[11px] font-bold me-1" style={{ color: theme.inkSoft }}>
               {ui.bookFlavorLabel || (lang === "ar" ? "نكهة الكتاب:" : "Flavor:")}
@@ -2577,8 +2656,9 @@ function TreeView({ book, lang, ui, theme, dir, onBack, skin, selectedLeaf, onSe
                 return (
                   <button
                     key={fid}
+                    type="button"
                     onClick={() => onChangeBookFlavor(fid)}
-                    className="relative p-0.5 rounded-full transition-transform hover:scale-110"
+                    className="relative p-0.5 rounded-full transition-transform hover:scale-110 cursor-pointer"
                     style={{
                       border: isSelected ? `2px solid ${theme.ink}` : "1.5px solid transparent",
                       boxShadow: isSelected ? `0 0 0 1px ${theme.accent}` : "none",
@@ -2599,9 +2679,22 @@ function TreeView({ book, lang, ui, theme, dir, onBack, skin, selectedLeaf, onSe
           </div>
         )}
 
+        {onEditor && (
+          <button
+            type="button"
+            onClick={onEditor}
+            className="flex items-center gap-1.5 text-xs font-bold px-3.5 py-2 cursor-pointer"
+            style={{ borderRadius: skin.radiusSm, border: `1.5px solid ${skinBorderColor(skin, theme)}`, color: theme.ink, minHeight: 36 }}
+            title={ui.navEditor}
+          >
+            <Settings size={13} />
+            {ui.navEditor}
+          </button>
+        )}
+
         <button
           onClick={onPlanner}
-          className="flex items-center gap-1.5 text-xs font-bold px-3.5 py-2"
+          className="flex items-center gap-1.5 text-xs font-bold px-3.5 py-2 cursor-pointer"
           style={{ borderRadius: skin.radiusSm, border: `1.5px solid ${skinBorderColor(skin, theme)}`, color: theme.ink, minHeight: 36 }}
         >
           <CalendarDays size={13} />
@@ -2610,7 +2703,7 @@ function TreeView({ book, lang, ui, theme, dir, onBack, skin, selectedLeaf, onSe
         {onExport && (
           <button
             onClick={onExport}
-            className="flex items-center gap-1.5 text-xs font-bold px-3.5 py-2"
+            className="flex items-center gap-1.5 text-xs font-bold px-3.5 py-2 cursor-pointer"
             style={{ borderRadius: skin.radiusSm, border: `1.5px solid ${skinBorderColor(skin, theme)}`, color: theme.ink, minHeight: 36 }}
           >
             <FileDown size={13} />
@@ -2622,7 +2715,7 @@ function TreeView({ book, lang, ui, theme, dir, onBack, skin, selectedLeaf, onSe
             onClick={() => {
               onDeleteBook(book);
             }}
-            className="flex items-center gap-1.5 text-xs font-bold px-3.5 py-2 hover:opacity-90 transition-opacity"
+            className="flex items-center gap-1.5 text-xs font-bold px-3.5 py-2 hover:opacity-90 transition-opacity cursor-pointer"
             style={{ borderRadius: skin.radiusSm, border: `1.5px solid ${INCORRECT.border}`, color: INCORRECT.border, minHeight: 36 }}
             title={ui.libraryDeleteBook}
           >
@@ -2632,19 +2725,45 @@ function TreeView({ book, lang, ui, theme, dir, onBack, skin, selectedLeaf, onSe
         )}
       </div>
 
-      {/* The tree is navigation only: it maps how branches, sub-branches
-          and leaves relate to one another (including the dashed cross-
-          branch links). Tapping a leaf never shows questions here — it
-          takes you to a dedicated question-deck screen (see DeckView). */}
-      <div className="p-6 sm:p-8" style={panelStyle(skin, theme)}>
-        <p className="text-xs font-semibold mb-2" style={{ color: theme.accent }}>
-          {ui.treeEyebrow}
+      {(book?.nodes || []).length === 0 ? (
+        <div
+          className="p-8 sm:p-14 text-center rounded-2xl border flex flex-col items-center justify-center gap-3 my-4 educraft-panel-in"
+          style={{ background: theme.surface, borderColor: theme.hairline }}
+        >
+          <div className="w-14 h-14 rounded-2xl flex items-center justify-center" style={{ background: theme.accentSoft, color: theme.accent }}>
+            <GitBranch size={28} />
+          </div>
+          <h3 className="text-xl font-bold" style={{ fontFamily: ui.displayFont, color: theme.ink }}>
+            {lang === "ar" ? "شجرة هذا الكتاب فارغة" : "This Book's Tree is Empty"}
+          </h3>
+          <p className="text-sm max-w-md" style={{ color: theme.inkSoft, lineHeight: 1.6 }}>
+            {lang === "ar"
+              ? "لم تتم إضافة أي فروع أو أوراق بعد. افتح المحرر لبدء إضافة الفروع والكروت والأسئلة يدوياً."
+              : "No branches or leaves have been added yet. Open the Editor to start building branches and questions manually."}
+          </p>
+          {onEditor && (
+            <button
+              type="button"
+              onClick={onEditor}
+              className="flex items-center gap-2 text-sm font-bold px-4 py-2.5 shadow-sm transition-all hover:scale-105 cursor-pointer mt-2"
+              style={{ borderRadius: skin.radiusSm, background: theme.accent, color: theme.accentInk }}
+            >
+              <PenLine size={15} />
+              {lang === "ar" ? "فتح المحرر لبناء الشجرة" : "Open Editor to Build Tree"}
+            </button>
+          )}
+        </div>
+      ) : (
+        <div className="p-6 sm:p-8" style={panelStyle(skin, theme)}>
+          <p className="text-xs font-semibold mb-2" style={{ color: theme.accent }}>
+            {ui.treeEyebrow}
         </p>
         <p className="text-sm mb-6 max-w-lg" style={{ color: theme.inkSoft, lineHeight: 1.7 }}>
           {ui.treeSub}
         </p>
         <KnowledgeTree book={book} lang={lang} dir={dir} theme={theme} ui={ui} skin={skin} selected={selectedLeaf} onSelect={onSelectLeaf} doneLeafIds={plan?.doneLeafIds || []} />
       </div>
+      )}
     </section>
   );
 }
@@ -4216,20 +4335,20 @@ function CardEditor({ card, lang, theme, skin, t, onUpdateCard, onDeleteCard, al
 }
 
 /* Geometric branch -> sub-branch -> leaf list. */
-function EditorLeafNav({ book, lang, theme, selectedLeafId, onSelect }) {
-  const branches = book.nodes.filter((n) => n.level === "branch");
-  const subOf = (bid) => book.nodes.filter((n) => n.level === "sub" && n.parent === bid);
-  const leavesOf = (sid) => book.nodes.filter((n) => n.level === "leaf" && n.parent === sid);
+function EditorLeafNav({ book, lang, theme, selectedLeafId, onSelect, onAddBranch, onAddLeaf }) {
+  const branches = (book?.nodes || []).filter((n) => n.level === "branch");
+  const subOf = (bid) => (book?.nodes || []).filter((n) => n.level === "sub" && n.parent === bid);
+  const leavesOf = (sid) => (book?.nodes || []).filter((n) => n.level === "leaf" && n.parent === sid);
 
   const LeafButton = ({ l }) => (
     <button
       key={l.id}
       onClick={() => onSelect(l.id)}
-      className="text-start text-xs font-semibold px-2.5 py-1.5 flex items-center justify-between gap-2"
+      className="text-start text-xs font-semibold px-2.5 py-1.5 flex items-center justify-between gap-2 cursor-pointer transition-colors"
       style={{ borderRadius: 8, background: selectedLeafId === l.id ? theme.accentSoft : "transparent", color: theme.ink, border: `1px solid ${selectedLeafId === l.id ? theme.accent : "transparent"}` }}
     >
-      <span>{lang === "ar" ? l.ar : l.en}</span>
-      <span className="text-[10px]" style={{ color: theme.inkSoft }}>
+      <span className="truncate">{lang === "ar" ? l.ar : l.en}</span>
+      <span className="text-[10px] shrink-0" style={{ color: theme.inkSoft }}>
         {(l.questions || []).length}
       </span>
     </button>
@@ -4237,32 +4356,95 @@ function EditorLeafNav({ book, lang, theme, selectedLeafId, onSelect }) {
 
   return (
     <div className="flex flex-col gap-3">
-      {branches.map((b) => (
-        <div key={b.id}>
-          <p className="text-xs font-black uppercase tracking-wide mb-1.5 flex items-center gap-1.5" style={{ color: theme.accent }}>
-            <GitBranch size={12} /> {lang === "ar" ? b.ar : b.en}
+      <div className="flex items-center justify-between gap-1 pb-1.5 border-b" style={{ borderColor: theme.hairline }}>
+        <span className="text-[11px] font-black uppercase tracking-wider" style={{ color: theme.inkSoft }}>
+          {lang === "ar" ? "الهيكل والشجرة" : "Outline & Tree"}
+        </span>
+        {onAddBranch && (
+          <button
+            type="button"
+            onClick={onAddBranch}
+            className="flex items-center gap-1 text-[11px] font-bold px-2 py-1 transition-all hover:scale-105 cursor-pointer"
+            style={{ borderRadius: 6, background: theme.accentSoft, color: theme.accent }}
+            title={lang === "ar" ? "إضافة فرع رئيسي جديد" : "Add new branch"}
+          >
+            <Plus size={12} />
+            {lang === "ar" ? "فرع" : "Branch"}
+          </button>
+        )}
+      </div>
+
+      {branches.length === 0 ? (
+        <div className="p-3 text-center rounded-xl" style={{ background: theme.surfaceSoft }}>
+          <p className="text-xs mb-2.5 font-medium" style={{ color: theme.inkSoft, lineHeight: 1.4 }}>
+            {lang === "ar" ? "الكتاب فارغ حالياً. ابدأ بإضافة الفرع الأول:" : "Book has no branches yet. Add your first branch:"}
           </p>
-          <div className="flex flex-col gap-2 ps-3" style={{ borderInlineStart: `2px solid ${theme.hairline}` }}>
-            {/* Direct branch leaves (parent === branch id) */}
-            {leavesOf(b.id).length > 0 && (
-              <div className="flex flex-col gap-1">
-                {leavesOf(b.id).map((l) => <LeafButton key={l.id} l={l} />)}
-              </div>
-            )}
-            {/* Sub-branch and their leaves */}
-            {subOf(b.id).map((s) => (
-              <div key={s.id}>
-                <p className="text-[11px] font-bold mb-1" style={{ color: theme.inkSoft }}>
-                  {lang === "ar" ? s.ar : s.en}
-                </p>
-                <div className="flex flex-col gap-1 ps-2">
-                  {leavesOf(s.id).map((l) => <LeafButton key={l.id} l={l} />)}
-                </div>
-              </div>
-            ))}
-          </div>
+          {onAddBranch && (
+            <button
+              type="button"
+              onClick={onAddBranch}
+              className="w-full text-xs font-bold py-2 flex items-center justify-center gap-1.5 shadow-sm transition-all hover:scale-105 cursor-pointer"
+              style={{ borderRadius: 8, background: theme.accent, color: theme.accentInk }}
+            >
+              <Plus size={13} />
+              {lang === "ar" ? "إضافة فرع جديد" : "Add New Branch"}
+            </button>
+          )}
         </div>
-      ))}
+      ) : (
+        branches.map((b) => (
+          <div key={b.id}>
+            <div className="flex items-center justify-between gap-1 mb-1.5">
+              <p className="text-xs font-black uppercase tracking-wide flex items-center gap-1.5 truncate" style={{ color: theme.accent }}>
+                <GitBranch size={12} className="shrink-0" /> {lang === "ar" ? b.ar : b.en}
+              </p>
+              {onAddLeaf && (
+                <button
+                  type="button"
+                  onClick={() => onAddLeaf(b.id)}
+                  className="text-[10px] font-bold px-1.5 py-0.5 rounded opacity-75 hover:opacity-100 transition-opacity flex items-center gap-0.5 shrink-0 cursor-pointer"
+                  style={{ background: theme.surfaceSoft, color: theme.ink }}
+                  title={lang === "ar" ? "إضافة ورقة لهذا الفرع" : "Add leaf to this branch"}
+                >
+                  <Plus size={10} /> {lang === "ar" ? "ورقة" : "Leaf"}
+                </button>
+              )}
+            </div>
+            <div className="flex flex-col gap-2 ps-3" style={{ borderInlineStart: `2px solid ${theme.hairline}` }}>
+              {/* Direct branch leaves (parent === branch id) */}
+              {leavesOf(b.id).length > 0 && (
+                <div className="flex flex-col gap-1">
+                  {leavesOf(b.id).map((l) => <LeafButton key={l.id} l={l} />)}
+                </div>
+              )}
+              {/* Sub-branch and their leaves */}
+              {subOf(b.id).map((s) => (
+                <div key={s.id}>
+                  <div className="flex items-center justify-between gap-1 mb-1">
+                    <p className="text-[11px] font-bold truncate" style={{ color: theme.inkSoft }}>
+                      {lang === "ar" ? s.ar : s.en}
+                    </p>
+                    {onAddLeaf && (
+                      <button
+                        type="button"
+                        onClick={() => onAddLeaf(s.id)}
+                        className="text-[9px] font-bold px-1 py-0.5 rounded opacity-75 hover:opacity-100 transition-opacity flex items-center gap-0.5 shrink-0 cursor-pointer"
+                        style={{ background: theme.surfaceSoft, color: theme.ink }}
+                        title={lang === "ar" ? "إضافة ورقة" : "Add leaf"}
+                      >
+                        <Plus size={9} /> {lang === "ar" ? "ورقة" : "Leaf"}
+                      </button>
+                    )}
+                  </div>
+                  <div className="flex flex-col gap-1 ps-2">
+                    {leavesOf(s.id).map((l) => <LeafButton key={l.id} l={l} />)}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))
+      )}
     </div>
   );
 }
@@ -5525,9 +5707,9 @@ function EditorRibbon({ book, lang, theme, t, onImportBook, addCard, addQuestion
 }
 
 function EditorBreadcrumb({ book, lang, leaf, card, theme }) {
-  const branch = leaf ? book.nodes.find((n) => n.id === book.nodes.find((s) => s.id === leaf.parent)?.parent) : null;
+  const branch = leaf && book?.nodes ? book.nodes.find((n) => n.id === book.nodes.find((s) => s.id === leaf.parent)?.parent) : null;
   const steps = [
-    { n: 1, active: true, label: lang === "ar" ? book.ar?.title : book.en?.title },
+    { n: 1, active: true, label: (lang === "ar" ? book?.ar?.title : book?.en?.title) || book?.en?.title || book?.ar?.title || "" },
     { n: 2, active: !!leaf, label: branch ? (lang === "ar" ? branch.ar : branch.en) : "" },
     { n: 3, active: !!leaf, label: leaf ? (lang === "ar" ? leaf.ar : leaf.en) : "" },
     { n: 4, active: !!card, label: card ? "" : "" },
@@ -5560,15 +5742,52 @@ function EditorView({ book, lang, theme, skin, voiceEnabled, onVoiceEnabledChang
   const t = EDITOR_STR[lang];
   const [tab, setTab] = useState("cards");
   const [selectedLeafId, setSelectedLeafId] = useState(
-    () => book.nodes.find((n) => n.level === "leaf")?.id || null,
+    () => (book?.nodes || []).find((n) => n.level === "leaf")?.id || null,
   );
   const [selectedCardIdx, setSelectedCardIdx] = useState(0);
   const [previewWholeBook, setPreviewWholeBook] = useState(false);
 
-  const allLeaves = useMemo(() => book.nodes.filter((n) => n.level === "leaf"), [book]);
+  const allLeaves = useMemo(() => (book?.nodes || []).filter((n) => n.level === "leaf"), [book]);
   const leaf = allLeaves.find((l) => l.id === selectedLeafId) || null;
   const cards = leaf ? leafCards(leaf) : [];
   const card = cards[selectedCardIdx];
+
+  useEffect(() => {
+    if (!selectedLeafId && allLeaves.length > 0) {
+      setSelectedLeafId(allLeaves[0].id);
+    }
+  }, [allLeaves, selectedLeafId]);
+
+  const handleAddBranch = (titleOverride) => {
+    const title = (titleOverride || window.prompt(lang === "ar" ? "أدخل عنوان الفرع الجديد:" : "Enter new branch title:"))?.trim();
+    if (!title) return;
+    const newBranch = {
+      id: `branch-${Date.now().toString(36)}`,
+      level: "branch",
+      parent: null,
+      en: title,
+      ar: title,
+    };
+    onUpdateBook((prev) => ({ ...prev, nodes: [...(prev?.nodes || []), newBranch] }));
+  };
+
+  const handleAddLeaf = (parentId, titleOverride) => {
+    const title = (titleOverride || window.prompt(lang === "ar" ? "أدخل عنوان الورقة الجديدة:" : "Enter new leaf title:"))?.trim();
+    if (!title) return;
+    const newLeafId = `leaf-${Date.now().toString(36)}`;
+    const newLeaf = {
+      id: newLeafId,
+      level: "leaf",
+      parent: parentId,
+      en: title,
+      ar: title,
+      cards: [{ id: `card-${newLeafId}-0`, image: null, imagePosition: "top", questions: [] }],
+      questions: [],
+    };
+    onUpdateBook((prev) => ({ ...prev, nodes: [...(prev?.nodes || []), newLeaf] }));
+    setSelectedLeafId(newLeafId);
+    setSelectedCardIdx(0);
+  };
 
   // reverse index: who links to the selected leaf, from anywhere in
   // the book — a question, a whole card, or one specific A4 plate.
@@ -5679,14 +5898,37 @@ function EditorView({ book, lang, theme, skin, voiceEnabled, onVoiceEnabledChang
               setSelectedLeafId(id);
               setSelectedCardIdx(0);
             }}
+            onAddBranch={handleAddBranch}
+            onAddLeaf={handleAddLeaf}
           />
         </div>
 
         <div>
           {!previewWholeBook && !leaf ? (
-            <p className="text-sm" style={{ color: theme.inkSoft }}>
-              {t.noLeaf}
-            </p>
+            <div className="p-8 text-center rounded-2xl border flex flex-col items-center justify-center gap-3 my-4" style={{ background: theme.surface, borderColor: theme.hairline }}>
+              <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: theme.accentSoft, color: theme.accent }}>
+                <GitBranch size={24} />
+              </div>
+              <h3 className="text-base font-bold" style={{ color: theme.ink }}>
+                {lang === "ar" ? "لم يتم تحديد أي ورقة" : "No leaf selected"}
+              </h3>
+              <p className="text-xs max-w-sm" style={{ color: theme.inkSoft, lineHeight: 1.5 }}>
+                {(book?.nodes || []).length === 0
+                  ? (lang === "ar" ? "هذا الكتاب فارغ تماماً من الفروع. ابدأ بإضافة فرعك الأول لبناء شجرة المعرفة." : "This book has no branches yet. Add your first branch to start building the knowledge tree.")
+                  : (lang === "ar" ? "اختر ورقة من القائمة الجانبية لتعديلها، أو اضغط على '+ ورقة' لإضافة ورقة جديدة." : "Select a leaf from the outline on the left, or click '+ Leaf' to add a new leaf.")}
+              </p>
+              {(book?.nodes || []).length === 0 && (
+                <button
+                  type="button"
+                  onClick={() => handleAddBranch()}
+                  className="flex items-center gap-1.5 text-xs font-bold px-4 py-2 shadow-sm transition-all hover:scale-105 cursor-pointer"
+                  style={{ borderRadius: skin.radiusSm, background: theme.accent, color: theme.accentInk }}
+                >
+                  <Plus size={14} />
+                  {lang === "ar" ? "إضافة أول فرع للكتاب" : "Add First Branch"}
+                </button>
+              )}
+            </div>
           ) : (
             !previewWholeBook && (
               <>
@@ -6453,6 +6695,89 @@ function RestoreDatabaseModal({ isOpen, onClose, dumpData, onConfirm, isRestorin
   );
 }
 
+function ViewEmptyState({
+  icon: Icon,
+  title,
+  sub,
+  theme,
+  skin,
+  ui,
+  books = [],
+  lang = "en",
+  onSelectBook,
+  onCreateBook,
+}) {
+  return (
+    <div
+      className="flex flex-col items-center justify-center text-center p-8 sm:p-14 max-w-lg mx-auto"
+      style={{
+        ...panelStyle(skin, theme, { soft: true }),
+        borderRadius: skin.radiusLg,
+        minHeight: 340,
+      }}
+    >
+      <div
+        className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4 shadow-sm"
+        style={{ background: theme.accentSoft, color: theme.accent }}
+      >
+        <Icon size={32} />
+      </div>
+      <h2
+        className="text-xl sm:text-2xl font-bold mb-2.5"
+        style={{ fontFamily: ui.displayFont, color: theme.ink }}
+      >
+        {title}
+      </h2>
+      <p className="text-sm mb-7 max-w-md" style={{ color: theme.inkSoft, lineHeight: 1.65 }}>
+        {sub}
+      </p>
+      <div className="flex flex-wrap items-center justify-center gap-3">
+        {onCreateBook && (
+          <button
+            type="button"
+            onClick={onCreateBook}
+            className="flex items-center gap-2 text-sm font-bold px-4 py-2.5 shadow-sm transition-all hover:scale-105 cursor-pointer"
+            style={{
+              borderRadius: skin.radiusSm,
+              background: theme.accent,
+              color: theme.accentInk,
+            }}
+          >
+            <Plus size={16} />
+            {ui.createNewBookCta}
+          </button>
+        )}
+        {books && books.length > 0 && onSelectBook && (
+          <div className="flex items-center gap-2">
+            <select
+              onChange={(e) => {
+                if (e.target.value) onSelectBook(e.target.value);
+              }}
+              defaultValue=""
+              className="text-xs font-bold px-3 py-2.5 cursor-pointer"
+              style={{
+                borderRadius: skin.radiusSm,
+                border: `1.5px solid ${skinBorderColor(skin, theme)}`,
+                background: theme.surface,
+                color: theme.ink,
+              }}
+            >
+              <option value="" disabled>
+                {ui.quickSelectBook}
+              </option>
+              {books.map((b) => (
+                <option key={b.id} value={b.id}>
+                  {(lang === "ar" ? b.ar?.title : b.en?.title) || b.en?.title || b.ar?.title || b.id}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 /* onExportBook / onExportCollection are injected by the top-level
    EDUcraft.jsx wrapper (see that file) — they build the actual
    downloadable .html file using the pre-bundled export assets. This
@@ -6966,6 +7291,61 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
     }
   };
 
+  const handleCreateNewBook = async (titleOverride) => {
+    const defaultTitle = lang === "ar" ? "كتاب جديد" : "New Book";
+    const title = (titleOverride || window.prompt(ui.newBookPrompt, defaultTitle))?.trim();
+    if (!title) return;
+
+    // Generate safe slug id
+    const baseSlug = title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+    const safeId = baseSlug || `book-${Date.now().toString(36)}`;
+    let finalId = safeId;
+    let counter = 1;
+    while (books.some((b) => b.id === finalId)) {
+      finalId = `${safeId}-${counter++}`;
+    }
+
+    const newBook = {
+      id: finalId,
+      cover: {
+        from: "#3B82F6",
+        to: "#1D4ED8",
+        icon: "book",
+      },
+      en: {
+        title: title,
+        tagline: "Manual curriculum",
+      },
+      ar: {
+        title: title,
+        tagline: "منهج تعليمي يدوي",
+      },
+      flavorId: flavorId || "nord",
+      nodes: [],
+      pageBlocks: {},
+      questions: [],
+    };
+
+    // 1. Physically persist to disk (single source of truth)
+    try {
+      await saveImportedBookFs(newBook.id, JSON.stringify(newBook, null, 2));
+    } catch (err) {
+      console.error("[EDUcraft Create Book] Physical save failed:", err);
+    }
+
+    // 2. Remove from deletedBookIds if it was deleted previously
+    const currentSaved = loadAppState();
+    if (currentSaved.deletedBookIds && Array.isArray(currentSaved.deletedBookIds)) {
+      currentSaved.deletedBookIds = currentSaved.deletedBookIds.filter((id) => id !== newBook.id);
+      saveAppState(currentSaved);
+    }
+
+    // 3. Update React state, set active bookId, and switch view to editor
+    setBooks((prev) => [...prev.filter((b) => b.id !== newBook.id), newBook]);
+    setBookId(newBook.id);
+    setView("editor");
+  };
+
   const ui = UI[lang];
   const theme = FLAVORS[flavorId][mode];
   const currentBook = books.find((b) => b.id === bookId) || books[0] || BOOKS[0] || null;
@@ -6973,7 +7353,18 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
   const bookTheme = FLAVORS[currentBookFlavorId] ? FLAVORS[currentBookFlavorId][mode] : theme;
   const skin = SKINS[skinId];
   const dir = ui.dir;
-  const updateCurrentBook = (fn) => setBooks((prev) => prev.map((b) => (b.id === currentBook.id ? fn(b) : b)));
+  const updateCurrentBook = (fn) => {
+    setBooks((prev) => {
+      const updated = prev.map((b) => (currentBook && b.id === currentBook.id ? fn(b) : b));
+      const target = updated.find((b) => b.id === currentBook?.id);
+      if (target) {
+        saveImportedBookFs(target.id, JSON.stringify(target, null, 2)).catch((err) => {
+          console.error("[EDUcraft Save] Failed to persist book to disk:", err);
+        });
+      }
+      return updated;
+    });
+  };
   const currentPlan = (currentBook && plans[currentBook.id]) || defaultPlan();
   const updateCurrentPlan = (fn) => {
     if (!currentBook) return;
@@ -7160,27 +7551,24 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
               {ui.navLibrary}
             </button>
             <button
-              onClick={() => currentBook && setView("tree")}
-              disabled={!currentBook}
-              className="flex items-center gap-1.5 text-sm font-semibold px-3 py-2 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              onClick={() => setView("tree")}
+              className="flex items-center gap-1.5 text-sm font-semibold px-3 py-2 transition-colors cursor-pointer"
               style={{ borderRadius: skin.radiusSm, color: view === "tree" ? theme.accentInk : theme.ink, background: view === "tree" ? theme.accent : "transparent" }}
             >
               <GitBranch size={14} />
               {ui.navTree}
             </button>
             <button
-              onClick={() => currentBook && setView("editor")}
-              disabled={!currentBook}
-              className="flex items-center gap-1.5 text-sm font-semibold px-3 py-2 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              onClick={() => setView("editor")}
+              className="flex items-center gap-1.5 text-sm font-semibold px-3 py-2 transition-colors cursor-pointer"
               style={{ borderRadius: skin.radiusSm, color: view === "editor" ? theme.accentInk : theme.ink, background: view === "editor" ? theme.accent : "transparent" }}
             >
               <Settings size={14} />
               {ui.navEditor}
             </button>
             <button
-              onClick={() => currentBook && setView("planner")}
-              disabled={!currentBook}
-              className="flex items-center gap-1.5 text-sm font-semibold px-3 py-2 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              onClick={() => setView("planner")}
+              className="flex items-center gap-1.5 text-sm font-semibold px-3 py-2 transition-colors cursor-pointer"
               style={{ borderRadius: skin.radiusSm, color: view === "planner" ? theme.accentInk : theme.ink, background: view === "planner" ? theme.accent : "transparent" }}
             >
               <CalendarDays size={14} />
@@ -7221,34 +7609,31 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
           <nav className="flex md:hidden items-center gap-1 w-full justify-center pt-1">
             <button
               onClick={() => setView("library")}
-              className="flex items-center gap-1.5 text-xs font-semibold px-3 py-2 transition-colors"
+              className="flex items-center gap-1.5 text-xs font-semibold px-3 py-2 transition-colors cursor-pointer"
               style={{ borderRadius: skin.radiusSm, color: view === "library" ? theme.accentInk : theme.ink, background: view === "library" ? theme.accent : "transparent" }}
             >
               <Library size={13} />
               {ui.navLibrary}
             </button>
             <button
-              onClick={() => currentBook && setView("tree")}
-              disabled={!currentBook}
-              className="flex items-center gap-1.5 text-xs font-semibold px-3 py-2 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              onClick={() => setView("tree")}
+              className="flex items-center gap-1.5 text-xs font-semibold px-3 py-2 transition-colors cursor-pointer"
               style={{ borderRadius: skin.radiusSm, color: view === "tree" ? theme.accentInk : theme.ink, background: view === "tree" ? theme.accent : "transparent" }}
             >
               <GitBranch size={13} />
               {ui.navTree}
             </button>
             <button
-              onClick={() => currentBook && setView("editor")}
-              disabled={!currentBook}
-              className="flex items-center gap-1.5 text-xs font-semibold px-3 py-2 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              onClick={() => setView("editor")}
+              className="flex items-center gap-1.5 text-xs font-semibold px-3 py-2 transition-colors cursor-pointer"
               style={{ borderRadius: skin.radiusSm, color: view === "editor" ? theme.accentInk : theme.ink, background: view === "editor" ? theme.accent : "transparent" }}
             >
               <Settings size={13} />
               {ui.navEditor}
             </button>
             <button
-              onClick={() => currentBook && setView("planner")}
-              disabled={!currentBook}
-              className="flex items-center gap-1.5 text-xs font-semibold px-3 py-2 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              onClick={() => setView("planner")}
+              className="flex items-center gap-1.5 text-xs font-semibold px-3 py-2 transition-colors cursor-pointer"
               style={{ borderRadius: skin.radiusSm, color: view === "planner" ? theme.accentInk : theme.ink, background: view === "planner" ? theme.accent : "transparent" }}
             >
               <CalendarDays size={13} />
@@ -7258,7 +7643,7 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
         </header>
 
         <div className="pt-8">
-          {view === "library" || !currentBook ? (
+          {view === "library" ? (
             <LibraryView
               lang={lang}
               ui={ui}
@@ -7278,6 +7663,7 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
               onDeleteCollection={deleteCollection}
               onAssignToCollection={assignToCollection}
               onRemoveFromCollection={removeFromCollection}
+              onCreateNewBook={handleCreateNewBook}
               onExportBook={onExportBook ? (book, format = "html") => {
                 if (format === "json") {
                   handleExportSingleBookJson(book);
@@ -7298,109 +7684,260 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
               onRestoreDatabase={() => dbFileInputRef.current?.click()}
             />
           ) : view === "tree" ? (
-            <TreeView
-              key={currentBook.id}
-              book={currentBook}
-              lang={lang}
-              ui={ui}
-              theme={bookTheme}
-              dir={dir}
-              onBack={() => setView("library")}
-              skin={skin}
-              selectedLeaf={leafId}
-              onSelectLeaf={openLeaf}
-              onBrowse={() => setView("browse")}
-              onReadThrough={() => setView("readthrough")}
-              onPlanner={() => setView("planner")}
-              onExport={onExportBook ? () => handleExportBook(currentBook, lang, bookTheme, ui, skin, covers) : undefined}
-              covers={covers}
-              onChangeCover={setCover}
-              onClearCover={clearCover}
-              bookFlavorId={currentBookFlavorId}
-              onChangeBookFlavor={(fid) => setBookFlavor(currentBook.id, fid)}
-              onDeleteBook={requestDeleteBook}
-              plan={currentPlan}
-            />
-          ) : view === "browse" ? (
-            <BrowseView
-              key={currentBook.id}
-              book={currentBook}
-              lang={lang}
-              ui={ui}
-              theme={bookTheme}
-              dir={dir}
-              skin={skin}
-              onBack={() => setView("tree")}
-              bookFlavorId={currentBookFlavorId}
-              onChangeBookFlavor={(fid) => setBookFlavor(currentBook.id, fid)}
-            />
-          ) : view === "readthrough" ? (
-            <section key={currentBook.id}>
-              <div className="flex items-center justify-between gap-3 mb-5 flex-wrap">
-                <button
-                  onClick={() => setView("tree")}
-                  className="flex items-center gap-1.5 text-sm font-semibold"
-                  style={{ color: bookTheme.inkSoft, minHeight: 40 }}
-                >
-                  {dir === "rtl" ? <ArrowRight size={15} /> : <ArrowLeft size={15} />}
-                  {currentBook[lang].title}
-                </button>
-                <div className="flex items-center gap-1.5 px-3 py-1.5" style={{ borderRadius: skin.radiusSm, border: `1.5px solid ${skinBorderColor(skin, bookTheme)}`, background: bookTheme.surface }}>
-                  <Palette size={13} style={{ color: bookTheme.inkSoft }} />
-                  <span className="text-[11px] font-bold me-1" style={{ color: bookTheme.inkSoft }}>
-                    {ui.bookFlavorLabel || (lang === "ar" ? "نكهة الكتاب:" : "Flavor:")}
-                  </span>
-                  <div className="flex items-center gap-1.5">
-                    {Object.entries(FLAVORS).map(([fid, f]) => {
-                      const pal = f[bookTheme === FLAVORS[fid]?.dark ? "dark" : "light"] || f.light;
-                      const isSelected = currentBookFlavorId === fid;
-                      return (
-                        <button
-                          key={fid}
-                          onClick={() => setBookFlavor(currentBook.id, fid)}
-                          className="relative p-0.5 rounded-full transition-transform hover:scale-110"
-                          style={{
-                            border: isSelected ? `2px solid ${bookTheme.ink}` : "1.5px solid transparent",
-                            boxShadow: isSelected ? `0 0 0 1px ${bookTheme.accent}` : "none",
-                          }}
-                          title={f[lang] || fid}
-                        >
-                          <div
-                            className="w-4 h-4 rounded-full flex overflow-hidden"
-                            style={{ border: `1px solid ${pal.hairlineStrong}` }}
-                          >
-                            <span className="w-1/2 h-full" style={{ background: pal.canvas }} />
-                            <span className="w-1/2 h-full" style={{ background: pal.accent }} />
-                          </div>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              </div>
-              <FullBookA4Preview
+            currentBook ? (
+              <TreeView
+                key={currentBook.id}
                 book={currentBook}
                 lang={lang}
-                t={EDITOR_STR[lang]}
+                ui={ui}
                 theme={bookTheme}
+                dir={dir}
+                onBack={() => setView("library")}
                 skin={skin}
-                docTitle={lang === "ar" ? currentBook.ar?.title : currentBook.en?.title}
+                selectedLeaf={leafId}
+                onSelectLeaf={openLeaf}
+                onBrowse={() => setView("browse")}
+                onReadThrough={() => setView("readthrough")}
+                onPlanner={() => setView("planner")}
+                onEditor={() => setView("editor")}
+                onExport={onExportBook ? () => handleExportBook(currentBook, lang, bookTheme, ui, skin, covers) : undefined}
+                covers={covers}
+                onChangeCover={setCover}
+                onClearCover={clearCover}
+                bookFlavorId={currentBookFlavorId}
+                onChangeBookFlavor={(fid) => setBookFlavor(currentBook.id, fid)}
+                onDeleteBook={requestDeleteBook}
+                plan={currentPlan}
               />
-            </section>
+            ) : (
+              <ViewEmptyState
+                icon={GitBranch}
+                title={ui.treeEmptyTitle}
+                sub={ui.treeEmptySub}
+                theme={theme}
+                skin={skin}
+                ui={ui}
+                books={books}
+                lang={lang}
+                onSelectBook={(id) => {
+                  setBookId(id);
+                  setView("tree");
+                }}
+                onCreateBook={() => handleCreateNewBook()}
+              />
+            )
           ) : view === "editor" ? (
-            <EditorView
-              key={currentBook.id}
-              book={currentBook}
-              lang={lang}
-              theme={bookTheme}
-              skin={skin}
-              voiceEnabled={voiceEnabled}
-              onVoiceEnabledChange={setVoiceEnabled}
-              onUpdateBook={updateCurrentBook}
-            />
+            currentBook ? (
+              <div key={currentBook.id} className="flex flex-col gap-5">
+                <div className="flex items-center justify-between gap-3 flex-wrap">
+                  <button
+                    onClick={() => setView("tree")}
+                    className="flex items-center gap-1.5 text-sm font-semibold cursor-pointer"
+                    style={{ color: bookTheme.inkSoft, minHeight: 40 }}
+                  >
+                    {dir === "rtl" ? <ArrowRight size={15} /> : <ArrowLeft size={15} />}
+                    {currentBook[lang]?.title || currentBook.en?.title || currentBook.ar?.title}
+                  </button>
+                  {books.length > 1 && (
+                    <select
+                      value={currentBook.id}
+                      onChange={(e) => setBookId(e.target.value)}
+                      className="text-xs font-bold px-3 py-1.5 cursor-pointer"
+                      style={{ borderRadius: skin.radiusSm, border: `1.5px solid ${skinBorderColor(skin, theme)}`, background: theme.surface, color: theme.ink }}
+                    >
+                      {books.map((b) => (
+                        <option key={b.id} value={b.id}>
+                          {(lang === "ar" ? b.ar?.title : b.en?.title) || b.en?.title || b.ar?.title || b.id}
+                        </option>
+                      ))}
+                    </select>
+                  )}
+                </div>
+                <EditorView
+                  book={currentBook}
+                  lang={lang}
+                  theme={bookTheme}
+                  skin={skin}
+                  voiceEnabled={voiceEnabled}
+                  onVoiceEnabledChange={setVoiceEnabled}
+                  onUpdateBook={updateCurrentBook}
+                />
+              </div>
+            ) : (
+              <ViewEmptyState
+                icon={PenLine}
+                title={ui.editorEmptyTitle}
+                sub={ui.editorEmptySub}
+                theme={theme}
+                skin={skin}
+                ui={ui}
+                books={books}
+                lang={lang}
+                onSelectBook={(id) => {
+                  setBookId(id);
+                  setView("editor");
+                }}
+                onCreateBook={() => handleCreateNewBook()}
+              />
+            )
           ) : view === "planner" ? (
-            <PlannerView key={currentBook.id} book={currentBook} lang={lang} ui={ui} theme={bookTheme} dir={dir} skin={skin} plan={currentPlan} onUpdatePlan={updateCurrentPlan} />
-          ) : currentLeaf ? (
+            currentBook ? (
+              <div key={currentBook.id} className="flex flex-col gap-5">
+                <div className="flex items-center justify-between gap-3 flex-wrap">
+                  <button
+                    onClick={() => setView("tree")}
+                    className="flex items-center gap-1.5 text-sm font-semibold cursor-pointer"
+                    style={{ color: bookTheme.inkSoft, minHeight: 40 }}
+                  >
+                    {dir === "rtl" ? <ArrowRight size={15} /> : <ArrowLeft size={15} />}
+                    {currentBook[lang]?.title || currentBook.en?.title || currentBook.ar?.title}
+                  </button>
+                  {books.length > 1 && (
+                    <select
+                      value={currentBook.id}
+                      onChange={(e) => setBookId(e.target.value)}
+                      className="text-xs font-bold px-3 py-1.5 cursor-pointer"
+                      style={{ borderRadius: skin.radiusSm, border: `1.5px solid ${skinBorderColor(skin, theme)}`, background: theme.surface, color: theme.ink }}
+                    >
+                      {books.map((b) => (
+                        <option key={b.id} value={b.id}>
+                          {(lang === "ar" ? b.ar?.title : b.en?.title) || b.en?.title || b.ar?.title || b.id}
+                        </option>
+                      ))}
+                    </select>
+                  )}
+                </div>
+                <PlannerView
+                  book={currentBook}
+                  lang={lang}
+                  ui={ui}
+                  theme={bookTheme}
+                  dir={dir}
+                  skin={skin}
+                  plan={currentPlan}
+                  onUpdatePlan={updateCurrentPlan}
+                />
+              </div>
+            ) : (
+              <ViewEmptyState
+                icon={CalendarDays}
+                title={ui.plannerEmptyTitle}
+                sub={ui.plannerEmptySub}
+                theme={theme}
+                skin={skin}
+                ui={ui}
+                books={books}
+                lang={lang}
+                onSelectBook={(id) => {
+                  setBookId(id);
+                  setView("planner");
+                }}
+                onCreateBook={() => handleCreateNewBook()}
+              />
+            )
+          ) : view === "browse" ? (
+            currentBook ? (
+              <BrowseView
+                key={currentBook.id}
+                book={currentBook}
+                lang={lang}
+                ui={ui}
+                theme={bookTheme}
+                dir={dir}
+                skin={skin}
+                onBack={() => setView("tree")}
+                bookFlavorId={currentBookFlavorId}
+                onChangeBookFlavor={(fid) => setBookFlavor(currentBook.id, fid)}
+              />
+            ) : (
+              <ViewEmptyState
+                icon={ListFilter}
+                title={ui.treeEmptyTitle}
+                sub={ui.treeEmptySub}
+                theme={theme}
+                skin={skin}
+                ui={ui}
+                books={books}
+                lang={lang}
+                onSelectBook={(id) => {
+                  setBookId(id);
+                  setView("browse");
+                }}
+                onCreateBook={() => handleCreateNewBook()}
+              />
+            )
+          ) : view === "readthrough" ? (
+            currentBook ? (
+              <section key={currentBook.id}>
+                <div className="flex items-center justify-between gap-3 mb-5 flex-wrap">
+                  <button
+                    onClick={() => setView("tree")}
+                    className="flex items-center gap-1.5 text-sm font-semibold"
+                    style={{ color: bookTheme.inkSoft, minHeight: 40 }}
+                  >
+                    {dir === "rtl" ? <ArrowRight size={15} /> : <ArrowLeft size={15} />}
+                    {currentBook[lang]?.title || currentBook.en?.title || currentBook.ar?.title}
+                  </button>
+                  <div className="flex items-center gap-1.5 px-3 py-1.5" style={{ borderRadius: skin.radiusSm, border: `1.5px solid ${skinBorderColor(skin, bookTheme)}`, background: bookTheme.surface }}>
+                    <Palette size={13} style={{ color: bookTheme.inkSoft }} />
+                    <span className="text-[11px] font-bold me-1" style={{ color: bookTheme.inkSoft }}>
+                      {ui.bookFlavorLabel || (lang === "ar" ? "نكهة الكتاب:" : "Flavor:")}
+                    </span>
+                    <div className="flex items-center gap-1.5">
+                      {Object.entries(FLAVORS).map(([fid, f]) => {
+                        const pal = f[bookTheme === FLAVORS[fid]?.dark ? "dark" : "light"] || f.light;
+                        const isSelected = currentBookFlavorId === fid;
+                        return (
+                          <button
+                            key={fid}
+                            onClick={() => setBookFlavor(currentBook.id, fid)}
+                            className="relative p-0.5 rounded-full transition-transform hover:scale-110"
+                            style={{
+                              border: isSelected ? `2px solid ${bookTheme.ink}` : "1.5px solid transparent",
+                              boxShadow: isSelected ? `0 0 0 1px ${bookTheme.accent}` : "none",
+                            }}
+                            title={f[lang] || fid}
+                          >
+                            <div
+                              className="w-4 h-4 rounded-full flex overflow-hidden"
+                              style={{ border: `1px solid ${pal.hairlineStrong}` }}
+                            >
+                              <span className="w-1/2 h-full" style={{ background: pal.canvas }} />
+                              <span className="w-1/2 h-full" style={{ background: pal.accent }} />
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+                <FullBookA4Preview
+                  book={currentBook}
+                  lang={lang}
+                  t={EDITOR_STR[lang]}
+                  theme={bookTheme}
+                  skin={skin}
+                  docTitle={lang === "ar" ? currentBook.ar?.title : currentBook.en?.title}
+                />
+              </section>
+            ) : (
+              <ViewEmptyState
+                icon={BookOpen}
+                title={ui.editorEmptyTitle}
+                sub={ui.editorEmptySub}
+                theme={theme}
+                skin={skin}
+                ui={ui}
+                books={books}
+                lang={lang}
+                onSelectBook={(id) => {
+                  setBookId(id);
+                  setView("readthrough");
+                }}
+                onCreateBook={() => handleCreateNewBook()}
+              />
+            )
+          ) : currentLeaf && currentBook ? (
             <DeckView
               key={currentLeaf.id}
               node={currentLeaf}
@@ -7417,7 +7954,7 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
               onToggleLeafDone={toggleLeafDone}
               onAnswered={handleDeckAnswer}
             />
-          ) : (
+          ) : currentBook ? (
             <TreeView
               key={currentBook.id}
               book={currentBook}
@@ -7432,6 +7969,7 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
               onBrowse={() => setView("browse")}
               onReadThrough={() => setView("readthrough")}
               onPlanner={() => setView("planner")}
+              onEditor={() => setView("editor")}
               onExport={onExportBook ? () => handleExportBook(currentBook, lang, bookTheme, ui, skin, covers) : undefined}
               covers={covers}
               onChangeCover={setCover}
@@ -7440,6 +7978,46 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
               onChangeBookFlavor={(fid) => setBookFlavor(currentBook.id, fid)}
               onDeleteBook={requestDeleteBook}
               plan={currentPlan}
+            />
+          ) : (
+            <LibraryView
+              lang={lang}
+              ui={ui}
+              theme={theme}
+              dir={dir}
+              onOpen={openBook}
+              skin={skin}
+              covers={covers}
+              onChangeCover={setCover}
+              onClearCover={clearCover}
+              books={books}
+              collections={collections}
+              libraryPath={libraryPath}
+              onEnterCollection={enterCollection}
+              onCrumb={crumbTo}
+              onCreateCollection={createCollection}
+              onDeleteCollection={deleteCollection}
+              onAssignToCollection={assignToCollection}
+              onRemoveFromCollection={removeFromCollection}
+              onCreateNewBook={handleCreateNewBook}
+              onExportBook={onExportBook ? (book, format = "html") => {
+                if (format === "json") {
+                  handleExportSingleBookJson(book);
+                } else {
+                  const bFid = (book && bookFlavors[book.id]) || flavorId;
+                  const bTheme = FLAVORS[bFid] ? FLAVORS[bFid][mode] : theme;
+                  handleExportBook(book, lang, bTheme, ui, skin, covers);
+                }
+              } : undefined}
+              onExportCollection={onExportCollection ? (col) => handleExportCollection(col, books, collections, lang, theme, ui, skin, covers) : undefined}
+              isExporting={isExporting}
+              onRescan={() => rescanBooks(false)}
+              isScanning={isScanning}
+              onOpenImportModal={() => setImportModalOpen(true)}
+              onDeleteBook={requestDeleteBook}
+              plans={plans}
+              onExportDatabase={handleExportFullDatabase}
+              onRestoreDatabase={() => dbFileInputRef.current?.click()}
             />
           )}
         </div>

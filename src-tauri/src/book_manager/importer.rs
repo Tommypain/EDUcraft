@@ -3,6 +3,7 @@
 //! Supports Rayon parallelism across leaves, streaming IPC events,
 //! and all-or-nothing transactional saving with rollback.
 
+use super::types::BookState;
 use super::validator::{validate_book_structure, validate_content_block, ValidationInfo};
 use crate::export_engine::types::ExportBook;
 use rayon::prelude::*;
@@ -610,26 +611,45 @@ pub fn import_book_with_sink(
         .map_err(|e| format!("Failed to parse book structure: {}", e))?;
 
     let v_info: ValidationInfo = validate_book_structure(&book);
-    if let Some(ref err) = v_info.error {
-        let iss = ImportIssue {
-            severity: IssueSeverity::Error,
-            location: format!("book:{}", book.id),
-            message: err.clone(),
-        };
-        event_sink.emit(
-            "import:issue",
-            serde_json::json!({
-                "severity": "error",
-                "location": iss.location,
-                "message": iss.message,
-            }),
-        );
-        global_issues.push(iss);
+    if v_info.state == BookState::Invalid {
+        if let Some(ref err) = v_info.error {
+            let iss = ImportIssue {
+                severity: IssueSeverity::Error,
+                location: format!("book:{}", book.id),
+                message: err.clone(),
+            };
+            event_sink.emit(
+                "import:issue",
+                serde_json::json!({
+                    "severity": "error",
+                    "location": iss.location,
+                    "message": iss.message,
+                }),
+            );
+            global_issues.push(iss);
+        }
+    } else if v_info.state == BookState::Incomplete {
+        if let Some(ref err) = v_info.error {
+            let iss = ImportIssue {
+                severity: IssueSeverity::Warning,
+                location: format!("book:{}", book.id),
+                message: err.clone(),
+            };
+            event_sink.emit(
+                "import:issue",
+                serde_json::json!({
+                    "severity": "warning",
+                    "location": iss.location,
+                    "message": iss.message,
+                }),
+            );
+            global_issues.push(iss);
+        }
     }
 
     let has_errors = global_issues.iter().any(|i| i.severity == IssueSeverity::Error);
     let auto_filled_str = serde_json::to_string(&root_val).ok();
-    let is_valid = !has_errors && v_info.error.is_none();
+    let is_valid = !has_errors && v_info.state != BookState::Invalid;
 
     let report = DryRunReport {
         is_valid,
