@@ -229,6 +229,81 @@ function rustExporterPlugin() {
         });
       });
 
+      // Database Dump Export / Import endpoints
+      server.middlewares.use("/__api/database/export", (req, res, next) => {
+        if (req.method !== "POST") return next();
+        let body = "";
+        req.on("data", (chunk) => (body += chunk));
+        req.on("end", () => {
+          const binPath = path.resolve(__dirname, "src-tauri/target/debug/books_cli");
+          const tempMetaPath = path.resolve(__dirname, `.temp_meta_${Date.now()}.json`);
+          try {
+            fs.writeFileSync(tempMetaPath, body || "{}");
+            const proc = spawn(binPath, ["export_full_db", tempMetaPath, path.resolve(__dirname, "BOOKS")], {
+              env: {
+                ...process.env,
+                LIBRARY_PATH: path.resolve(__dirname, "src-tauri/.pkgconfig/lib"),
+                PKG_CONFIG_PATH: path.resolve(__dirname, "src-tauri/.pkgconfig"),
+              },
+            });
+
+            res.setHeader("Content-Type", "application/json; charset=utf-8");
+            proc.stdout.pipe(res);
+            proc.on("close", () => {
+              if (fs.existsSync(tempMetaPath)) fs.unlinkSync(tempMetaPath);
+            });
+            proc.on("error", (err) => {
+              if (fs.existsSync(tempMetaPath)) fs.unlinkSync(tempMetaPath);
+              res.statusCode = 500;
+              res.end(JSON.stringify({ error: String(err) }));
+            });
+          } catch (err) {
+            if (fs.existsSync(tempMetaPath)) fs.unlinkSync(tempMetaPath);
+            res.statusCode = 500;
+            res.end(JSON.stringify({ error: String(err) }));
+          }
+        });
+      });
+
+      server.middlewares.use("/__api/database/import", (req, res, next) => {
+        if (req.method !== "POST") return next();
+        let body = "";
+        req.on("data", (chunk) => (body += chunk));
+        req.on("end", () => {
+          const binPath = path.resolve(__dirname, "src-tauri/target/debug/books_cli");
+          const tempDumpPath = path.resolve(__dirname, `.temp_dump_${Date.now()}.json`);
+          try {
+            const parsed = JSON.parse(body);
+            const mode = parsed.mode || "merge";
+            const dumpData = parsed.dump || parsed;
+            fs.writeFileSync(tempDumpPath, JSON.stringify(dumpData));
+
+            const proc = spawn(binPath, ["import_full_db", tempDumpPath, mode, path.resolve(__dirname, "BOOKS")], {
+              env: {
+                ...process.env,
+                LIBRARY_PATH: path.resolve(__dirname, "src-tauri/.pkgconfig/lib"),
+                PKG_CONFIG_PATH: path.resolve(__dirname, "src-tauri/.pkgconfig"),
+              },
+            });
+
+            res.setHeader("Content-Type", "application/json; charset=utf-8");
+            proc.stdout.pipe(res);
+            proc.on("close", () => {
+              if (fs.existsSync(tempDumpPath)) fs.unlinkSync(tempDumpPath);
+            });
+            proc.on("error", (err) => {
+              if (fs.existsSync(tempDumpPath)) fs.unlinkSync(tempDumpPath);
+              res.statusCode = 500;
+              res.end(JSON.stringify({ error: String(err) }));
+            });
+          } catch (err) {
+            if (fs.existsSync(tempDumpPath)) fs.unlinkSync(tempDumpPath);
+            res.statusCode = 500;
+            res.end(JSON.stringify({ error: String(err) }));
+          }
+        });
+      });
+
       server.middlewares.use("/__books", (req, res, next) => {
         const decoded = decodeURIComponent(req.url);
         if (decoded.includes("..")) return next();

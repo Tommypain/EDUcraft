@@ -74,6 +74,49 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             )?;
             println!(r#"{{"ok":true,"committed":"{}"}}"#, saved.display());
         }
+        "export_full_db" => {
+            let meta_json_file = args.get(2);
+            let books_dir = args
+                .get(3)
+                .map(PathBuf::from)
+                .unwrap_or_else(resolve_default_books_dir);
+
+            let (collections, book_flavors, covers, plans) = if let Some(mf) = meta_json_file {
+                let content = std::fs::read_to_string(mf)?;
+                let meta: serde_json::Value = serde_json::from_str(&content)?;
+                (
+                    meta.get("collections").and_then(|v| v.as_array()).cloned().unwrap_or_default(),
+                    meta.get("bookFlavors").cloned().unwrap_or_else(|| serde_json::json!({})),
+                    meta.get("covers").cloned().unwrap_or_else(|| serde_json::json!({})),
+                    meta.get("plans").cloned().unwrap_or_else(|| serde_json::json!({})),
+                )
+            } else {
+                (Vec::new(), serde_json::json!({}), serde_json::json!({}), serde_json::json!({}))
+            };
+
+            let dump = educraft_lib::book_manager::export_full_database_dump(
+                &books_dir,
+                collections,
+                book_flavors,
+                covers,
+                plans,
+            )?;
+            println!("{}", serde_json::to_string_pretty(&dump)?);
+        }
+        "import_full_db" => {
+            let dump_file = args.get(2).ok_or("Missing path to dump JSON file")?;
+            let mode_str = args.get(3).map(|s| s.as_str()).unwrap_or("merge");
+            let books_dir = args
+                .get(4)
+                .map(PathBuf::from)
+                .unwrap_or_else(resolve_default_books_dir);
+
+            let content = std::fs::read_to_string(dump_file)?;
+            let dump: educraft_lib::book_manager::FullDatabaseDump = serde_json::from_str(&content)?;
+            let mode = educraft_lib::book_manager::RestoreMode::parse(mode_str);
+            let report = educraft_lib::book_manager::restore_full_database_dump(&books_dir, &dump, mode)?;
+            println!("{}", serde_json::to_string(&report)?);
+        }
         other => {
             eprintln!("Unknown command: {}", other);
             std::process::exit(1);

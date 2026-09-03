@@ -35,6 +35,24 @@ export function computeTreeLayout(nodes, crossLinks = [], dir = "ltr", lang = "a
     }
   });
 
+  // Backward compatibility: If book already has complete manual x/y coordinates, preserve them!
+  const allHaveCoords = nodes.length > 0 && nodes.every((n) => n.x !== undefined && n.y !== undefined && n.x !== null && n.y !== null && !isNaN(Number(n.x)) && !isNaN(Number(n.y)));
+  if (allHaveCoords) {
+    const positions = {};
+    let maxX = 0;
+    let maxY = 0;
+    nodes.forEach((n) => {
+      const x = Number(n.x);
+      const y = Number(n.y);
+      positions[n.id] = { x, y };
+      if (x > maxX) maxX = x;
+      if (y > maxY) maxY = y;
+    });
+    const vbW = Math.max(900, Math.round(maxX + 180));
+    const vbH = Math.max(380, Math.round(maxY + 120));
+    return { vbW, vbH, positions, dims };
+  }
+
   // Calculate width required for each sub-branch's leaves
   const subTreeWidths = {};
   subs.forEach((s) => {
@@ -579,6 +597,12 @@ export function KnowledgeTreeEnhanced({
     }
   };
 
+  useEffect(() => {
+    if (searchQuery.trim() && searchResults.length > 0) {
+      centerOnNode(searchResults[0].id);
+    }
+  }, [searchQuery]);
+
   // Wheel to zoom
   const onWheel = (e) => {
     e.preventDefault();
@@ -747,9 +771,17 @@ export function KnowledgeTreeEnhanced({
             </button>
             <button
               onClick={resetView}
+              className="p-1.5 rounded-lg hover:opacity-80 transition-opacity"
+              style={{ color: theme.ink }}
+              title={ui.treeFitView || (lang === "ar" ? "ملاءمة العرض" : "Fit to view")}
+            >
+              <Maximize2 size={14} />
+            </button>
+            <button
+              onClick={resetView}
               className="flex items-center gap-1 px-2 py-1 text-[11px] font-bold rounded-lg transition-opacity hover:opacity-80"
               style={{ background: theme.surfaceSoft, color: theme.ink }}
-              title={ui.treeFitView || (lang === "ar" ? "إعادة ضبط العرض" : "Fit to view")}
+              title={lang === "ar" ? "إعادة ضبط النسبة" : "Reset zoom"}
             >
               <RotateCcw size={12} />
               <span>{Math.round(scale * 100)}%</span>

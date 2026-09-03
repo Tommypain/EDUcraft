@@ -409,6 +409,15 @@ const UI = {
     settingsClose: "Close",
     settingsDataLabel: "Data",
     settingsDataSub: "Your progress, plans, covers, and preferences are saved on this device automatically.",
+    exportDatabaseBackupLabel: "Export Full Backup",
+    restoreDatabaseBackupLabel: "Restore Full Backup",
+    exportDatabaseSuccess: "Database backup exported successfully!",
+    restoreDatabaseSuccess: "Database restored successfully!",
+    restoreDatabaseTitle: "Restore Database Backup",
+    restoreModeReplace: "Full Replace (Clean slate & restore dump)",
+    restoreModeMerge: "Merge (Add new & update existing)",
+    restoreConfirmCta: "Restore Database Now",
+    restoreConfirmWarning: "All books will be validated via the Rust engine before writing to disk.",
     settingsResetLabel: "Reset everything",
     settingsResetConfirm: "This clears all saved progress, to-do/calendar plans, covers, and preferences on this device. This can't be undone. Continue?",
     browseCta: "Browse & practice all questions",
@@ -565,6 +574,15 @@ const UI = {
     settingsClose: "إغلاق",
     settingsDataLabel: "البيانات",
     settingsDataSub: "تقدمك وخططك (المهام والتقويم) والأغلفة وتفضيلاتك بتتحفظ أوتوماتيك على الجهاز ده.",
+    exportDatabaseBackupLabel: "تصدير نسخة احتياطية كاملة",
+    restoreDatabaseBackupLabel: "استيراد نسخة احتياطية كاملة",
+    exportDatabaseSuccess: "تم تصدير النسخة الاحتياطية لقاعدة البيانات بنجاح!",
+    restoreDatabaseSuccess: "تمت استعادة قاعدة البيانات بنجاح!",
+    restoreDatabaseTitle: "استعادة نسخة احتياطية لقاعدة البيانات",
+    restoreModeReplace: "استبدال كامل (مسح الحالي واستعادة النسخة)",
+    restoreModeMerge: "دمج وإضافة (إضافة الجديد وتحديث القائم)",
+    restoreConfirmCta: "استعادة قاعدة البيانات الآن",
+    restoreConfirmWarning: "سيتم التحقق الصارم من صحة وسلامة كافة الكتب عبر محرك Rust قبل الكتابة على القرص.",
     settingsResetLabel: "إعادة ضبط كل حاجة",
     settingsResetConfirm: "ده هيمسح كل التقدم المحفوظ، خطط المهام والتقويم، الأغلفة، والتفضيلات على الجهاز ده. مينفعش ترجع فيه. تكمل؟",
     browseCta: "تصفح وتدرّب على كل الأسئلة",
@@ -2092,7 +2110,7 @@ function EditableCover({ book, theme, skin, ui, coverUrl, onChangeCover, onClear
    LibraryView — the shelf. Each card is the cover + title + a
    quick tally of branches / questions inside that book's tree.
 ================================================================== */
-function LibraryView({ lang, ui, theme, dir, onOpen, skin, covers, onChangeCover, onClearCover, books, collections, libraryPath, onEnterCollection, onCrumb, onCreateCollection, onDeleteCollection, onAssignToCollection, onRemoveFromCollection, onExportBook, onExportCollection, onOpenImportModal, onDeleteBook, plans = {}, isExporting = false, onRescan, isScanning = false }) {
+function LibraryView({ lang, ui, theme, dir, onOpen, skin, covers, onChangeCover, onClearCover, books, collections, libraryPath, onEnterCollection, onCrumb, onCreateCollection, onDeleteCollection, onAssignToCollection, onRemoveFromCollection, onExportBook, onExportCollection, onOpenImportModal, onDeleteBook, plans = {}, isExporting = false, onRescan, isScanning = false, onExportDatabase, onRestoreDatabase }) {
   const ArrowIcon = dir === "rtl" ? ArrowLeft : ArrowRight;
   const atRoot = libraryPath.length === 0;
   const currentCollection = atRoot ? null : collections.find((c) => c.id === libraryPath[libraryPath.length - 1]);
@@ -2188,6 +2206,28 @@ function LibraryView({ lang, ui, theme, dir, onOpen, skin, covers, onChangeCover
             <FileUp size={13} />
             {ui.libraryImportJson}
           </button>
+          {onExportDatabase && (
+            <button
+              onClick={onExportDatabase}
+              className="flex items-center gap-1.5 text-xs font-bold px-3.5 py-2 transition-all hover:opacity-90"
+              style={{ borderRadius: skin.radiusSm, border: `1.5px solid ${skinBorderColor(skin, theme)}`, color: theme.ink, minHeight: 36 }}
+              title={ui.exportDatabaseBackupLabel}
+            >
+              <FileDown size={13} />
+              {ui.exportDatabaseBackupLabel}
+            </button>
+          )}
+          {onRestoreDatabase && (
+            <button
+              onClick={onRestoreDatabase}
+              className="flex items-center gap-1.5 text-xs font-bold px-3.5 py-2 transition-all hover:opacity-90"
+              style={{ borderRadius: skin.radiusSm, border: `1.5px solid ${skinBorderColor(skin, theme)}`, color: theme.ink, minHeight: 36 }}
+              title={ui.restoreDatabaseBackupLabel}
+            >
+              <FileUp size={13} />
+              {ui.restoreDatabaseBackupLabel}
+            </button>
+          )}
           <button
             onClick={() => onCreateCollection("folder")}
             className="flex items-center gap-1.5 text-xs font-bold px-3.5 py-2"
@@ -3002,7 +3042,7 @@ function BrowseView({ book, lang, ui, theme, dir, skin, onBack, bookFlavorId, on
    Liquid glass / Pixel art) and how the question deck moves (Paged
    vs Scroll, with a direction sub-choice once Scroll is picked).
 ================================================================== */
-function SettingsPanel({ ui, theme, dir, skinId, onSkinChange, flavorId, onFlavorChange, mode, cardMode, onCardModeChange, scrollDir, onScrollDirChange, voiceEnabled, onVoiceEnabledChange, onClose, onReset }) {
+function SettingsPanel({ ui, theme, dir, skinId, onSkinChange, flavorId, onFlavorChange, mode, cardMode, onCardModeChange, scrollDir, onScrollDirChange, voiceEnabled, onVoiceEnabledChange, onClose, onReset, onExportDatabase, onRestoreDatabase }) {
   const skin = SKINS[skinId];
   const themeOptions = [
     { id: "normal", label: ui.themeNormal, desc: ui.themeNormalDesc, Icon: Sun },
@@ -3217,6 +3257,30 @@ function SettingsPanel({ ui, theme, dir, skinId, onSkinChange, flavorId, onFlavo
           <p className="text-xs mb-3" style={{ color: theme.inkSoft, lineHeight: 1.5 }}>
             {ui.settingsDataSub}
           </p>
+          <div className="flex items-center gap-2.5 flex-wrap mb-4">
+            {onExportDatabase && (
+              <button
+                type="button"
+                onClick={onExportDatabase}
+                className="flex items-center gap-2 px-3.5 py-2 text-xs font-bold transition-all hover:opacity-90"
+                style={{ borderRadius: skin.radiusSm, border: `1.5px solid ${theme.hairlineStrong}`, background: theme.surface, color: theme.ink, minHeight: 38 }}
+              >
+                <FileDown size={14} />
+                {ui.exportDatabaseBackupLabel}
+              </button>
+            )}
+            {onRestoreDatabase && (
+              <button
+                type="button"
+                onClick={onRestoreDatabase}
+                className="flex items-center gap-2 px-3.5 py-2 text-xs font-bold text-white transition-all hover:opacity-90 shadow-xs"
+                style={{ borderRadius: skin.radiusSm, background: theme.accent, minHeight: 38 }}
+              >
+                <FileUp size={14} />
+                {ui.restoreDatabaseBackupLabel}
+              </button>
+            )}
+          </div>
           <button
             onClick={() => {
               if (window.confirm(ui.settingsResetConfirm)) onReset();
@@ -6151,6 +6215,166 @@ async function deleteBookImageFs(bookId, relativePath) {
   }
 }
 
+function RestoreDatabaseModal({ isOpen, onClose, dumpData, onConfirm, isRestoring, lang, ui, theme, skin }) {
+  const [mode, setMode] = useState("merge");
+  if (!isOpen || !dumpData) return null;
+
+  const bookCount = Array.isArray(dumpData.books) ? dumpData.books.length : 0;
+  const colCount = Array.isArray(dumpData.collections) ? dumpData.collections.length : 0;
+  const dateStr = dumpData.exportedAt || "-";
+
+  return (
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="restore-db-title"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      style={{ background: "rgba(0, 0, 0, 0.6)", backdropFilter: "blur(4px)" }}
+      onClick={() => !isRestoring && onClose()}
+    >
+      <div
+        className="w-full max-w-lg p-6 rounded-2xl shadow-2xl border flex flex-col gap-4 animate-in fade-in zoom-in-95 duration-150"
+        style={{
+          background: theme.surface,
+          borderColor: theme.hairlineStrong,
+          color: theme.ink,
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full flex items-center justify-center bg-indigo-500/10 text-indigo-500 shrink-0">
+              <FileUp size={20} />
+            </div>
+            <div>
+              <h3 id="restore-db-title" className="text-base font-bold">
+                {ui.restoreDatabaseTitle}
+              </h3>
+              <p className="text-xs font-mono opacity-60">
+                {dateStr} • v{dumpData.version || "1.0"}
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            disabled={isRestoring}
+            className="p-1 rounded-lg opacity-60 hover:opacity-100 transition-opacity"
+            aria-label="Close"
+          >
+            <X size={16} />
+          </button>
+        </div>
+
+        {/* Summary Card */}
+        <div
+          className="grid grid-cols-2 gap-3 p-3.5 rounded-xl border text-xs"
+          style={{ background: theme.surfaceSoft, borderColor: theme.hairline }}
+        >
+          <div>
+            <span className="opacity-60 block">{lang === "ar" ? "عدد الكتب في النسخة:" : "Books in dump:"}</span>
+            <span className="font-bold text-sm">{bookCount}</span>
+          </div>
+          <div>
+            <span className="opacity-60 block">{lang === "ar" ? "الموسوعات والمجموعات:" : "Collections:"}</span>
+            <span className="font-bold text-sm">{colCount}</span>
+          </div>
+        </div>
+
+        {/* Mode Selector */}
+        <div className="flex flex-col gap-2">
+          <label className="text-xs font-bold uppercase tracking-wider opacity-70">
+            {lang === "ar" ? "اختر طريقة الاستعادة:" : "Select restore strategy:"}
+          </label>
+          <label
+            className="flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-colors"
+            style={{
+              borderColor: mode === "merge" ? theme.accent : theme.hairline,
+              background: mode === "merge" ? theme.accentSoft : "transparent",
+            }}
+          >
+            <input
+              type="radio"
+              name="restoreMode"
+              value="merge"
+              checked={mode === "merge"}
+              onChange={() => setMode("merge")}
+              className="mt-0.5"
+            />
+            <div>
+              <span className="block text-xs font-bold">{ui.restoreModeMerge}</span>
+              <span className="block text-[11px] opacity-70 mt-0.5">
+                {lang === "ar"
+                  ? "يضيف الكتب غير الموجودة ويحدّث الموجود دون حذف بقية كتبك الحالية."
+                  : "Adds new books and updates existing ones without deleting current books."}
+              </span>
+            </div>
+          </label>
+
+          <label
+            className="flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-colors"
+            style={{
+              borderColor: mode === "full_replace" ? "#EF4444" : theme.hairline,
+              background: mode === "full_replace" ? "rgba(239, 68, 68, 0.08)" : "transparent",
+            }}
+          >
+            <input
+              type="radio"
+              name="restoreMode"
+              value="full_replace"
+              checked={mode === "full_replace"}
+              onChange={() => setMode("full_replace")}
+              className="mt-0.5 text-red-600"
+            />
+            <div>
+              <span className="block text-xs font-bold text-red-600 dark:text-red-400">{ui.restoreModeReplace}</span>
+              <span className="block text-[11px] opacity-70 mt-0.5">
+                {lang === "ar"
+                  ? "يمسح كل الكتب الحالية ويستبدلها بالكامل بمحتوى النسخة الاحتياطية."
+                  : "Clears all current books and replaces them entirely with the backup contents."}
+              </span>
+            </div>
+          </label>
+        </div>
+
+        {/* Warning Notice */}
+        <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-700 dark:text-amber-400 text-xs">
+          <p className="font-semibold mb-0.5">
+            {lang === "ar" ? "فحص الجودة التلقائي (Zero Corruption Guarantee):" : "Rust Engine Verification:"}
+          </p>
+          <p>{ui.restoreConfirmWarning}</p>
+        </div>
+
+        {/* Actions */}
+        <div className="flex items-center justify-end gap-2.5 pt-2">
+          <button
+            type="button"
+            onClick={onClose}
+            disabled={isRestoring}
+            className="px-4 py-2 text-xs font-bold rounded-xl border transition-opacity hover:opacity-80 disabled:opacity-50"
+            style={{ borderColor: theme.hairlineStrong, color: theme.ink }}
+          >
+            {ui.cancel || (lang === "ar" ? "إلغاء" : "Cancel")}
+          </button>
+          <button
+            type="button"
+            onClick={() => onConfirm(mode)}
+            disabled={isRestoring}
+            className="px-4 py-2 text-xs font-bold rounded-xl text-white flex items-center gap-1.5 transition-opacity disabled:opacity-50 shadow-sm"
+            style={{ background: mode === "full_replace" ? "#DC2626" : theme.accent }}
+          >
+            {isRestoring ? (
+              <span className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+            ) : (
+              <FileUp size={13} />
+            )}
+            {isRestoring ? (lang === "ar" ? "جارٍ التحقق والاستعادة..." : "Restoring...") : ui.restoreConfirmCta}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* onExportBook / onExportCollection are injected by the top-level
    EDUcraft.jsx wrapper (see that file) — they build the actual
    downloadable .html file using the pre-bundled export assets. This
@@ -6196,6 +6420,117 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
   const [isScanning, setIsScanning] = useState(false);
   const [confirmDeleteBook, setConfirmDeleteBook] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [restoreModalData, setRestoreModalData] = useState(null);
+  const [isRestoringDb, setIsRestoringDb] = useState(false);
+  const [isExportingDb, setIsExportingDb] = useState(false);
+  const dbFileInputRef = useRef(null);
+
+  const handleExportFullDatabase = async () => {
+    if (isExportingDb) return;
+    setIsExportingDb(true);
+    setExportToast({
+      type: "info",
+      message: lang === "ar" ? "جارٍ استخراج وتجميع قاعدة البيانات بالكامل عبر محرك Rust..." : "Exporting full database dump via Rust engine...",
+    });
+    try {
+      const jsonStr = await exportFullDatabaseViaRust(collections, bookFlavors, covers, plans);
+      const dateStr = new Date().toISOString().slice(0, 10);
+      const filename = `educraft-database-backup-${dateStr}.json`;
+      downloadBlob(jsonStr, filename, "application/json; charset=utf-8");
+      setExportToast({
+        type: "success",
+        message: ui.exportDatabaseSuccess,
+      });
+    } catch (err) {
+      console.error("[EDUcraft DatabaseDump] Export failed:", err);
+      setExportToast({
+        type: "error",
+        message: lang === "ar" ? `فشل استخراج قاعدة البيانات: ${err?.message || err}` : `Failed to export database: ${err?.message || err}`,
+      });
+    } finally {
+      setIsExportingDb(false);
+      setTimeout(() => {
+        setExportToast((prev) => (prev?.type === "success" ? null : prev));
+      }, 4000);
+    }
+  };
+
+  const handleSelectRestoreFile = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const text = event.target.result;
+        const parsed = JSON.parse(text);
+        if (!parsed || typeof parsed !== "object" || !Array.isArray(parsed.books)) {
+          alert(lang === "ar" ? "الملف المحدد ليس نسخة احتياطية صالحة لقاعدة بيانات EDUcraft (يجب أن يحتوي على مصفوفة books)." : "Selected file is not a valid EDUcraft database backup (missing books array).");
+          return;
+        }
+        setRestoreModalData(parsed);
+      } catch (err) {
+        alert(lang === "ar" ? `خطأ في قراءة ملف JSON: ${err.message}` : `JSON parse error: ${err.message}`);
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = "";
+  };
+
+  const handleExecuteRestore = async (restoreMode) => {
+    if (!restoreModalData || isRestoringDb) return;
+    setIsRestoringDb(true);
+    try {
+      const report = await importFullDatabaseViaRust(restoreModalData, restoreMode);
+      if (report && report.success) {
+        if (restoreMode === "full_replace") {
+          setCollections(restoreModalData.collections || []);
+          setCovers(restoreModalData.covers || {});
+          setPlans(restoreModalData.plans || {});
+          setBookFlavors(restoreModalData.bookFlavors || {});
+          saveAppState({
+            ...loadAppState(),
+            collections: restoreModalData.collections || [],
+            covers: restoreModalData.covers || {},
+            plans: restoreModalData.plans || {},
+            bookFlavors: restoreModalData.bookFlavors || {},
+          });
+        } else {
+          setCollections((prev) => {
+            const existingIds = new Set(prev.map((c) => c.id));
+            const newCols = (restoreModalData.collections || []).filter((c) => !existingIds.has(c.id));
+            return [...prev, ...newCols];
+          });
+          setCovers((prev) => ({ ...prev, ...(restoreModalData.covers || {}) }));
+          setPlans((prev) => ({ ...prev, ...(restoreModalData.plans || {}) }));
+          setBookFlavors((prev) => ({ ...prev, ...(restoreModalData.bookFlavors || {}) }));
+          saveAppState({
+            ...loadAppState(),
+            covers: { ...(loadAppState().covers || {}), ...(restoreModalData.covers || {}) },
+            plans: { ...(loadAppState().plans || {}), ...(restoreModalData.plans || {}) },
+            bookFlavors: { ...(loadAppState().bookFlavors || {}), ...(restoreModalData.bookFlavors || {}) },
+          });
+        }
+
+        await rescanBooks(true);
+
+        setRestoreModalData(null);
+        setExportToast({
+          type: "success",
+          message: lang === "ar"
+            ? `تمت استعادة قاعدة البيانات بنجاح (${report.restored_books_count} كتاب)!`
+            : `Successfully restored database (${report.restored_books_count} books)!`,
+        });
+      }
+    } catch (err) {
+      console.error("[EDUcraft DatabaseDump] Restore failed:", err);
+      alert(lang === "ar" ? `فشلت استعادة قاعدة البيانات: ${err?.message || err}` : `Database restore failed: ${err?.message || err}`);
+    } finally {
+      setIsRestoringDb(false);
+      setTimeout(() => {
+        setExportToast((prev) => (prev?.type === "success" ? null : prev));
+      }, 4500);
+    }
+  };
 
   const rescanBooks = async (silent = false) => {
     if (EXPORT) return;
@@ -6757,6 +7092,8 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
               onOpenImportModal={() => setImportModalOpen(true)}
               onDeleteBook={requestDeleteBook}
               plans={plans}
+              onExportDatabase={handleExportFullDatabase}
+              onRestoreDatabase={() => dbFileInputRef.current?.click()}
             />
           ) : view === "tree" ? (
             <TreeView
@@ -6924,6 +7261,31 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
           onVoiceEnabledChange={setVoiceEnabled}
           onClose={() => setSettingsOpen(false)}
           onReset={resetAll}
+          onExportDatabase={handleExportFullDatabase}
+          onRestoreDatabase={() => dbFileInputRef.current?.click()}
+        />
+      )}
+
+      {/* Hidden file input for database dump restoration */}
+      <input
+        type="file"
+        ref={dbFileInputRef}
+        accept=".json"
+        onChange={handleSelectRestoreFile}
+        style={{ display: "none" }}
+      />
+
+      {restoreModalData && (
+        <RestoreDatabaseModal
+          isOpen={!!restoreModalData}
+          onClose={() => setRestoreModalData(null)}
+          dumpData={restoreModalData}
+          onConfirm={handleExecuteRestore}
+          isRestoring={isRestoringDb}
+          lang={lang}
+          ui={ui}
+          theme={theme}
+          skin={skin}
         />
       )}
 
@@ -7074,8 +7436,8 @@ function isTauriEnv() {
   return typeof window !== "undefined" && !!window.__TAURI_INTERNALS__;
 }
 
-function downloadBlob(content, filename) {
-  const blob = new Blob([content], { type: "text/html; charset=utf-8" });
+function downloadBlob(content, filename, mimeType = "text/html; charset=utf-8") {
+  const blob = new Blob([content], { type: mimeType });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
@@ -7084,6 +7446,56 @@ function downloadBlob(content, filename) {
   a.click();
   a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 4000);
+}
+
+/* ─── Rust-Powered Full Database Export & Restore ────────────────────────── */
+async function exportFullDatabaseViaRust(collections, bookFlavors, covers, plans) {
+  if (isTauriEnv()) {
+    try {
+      const { invoke } = await import("@tauri-apps/api/core");
+      return await invoke("export_full_database", { collections, bookFlavors, covers, plans });
+    } catch (err) {
+      console.error("[EDUcraft DatabaseDump] Tauri export error:", err);
+      throw err;
+    }
+  }
+
+  const res = await fetch("/__api/database/export", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ collections, bookFlavors, covers, plans }),
+  });
+
+  if (!res.ok) {
+    const errJson = await res.json().catch(() => ({}));
+    throw new Error(errJson.error || `HTTP ${res.status}`);
+  }
+  return await res.text();
+}
+
+async function importFullDatabaseViaRust(dumpData, mode = "merge") {
+  const dumpJson = typeof dumpData === "string" ? dumpData : JSON.stringify(dumpData);
+  if (isTauriEnv()) {
+    try {
+      const { invoke } = await import("@tauri-apps/api/core");
+      return await invoke("import_full_database", { dumpJson, mode });
+    } catch (err) {
+      console.error("[EDUcraft DatabaseDump] Tauri restore error:", err);
+      throw err;
+    }
+  }
+
+  const res = await fetch("/__api/database/import", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ dump: typeof dumpData === "string" ? JSON.parse(dumpData) : dumpData, mode }),
+  });
+
+  if (!res.ok) {
+    const errJson = await res.json().catch(() => ({}));
+    throw new Error(errJson.error || `HTTP ${res.status}`);
+  }
+  return await res.json();
 }
 
 /* ─── Rust-Powered Book Export ─────────────────────────────────────────────── */

@@ -1,4 +1,5 @@
 pub mod assets;
+pub mod database_dump;
 pub mod deleter;
 pub mod importer;
 pub mod scanner;
@@ -6,6 +7,10 @@ pub mod types;
 pub mod validator;
 
 pub use assets::{decode_base64, delete_book_asset, save_book_asset};
+pub use database_dump::{
+    export_full_database_dump, restore_full_database_dump, FullDatabaseDump, RestoreMode,
+    RestoreReport, CURRENT_DATA_VERSION,
+};
 pub use deleter::{delete_book_by_id, delete_book_from_fs};
 pub use importer::{
     import_book_dry_run, import_book_with_sink, save_imported_book_transactional, AutoFillEntry,

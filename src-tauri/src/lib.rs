@@ -27,6 +27,8 @@ pub fn run() {
             commands::import_book_dry_run_cmd,
             commands::import_book_stream_cmd,
             commands::import_book_commit_cmd,
+            commands::export_full_database,
+            commands::import_full_database,
         ])
         .run(tauri::generate_context!())
         .expect("error while running EDUcraft application");

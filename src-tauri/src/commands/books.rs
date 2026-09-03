@@ -134,5 +134,35 @@ pub async fn import_book_commit_cmd(
     Ok(saved_path.to_string_lossy().to_string())
 }
 
+#[tauri::command]
+pub async fn export_full_database(
+    collections: Vec<serde_json::Value>,
+    book_flavors: serde_json::Value,
+    covers: serde_json::Value,
+    plans: serde_json::Value,
+) -> Result<String, String> {
+    let books_dir = resolve_default_books_dir();
+    let dump = crate::book_manager::export_full_database_dump(
+        &books_dir,
+        collections,
+        book_flavors,
+        covers,
+        plans,
+    )?;
+    serde_json::to_string_pretty(&dump).map_err(|e| format!("Failed to serialize dump: {}", e))
+}
+
+#[tauri::command]
+pub async fn import_full_database(
+    dump_json: String,
+    mode: Option<String>,
+) -> Result<crate::book_manager::RestoreReport, String> {
+    let books_dir = resolve_default_books_dir();
+    let dump: crate::book_manager::FullDatabaseDump = serde_json::from_str(&dump_json)
+        .map_err(|e| format!("Invalid database dump JSON: {}", e))?;
+    let restore_mode = crate::book_manager::RestoreMode::parse(mode.as_deref().unwrap_or("merge"));
+    crate::book_manager::restore_full_database_dump(&books_dir, &dump, restore_mode)
+}
+
 
 
