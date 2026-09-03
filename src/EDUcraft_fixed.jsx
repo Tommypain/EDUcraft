@@ -882,7 +882,6 @@ function loadAppState() {
   try {
     window.localStorage.removeItem("educraft_deleted_books");
     const raw = JSON.parse(window.localStorage.getItem(APP_STORAGE_KEY)) || {};
-    delete raw.deletedBookIds;
     return raw;
   } catch (e) {
     return {};
@@ -892,7 +891,6 @@ function saveAppState(state) {
   if (typeof window === "undefined") return;
   try {
     const copy = { ...state };
-    delete copy.deletedBookIds;
     window.localStorage.setItem(APP_STORAGE_KEY, JSON.stringify(copy));
   } catch (e) {}
 }
