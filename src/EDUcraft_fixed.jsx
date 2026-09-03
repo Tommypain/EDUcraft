@@ -31,6 +31,7 @@ import {
   RotateCcw,
   ArrowUp,
   ArrowDown,
+  ChevronDown,
   Layers,
   Palette,
   Pencil,
@@ -418,6 +419,8 @@ const UI = {
     restoreModeMerge: "Merge (Add new & update existing)",
     restoreConfirmCta: "Restore Database Now",
     restoreConfirmWarning: "All books will be validated via the Rust engine before writing to disk.",
+    exportOptionHtml: "Export as HTML",
+    exportOptionJson: "Export as JSON",
     settingsResetLabel: "Reset everything",
     settingsResetConfirm: "This clears all saved progress, to-do/calendar plans, covers, and preferences on this device. This can't be undone. Continue?",
     browseCta: "Browse & practice all questions",
@@ -583,6 +586,8 @@ const UI = {
     restoreModeMerge: "دمج وإضافة (إضافة الجديد وتحديث القائم)",
     restoreConfirmCta: "استعادة قاعدة البيانات الآن",
     restoreConfirmWarning: "سيتم التحقق الصارم من صحة وسلامة كافة الكتب عبر محرك Rust قبل الكتابة على القرص.",
+    exportOptionHtml: "تصدير كـ HTML",
+    exportOptionJson: "تصدير كـ JSON",
     settingsResetLabel: "إعادة ضبط كل حاجة",
     settingsResetConfirm: "ده هيمسح كل التقدم المحفوظ، خطط المهام والتقويم، الأغلفة، والتفضيلات على الجهاز ده. مينفعش ترجع فيه. تكمل؟",
     browseCta: "تصفح وتدرّب على كل الأسئلة",
@@ -2114,6 +2119,14 @@ function LibraryView({ lang, ui, theme, dir, onOpen, skin, covers, onChangeCover
   const ArrowIcon = dir === "rtl" ? ArrowLeft : ArrowRight;
   const atRoot = libraryPath.length === 0;
   const currentCollection = atRoot ? null : collections.find((c) => c.id === libraryPath[libraryPath.length - 1]);
+  const [exportMenuBookId, setExportMenuBookId] = useState(null);
+
+  useEffect(() => {
+    if (!exportMenuBookId) return;
+    const closeMenu = () => setExportMenuBookId(null);
+    window.addEventListener("click", closeMenu);
+    return () => window.removeEventListener("click", closeMenu);
+  }, [exportMenuBookId]);
 
   let itemBooks = [];
   let itemCollections = [];
@@ -2385,19 +2398,61 @@ function LibraryView({ lang, ui, theme, dir, onOpen, skin, covers, onChangeCover
                   </span>
                   <div className="flex items-center gap-1.5">
                     {onExportBook && (
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onExportBook(book);
-                        }}
-                        disabled={isExporting}
-                        className="p-1.5 transition-all hover:scale-110 disabled:opacity-40"
-                        style={{ borderRadius: skin.radiusSm, color: theme.inkSoft }}
-                        aria-label={ui.treeExportCta}
-                        title={ui.treeExportCta}
-                      >
-                        <FileDown size={13} />
-                      </button>
+                      <div className="relative">
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setExportMenuBookId((prev) => (prev === book.id ? null : book.id));
+                          }}
+                          disabled={isExporting}
+                          className="flex items-center gap-0.5 p-1.5 transition-all hover:scale-105 disabled:opacity-40"
+                          style={{ borderRadius: skin.radiusSm, color: theme.inkSoft }}
+                          aria-label={ui.treeExportCta}
+                          title={ui.treeExportCta}
+                        >
+                          <FileDown size={13} />
+                          <ChevronDown size={9} className="opacity-60 -me-0.5" />
+                        </button>
+
+                        {exportMenuBookId === book.id && (
+                          <div
+                            onClick={(e) => e.stopPropagation()}
+                            className="absolute z-30 bottom-full mb-1.5 end-0 min-w-[145px] p-1 rounded-xl shadow-xl border flex flex-col gap-0.5 animate-in fade-in zoom-in-95 duration-100"
+                            style={{
+                              background: theme.surface,
+                              borderColor: theme.hairlineStrong,
+                              color: theme.ink,
+                            }}
+                          >
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setExportMenuBookId(null);
+                                onExportBook(book, "html");
+                              }}
+                              className="flex items-center gap-2 w-full text-start px-2.5 py-1.5 text-xs font-bold rounded-lg transition-colors hover:bg-black/5 dark:hover:bg-white/5"
+                              style={{ color: theme.ink }}
+                            >
+                              <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
+                              <span className="flex-1 truncate">{ui.exportOptionHtml}</span>
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setExportMenuBookId(null);
+                                onExportBook(book, "json");
+                              }}
+                              className="flex items-center gap-2 w-full text-start px-2.5 py-1.5 text-xs font-bold rounded-lg transition-colors hover:bg-black/5 dark:hover:bg-white/5"
+                              style={{ color: theme.ink }}
+                            >
+                              <span className="w-2 h-2 rounded-full bg-indigo-500 shrink-0" />
+                              <span className="flex-1 truncate">{ui.exportOptionJson}</span>
+                            </button>
+                          </div>
+                        )}
+                      </div>
                     )}
                     {onDeleteBook && (
                       <button
@@ -6646,6 +6701,53 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
     }
   };
 
+  /* ---------------------------------------------------------------------------
+     SINGLE BOOK JSON EXPORT vs FULL DATABASE DUMP:
+     - "Export Full Backup" (in the top toolbar) exports the ENTIRE system state:
+       all books from BOOKS/, all collections, all bookFlavors, all covers, all plans.
+     - "Export as JSON" here exports ONLY this single book's complete schema
+       (id, nodes, pageBlocks, questions, metadata) so it can be re-imported directly
+       via the "Import JSON" button on any EDUcraft installation or shared with others.
+     --------------------------------------------------------------------------- */
+  const handleExportSingleBookJson = async (bookToExport) => {
+    if (!bookToExport) return;
+    const bTitle = bookToExport?.[lang]?.title || bookToExport?.id || "Book";
+    const bFid = bookFlavors[bookToExport.id] || flavorId;
+    const bCover = covers[bookToExport.id] || bookToExport.cover || null;
+
+    const singleBookPayload = {
+      id: bookToExport.id,
+      cover: bCover,
+      en: bookToExport.en || { title: bookToExport.title_en || bookToExport.id, tagline: bookToExport.tagline_en || "" },
+      ar: bookToExport.ar || { title: bookToExport.title_ar || bookToExport.id, tagline: bookToExport.tagline_ar || "" },
+      title_ar: bookToExport.title_ar || bookToExport.ar?.title || "",
+      title_en: bookToExport.title_en || bookToExport.en?.title || "",
+      tagline_ar: bookToExport.tagline_ar || bookToExport.ar?.tagline || "",
+      tagline_en: bookToExport.tagline_en || bookToExport.en?.tagline || "",
+      flavorId: bFid,
+      crossLinks: bookToExport.crossLinks || [],
+      nodes: bookToExport.nodes || [],
+      pageBlocks: bookToExport.pageBlocks || {},
+      questions: bookToExport.questions || [],
+    };
+
+    const jsonStr = JSON.stringify(singleBookPayload, null, 2);
+    const safeTitle = slugify(bookToExport[lang]?.title || bookToExport.id || "book");
+    const filename = `${safeTitle || bookToExport.id || "book"}.json`;
+
+    downloadBlob(jsonStr, filename, "application/json; charset=utf-8");
+
+    setExportToast({
+      type: "success",
+      message: lang === "ar"
+        ? `تم تصدير كتاب "${bTitle}" كملف JSON بنجاح!`
+        : `Exported "${bTitle}" as JSON successfully!`,
+    });
+    setTimeout(() => {
+      setExportToast((prev) => (prev?.type === "success" ? null : prev));
+    }, 3500);
+  };
+
   const handleExportCollection = async (colToExport, allBooks, allCols, exportLang, exportTheme, exportUi, exportSkin, exportCovers) => {
     if (isExporting || !onExportCollection) return;
     setIsExporting(true);
@@ -7080,10 +7182,14 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
               onDeleteCollection={deleteCollection}
               onAssignToCollection={assignToCollection}
               onRemoveFromCollection={removeFromCollection}
-              onExportBook={onExportBook ? (book) => {
-                const bFid = (book && bookFlavors[book.id]) || flavorId;
-                const bTheme = FLAVORS[bFid] ? FLAVORS[bFid][mode] : theme;
-                handleExportBook(book, lang, bTheme, ui, skin, covers);
+              onExportBook={onExportBook ? (book, format = "html") => {
+                if (format === "json") {
+                  handleExportSingleBookJson(book);
+                } else {
+                  const bFid = (book && bookFlavors[book.id]) || flavorId;
+                  const bTheme = FLAVORS[bFid] ? FLAVORS[bFid][mode] : theme;
+                  handleExportBook(book, lang, bTheme, ui, skin, covers);
+                }
               } : undefined}
               onExportCollection={onExportCollection ? (col) => handleExportCollection(col, books, collections, lang, theme, ui, skin, covers) : undefined}
               isExporting={isExporting}
