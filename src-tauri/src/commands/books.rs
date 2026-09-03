@@ -1,4 +1,4 @@
-use crate::book_manager::{delete_book_from_fs, scan_books_directory, BookScanResult};
+use crate::book_manager::{delete_book_by_id, delete_book_from_fs, scan_books_directory, BookScanResult};
 use std::env;
 use std::path::{Path, PathBuf};
 
@@ -44,7 +44,95 @@ pub async fn scan_books_dir(dir: Option<String>) -> Result<BookScanResult, Strin
 }
 
 #[tauri::command]
-pub async fn delete_book_fs(path: String, _id: String) -> Result<bool, String> {
-    let target = Path::new(&path);
-    delete_book_from_fs(target).map(|_| true)
+pub async fn delete_book_fs(id: Option<String>, path: Option<String>) -> Result<bool, String> {
+    let books_dir = resolve_default_books_dir();
+
+    // 1. Primary: delete by id directly from BOOKS/
+    if let Some(ref book_id) = id {
+        if !book_id.trim().is_empty() {
+            match delete_book_by_id(&books_dir, book_id) {
+                Ok(_) => return Ok(true),
+                Err(e) => {
+                    // If path is provided, try path fallback before erroring
+                    if path.is_none() {
+                        return Err(e);
+                    }
+                }
+            }
+        }
+    }
+
+    // 2. Fallback: delete by path
+    if let Some(ref p) = path {
+        if !p.trim().is_empty() {
+            let target = Path::new(p);
+            if target.exists() {
+                delete_book_from_fs(target)?;
+                return Ok(true);
+            }
+        }
+    }
+
+    if let Some(ref book_id) = id {
+        Err(format!("Book with id '{}' not found in '{}'", book_id, books_dir.display()))
+    } else {
+        Err("Neither valid book id nor path was provided for deletion".to_string())
+    }
 }
+
+#[tauri::command]
+pub async fn save_book_image(
+    book_id: String,
+    filename: String,
+    data_base64: String,
+) -> Result<String, String> {
+    let books_dir = resolve_default_books_dir();
+    let bytes = crate::book_manager::decode_base64(&data_base64)?;
+    crate::book_manager::save_book_asset(&books_dir, &book_id, &filename, &bytes)
+}
+
+#[tauri::command]
+pub async fn delete_book_image(book_id: String, relative_path: String) -> Result<bool, String> {
+    let books_dir = resolve_default_books_dir();
+    crate::book_manager::delete_book_asset(&books_dir, &book_id, &relative_path)
+}
+
+#[tauri::command]
+pub async fn import_book_dry_run_cmd(
+    json_content: String,
+) -> Result<crate::book_manager::DryRunReport, String> {
+    crate::book_manager::import_book_dry_run(&json_content)
+}
+
+struct TauriEventSink {
+    app: tauri::AppHandle,
+}
+
+impl crate::book_manager::ImportEventSink for TauriEventSink {
+    fn emit(&self, event: &str, payload: serde_json::Value) {
+        use tauri::Emitter;
+        let _ = self.app.emit(event, payload);
+    }
+}
+
+#[tauri::command]
+pub async fn import_book_stream_cmd(
+    app: tauri::AppHandle,
+    json_content: String,
+) -> Result<crate::book_manager::DryRunReport, String> {
+    let sink = TauriEventSink { app };
+    crate::book_manager::import_book_with_sink(&json_content, &sink)
+}
+
+#[tauri::command]
+pub async fn import_book_commit_cmd(
+    book_id: String,
+    final_json: String,
+) -> Result<String, String> {
+    let books_dir = resolve_default_books_dir();
+    let saved_path = crate::book_manager::save_imported_book_transactional(&books_dir, &book_id, &final_json)?;
+    Ok(saved_path.to_string_lossy().to_string())
+}
+
+
+

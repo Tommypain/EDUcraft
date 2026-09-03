@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState, useRef } from "react";
 import Prism from "prismjs";
 import "prismjs/components/prism-rust.js";
 import "prismjs/components/prism-javascript.js";
@@ -11,6 +11,19 @@ import "prismjs/components/prism-python.js";
 import "prismjs/components/prism-json.js";
 import "prismjs/components/prism-sql.js";
 import "prismjs/components/prism-bash.js";
+import { Check, Copy } from "lucide-react";
+
+export const SUPPORTED_LANGS = [
+  { id: "rust", label: "Rust" },
+  { id: "typescript", label: "TypeScript" },
+  { id: "javascript", label: "JavaScript" },
+  { id: "python", label: "Python" },
+  { id: "markup", label: "HTML / XML" },
+  { id: "css", label: "CSS" },
+  { id: "sql", label: "SQL" },
+  { id: "bash", label: "Bash / Shell" },
+  { id: "json", label: "JSON" },
+];
 
 const LANG_MAP = {
   rs: "rust",
@@ -57,7 +70,7 @@ export function detectLanguage(code, explicitLang) {
   if (str.includes("SELECT ") || str.includes("CREATE TABLE") || str.includes("INSERT INTO")) {
     return "sql";
   }
-  return "rust"; // Default programming language in curriculum
+  return "rust";
 }
 
 export function highlightCode(code, lang) {
@@ -73,38 +86,183 @@ export function highlightCode(code, lang) {
   }
 }
 
-export function SyntaxCodeBlock({ code, lang, title, style = {}, className = "" }) {
+export function SyntaxCodeBlock({ code, lang, title, style = {}, className = "", theme, skin }) {
   const normalizedLang = detectLanguage(code, lang);
   const highlightedHtml = useMemo(() => highlightCode(code, normalizedLang), [code, normalizedLang]);
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = () => {
+    if (!code) return;
+    navigator.clipboard?.writeText(String(code));
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  // Skin integration
+  const isPixel = skin?.pixel;
+  const isGlass = skin?.id === "glass";
+  const radius = isPixel ? 0 : skin?.radiusMd || 12;
+  const bg = isGlass ? "rgba(18, 18, 22, 0.85)" : isPixel ? "#000000" : "#121214";
+  const border = isPixel
+    ? `2px solid ${theme?.hairlineStrong || "#fff"}`
+    : isGlass
+    ? "1px solid rgba(255, 255, 255, 0.14)"
+    : "1px solid #282828";
+  const shadow = isPixel ? skin?.shadow : "0 4px 20px rgba(0,0,0,0.3)";
 
   return (
     <div
-      className={`educraft-code-box rounded-xl overflow-hidden my-2.5 border border-[#333333] shadow-md ${className}`}
+      className={`educraft-code-box overflow-hidden my-3 ${className}`}
       style={{
-        background: "#161616",
+        background: bg,
+        border,
+        borderRadius: radius,
+        boxShadow: shadow,
+        backdropFilter: isGlass ? "blur(14px)" : "none",
         direction: "ltr",
         textAlign: "left",
-        ...style
+        ...style,
       }}
     >
-      {(title || normalizedLang) && (
-        <div className="flex items-center justify-between px-3.5 py-1.5 bg-[#202020] border-b border-[#303030] text-[11px] font-mono text-zinc-400 select-none">
+      <div
+        className="flex items-center justify-between px-3.5 py-1.5 select-none"
+        style={{
+          background: isGlass ? "rgba(255,255,255,0.05)" : "#1B1B1E",
+          borderBottom: isGlass ? "1px solid rgba(255,255,255,0.08)" : "1px solid #282828",
+          fontSize: 11,
+          fontFamily: "'JetBrains Mono', 'Fira Code', Consolas, monospace",
+        }}
+      >
+        <div className="flex items-center gap-2">
           <span className="font-bold text-zinc-300">{title || normalizedLang}</span>
-          <span className="uppercase text-[9px] tracking-wider px-1.5 py-0.5 rounded bg-[#2A2A2A] text-amber-400">
+        </div>
+        <div className="flex items-center gap-2">
+          <span
+            className="uppercase text-[9px] font-bold tracking-wider px-2 py-0.5 rounded"
+            style={{
+              background: theme?.accentSoft || "#2A2A2A",
+              color: theme?.accent || "#F59E0B",
+            }}
+          >
             {normalizedLang}
           </span>
+          <button
+            type="button"
+            onClick={handleCopy}
+            className="p-1 rounded text-zinc-400 hover:text-zinc-100 transition-colors"
+            title="Copy code"
+          >
+            {copied ? <Check size={12} className="text-green-400" /> : <Copy size={12} />}
+          </button>
         </div>
-      )}
+      </div>
       <pre
         className="p-3.5 m-0 overflow-x-auto font-mono text-[12.5px] leading-relaxed select-text"
         style={{
           fontFamily: "'JetBrains Mono', 'Fira Code', Consolas, 'Space Mono', monospace",
           color: "#E6EDF3",
           whiteSpace: "pre-wrap",
-          wordBreak: "break-word"
+          wordBreak: "break-word",
         }}
         dangerouslySetInnerHTML={{ __html: highlightedHtml }}
       />
+    </div>
+  );
+}
+
+export function LiveCodeEditor({ code, lang, title, onUpdate, theme, skin, placeholder = "Enter code here..." }) {
+  const normalizedLang = detectLanguage(code, lang);
+  const highlightedHtml = useMemo(() => highlightCode(code, normalizedLang), [code, normalizedLang]);
+  const preRef = useRef(null);
+
+  const handleScroll = (e) => {
+    if (preRef.current) {
+      preRef.current.scrollTop = e.target.scrollTop;
+      preRef.current.scrollLeft = e.target.scrollLeft;
+    }
+  };
+
+  const isPixel = skin?.pixel;
+  const isGlass = skin?.id === "glass";
+  const radius = isPixel ? 0 : 8;
+
+  return (
+    <div
+      className="flex flex-col overflow-hidden border"
+      style={{
+        borderRadius: radius,
+        borderColor: theme?.hairline || "#333",
+        background: isGlass ? "rgba(18, 18, 22, 0.85)" : "#0F0F11",
+      }}
+    >
+      {/* Editor Header */}
+      <div
+        className="flex items-center justify-between gap-2 px-3 py-1.5 border-b"
+        style={{
+          background: isGlass ? "rgba(255,255,255,0.04)" : "#18181B",
+          borderColor: theme?.hairline || "#282828",
+        }}
+      >
+        <input
+          type="text"
+          value={title || ""}
+          onChange={(e) => onUpdate({ title: e.target.value })}
+          placeholder="Code snippet title..."
+          className="text-xs font-medium px-2 py-1 rounded bg-transparent border text-zinc-200 outline-none w-1/2"
+          style={{ borderColor: theme?.hairline || "#333" }}
+        />
+        <select
+          value={normalizedLang}
+          onChange={(e) => onUpdate({ codeLang: e.target.value })}
+          className="text-xs font-bold px-2 py-1 rounded outline-none cursor-pointer"
+          style={{
+            background: "#27272A",
+            color: theme?.accent || "#F59E0B",
+            border: `1px solid ${theme?.hairline || "#3F3F46"}`,
+          }}
+        >
+          {SUPPORTED_LANGS.map((l) => (
+            <option key={l.id} value={l.id}>
+              {l.label}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {/* Editor Overlay Canvas: textarea on top, highlighted pre underneath */}
+      <div className="relative w-full" style={{ minHeight: 120 }}>
+        <pre
+          ref={preRef}
+          aria-hidden="true"
+          className="absolute inset-0 p-3 m-0 overflow-hidden font-mono text-[13px] leading-relaxed pointer-events-none select-none"
+          style={{
+            fontFamily: "'JetBrains Mono', 'Fira Code', Consolas, monospace",
+            color: "#E6EDF3",
+            whiteSpace: "pre-wrap",
+            wordBreak: "break-word",
+          }}
+          dangerouslySetInnerHTML={{ __html: (highlightedHtml || "") + "\n" }}
+        />
+        <textarea
+          value={code || ""}
+          onChange={(e) => onUpdate({ text: e.target.value })}
+          onScroll={handleScroll}
+          rows={5}
+          dir="ltr"
+          spellCheck={false}
+          autoCapitalize="off"
+          autoComplete="off"
+          placeholder={placeholder}
+          className="relative w-full p-3 font-mono text-[13px] leading-relaxed bg-transparent resize-y outline-none"
+          style={{
+            fontFamily: "'JetBrains Mono', 'Fira Code', Consolas, monospace",
+            color: "transparent",
+            caretColor: "#FFFFFF",
+            whiteSpace: "pre-wrap",
+            wordBreak: "break-word",
+          }}
+        />
+      </div>
     </div>
   );
 }

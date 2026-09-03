@@ -71,9 +71,12 @@ import {
   Code2,
   CornerDownLeft,
   Wand2,
+  Table as TableIcon,
+  AlignLeft,
+  Image as ImageIcon,
 } from "lucide-react";
 import { ImportModal } from "./utils/ImportModal.jsx";
-import { SyntaxCodeBlock } from "./utils/syntax.jsx";
+import { SyntaxCodeBlock, LiveCodeEditor } from "./utils/syntax.jsx";
 import { KnowledgeTreeEnhanced } from "./utils/KnowledgeTree.jsx";
 import masterLibraryData from "./data/educraft_master_library.json";
 
@@ -1465,6 +1468,17 @@ function QuestionItem({ q, lang, ui, theme, skin = SKINS.normal, onAnswered }) {
         </span>
       </div>
 
+      {/* Unified ContentBlocks (optional, rendered before prompt) */}
+      {Array.isArray(c.content || q.content) && (c.content || q.content).length > 0 && (
+        <div className="flex flex-col gap-2 my-1">
+          {(c.content || q.content)
+            .filter((b) => b && b.kind !== "pagebreak")
+            .map((block, idx) => (
+              <PlateBlock key={block.id || idx} block={block} theme={theme} skin={skin} />
+            ))}
+        </div>
+      )}
+
       <p dir={q.dir} className="text-base font-semibold leading-relaxed">
         {c.prompt || c.template}
       </p>
@@ -1474,6 +1488,8 @@ function QuestionItem({ q, lang, ui, theme, skin = SKINS.normal, onAnswered }) {
           code={typeof (q.code || c.code) === "object" ? (q.code || c.code).src : (q.code || c.code)}
           lang={q.code?.lang || q.code_language || c.code_language || q.codeLang}
           title={typeof (q.code || c.code) === "object" ? (q.code || c.code).title : undefined}
+          theme={theme}
+          skin={skin}
         />
       )}
 
@@ -1700,6 +1716,17 @@ function TypeCard({ q, lang, ui, theme, skin = SKINS.normal, onAnswered }) {
         </span>
       </div>
 
+      {/* Unified ContentBlocks (optional, rendered before prompt) */}
+      {Array.isArray(c.content || q.content) && (c.content || q.content).length > 0 && (
+        <div className="flex flex-col gap-2 my-1">
+          {(c.content || q.content)
+            .filter((b) => b && b.kind !== "pagebreak")
+            .map((block, idx) => (
+              <PlateBlock key={block.id || idx} block={block} theme={theme} skin={skin} />
+            ))}
+        </div>
+      )}
+
       <p dir={q.dir} className="text-base font-semibold leading-relaxed">
         {c.prompt || c.template}
       </p>
@@ -1709,6 +1736,8 @@ function TypeCard({ q, lang, ui, theme, skin = SKINS.normal, onAnswered }) {
           code={typeof (q.code || c.code) === "object" ? (q.code || c.code).src : (q.code || c.code)}
           lang={q.code?.lang || q.code_language || c.code_language || q.codeLang}
           title={typeof (q.code || c.code) === "object" ? (q.code || c.code).title : undefined}
+          theme={theme}
+          skin={skin}
         />
       )}
 
@@ -2789,7 +2818,7 @@ function ReadThroughView({ book, lang, ui, theme, dir, skin, cardMode, scrollDir
    itself never shows this. Score & streak reset when you leave this
    screen — this is a session practice pass, not a saved gradebook.
 ================================================================== */
-function BrowseView({ book, lang, ui, theme, dir, skin, onBack }) {
+function BrowseView({ book, lang, ui, theme, dir, skin, onBack, bookFlavorId, onChangeBookFlavor }) {
   const allQuestions = useMemo(() => {
     const list = [];
     book.nodes
@@ -2840,10 +2869,47 @@ function BrowseView({ book, lang, ui, theme, dir, skin, onBack }) {
 
   return (
     <section>
-      <button onClick={onBack} className="flex items-center gap-1.5 text-sm font-semibold mb-5" style={{ color: theme.inkSoft, minHeight: 40 }}>
-        <BackIcon size={15} />
-        {book[lang].title}
-      </button>
+      <div className="flex items-center justify-between gap-3 mb-5 flex-wrap">
+        <button onClick={onBack} className="flex items-center gap-1.5 text-sm font-semibold" style={{ color: theme.inkSoft, minHeight: 40 }}>
+          <BackIcon size={15} />
+          {book[lang].title}
+        </button>
+
+        {onChangeBookFlavor && (
+          <div className="flex items-center gap-1.5 px-3 py-1.5" style={{ borderRadius: skin.radiusSm, border: `1.5px solid ${skinBorderColor(skin, theme)}`, background: theme.surface }}>
+            <Palette size={13} style={{ color: theme.inkSoft }} />
+            <span className="text-[11px] font-bold me-1" style={{ color: theme.inkSoft }}>
+              {ui.bookFlavorLabel || (lang === "ar" ? "نكهة الكتاب:" : "Flavor:")}
+            </span>
+            <div className="flex items-center gap-1.5">
+              {Object.entries(FLAVORS).map(([fid, f]) => {
+                const pal = f[theme === FLAVORS[fid]?.dark ? "dark" : "light"] || f.light;
+                const isSelected = bookFlavorId === fid;
+                return (
+                  <button
+                    key={fid}
+                    onClick={() => onChangeBookFlavor(fid)}
+                    className="relative p-0.5 rounded-full transition-transform hover:scale-110"
+                    style={{
+                      border: isSelected ? `2px solid ${theme.ink}` : "1.5px solid transparent",
+                      boxShadow: isSelected ? `0 0 0 1px ${theme.accent}` : "none",
+                    }}
+                    title={f[lang] || fid}
+                  >
+                    <div
+                      className="w-4 h-4 rounded-full flex overflow-hidden"
+                      style={{ border: `1px solid ${pal.hairlineStrong}` }}
+                    >
+                      <span className="w-1/2 h-full" style={{ background: pal.canvas }} />
+                      <span className="w-1/2 h-full" style={{ background: pal.accent }} />
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+      </div>
 
       <h1 className="text-2xl font-bold mb-1" style={{ fontFamily: ui.displayFont, color: theme.ink }}>
         {ui.browseTitle}
@@ -3222,7 +3288,10 @@ const EDITOR_STR = {
     pagePalette: "Page palette",
     insertGroup: "Insert", pageGroup: "Page", zoomOut: "Zoom out", zoomIn: "Zoom in", zoomFit: "Fit width", zoomReset: "100%",
     blockSectionTitle: "Section title", blockKeyterm: "Key term", blockNote: "Note", blockWarning: "Warning", blockImportant: "Important", blockImage: "Image", blockCode: "Code box", blockPagebreak: "Page break",
+    blockTextKind: "Free text", blockTable: "Table",
     blockTitle: "Title", blockText: "Text", imageUrl: "Image URL", imageCaption: "Caption", imageTitle: "Image title", imageMeta: "Source / note",
+    uploadImage: "Upload image", chooseImageFile: "Choose image file", dropImageHere: "Drop image here or click to browse", orEnterUrl: "Or paste image URL",
+    tableHeaders: "Headers (comma-separated)", tableRows: "Rows (one row per line, cells separated by commas)",
     pageOf: (n, total) => `Page ${n} of ${total}`,
     moveUp: "Move up", moveDown: "Move down", removeBlock: "Remove",
     files: "Files",
@@ -3277,7 +3346,10 @@ const EDITOR_STR = {
     pagePalette: "باليتة الصفحة",
     insertGroup: "إدراج", pageGroup: "الصفحة", zoomOut: "تصغير", zoomIn: "تكبير", zoomFit: "ملائمة العرض", zoomReset: "100%",
     blockSectionTitle: "عنوان قسم", blockKeyterm: "مصطلح مفتاحي", blockNote: "ملاحظة", blockWarning: "تحذير", blockImportant: "مهم", blockImage: "صورة", blockCode: "صندوق كود", blockPagebreak: "فاصل صفحة",
+    blockTextKind: "نص حر", blockTable: "جدول",
     blockTitle: "العنوان", blockText: "النص", imageUrl: "رابط الصورة", imageCaption: "التعليق", imageTitle: "عنوان الصورة", imageMeta: "المصدر / ملاحظة",
+    uploadImage: "رفع صورة", chooseImageFile: "اختر صورة", dropImageHere: "اسحب الصورة هنا أو اضغط للاختيار", orEnterUrl: "أو الصق رابط الصورة (URL)",
+    tableHeaders: "عناوين الأعمدة (مفصولة بفاصلة)", tableRows: "الصفوف (كل صف في سطر، والخلايا مفصولة بفاصلة)",
     pageOf: (n, total) => `صفحة ${n} من ${total}`,
     moveUp: "لأعلى", moveDown: "لأسفل", removeBlock: "إزالة",
     files: "ملفات",
@@ -4166,8 +4238,53 @@ function paletteById(id) {
 const PLATE_KINDS = plateKindsFor(PAGE_PALETTES[0]);
 const PAGE_FONT = "'Amiri','Noto Naskh Arabic','Traditional Arabic',serif";
 
-function BlockRow({ block, t, theme, skin, kinds, onUpdate, onDelete, onMove }) {
+function BlockRow({ block, t, theme, skin, kinds, bookId, onUpdate, onDelete, onMove }) {
   const kind = block.kind;
+  const fileInputRef = useRef(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [isDragOver, setIsDragOver] = useState(false);
+
+  const handleFileUpload = async (file) => {
+    if (!file || !file.type.startsWith("image/")) return;
+    setIsUploading(true);
+    try {
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        const dataUrl = e.target.result;
+        try {
+          const oldUrl = block.imageUrl;
+          const savedRelPath = await saveBookImageFs(bookId || "custom", file.name, dataUrl);
+          if (oldUrl && oldUrl.startsWith("assets/images/") && oldUrl !== savedRelPath) {
+            await deleteBookImageFs(bookId || "custom", oldUrl);
+          }
+          onUpdate({ imageUrl: savedRelPath, isPlaceholder: false });
+        } catch (err) {
+          console.error("Image upload failed:", err);
+        } finally {
+          setIsUploading(false);
+        }
+      };
+      reader.readAsDataURL(file);
+    } catch (err) {
+      setIsUploading(false);
+    }
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setIsDragOver(false);
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      handleFileUpload(e.dataTransfer.files[0]);
+    }
+  };
+
+  const handleClearImage = async () => {
+    if (block.imageUrl && block.imageUrl.startsWith("assets/images/")) {
+      await deleteBookImageFs(bookId || "custom", block.imageUrl);
+    }
+    onUpdate({ imageUrl: "", isPlaceholder: true });
+  };
+
   return (
     <div className="p-2.5 mb-2" style={{ borderRadius: 10, border: `1px solid ${theme.hairline}`, background: theme.surface }}>
       <div className="flex items-center gap-1.5 mb-2">
@@ -4178,6 +4295,8 @@ function BlockRow({ block, t, theme, skin, kinds, onUpdate, onDelete, onMove }) 
           style={{ borderRadius: 6, border: `1px solid ${theme.hairline}`, background: theme.surfaceSoft, color: theme.ink }}
         >
           <option value="sectionTitle">{t.blockSectionTitle}</option>
+          <option value="text">{t.blockTextKind}</option>
+          <option value="table">{t.blockTable}</option>
           <option value="keyterm">{t.blockKeyterm}</option>
           <option value="note">{t.blockNote}</option>
           <option value="warning">{t.blockWarning}</option>
@@ -4198,16 +4317,122 @@ function BlockRow({ block, t, theme, skin, kinds, onUpdate, onDelete, onMove }) 
           </button>
         </div>
       </div>
+
       {kind === "pagebreak" ? (
         <p className="text-[11px]" style={{ color: theme.inkSoft }}>
           — {t.blockPagebreak} —
         </p>
-      ) : kind === "image" ? (
+      ) : kind === "text" ? (
+        <textarea
+          value={block.text || ""}
+          onChange={(e) => onUpdate({ text: e.target.value })}
+          rows={3}
+          dir="auto"
+          className="w-full text-sm px-2.5 py-1.5"
+          style={{ borderRadius: 6, border: `1px solid ${theme.hairline}`, background: theme.surfaceSoft, color: theme.ink }}
+          placeholder={t.blockText}
+        />
+      ) : kind === "table" ? (
         <div className="flex flex-col gap-1.5">
-          <TextInput theme={theme} skin={skin} value={block.imageUrl} onChange={(v) => onUpdate({ imageUrl: v })} placeholder={t.imageUrl} />
+          <TextInput theme={theme} skin={skin} value={block.title || ""} onChange={(v) => onUpdate({ title: v })} placeholder={t.blockTitle} />
+          <TextInput
+            theme={theme}
+            skin={skin}
+            value={Array.isArray(block.headers) ? block.headers.join(", ") : (block.headers || "")}
+            onChange={(v) => {
+              const headersArr = v.split(",").map((s) => s.trim());
+              onUpdate({ headers: headersArr });
+            }}
+            placeholder={t.tableHeaders}
+          />
+          <textarea
+            value={Array.isArray(block.rows) ? block.rows.map((r) => (Array.isArray(r) ? r.join(", ") : r)).join("\n") : (block.rows || "")}
+            onChange={(e) => {
+              const lines = e.target.value.split("\n");
+              const rowsArr = lines.map((line) => line.split(",").map((cell) => cell.trim()));
+              onUpdate({ rows: rowsArr });
+            }}
+            rows={4}
+            dir="auto"
+            className="w-full text-sm px-2.5 py-1.5"
+            style={{ borderRadius: 6, border: `1px solid ${theme.hairline}`, background: theme.surfaceSoft, color: theme.ink, fontFamily: "monospace" }}
+            placeholder={t.tableRows}
+          />
+          <TextInput theme={theme} skin={skin} value={block.caption || ""} onChange={(v) => onUpdate({ caption: v })} placeholder={t.imageCaption} />
+        </div>
+      ) : kind === "image" ? (
+        <div className="flex flex-col gap-2">
+          <input
+            type="file"
+            ref={fileInputRef}
+            accept="image/*"
+            className="hidden"
+            onChange={(e) => {
+              if (e.target.files && e.target.files[0]) handleFileUpload(e.target.files[0]);
+            }}
+          />
+
+          <div
+            onDragOver={(e) => {
+              e.preventDefault();
+              setIsDragOver(true);
+            }}
+            onDragLeave={() => setIsDragOver(false)}
+            onDrop={handleDrop}
+            onClick={() => fileInputRef.current?.click()}
+            className="w-full py-3 px-4 border-2 border-dashed flex flex-col items-center justify-center gap-1.5 cursor-pointer transition-colors"
+            style={{
+              borderRadius: 8,
+              borderColor: isDragOver ? "#3b82f6" : theme.hairline,
+              background: isDragOver ? "rgba(59,130,246,0.08)" : theme.surfaceSoft,
+            }}
+          >
+            {block.imageUrl ? (
+              <div className="flex items-center gap-2 w-full justify-between">
+                <div className="flex items-center gap-2 overflow-hidden">
+                  <img
+                    src={resolveBookImageUrl(bookId, block.imageUrl)}
+                    alt=""
+                    className="w-10 h-10 object-cover rounded shrink-0 border"
+                  />
+                  <span className="text-xs truncate font-medium" style={{ color: theme.ink }}>
+                    {block.imageUrl}
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleClearImage();
+                  }}
+                  className="px-2 py-1 text-xs text-red-600 hover:bg-red-50 rounded"
+                >
+                  <Trash2 size={12} />
+                </button>
+              </div>
+            ) : (
+              <>
+                <ImageIcon size={20} style={{ color: theme.inkSoft }} />
+                <span className="text-xs font-semibold" style={{ color: theme.ink }}>
+                  {isUploading ? "..." : (t.dropImageHere || "Drop image or click to choose")}
+                </span>
+                <span className="text-[10px]" style={{ color: theme.inkSoft }}>
+                  PNG, JPG, SVG, WebP
+                </span>
+              </>
+            )}
+          </div>
+
+          <TextInput
+            theme={theme}
+            skin={skin}
+            value={block.imageUrl || ""}
+            onChange={(v) => onUpdate({ imageUrl: v, isPlaceholder: !v })}
+            placeholder={t.orEnterUrl || t.imageUrl}
+          />
           <div className="grid grid-cols-2 gap-1.5">
-            <TextInput theme={theme} skin={skin} value={block.title} onChange={(v) => onUpdate({ title: v })} placeholder={t.imageTitle} />
-            <TextInput theme={theme} skin={skin} value={block.meta} onChange={(v) => onUpdate({ meta: v })} placeholder={t.imageMeta} />
+            <TextInput theme={theme} skin={skin} value={block.title || ""} onChange={(v) => onUpdate({ title: v })} placeholder={t.imageTitle} />
+            <TextInput theme={theme} skin={skin} value={block.meta || ""} onChange={(v) => onUpdate({ meta: v })} placeholder={t.imageMeta} />
           </div>
           <textarea
             value={block.caption || ""}
@@ -4220,18 +4445,18 @@ function BlockRow({ block, t, theme, skin, kinds, onUpdate, onDelete, onMove }) 
           />
         </div>
       ) : kind === "code" ? (
-        <textarea
-          value={block.text || ""}
-          onChange={(e) => onUpdate({ text: e.target.value })}
-          rows={4}
-          dir="ltr"
-          className="w-full text-sm px-2.5 py-1.5"
-          style={{ borderRadius: 6, border: `1px solid ${theme.hairline}`, background: "#0D0D0D", color: "#D4D4D4", fontFamily: "'JetBrains Mono','Fira Code',Consolas,monospace" }}
+        <LiveCodeEditor
+          code={block.text || ""}
+          lang={block.codeLang || block.lang}
+          title={block.title}
+          theme={theme}
+          skin={skin}
+          onUpdate={onUpdate}
           placeholder={t.blockText}
         />
       ) : (
         <div className="flex flex-col gap-1.5">
-          {kind !== "sectionTitle" && <TextInput theme={theme} skin={skin} value={block.title} onChange={(v) => onUpdate({ title: v })} placeholder={t.blockTitle} />}
+          {kind !== "sectionTitle" && <TextInput theme={theme} skin={skin} value={block.title || ""} onChange={(v) => onUpdate({ title: v })} placeholder={t.blockTitle} />}
           <textarea
             value={block.text || ""}
             onChange={(e) => onUpdate({ text: e.target.value })}
@@ -4247,13 +4472,123 @@ function BlockRow({ block, t, theme, skin, kinds, onUpdate, onDelete, onMove }) 
   );
 }
 
-function PlateBlock({ block, style, kinds }) {
+function PlateBlock({ block, style, kinds, bookId = null, theme = null, skin = null }) {
+  if (!block) return null;
   const K = kinds || PLATE_KINDS;
   const kind = K[block.kind];
   if (block.kind === "pagebreak") return null;
+
+  if (block.kind === "text") {
+    return (
+      <div
+        style={{
+          margin: "8px 0",
+          fontSize: 13.5,
+          lineHeight: 1.85,
+          color: "#241B13",
+          ...style,
+        }}
+        dir="auto"
+      >
+        <p style={{ margin: 0 }}>{block.text}</p>
+      </div>
+    );
+  }
+
+  if (block.kind === "table") {
+    const headers = Array.isArray(block.headers) ? block.headers : [];
+    const rows = Array.isArray(block.rows) ? block.rows : [];
+    const borderColor = (K.sectionTitle && K.sectionTitle.border) || "#cbd5e1";
+    const headerBg = (K.sectionTitle && K.sectionTitle.bg) || "#f1f5f9";
+    const headerFg = (K.sectionTitle && K.sectionTitle.fg) || "#0f172a";
+
+    return (
+      <div
+        style={{
+          margin: "12px 0",
+          borderRadius: 12,
+          overflow: "hidden",
+          border: `1.5px solid ${borderColor}`,
+          background: "#fff",
+          boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
+          ...style,
+        }}
+      >
+        {block.title && (
+          <div
+            style={{
+              padding: "9px 14px",
+              fontWeight: 800,
+              fontSize: 13,
+              background: headerBg,
+              color: headerFg,
+              borderBottom: `1.5px solid ${borderColor}`,
+            }}
+          >
+            {block.title}
+          </div>
+        )}
+        <div style={{ overflowX: "auto" }}>
+          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12.5, textAlign: "start" }}>
+            {headers.length > 0 && (
+              <thead>
+                <tr style={{ background: "#f8fafc", borderBottom: `1.5px solid ${borderColor}` }}>
+                  {headers.map((h, i) => (
+                    <th
+                      key={i}
+                      style={{
+                        padding: "8px 12px",
+                        fontWeight: 700,
+                        color: "#334155",
+                        textAlign: "inherit",
+                        borderInlineEnd: i < headers.length - 1 ? "1px solid #e2e8f0" : "none",
+                      }}
+                    >
+                      {h}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+            )}
+            <tbody>
+              {rows.map((row, rIdx) => (
+                <tr
+                  key={rIdx}
+                  style={{
+                    borderBottom: rIdx < rows.length - 1 ? "1px solid #f1f5f9" : "none",
+                    background: rIdx % 2 === 1 ? "#fafafa" : "#fff",
+                  }}
+                >
+                  {(Array.isArray(row) ? row : []).map((cell, cIdx) => (
+                    <td
+                      key={cIdx}
+                      style={{
+                        padding: "8px 12px",
+                        color: "#1e293b",
+                        verticalAlign: "top",
+                        borderInlineEnd: cIdx < (row.length - 1) ? "1px solid #f1f5f9" : "none",
+                      }}
+                    >
+                      {cell}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        {block.caption && (
+          <div style={{ padding: "6px 14px", fontSize: 11, color: "#64748b", fontStyle: "italic", borderTop: "1px solid #f1f5f9" }}>
+            {block.caption}
+          </div>
+        )}
+      </div>
+    );
+  }
+
   if (block.kind === "image") {
-    // matches template.html's .media-card: white card, framed in the
-    // section color, image on top, title/desc/meta stacked below.
+    const isPlaceholder = block.isPlaceholder || !block.imageUrl;
+    const resolvedUrl = block.imageUrl ? resolveBookImageUrl(bookId || block._bookId, block.imageUrl) : "";
     return (
       <div
         style={{
@@ -4266,7 +4601,38 @@ function PlateBlock({ block, style, kinds }) {
           ...style,
         }}
       >
-        {block.imageUrl && <img src={block.imageUrl} alt="" style={{ width: "100%", aspectRatio: "4/3", objectFit: "cover", display: "block" }} />}
+        {isPlaceholder ? (
+          <div
+            style={{
+              width: "100%",
+              aspectRatio: "16/9",
+              background: "linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "#64748b",
+              gap: 8,
+              padding: 20,
+              borderBottom: "1px dashed #cbd5e1",
+            }}
+          >
+            <ImageIcon size={32} style={{ opacity: 0.6 }} />
+            <span style={{ fontSize: 12, fontWeight: 600 }}>
+              {block.alt || (block.title ? `${block.title}` : "صورة توضيحية")}
+            </span>
+          </div>
+        ) : (
+          <img
+            src={resolvedUrl}
+            alt={block.alt || block.title || ""}
+            style={{ width: "100%", aspectRatio: "4/3", objectFit: "cover", display: "block" }}
+            onError={(e) => {
+              e.currentTarget.style.display = "none";
+              if (e.currentTarget.nextSibling) e.currentTarget.nextSibling.style.display = "flex";
+            }}
+          />
+        )}
         {(block.title || block.caption || block.meta) && (
           <div style={{ padding: "10px 14px 12px" }}>
             {block.title && <p style={{ fontWeight: 800, color: K.sectionTitle.border, margin: "0 0 4px", fontSize: 13 }}>{block.title}</p>}
@@ -4287,6 +4653,8 @@ function PlateBlock({ block, style, kinds }) {
         code={block.text}
         lang={block.codeLang || block.lang}
         title={block.title}
+        theme={theme}
+        skin={skin}
         style={{
           margin: "10px 0",
           ...style,
@@ -4511,7 +4879,7 @@ function FullBookA4Preview({ book, lang, t, theme, skin, docTitle }) {
     <div>
       <div ref={measureRef} style={{ position: "absolute", visibility: "hidden", pointerEvents: "none", width: "182mm", top: -99999, fontFamily: PAGE_FONT, fontSize: 15, lineHeight: 1.9 }}>
         {blocks.map((b, i) => (
-          <PlateBlock key={b.id || i} block={b} kinds={plateKindsFor(paletteById(b._paletteId || 1))} />
+          <PlateBlock key={b.id || i} block={b} kinds={plateKindsFor(paletteById(b._paletteId || 1))} theme={theme} skin={skin} />
         ))}
       </div>
 
@@ -4547,7 +4915,7 @@ function FullBookA4Preview({ book, lang, t, theme, skin, docTitle }) {
                   </div>
 
                   {pageBlocks.map((b, i) => (
-                    <PlateBlock key={b.id || i} block={b} kinds={plateKindsFor(paletteById(b._paletteId || 1))} />
+                    <PlateBlock key={b.id || i} block={b} kinds={plateKindsFor(paletteById(b._paletteId || 1))} theme={theme} skin={skin} />
                   ))}
                   <p style={{ position: "relative", top: "8mm", textAlign: "center", fontSize: 10, color: "#b3a692" }}>{t.pageOf(pi + 1, pages.length)}</p>
                 </div>
@@ -4597,7 +4965,7 @@ function SingleLeafA4Preview({ leaf, book, lang, theme, skin }) {
         }}
       >
         {blocks.map((b, i) => (
-          <PlateBlock key={b.id || i} block={b} kinds={kinds} />
+          <PlateBlock key={b.id || i} block={b} kinds={kinds} theme={theme} skin={skin} />
         ))}
       </div>
 
@@ -4641,7 +5009,7 @@ function SingleLeafA4Preview({ leaf, book, lang, theme, skin }) {
                 </div>
 
                 {pageBlocks.map((b, i) => (
-                  <PlateBlock key={b.id || i} block={b} kinds={kinds} />
+                  <PlateBlock key={b.id || i} block={b} kinds={kinds} theme={theme} skin={skin} />
                 ))}
                 <p style={{ position: "relative", top: "8mm", textAlign: "center", fontSize: 10, color: "#b3a692" }}>
                   {t.pageOf(pi + 1, pages.length)}
@@ -4655,13 +5023,19 @@ function SingleLeafA4Preview({ leaf, book, lang, theme, skin }) {
   );
 }
 
-function A4PageBuilder({ leaf, lang, theme, skin, t, onUpdateLeaf, allLeavesCards, docTitle, pageTitle }) {
+function A4PageBuilder({ leaf, lang, theme, skin, t, onUpdateLeaf, allLeavesCards, docTitle, pageTitle, bookId }) {
   const blocks = leaf.pageBlocks || [];
   const palette = paletteById(leaf.pagePaletteId || 1);
   const kinds = plateKindsFor(palette);
   const setBlocks = (next) => onUpdateLeaf({ pageBlocks: next });
   const updateBlock = (i, patch) => setBlocks(blocks.map((b, idx) => (idx === i ? { ...b, ...patch } : b)));
-  const deleteBlock = (i) => setBlocks(blocks.filter((_, idx) => idx !== i));
+  const deleteBlock = (i) => {
+    const target = blocks[i];
+    if (target && target.kind === "image" && target.imageUrl && target.imageUrl.startsWith("assets/images/")) {
+      deleteBookImageFs(bookId, target.imageUrl);
+    }
+    setBlocks(blocks.filter((_, idx) => idx !== i));
+  };
   const moveBlock = (i, dir) => () => {
     const j = i + dir;
     if (j < 0 || j >= blocks.length) return;
@@ -4669,7 +5043,18 @@ function A4PageBuilder({ leaf, lang, theme, skin, t, onUpdateLeaf, allLeavesCard
     [next[i], next[j]] = [next[j], next[i]];
     setBlocks(next);
   };
-  const addBlock = (kind) => setBlocks([...blocks, { id: `${leaf.id}-b-${Date.now()}`, kind, title: "", text: "", imageUrl: "", caption: "" }]);
+  const addBlock = (kind) => {
+    const baseId = `${leaf.id}-b-${Date.now()}`;
+    if (kind === "table") {
+      setBlocks([...blocks, { id: baseId, kind, title: "", headers: [lang === "ar" ? "العمود 1" : "Column 1", lang === "ar" ? "العمود 2" : "Column 2"], rows: [[lang === "ar" ? "خلية 1" : "Cell 1", lang === "ar" ? "خلية 2" : "Cell 2"]], caption: "" }]);
+    } else if (kind === "text") {
+      setBlocks([...blocks, { id: baseId, kind, text: "" }]);
+    } else if (kind === "image") {
+      setBlocks([...blocks, { id: baseId, kind, title: "", imageUrl: "", caption: "", isPlaceholder: true }]);
+    } else {
+      setBlocks([...blocks, { id: baseId, kind, title: "", text: "", imageUrl: "", caption: "" }]);
+    }
+  };
   const generateFromCards = () => {
     const cards = allLeavesCards;
     const gen = [{ id: `${leaf.id}-b-title`, kind: "sectionTitle", text: lang === "ar" ? leaf.ar : leaf.en }];
@@ -4688,6 +5073,8 @@ function A4PageBuilder({ leaf, lang, theme, skin, t, onUpdateLeaf, allLeavesCard
 
   const BLOCK_KINDS = [
     ["sectionTitle", t.blockSectionTitle, Heading2],
+    ["text", t.blockTextKind || "Text", AlignLeft],
+    ["table", t.blockTable || "Table", TableIcon],
     ["keyterm", t.blockKeyterm, Tag],
     ["note", t.blockNote, StickyNote],
     ["warning", t.blockWarning, AlertTriangle],
@@ -4752,7 +5139,7 @@ function A4PageBuilder({ leaf, lang, theme, skin, t, onUpdateLeaf, allLeavesCard
           {/* hidden measuring pass — same width, invisible */}
           <div ref={measureRef} style={{ position: "absolute", visibility: "hidden", pointerEvents: "none", width: "182mm", top: -99999, fontFamily: PAGE_FONT, fontSize: 15, lineHeight: 1.9 }}>
             {blocks.map((b, i) => (
-              <PlateBlock key={b.id || i} block={b} kinds={kinds} />
+              <PlateBlock key={b.id || i} block={b} kinds={kinds} theme={theme} skin={skin} />
             ))}
           </div>
 
@@ -4791,7 +5178,7 @@ function A4PageBuilder({ leaf, lang, theme, skin, t, onUpdateLeaf, allLeavesCard
                     )}
 
                     {pageBlocks.map((b, i) => (
-                      <PlateBlock key={b.id || i} block={b} kinds={kinds} />
+                      <PlateBlock key={b.id || i} block={b} kinds={kinds} theme={theme} skin={skin} />
                     ))}
                     <p style={{ position: "relative", top: "8mm", textAlign: "center", fontSize: 10, color: "#b3a692" }}>{t.pageOf(pi + 1, pages.length)}</p>
                   </div>
@@ -4810,7 +5197,18 @@ function A4PageBuilder({ leaf, lang, theme, skin, t, onUpdateLeaf, allLeavesCard
           </p>
           <div className="max-h-[40vh] lg:max-h-[70vh] overflow-y-auto">
             {blocks.map((b, i) => (
-              <BlockRow key={b.id || i} block={b} t={t} theme={theme} skin={skin} kinds={kinds} onUpdate={(p) => updateBlock(i, p)} onDelete={() => deleteBlock(i)} onMove={(dir) => moveBlock(i, dir)} />
+              <BlockRow
+                key={b.id || i}
+                block={b}
+                t={t}
+                theme={theme}
+                skin={skin}
+                kinds={kinds}
+                bookId={bookId}
+                onUpdate={(p) => updateBlock(i, p)}
+                onDelete={() => deleteBlock(i)}
+                onMove={(dir) => moveBlock(i, dir)}
+              />
             ))}
           </div>
         </div>
@@ -5232,6 +5630,7 @@ function EditorView({ book, lang, theme, skin, voiceEnabled, onVoiceEnabledChang
                   theme={theme}
                   skin={skin}
                   t={t}
+                  bookId={book.id}
                   onUpdateLeaf={(patch) => patchLeaf((n) => ({ ...n, ...patch }))}
                   allLeavesCards={cards}
                   docTitle={lang === "ar" ? book.ar?.title : book.en?.title}
@@ -5666,11 +6065,11 @@ async function scanBooksFs(customDir = null) {
   return null;
 }
 
-async function deleteBookFs(path, id) {
+async function deleteBookFs(id, path = null) {
   if (isTauriEnv()) {
     try {
       const { invoke } = await import("@tauri-apps/api/core");
-      return await invoke("delete_book_fs", { path, id });
+      return await invoke("delete_book_fs", { id, path });
     } catch (err) {
       console.error("[EDUcraft BookManager] Tauri delete_book_fs error:", err);
       throw err;
@@ -5681,13 +6080,74 @@ async function deleteBookFs(path, id) {
   const res = await fetch("/__api/books/delete", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ path, id }),
+    body: JSON.stringify({ id, path }),
   });
   if (res.ok) {
     return true;
   } else {
     const err = await res.json().catch(() => ({}));
     throw new Error(err.error || `HTTP ${res.status}`);
+  }
+}
+
+function resolveBookImageUrl(bookId, imageUrl) {
+  if (!imageUrl) return "";
+  if (imageUrl.startsWith("http://") || imageUrl.startsWith("https://") || imageUrl.startsWith("data:")) {
+    return imageUrl;
+  }
+  if (!bookId) return imageUrl;
+  if (isTauriEnv()) {
+    return `https://asset.localhost/${bookId}/${imageUrl}`;
+  }
+  return `/__books/${bookId}/${imageUrl}`;
+}
+
+async function saveBookImageFs(bookId, filename, dataBase64) {
+  if (!bookId || !filename || !dataBase64) throw new Error("Missing bookId, filename, or data");
+  if (isTauriEnv()) {
+    try {
+      const { invoke } = await import("@tauri-apps/api/core");
+      return await invoke("save_book_image", { bookId, filename, dataBase64 });
+    } catch (err) {
+      console.error("[EDUcraft BookManager] Tauri save_book_image error:", err);
+      throw err;
+    }
+  }
+
+  const res = await fetch("/__api/books/save_image", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ bookId, filename, dataBase64 }),
+  });
+  if (res.ok) {
+    const json = await res.json();
+    return json.path;
+  }
+  throw new Error("Failed to save image to book folder");
+}
+
+async function deleteBookImageFs(bookId, relativePath) {
+  if (!bookId || !relativePath || !relativePath.startsWith("assets/images/")) return false;
+  if (isTauriEnv()) {
+    try {
+      const { invoke } = await import("@tauri-apps/api/core");
+      return await invoke("delete_book_image", { bookId, relativePath });
+    } catch (err) {
+      console.error("[EDUcraft BookManager] Tauri delete_book_image error:", err);
+      return false;
+    }
+  }
+
+  try {
+    const res = await fetch("/__api/books/delete_image", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ bookId, relativePath }),
+    });
+    return res.ok;
+  } catch (err) {
+    console.error("[EDUcraft BookManager] Delete image error:", err);
+    return false;
   }
 }
 
@@ -5776,18 +6236,16 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
           }));
 
         const allDiscovered = [...mappedBooks, ...invalidBooks];
-        if (allDiscovered.length > 0) {
-          setBooks(allDiscovered);
-          setBookId((prevId) => {
-            const stillExists = allDiscovered.some((b) => b.id === prevId);
-            if (!stillExists) {
-              setView("library");
-              setLeafId(null);
-              return allDiscovered[0]?.id || "";
-            }
-            return prevId;
-          });
-        }
+        setBooks(allDiscovered);
+        setBookId((prevId) => {
+          const stillExists = allDiscovered.some((b) => b.id === prevId);
+          if (!stillExists) {
+            setView("library");
+            setLeafId(null);
+            return allDiscovered[0]?.id || "";
+          }
+          return prevId;
+        });
 
         if (!silent) {
           setExportToast({
@@ -5897,22 +6355,21 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
     if (!confirmDeleteBook || isDeleting) return;
     setIsDeleting(true);
     const target = confirmDeleteBook;
-    const pathToDelete = target._sourcePath || target.path;
     const targetId = target.id;
+    const pathHint = target._sourcePath || target.path || null;
     const title = target[lang]?.title || targetId;
 
     try {
-      if (pathToDelete) {
-        await deleteBookFs(pathToDelete, targetId);
-      }
+      // 1. Mandatory backend deletion by id (never skipped!)
+      await deleteBookFs(targetId, pathHint);
+
       setExportToast({
         type: "success",
         message: lang === "ar" ? `تم حذف كتاب "${title}" نهائيًا من القرص` : `Permanently deleted "${title}" from disk`,
       });
       setConfirmDeleteBook(null);
 
-      // Remove locally from state immediately
-      setBooks((prev) => prev.filter((b) => b.id !== targetId));
+      // 2. Clear all associated metadata from React state
       setCovers((prev) => {
         const next = { ...prev };
         delete next[targetId];
@@ -5935,12 +6392,28 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
         }))
       );
 
+      // 3. Clear all associated metadata from persistent storage
+      const currentSaved = loadAppState();
+      if (currentSaved.customBooks) {
+        currentSaved.customBooks = currentSaved.customBooks.filter((b) => b.id !== targetId);
+      }
+      if (currentSaved.covers) delete currentSaved.covers[targetId];
+      if (currentSaved.plans) delete currentSaved.plans[targetId];
+      if (currentSaved.bookFlavors) delete currentSaved.bookFlavors[targetId];
+      if (currentSaved.collections) {
+        currentSaved.collections = currentSaved.collections.map((c) => ({
+          ...c,
+          itemIds: (c.itemIds || []).filter((id) => id !== targetId),
+        }));
+      }
+      saveAppState(currentSaved);
+
       if (bookId === targetId) {
         setView("library");
         setLeafId(null);
       }
 
-      // Rescan in background to keep full sync
+      // 4. Mandatory Real Re-fetch from backend (never rely on just local state filtering!)
       await rescanBooks(true);
     } catch (err) {
       console.error("[EDUcraft BookManager] Delete failed:", err);
@@ -6272,7 +6745,11 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
               onDeleteCollection={deleteCollection}
               onAssignToCollection={assignToCollection}
               onRemoveFromCollection={removeFromCollection}
-              onExportBook={onExportBook ? (book) => handleExportBook(book, lang, theme, ui, skin, covers) : undefined}
+              onExportBook={onExportBook ? (book) => {
+                const bFid = (book && bookFlavors[book.id]) || flavorId;
+                const bTheme = FLAVORS[bFid] ? FLAVORS[bFid][mode] : theme;
+                handleExportBook(book, lang, bTheme, ui, skin, covers);
+              } : undefined}
               onExportCollection={onExportCollection ? (col) => handleExportCollection(col, books, collections, lang, theme, ui, skin, covers) : undefined}
               isExporting={isExporting}
               onRescan={() => rescanBooks(false)}
@@ -6306,17 +6783,62 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
               plan={currentPlan}
             />
           ) : view === "browse" ? (
-            <BrowseView key={currentBook.id} book={currentBook} lang={lang} ui={ui} theme={bookTheme} dir={dir} skin={skin} onBack={() => setView("tree")} />
+            <BrowseView
+              key={currentBook.id}
+              book={currentBook}
+              lang={lang}
+              ui={ui}
+              theme={bookTheme}
+              dir={dir}
+              skin={skin}
+              onBack={() => setView("tree")}
+              bookFlavorId={currentBookFlavorId}
+              onChangeBookFlavor={(fid) => setBookFlavor(currentBook.id, fid)}
+            />
           ) : view === "readthrough" ? (
             <section key={currentBook.id}>
-              <button
-                onClick={() => setView("tree")}
-                className="flex items-center gap-1.5 text-sm font-semibold mb-5"
-                style={{ color: bookTheme.inkSoft, minHeight: 40 }}
-              >
-                {dir === "rtl" ? <ArrowRight size={15} /> : <ArrowLeft size={15} />}
-                {currentBook[lang].title}
-              </button>
+              <div className="flex items-center justify-between gap-3 mb-5 flex-wrap">
+                <button
+                  onClick={() => setView("tree")}
+                  className="flex items-center gap-1.5 text-sm font-semibold"
+                  style={{ color: bookTheme.inkSoft, minHeight: 40 }}
+                >
+                  {dir === "rtl" ? <ArrowRight size={15} /> : <ArrowLeft size={15} />}
+                  {currentBook[lang].title}
+                </button>
+                <div className="flex items-center gap-1.5 px-3 py-1.5" style={{ borderRadius: skin.radiusSm, border: `1.5px solid ${skinBorderColor(skin, bookTheme)}`, background: bookTheme.surface }}>
+                  <Palette size={13} style={{ color: bookTheme.inkSoft }} />
+                  <span className="text-[11px] font-bold me-1" style={{ color: bookTheme.inkSoft }}>
+                    {ui.bookFlavorLabel || (lang === "ar" ? "نكهة الكتاب:" : "Flavor:")}
+                  </span>
+                  <div className="flex items-center gap-1.5">
+                    {Object.entries(FLAVORS).map(([fid, f]) => {
+                      const pal = f[bookTheme === FLAVORS[fid]?.dark ? "dark" : "light"] || f.light;
+                      const isSelected = currentBookFlavorId === fid;
+                      return (
+                        <button
+                          key={fid}
+                          onClick={() => setBookFlavor(currentBook.id, fid)}
+                          className="relative p-0.5 rounded-full transition-transform hover:scale-110"
+                          style={{
+                            border: isSelected ? `2px solid ${bookTheme.ink}` : "1.5px solid transparent",
+                            boxShadow: isSelected ? `0 0 0 1px ${bookTheme.accent}` : "none",
+                          }}
+                          title={f[lang] || fid}
+                        >
+                          <div
+                            className="w-4 h-4 rounded-full flex overflow-hidden"
+                            style={{ border: `1px solid ${pal.hairlineStrong}` }}
+                          >
+                            <span className="w-1/2 h-full" style={{ background: pal.canvas }} />
+                            <span className="w-1/2 h-full" style={{ background: pal.accent }} />
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
               <FullBookA4Preview
                 book={currentBook}
                 lang={lang}
@@ -6371,13 +6893,13 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
               onBrowse={() => setView("browse")}
               onReadThrough={() => setView("readthrough")}
               onPlanner={() => setView("planner")}
-              onExport={onExportBook ? () => onExportBook(currentBook, lang, bookTheme, ui, skin, covers) : undefined}
+              onExport={onExportBook ? () => handleExportBook(currentBook, lang, bookTheme, ui, skin, covers) : undefined}
               covers={covers}
               onChangeCover={setCover}
               onClearCover={clearCover}
               bookFlavorId={currentBookFlavorId}
               onChangeBookFlavor={(fid) => setBookFlavor(currentBook.id, fid)}
-              onDeleteBook={deleteBook}
+              onDeleteBook={requestDeleteBook}
               plan={currentPlan}
             />
           )}

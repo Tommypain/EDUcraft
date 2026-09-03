@@ -22,6 +22,11 @@ pub fn run() {
             commands::scan_books_dir,
             commands::delete_book_fs,
             commands::get_default_books_dir,
+            commands::save_book_image,
+            commands::delete_book_image,
+            commands::import_book_dry_run_cmd,
+            commands::import_book_stream_cmd,
+            commands::import_book_commit_cmd,
         ])
         .run(tauri::generate_context!())
         .expect("error while running EDUcraft application");
