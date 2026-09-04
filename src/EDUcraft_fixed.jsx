@@ -45,6 +45,8 @@ import {
   Folders,
   BookCopy,
   Plus,
+  PlusCircle,
+  Volume2,
   Trash2,
   Rows3,
   Columns3,
@@ -64,6 +66,7 @@ import {
   ZoomIn,
   ZoomOut,
   Maximize2,
+  Minimize2,
   Heading2,
   Tag,
   StickyNote,
@@ -1621,18 +1624,35 @@ function QuestionGroupCard({ group, lang, ui, theme, skin = SKINS.normal, onAnsw
     );
   }
 
-  const imageBlock = (fullWidth) => (
-    <div
-      className="shrink-0"
-      style={
-        fullWidth
-          ? { width: "100%", aspectRatio: "16/9" }
-          : { width: "38%", minWidth: 110, alignSelf: "stretch" }
+  const imageFit = group.imageFit || "smart";
+
+  const imageBlock = (fullWidth) => {
+    let containerStyle = {};
+    let imgStyle = { display: "block" };
+
+    if (fullWidth) {
+      if (imageFit === "banner") {
+        containerStyle = { width: "100%", aspectRatio: "16/9" };
+        imgStyle = { ...imgStyle, width: "100%", height: "100%", objectFit: "cover" };
+      } else if (imageFit === "compact") {
+        containerStyle = { width: "100%", maxHeight: 200, background: "rgba(0,0,0,0.03)", display: "flex", justifyContent: "center", alignItems: "center" };
+        imgStyle = { ...imgStyle, maxWidth: "100%", maxHeight: 200, objectFit: "contain" };
+      } else {
+        // "smart" default: retains natural aspect ratio with sensible ceiling, no awkward cropping!
+        containerStyle = { width: "100%", maxHeight: 340, background: "rgba(0,0,0,0.03)", display: "flex", justifyContent: "center", alignItems: "center" };
+        imgStyle = { ...imgStyle, maxWidth: "100%", maxHeight: 340, objectFit: "contain" };
       }
-    >
-      <img src={group.image} alt="" className="w-full h-full" style={{ objectFit: "cover", objectPosition: "center", display: "block" }} />
-    </div>
-  );
+    } else {
+      containerStyle = { width: "38%", minWidth: 110, alignSelf: "stretch", background: "rgba(0,0,0,0.03)", display: "flex", justifyContent: "center", alignItems: "center" };
+      imgStyle = { ...imgStyle, width: "100%", height: "100%", objectFit: imageFit === "banner" ? "cover" : "contain" };
+    }
+
+    return (
+      <div className="shrink-0 overflow-hidden" style={containerStyle}>
+        <img src={group.image} alt="" style={imgStyle} />
+      </div>
+    );
+  };
 
   if (pos === "top") {
     return (
@@ -2238,29 +2258,32 @@ function LibraryView({ lang, ui, theme, dir, onOpen, skin, covers, onChangeCover
           )}
           {onCreateNewBook && (
             <button
+              type="button"
               onClick={onCreateNewBook}
-              className="flex items-center gap-1.5 text-xs font-bold px-3.5 py-2 shadow-sm transition-all hover:scale-105 cursor-pointer"
-              style={{ borderRadius: skin.radiusSm, background: theme.accentSoft, border: `1.5px solid ${theme.accent}`, color: theme.accent, minHeight: 36 }}
+              className="educraft-btn flex items-center gap-1.5 text-xs font-bold px-3.5 py-2 cursor-pointer"
+              style={{ borderRadius: skin.radiusSm, border: `1.5px solid ${skinBorderColor(skin, theme)}`, background: theme.surface, color: theme.ink, minHeight: 36 }}
               title={ui.libraryNewBook}
             >
-              <Plus size={13} />
+              <Plus size={13} style={{ color: theme.accent }} />
               {ui.libraryNewBook}
             </button>
           )}
           <button
+            type="button"
             onClick={onOpenImportModal}
-            className="flex items-center gap-1.5 text-xs font-bold px-3.5 py-2 text-white shadow-sm cursor-pointer"
-            style={{ borderRadius: skin.radiusSm, background: theme.accent, border: `1.5px solid ${theme.accent}`, minHeight: 36 }}
+            className="educraft-btn flex items-center gap-1.5 text-xs font-bold px-3.5 py-2 cursor-pointer"
+            style={{ borderRadius: skin.radiusSm, border: `1.5px solid ${skinBorderColor(skin, theme)}`, background: theme.surface, color: theme.ink, minHeight: 36 }}
             title={ui.libraryImportJson}
           >
-            <FileUp size={13} />
+            <FileUp size={13} style={{ color: theme.accent }} />
             {ui.libraryImportJson}
           </button>
           {onExportDatabase && (
             <button
+              type="button"
               onClick={onExportDatabase}
-              className="flex items-center gap-1.5 text-xs font-bold px-3.5 py-2 transition-all hover:opacity-90"
-              style={{ borderRadius: skin.radiusSm, border: `1.5px solid ${skinBorderColor(skin, theme)}`, color: theme.ink, minHeight: 36 }}
+              className="educraft-btn flex items-center gap-1.5 text-xs font-bold px-3.5 py-2 cursor-pointer"
+              style={{ borderRadius: skin.radiusSm, border: `1.5px solid ${skinBorderColor(skin, theme)}`, background: theme.surface, color: theme.ink, minHeight: 36 }}
               title={ui.exportDatabaseBackupLabel}
             >
               <FileDown size={13} />
@@ -2269,9 +2292,10 @@ function LibraryView({ lang, ui, theme, dir, onOpen, skin, covers, onChangeCover
           )}
           {onRestoreDatabase && (
             <button
+              type="button"
               onClick={onRestoreDatabase}
-              className="flex items-center gap-1.5 text-xs font-bold px-3.5 py-2 transition-all hover:opacity-90"
-              style={{ borderRadius: skin.radiusSm, border: `1.5px solid ${skinBorderColor(skin, theme)}`, color: theme.ink, minHeight: 36 }}
+              className="educraft-btn flex items-center gap-1.5 text-xs font-bold px-3.5 py-2 cursor-pointer"
+              style={{ borderRadius: skin.radiusSm, border: `1.5px solid ${skinBorderColor(skin, theme)}`, background: theme.surface, color: theme.ink, minHeight: 36 }}
               title={ui.restoreDatabaseBackupLabel}
             >
               <FileUp size={13} />
@@ -2279,17 +2303,19 @@ function LibraryView({ lang, ui, theme, dir, onOpen, skin, covers, onChangeCover
             </button>
           )}
           <button
+            type="button"
             onClick={() => onCreateCollection("folder")}
-            className="flex items-center gap-1.5 text-xs font-bold px-3.5 py-2"
-            style={{ borderRadius: skin.radiusSm, border: `1.5px solid ${skinBorderColor(skin, theme)}`, color: theme.ink, minHeight: 36 }}
+            className="educraft-btn flex items-center gap-1.5 text-xs font-bold px-3.5 py-2 cursor-pointer"
+            style={{ borderRadius: skin.radiusSm, border: `1.5px solid ${skinBorderColor(skin, theme)}`, background: theme.surface, color: theme.ink, minHeight: 36 }}
           >
             <FolderPlus size={13} />
             {ui.libraryNewFolder}
           </button>
           <button
+            type="button"
             onClick={() => onCreateCollection("encyclopedia")}
-            className="flex items-center gap-1.5 text-xs font-bold px-3.5 py-2"
-            style={{ borderRadius: skin.radiusSm, border: `1.5px solid ${skinBorderColor(skin, theme)}`, color: theme.ink, minHeight: 36 }}
+            className="educraft-btn flex items-center gap-1.5 text-xs font-bold px-3.5 py-2 cursor-pointer"
+            style={{ borderRadius: skin.radiusSm, border: `1.5px solid ${skinBorderColor(skin, theme)}`, background: theme.surface, color: theme.ink, minHeight: 36 }}
           >
             <Plus size={13} />
             {ui.libraryNewEncyclopedia}
@@ -2623,20 +2649,22 @@ function TreeView({ book, lang, ui, theme, dir, onBack, skin, selectedLeaf, onSe
         <div className="flex items-center gap-2 shrink-0 flex-wrap">
           {onReadThrough && (
             <button
+              type="button"
               onClick={onReadThrough}
-              className="flex items-center gap-1.5 text-sm font-bold px-4 py-2.5"
-              style={{ borderRadius: skin.radiusSm, border: `1.5px solid ${skinBorderColor(skin, theme)}`, color: theme.ink, minHeight: 44 }}
+              className="educraft-btn flex items-center gap-2 text-sm font-bold px-4 py-2.5 cursor-pointer"
+              style={{ borderRadius: skin.radiusSm, border: `1.5px solid ${skinBorderColor(skin, theme)}`, color: theme.ink, background: theme.surface, minHeight: 42 }}
             >
-              <BookOpen size={15} />
+              <BookOpen size={15} style={{ color: theme.accent }} />
               {ui.readThroughCta}
             </button>
           )}
           <button
+            type="button"
             onClick={onBrowse}
-            className="flex items-center gap-1.5 text-sm font-bold px-4 py-2.5"
-            style={{ borderRadius: skin.radiusSm, background: theme.accent, color: theme.accentInk, minHeight: 44 }}
+            className="educraft-btn flex items-center gap-2 text-sm font-bold px-4 py-2.5 cursor-pointer"
+            style={{ borderRadius: skin.radiusSm, border: `1.5px solid ${skinBorderColor(skin, theme)}`, color: theme.ink, background: theme.surface, minHeight: 42 }}
           >
-            <ListFilter size={15} />
+            <ListFilter size={15} style={{ color: theme.accent }} />
             {ui.browseCta}
           </button>
         </div>
@@ -4033,12 +4061,20 @@ function QuestionEditorRow({ q, lang, theme, skin, t, onUpdate, onDelete, allLea
 
   return (
     <div style={{ borderRadius: 12, border: `1px solid ${theme.hairline}`, overflow: "hidden" }}>
-      <div className="flex items-center justify-between gap-2 px-3.5 py-2.5" style={{ background: meta.color.bg, color: meta.color.ink }}>
+      <div className="flex items-center justify-between gap-2 px-3.5 py-2.5" style={{ background: theme.surfaceSoft, borderBottom: `1px solid ${theme.hairline}`, color: theme.ink }}>
         <div className="flex items-center gap-2">
-          <meta.Icon size={14} />
-          <span className="text-xs font-bold">{lang === "ar" ? meta.ar : meta.en}</span>
+          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-bold" style={{ background: theme.accentSoft, color: theme.accent, border: `1px solid ${theme.accent}33` }}>
+            <meta.Icon size={13} />
+            <span>{lang === "ar" ? meta.ar : meta.en}</span>
+          </div>
         </div>
-        <button onClick={onDelete} className="w-6 h-6 grid place-items-center" style={{ borderRadius: 999, background: "rgba(0,0,0,0.12)" }} title={t.delete}>
+        <button
+          type="button"
+          onClick={onDelete}
+          className="educraft-btn w-6 h-6 grid place-items-center rounded-md cursor-pointer hover:bg-red-50 hover:text-red-600 transition-colors"
+          style={{ color: theme.inkSoft }}
+          title={t.delete}
+        >
           <Trash2 size={12} />
         </button>
       </div>
@@ -4157,6 +4193,93 @@ function MediaUploadField({ label, uploadLabel, removeLabel, accept, value, onCh
   );
 }
 
+function CardImageUploader({ image, onChange, theme, skin, t, lang }) {
+  const [dragOver, setDragOver] = useState(false);
+  const fileInputRef = useRef(null);
+
+  const handleFiles = (files) => {
+    const file = files?.[0];
+    if (!file || !IMAGE_EXT_RE.test(file.name)) return;
+    fileToDataURL(file).then((url) => onChange(url));
+  };
+
+  return (
+    <div className="mb-3">
+      <div
+        onDragOver={(e) => {
+          e.preventDefault();
+          setDragOver(true);
+        }}
+        onDragLeave={() => setDragOver(false)}
+        onDrop={(e) => {
+          e.preventDefault();
+          setDragOver(false);
+          handleFiles(e.dataTransfer.files);
+        }}
+        className="relative group flex flex-col items-center justify-center rounded-xl border-2 border-dashed transition-all overflow-hidden"
+        style={{
+          height: 120,
+          borderColor: dragOver ? theme.accent : theme.hairlineStrong,
+          background: image ? theme.surface : (dragOver ? theme.accentSoft : theme.surface),
+        }}
+      >
+        {image ? (
+          <>
+            <img src={image} alt="" className="w-full h-full object-cover" />
+            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="educraft-btn text-[11px] font-bold px-2.5 py-1.5 rounded-lg bg-white text-stone-900 shadow-sm cursor-pointer"
+              >
+                {lang === "ar" ? "تغيير الصورة" : "Change Image"}
+              </button>
+              <button
+                type="button"
+                onClick={() => onChange("")}
+                className="educraft-btn text-[11px] font-bold px-2.5 py-1.5 rounded-lg bg-red-600 text-white shadow-sm cursor-pointer"
+              >
+                {lang === "ar" ? "حذف" : "Remove"}
+              </button>
+            </div>
+          </>
+        ) : (
+          <div
+            onClick={() => fileInputRef.current?.click()}
+            className="flex flex-col items-center justify-center gap-1.5 cursor-pointer p-3 text-center w-full h-full"
+          >
+            <div className="w-7 h-7 rounded-full flex items-center justify-center" style={{ background: theme.accentSoft, color: theme.accent }}>
+              <ImagePlus size={15} />
+            </div>
+            <p className="text-xs font-bold" style={{ color: theme.ink }}>
+              {lang === "ar" ? "اسحب صورة هنا أو انقر لاختيار ملف" : "Drop image here or click to browse"}
+            </p>
+            <p className="text-[10px]" style={{ color: theme.inkSoft }}>
+              PNG, JPG, SVG, WebP
+            </p>
+          </div>
+        )}
+      </div>
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        onChange={(e) => handleFiles(e.target.files)}
+        className="hidden"
+      />
+      <div className="flex items-center gap-2 mt-1.5">
+        <TextInput
+          theme={theme}
+          skin={skin}
+          value={image || ""}
+          onChange={onChange}
+          placeholder={lang === "ar" ? "أو ضع رابط صورة خارجي (https://...)" : "Or enter external image URL (https://...)"}
+        />
+      </div>
+    </div>
+  );
+}
+
 function CardEditor({ card, lang, theme, skin, t, onUpdateCard, onDeleteCard, allLeaves, currentLeafId, voiceEnabled }) {
   const pos = card.imagePosition || "top";
   const qRefs = useRef({});
@@ -4180,50 +4303,85 @@ function CardEditor({ card, lang, theme, skin, t, onUpdateCard, onDeleteCard, al
         <p className="text-xs font-bold" style={{ color: theme.inkSoft }}>
           {t.cardImage}
         </p>
-        <button onClick={onDeleteCard} className="text-xs font-bold px-2.5 py-1.5 shrink-0" style={{ borderRadius: 8, color: "#7A2A12", background: "#FFD9CE" }}>
+        <button
+          onClick={onDeleteCard}
+          className="educraft-btn text-xs font-bold px-2.5 py-1.5 shrink-0 cursor-pointer"
+          style={{ borderRadius: 8, color: "#991B1B", background: "#FEE2E2", border: "1px solid #FECACA" }}
+        >
           {t.deleteCard}
         </button>
       </div>
 
-      <div
-        className="mb-2"
-        style={{
-          height: 110,
-          borderRadius: 12,
-          overflow: "hidden",
-          background: card.image ? undefined : "repeating-linear-gradient(45deg, " + theme.surface + ", " + theme.surface + " 8px, " + theme.hairline + " 8px, " + theme.hairline + " 16px)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        {card.image ? (
-          <img src={card.image} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-        ) : (
-          <span className="text-xs font-semibold" style={{ color: theme.inkSoft }}>
-            {t.cardImage}
-          </span>
-        )}
-      </div>
-      <TextInput theme={theme} skin={skin} value={card.image} onChange={(v) => onUpdateCard({ image: v })} placeholder="https://…" />
-      <div className="flex gap-1.5 mt-1.5 mb-3">
-        {[
-          ["top", t.posTop],
-          ["right", t.posRight],
-          ["left", t.posLeft],
-          ["none", t.posNone],
-        ].map(([p, label]) => (
-          <button
-            key={p}
-            type="button"
-            onClick={() => onUpdateCard({ imagePosition: p })}
-            className="text-[11px] font-bold px-2 py-1"
-            style={{ borderRadius: 6, background: pos === p ? theme.accent : theme.surface, color: pos === p ? theme.accentInk : theme.ink }}
-          >
-            {label}
-          </button>
-        ))}
-      </div>
+      <CardImageUploader
+        image={card.image}
+        onChange={(url) => onUpdateCard({ image: url })}
+        theme={theme}
+        skin={skin}
+        t={t}
+        lang={lang}
+      />
+
+      {card.image && (
+        <div className="flex flex-col gap-2 mt-2 mb-3 p-2.5 rounded-xl border" style={{ borderColor: theme.hairline, background: theme.surfaceSoft }}>
+          <div className="flex items-center justify-between gap-1 flex-wrap">
+            <span className="text-[11px] font-bold" style={{ color: theme.inkSoft }}>
+              {lang === "ar" ? "موضع الصورة:" : "Placement:"}
+            </span>
+            <div className="flex gap-1">
+              {[
+                ["top", t.posTop],
+                ["right", t.posRight],
+                ["left", t.posLeft],
+                ["none", t.posNone],
+              ].map(([p, label]) => (
+                <button
+                  key={p}
+                  type="button"
+                  onClick={() => onUpdateCard({ imagePosition: p })}
+                  className="educraft-btn text-[10.5px] font-bold px-2 py-0.5 cursor-pointer rounded-lg"
+                  style={{
+                    background: pos === p ? theme.accentSoft : theme.surface,
+                    color: pos === p ? theme.accent : theme.inkSoft,
+                    border: pos === p ? `1px solid ${theme.accent}44` : `1px solid ${theme.hairline}`,
+                  }}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between gap-1 flex-wrap">
+            <span className="text-[11px] font-bold" style={{ color: theme.inkSoft }}>
+              {lang === "ar" ? "تناسب الحجم:" : "Sizing Mode:"}
+            </span>
+            <div className="flex gap-1">
+              {[
+                ["smart", lang === "ar" ? "ذكي متناسق" : "Smart Fit"],
+                ["compact", lang === "ar" ? "مدمج" : "Compact"],
+                ["banner", lang === "ar" ? "عريض" : "Banner"],
+              ].map(([fit, label]) => {
+                const active = (card.imageFit || "smart") === fit;
+                return (
+                  <button
+                    key={fit}
+                    type="button"
+                    onClick={() => onUpdateCard({ imageFit: fit })}
+                    className="educraft-btn text-[10.5px] font-bold px-2 py-0.5 cursor-pointer rounded-lg"
+                    style={{
+                      background: active ? theme.accentSoft : theme.surface,
+                      color: active ? theme.accent : theme.inkSoft,
+                      border: active ? `1px solid ${theme.accent}44` : `1px solid ${theme.hairline}`,
+                    }}
+                  >
+                    {label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
 
       <MediaUploadField
         label={t.cardVideo}
@@ -4335,56 +4493,194 @@ function CardEditor({ card, lang, theme, skin, t, onUpdateCard, onDeleteCard, al
 }
 
 /* Geometric branch -> sub-branch -> leaf list. */
-function EditorLeafNav({ book, lang, theme, selectedLeafId, onSelect, onAddBranch, onAddLeaf }) {
+function EditorLeafNav({ book, lang, theme, skin, selectedLeafId, onSelect, onAddBranch, onAddLeaf }) {
+  const [isAddingBranch, setIsAddingBranch] = useState(false);
+  const [newBranchTitle, setNewBranchTitle] = useState("");
+  const [addingLeafToId, setAddingLeafToId] = useState(null);
+  const [newLeafTitle, setNewLeafTitle] = useState("");
+  const [collapsedBranches, setCollapsedBranches] = useState({});
+  const [searchQuery, setSearchQuery] = useState("");
+
   const branches = (book?.nodes || []).filter((n) => n.level === "branch");
   const subOf = (bid) => (book?.nodes || []).filter((n) => n.level === "sub" && n.parent === bid);
   const leavesOf = (sid) => (book?.nodes || []).filter((n) => n.level === "leaf" && n.parent === sid);
 
-  const LeafButton = ({ l }) => (
-    <button
-      key={l.id}
-      onClick={() => onSelect(l.id)}
-      className="text-start text-xs font-semibold px-2.5 py-1.5 flex items-center justify-between gap-2 cursor-pointer transition-colors"
-      style={{ borderRadius: 8, background: selectedLeafId === l.id ? theme.accentSoft : "transparent", color: theme.ink, border: `1px solid ${selectedLeafId === l.id ? theme.accent : "transparent"}` }}
-    >
-      <span className="truncate">{lang === "ar" ? l.ar : l.en}</span>
-      <span className="text-[10px] shrink-0" style={{ color: theme.inkSoft }}>
-        {(l.questions || []).length}
-      </span>
-    </button>
-  );
+  const toggleCollapse = (bid) => {
+    setCollapsedBranches((prev) => ({ ...prev, [bid]: !prev[bid] }));
+  };
+
+  const handleCommitBranch = () => {
+    const trimmed = newBranchTitle.trim();
+    if (trimmed && onAddBranch) {
+      onAddBranch(trimmed);
+      setNewBranchTitle("");
+      setIsAddingBranch(false);
+    }
+  };
+
+  const handleCommitLeaf = (parentId) => {
+    const trimmed = newLeafTitle.trim();
+    if (trimmed && onAddLeaf) {
+      onAddLeaf(parentId, trimmed);
+      setNewLeafTitle("");
+      setAddingLeafToId(null);
+    }
+  };
+
+  const LeafButton = ({ l }) => {
+    const isSelected = selectedLeafId === l.id;
+    const title = (lang === "ar" ? l.ar : l.en) || l.en || l.ar || "";
+    if (searchQuery && !title.toLowerCase().includes(searchQuery.toLowerCase())) {
+      return null;
+    }
+    return (
+      <button
+        key={l.id}
+        type="button"
+        onClick={() => onSelect(l.id)}
+        className="educraft-btn w-full text-start text-xs font-semibold px-2.5 py-2 flex items-center justify-between gap-2 cursor-pointer transition-all rounded-xl relative group"
+        style={{
+          background: isSelected ? theme.accentSoft : "transparent",
+          color: isSelected ? theme.accent : theme.ink,
+          border: isSelected ? `1px solid ${theme.accent}44` : "1px solid transparent",
+        }}
+        title={title}
+      >
+        {isSelected && (
+          <span
+            className="absolute start-0 top-1.5 bottom-1.5 w-1 rounded-full"
+            style={{ background: theme.accent }}
+          />
+        )}
+        <span className="line-clamp-2 leading-relaxed flex-1 ps-1 font-medium text-[11px] sm:text-xs">
+          {title}
+        </span>
+        <span
+          className="text-[10px] font-bold px-1.5 py-0.5 rounded-md shrink-0"
+          style={{
+            background: isSelected ? `${theme.accent}22` : theme.surfaceSoft,
+            color: isSelected ? theme.accent : theme.inkSoft,
+          }}
+        >
+          {(l.questions || []).length}
+        </span>
+      </button>
+    );
+  };
 
   return (
     <div className="flex flex-col gap-3">
-      <div className="flex items-center justify-between gap-1 pb-1.5 border-b" style={{ borderColor: theme.hairline }}>
-        <span className="text-[11px] font-black uppercase tracking-wider" style={{ color: theme.inkSoft }}>
-          {lang === "ar" ? "الهيكل والشجرة" : "Outline & Tree"}
-        </span>
+      {/* Sidebar Header with Outline title and + Branch CTA */}
+      <div className="flex items-center justify-between gap-1 pb-2 border-b" style={{ borderColor: theme.hairline }}>
+        <div className="flex items-center gap-1.5">
+          <BookOpen size={14} style={{ color: theme.accent }} />
+          <span className="text-xs font-black uppercase tracking-wider" style={{ color: theme.ink }}>
+            {lang === "ar" ? "الهيكل والمحتوى" : "Curriculum Outline"}
+          </span>
+        </div>
         {onAddBranch && (
           <button
             type="button"
-            onClick={onAddBranch}
-            className="flex items-center gap-1 text-[11px] font-bold px-2 py-1 transition-all hover:scale-105 cursor-pointer"
-            style={{ borderRadius: 6, background: theme.accentSoft, color: theme.accent }}
+            onClick={() => {
+              setIsAddingBranch((v) => !v);
+              setNewBranchTitle("");
+            }}
+            className="educraft-btn flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-lg cursor-pointer shadow-2xs"
+            style={{
+              background: isAddingBranch ? theme.accent : theme.accentSoft,
+              color: isAddingBranch ? theme.accentInk : theme.accent,
+              border: `1px solid ${theme.accent}33`,
+            }}
             title={lang === "ar" ? "إضافة فرع رئيسي جديد" : "Add new branch"}
           >
             <Plus size={12} />
-            {lang === "ar" ? "فرع" : "Branch"}
+            <span>{lang === "ar" ? "فرع" : "Branch"}</span>
           </button>
         )}
       </div>
 
+      {/* Inline New Branch Input Box */}
+      {isAddingBranch && (
+        <div
+          className="p-2.5 rounded-xl border shadow-sm educraft-panel-in flex flex-col gap-2"
+          style={{ background: theme.surface, borderColor: theme.accent }}
+        >
+          <div className="flex items-center gap-1.5 text-[11px] font-bold" style={{ color: theme.accent }}>
+            <FolderPlus size={13} />
+            <span>{lang === "ar" ? "فرع رئيسي جديد:" : "New Branch Title:"}</span>
+          </div>
+          <input
+            type="text"
+            autoFocus
+            value={newBranchTitle}
+            onChange={(e) => setNewBranchTitle(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") handleCommitBranch();
+              else if (e.key === "Escape") setIsAddingBranch(false);
+            }}
+            placeholder={lang === "ar" ? "اكتب اسم الفرع واضغط Enter..." : "Type branch name & hit Enter..."}
+            className="w-full text-xs font-medium px-2.5 py-1.5 rounded-lg border outline-none"
+            style={{ background: theme.surfaceSoft, borderColor: theme.hairline, color: theme.ink }}
+          />
+          <div className="flex items-center justify-end gap-1.5">
+            <button
+              type="button"
+              onClick={() => setIsAddingBranch(false)}
+              className="educraft-btn text-[11px] font-bold px-2 py-1 rounded-md cursor-pointer"
+              style={{ color: theme.inkSoft }}
+            >
+              {lang === "ar" ? "إلغاء" : "Cancel"}
+            </button>
+            <button
+              type="button"
+              onClick={handleCommitBranch}
+              className="educraft-btn text-[11px] font-bold px-3 py-1 rounded-md cursor-pointer shadow-2xs"
+              style={{ background: theme.accent, color: theme.accentInk }}
+            >
+              {lang === "ar" ? "حفظ الفرع" : "Create"}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Quick Search Filter if multiple nodes */}
+      {branches.length > 2 && (
+        <div className="relative">
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder={lang === "ar" ? "تصفية الأوراق..." : "Filter leaves..."}
+            className="w-full text-xs px-2.5 py-1.5 rounded-lg border outline-none pe-7"
+            style={{ background: theme.surfaceSoft, borderColor: theme.hairline, color: theme.ink }}
+          />
+          {searchQuery && (
+            <button
+              type="button"
+              onClick={() => setSearchQuery("")}
+              className="absolute end-2 top-1/2 -translate-y-1/2 text-xs font-bold"
+              style={{ color: theme.inkSoft }}
+            >
+              ✕
+            </button>
+          )}
+        </div>
+      )}
+
       {branches.length === 0 ? (
-        <div className="p-3 text-center rounded-xl" style={{ background: theme.surfaceSoft }}>
-          <p className="text-xs mb-2.5 font-medium" style={{ color: theme.inkSoft, lineHeight: 1.4 }}>
-            {lang === "ar" ? "الكتاب فارغ حالياً. ابدأ بإضافة الفرع الأول:" : "Book has no branches yet. Add your first branch:"}
+        <div className="p-4 text-center rounded-xl border flex flex-col items-center gap-2.5" style={{ background: theme.surfaceSoft, borderColor: theme.hairline }}>
+          <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: theme.accentSoft, color: theme.accent }}>
+            <GitBranch size={18} />
+          </div>
+          <p className="text-xs font-medium" style={{ color: theme.inkSoft, lineHeight: 1.5 }}>
+            {lang === "ar" ? "هذا الكتاب لا يحتوي على أي فروع بعد. ابدأ بإضافة فرعك الأول:" : "Book has no branches yet. Add your first branch:"}
           </p>
           {onAddBranch && (
             <button
               type="button"
-              onClick={onAddBranch}
-              className="w-full text-xs font-bold py-2 flex items-center justify-center gap-1.5 shadow-sm transition-all hover:scale-105 cursor-pointer"
-              style={{ borderRadius: 8, background: theme.accent, color: theme.accentInk }}
+              onClick={() => setIsAddingBranch(true)}
+              className="educraft-btn w-full text-xs font-bold py-2 flex items-center justify-center gap-1.5 shadow-sm rounded-xl cursor-pointer"
+              style={{ background: theme.accent, color: theme.accentInk }}
             >
               <Plus size={13} />
               {lang === "ar" ? "إضافة فرع جديد" : "Add New Branch"}
@@ -4392,58 +4688,176 @@ function EditorLeafNav({ book, lang, theme, selectedLeafId, onSelect, onAddBranc
           )}
         </div>
       ) : (
-        branches.map((b) => (
-          <div key={b.id}>
-            <div className="flex items-center justify-between gap-1 mb-1.5">
-              <p className="text-xs font-black uppercase tracking-wide flex items-center gap-1.5 truncate" style={{ color: theme.accent }}>
-                <GitBranch size={12} className="shrink-0" /> {lang === "ar" ? b.ar : b.en}
-              </p>
-              {onAddLeaf && (
-                <button
-                  type="button"
-                  onClick={() => onAddLeaf(b.id)}
-                  className="text-[10px] font-bold px-1.5 py-0.5 rounded opacity-75 hover:opacity-100 transition-opacity flex items-center gap-0.5 shrink-0 cursor-pointer"
-                  style={{ background: theme.surfaceSoft, color: theme.ink }}
-                  title={lang === "ar" ? "إضافة ورقة لهذا الفرع" : "Add leaf to this branch"}
-                >
-                  <Plus size={10} /> {lang === "ar" ? "ورقة" : "Leaf"}
-                </button>
-              )}
-            </div>
-            <div className="flex flex-col gap-2 ps-3" style={{ borderInlineStart: `2px solid ${theme.hairline}` }}>
-              {/* Direct branch leaves (parent === branch id) */}
-              {leavesOf(b.id).length > 0 && (
-                <div className="flex flex-col gap-1">
-                  {leavesOf(b.id).map((l) => <LeafButton key={l.id} l={l} />)}
+        <div className="flex flex-col gap-2.5 max-h-[75vh] overflow-y-auto pe-1">
+          {branches.map((b) => {
+            const isCollapsed = !!collapsedBranches[b.id];
+            const directLeaves = leavesOf(b.id);
+            const subs = subOf(b.id);
+            const isAddingLeafHere = addingLeafToId === b.id;
+
+            return (
+              <div key={b.id} className="rounded-xl p-1.5 transition-colors" style={{ background: theme.surfaceSoft }}>
+                {/* Branch Header */}
+                <div className="flex items-center justify-between gap-1 mb-1 px-1">
+                  <div
+                    onClick={() => toggleCollapse(b.id)}
+                    className="flex items-center gap-1.5 cursor-pointer flex-1 min-w-0 select-none py-1"
+                  >
+                    {isCollapsed ? <ChevronRight size={13} style={{ color: theme.accent }} /> : <ChevronDown size={13} style={{ color: theme.accent }} />}
+                    <span className="text-xs font-bold tracking-tight truncate" style={{ color: theme.accent }}>
+                      {lang === "ar" ? b.ar : b.en}
+                    </span>
+                  </div>
+                  {onAddLeaf && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setAddingLeafToId(isAddingLeafHere ? null : b.id);
+                        setNewLeafTitle("");
+                      }}
+                      className="educraft-btn text-[10px] font-bold px-1.5 py-0.5 rounded-md flex items-center gap-0.5 shrink-0 cursor-pointer border"
+                      style={{
+                        background: isAddingLeafHere ? theme.accent : theme.surface,
+                        color: isAddingLeafHere ? theme.accentInk : theme.ink,
+                        borderColor: theme.hairline,
+                      }}
+                      title={lang === "ar" ? "إضافة ورقة لهذا الفرع" : "Add leaf to this branch"}
+                    >
+                      <Plus size={10} />
+                      <span>{lang === "ar" ? "ورقة" : "Leaf"}</span>
+                    </button>
+                  )}
                 </div>
-              )}
-              {/* Sub-branch and their leaves */}
-              {subOf(b.id).map((s) => (
-                <div key={s.id}>
-                  <div className="flex items-center justify-between gap-1 mb-1">
-                    <p className="text-[11px] font-bold truncate" style={{ color: theme.inkSoft }}>
-                      {lang === "ar" ? s.ar : s.en}
-                    </p>
-                    {onAddLeaf && (
+
+                {/* Inline New Leaf Box for Branch */}
+                {isAddingLeafHere && (
+                  <div
+                    className="p-2 my-1.5 rounded-lg border shadow-xs educraft-panel-in flex flex-col gap-1.5"
+                    style={{ background: theme.surface, borderColor: theme.accent }}
+                  >
+                    <input
+                      type="text"
+                      autoFocus
+                      value={newLeafTitle}
+                      onChange={(e) => setNewLeafTitle(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") handleCommitLeaf(b.id);
+                        else if (e.key === "Escape") setAddingLeafToId(null);
+                      }}
+                      placeholder={lang === "ar" ? "عنوان الورقة الجديدة..." : "New leaf title..."}
+                      className="w-full text-xs font-medium px-2 py-1 rounded border outline-none"
+                      style={{ background: theme.surfaceSoft, borderColor: theme.hairline, color: theme.ink }}
+                    />
+                    <div className="flex items-center justify-end gap-1">
                       <button
                         type="button"
-                        onClick={() => onAddLeaf(s.id)}
-                        className="text-[9px] font-bold px-1 py-0.5 rounded opacity-75 hover:opacity-100 transition-opacity flex items-center gap-0.5 shrink-0 cursor-pointer"
-                        style={{ background: theme.surfaceSoft, color: theme.ink }}
-                        title={lang === "ar" ? "إضافة ورقة" : "Add leaf"}
+                        onClick={() => setAddingLeafToId(null)}
+                        className="educraft-btn text-[10px] font-bold px-2 py-0.5"
+                        style={{ color: theme.inkSoft }}
                       >
-                        <Plus size={9} /> {lang === "ar" ? "ورقة" : "Leaf"}
+                        {lang === "ar" ? "إلغاء" : "Cancel"}
                       </button>
-                    )}
+                      <button
+                        type="button"
+                        onClick={() => handleCommitLeaf(b.id)}
+                        className="educraft-btn text-[10px] font-bold px-2 py-0.5 rounded"
+                        style={{ background: theme.accent, color: theme.accentInk }}
+                      >
+                        {lang === "ar" ? "إضافة" : "Add"}
+                      </button>
+                    </div>
                   </div>
-                  <div className="flex flex-col gap-1 ps-2">
-                    {leavesOf(s.id).map((l) => <LeafButton key={l.id} l={l} />)}
+                )}
+
+                {/* Branch Children (Leaves and Sub-branches) */}
+                {!isCollapsed && (
+                  <div className="flex flex-col gap-1 ps-2.5 mt-1" style={{ borderInlineStart: `2px solid ${theme.hairlineStrong}` }}>
+                    {directLeaves.map((l) => (
+                      <LeafButton key={l.id} l={l} />
+                    ))}
+
+                    {subs.map((s) => {
+                      const isSubAddingLeaf = addingLeafToId === s.id;
+                      return (
+                        <div key={s.id} className="mt-1">
+                          <div className="flex items-center justify-between gap-1 mb-1 px-1">
+                            <span className="text-[11px] font-bold truncate" style={{ color: theme.inkSoft }}>
+                              {lang === "ar" ? s.ar : s.en}
+                            </span>
+                            {onAddLeaf && (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setAddingLeafToId(isSubAddingLeaf ? null : s.id);
+                                  setNewLeafTitle("");
+                                }}
+                                className="educraft-btn text-[9px] font-bold px-1 py-0.5 rounded flex items-center gap-0.5 shrink-0 cursor-pointer border"
+                                style={{
+                                  background: isSubAddingLeaf ? theme.accent : theme.surface,
+                                  color: isSubAddingLeaf ? theme.accentInk : theme.ink,
+                                  borderColor: theme.hairline,
+                                }}
+                                title={lang === "ar" ? "إضافة ورقة" : "Add leaf"}
+                              >
+                                <Plus size={8} />
+                                <span>{lang === "ar" ? "ورقة" : "Leaf"}</span>
+                              </button>
+                            )}
+                          </div>
+
+                          {isSubAddingLeaf && (
+                            <div
+                              className="p-2 my-1 rounded-lg border shadow-xs educraft-panel-in flex flex-col gap-1.5"
+                              style={{ background: theme.surface, borderColor: theme.accent }}
+                            >
+                              <input
+                                type="text"
+                                autoFocus
+                                value={newLeafTitle}
+                                onChange={(e) => setNewLeafTitle(e.target.value)}
+                                onKeyDown={(e) => {
+                                  if (e.key === "Enter") handleCommitLeaf(s.id);
+                                  else if (e.key === "Escape") setAddingLeafToId(null);
+                                }}
+                                placeholder={lang === "ar" ? "عنوان الورقة..." : "Leaf title..."}
+                                className="w-full text-xs font-medium px-2 py-1 rounded border outline-none"
+                                style={{ background: theme.surfaceSoft, borderColor: theme.hairline, color: theme.ink }}
+                              />
+                              <div className="flex items-center justify-end gap-1">
+                                <button
+                                  type="button"
+                                  onClick={() => setAddingLeafToId(null)}
+                                  className="educraft-btn text-[10px] font-bold px-2 py-0.5"
+                                  style={{ color: theme.inkSoft }}
+                                >
+                                  {lang === "ar" ? "إلغاء" : "Cancel"}
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => handleCommitLeaf(s.id)}
+                                  className="educraft-btn text-[10px] font-bold px-2 py-0.5 rounded"
+                                  style={{ background: theme.accent, color: theme.accentInk }}
+                                >
+                                  {lang === "ar" ? "إضافة" : "Add"}
+                                </button>
+                              </div>
+                            </div>
+                          )}
+
+                          <div className="flex flex-col gap-1 ps-2">
+                            {leavesOf(s.id).map((l) => (
+                              <LeafButton key={l.id} l={l} />
+                            ))}
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        ))
+                )}
+              </div>
+            );
+          })}
+        </div>
       )}
     </div>
   );
@@ -4455,66 +4869,66 @@ function EditorLeafNav({ book, lang, theme, selectedLeafId, onSelect, onAddBranc
    ImportantText,HighlightBG} set — the A4 page builder's palette picker
    pulls PLATE_KINDS + page colors straight from whichever one is active. */
 const PAGE_PALETTES = [
-  { id: 1, name: "كلاسيك أكاديمي", PageBG: "#F8F5F0", HeaderColor: "#2E4060", SectionBG: "#E8874A", SectionFrame: "#C96B2F", KeyBG: "#E8F7F9", KeyFrame: "#4C9DB0", KeyText: "#1A6B7A", NoteBG: "#F0EDF7", NoteFrame: "#655A7C", NoteText: "#3B3050", BodyText: "#000000", WarningBG: "#F2F4E6", WarningFrame: "#84922A", WarningText: "#626D17", ImportantText: "#14428F", HighlightBG: "#D9E0F2" },
-  { id: 2, name: "أزرق محايد", PageBG: "#F5F8FA", HeaderColor: "#1B3A5C", SectionBG: "#2E6F9E", SectionFrame: "#1F4F73", KeyBG: "#E6F2F8", KeyFrame: "#3E8FBF", KeyText: "#14506E", NoteBG: "#EAEFF5", NoteFrame: "#52688A", NoteText: "#2A3A52", BodyText: "#000000", WarningBG: "#E8E6F4", WarningFrame: "#4934B2", WarningText: "#26176D", ImportantText: "#8F4514", HighlightBG: "#F2ECD9" },
-  { id: 3, name: "رمادي أنيق", PageBG: "#F7F7F6", HeaderColor: "#33363B", SectionBG: "#6E5046", SectionFrame: "#4F3A33", KeyBG: "#EDEDEA", KeyFrame: "#8A8580", KeyText: "#3A3833", NoteBG: "#F1ECEA", NoteFrame: "#8C6F62", NoteText: "#4A3A32", BodyText: "#000000", WarningBG: "#F4F4E6", WarningFrame: "#92922A", WarningText: "#6D6D17", ImportantText: "#14148F", HighlightBG: "#D9E3F2" },
-  { id: 4, name: "باستيل وردي", PageBG: "#FDF6F5", HeaderColor: "#8C4B5A", SectionBG: "#E8A0AC", SectionFrame: "#C97584", KeyBG: "#FCEDEF", KeyFrame: "#D98A9A", KeyText: "#8A3D4C", NoteBG: "#FBF0E9", NoteFrame: "#C99E84", NoteText: "#6E4A36", BodyText: "#000000", WarningBG: "#F4EEE6", WarningFrame: "#B27D34", WarningText: "#6D4917", ImportantText: "#127481", HighlightBG: "#D9EEF2" },
-  { id: 5, name: "باستيل نعناعي", PageBG: "#F4FAF7", HeaderColor: "#2F6B57", SectionBG: "#6FBFA0", SectionFrame: "#409478", KeyBG: "#E7F7F1", KeyFrame: "#52B399", KeyText: "#1F6B53", NoteBG: "#EEF6F8", NoteFrame: "#6FA8B5", NoteText: "#2C5A66", BodyText: "#000000", WarningBG: "#E6EFF4", WarningFrame: "#3484B2", WarningText: "#174E6D", ImportantText: "#8F1452", HighlightBG: "#F2D9DA" },
-  { id: 6, name: "باستيل لافندر", PageBG: "#F8F6FB", HeaderColor: "#4A3F73", SectionBG: "#9A8AC7", SectionFrame: "#6F5DA3", KeyBG: "#EFEAF8", KeyFrame: "#8470B8", KeyText: "#4B3A7A", NoteBG: "#EAF0F6", NoteFrame: "#7E93B0", NoteText: "#354A66", BodyText: "#000000", WarningBG: "#F4E6F4", WarningFrame: "#B234B0", WarningText: "#6D176C", ImportantText: "#4C7411", HighlightBG: "#E3F2D9" },
-  { id: 7, name: "باستيل خوخي", PageBG: "#FDF8F1", HeaderColor: "#8A5A2E", SectionBG: "#EFA85E", SectionFrame: "#D1873A", KeyBG: "#FCEFE0", KeyFrame: "#E0A05C", KeyText: "#7A4C20", NoteBG: "#FAF3E6", NoteFrame: "#C9A06A", NoteText: "#6B4E2A", BodyText: "#000000", WarningBG: "#F1F4E6", WarningFrame: "#7E9A2D", WarningText: "#576D17", ImportantText: "#14478F", HighlightBG: "#D9DDF2" },
-  { id: 8, name: "ليلي أزرق", PageBG: "#1B1F2A", HeaderColor: "#E8ECF2", SectionBG: "#3D6FB4", SectionFrame: "#6E9CDB", KeyBG: "#223240", KeyFrame: "#5EC3D6", KeyText: "#8FE3F0", NoteBG: "#282235", NoteFrame: "#9E8FD6", NoteText: "#C9BBF5", BodyText: "#E6E8EC", WarningBG: "#31244C", WarningFrame: "#774DCB", WarningText: "#BBA5E9", ImportantText: "#8999E6", HighlightBG: "#403D1C" },
-  { id: 9, name: "ليلي بنفسجي", PageBG: "#201A2B", HeaderColor: "#F0E9F7", SectionBG: "#8A5FBF", SectionFrame: "#AE8AE0", KeyBG: "#271F38", KeyFrame: "#4FB3A8", KeyText: "#8FE0D4", NoteBG: "#2A2230", NoteFrame: "#C99A6B", NoteText: "#EAC79A", BodyText: "#EDE7F4", WarningBG: "#4C2444", WarningFrame: "#CB4DB2", WarningText: "#E9A5DB", ImportantText: "#CA89E6", HighlightBG: "#24401C" },
-  { id: 10, name: "ليلي أخضر", PageBG: "#16201C", HeaderColor: "#E6F0EA", SectionBG: "#3E8E68", SectionFrame: "#63B58A", KeyBG: "#1C2A24", KeyFrame: "#5BAFA0", KeyText: "#9FE3D4", NoteBG: "#20251F", NoteFrame: "#A9A45E", NoteText: "#E1DC9E", BodyText: "#E7EDE9", WarningBG: "#24414C", WarningFrame: "#4DA9CB", WarningText: "#A5D6E9", ImportantText: "#89E6D1", HighlightBG: "#401C21" },
-  { id: 11, name: "طبي إكلينيكي", PageBG: "#FAFCFD", HeaderColor: "#0E5C73", SectionBG: "#1C8FA8", SectionFrame: "#146C82", KeyBG: "#E3F6F4", KeyFrame: "#2BA89A", KeyText: "#0E6B5F", NoteBG: "#EAF4FB", NoteFrame: "#4A8FBF", NoteText: "#1B4F75", BodyText: "#000000", WarningBG: "#E6E7F4", WarningFrame: "#343DB2", WarningText: "#171D6D", ImportantText: "#8F3D14", HighlightBG: "#F2E6D9" },
-  { id: 12, name: "هندسي تقني", PageBG: "#F6F7F8", HeaderColor: "#22272E", SectionBG: "#E0A12C", SectionFrame: "#B8821B", KeyBG: "#E9EEF2", KeyFrame: "#4A6B8A", KeyText: "#1F3A52", NoteBG: "#EEEDEA", NoteFrame: "#8C8275", NoteText: "#4A4338", BodyText: "#000000", WarningBG: "#EFF4E6", WarningFrame: "#6E9A2D", WarningText: "#4B6D17", ImportantText: "#8F5214", HighlightBG: "#D9D9F2" },
-  { id: 13, name: "طبيعي ترابي", PageBG: "#F7F5EE", HeaderColor: "#4A4520", SectionBG: "#8A9B5E", SectionFrame: "#677A3E", KeyBG: "#EFF1E3", KeyFrame: "#7E9460", KeyText: "#435228", NoteBG: "#F1E9DE", NoteFrame: "#A07D52", NoteText: "#5C4327", BodyText: "#000000", WarningBG: "#E6F4E6", WarningFrame: "#2FA232", WarningText: "#176D1A", ImportantText: "#14308F", HighlightBG: "#E8D9F2" },
-  { id: 14, name: "ملكي ذهبي", PageBG: "#F9F7F1", HeaderColor: "#1F2A4A", SectionBG: "#B68A3E", SectionFrame: "#8C6A26", KeyBG: "#F3EEE0", KeyFrame: "#A9842F", KeyText: "#6B4F18", NoteBG: "#EFEAF1", NoteFrame: "#7A4F5E", NoteText: "#5A2E3C", BodyText: "#000000", WarningBG: "#EFF4E6", WarningFrame: "#709A2D", WarningText: "#4C6D17", ImportantText: "#14338F", HighlightBG: "#D9DAF2" },
-  { id: 15, name: "عصري جريء", PageBG: "#FBFBFA", HeaderColor: "#1A2E35", SectionBG: "#EB5E55", SectionFrame: "#C73E36", KeyBG: "#E3F4F2", KeyFrame: "#1FA39A", KeyText: "#0E6760", NoteBG: "#FDF1E3", NoteFrame: "#E0A23A", NoteText: "#7A4E12", BodyText: "#000000", WarningBG: "#F4F2E6", WarningFrame: "#A69030", WarningText: "#6D5D17", ImportantText: "#14148F", HighlightBG: "#D9E8F2" },
-  { id: 16, name: "أحمر مرجاني", PageBG: "#F7F3F3", HeaderColor: "#511F1F", SectionBG: "#C84141", SectionFrame: "#9D2525", KeyBG: "#E5F5ED", KeyFrame: "#3B9B6B", KeyText: "#1F6B45", NoteBG: "#EEEAF5", NoteFrame: "#654B9B", NoteText: "#3E2B64", BodyText: "#000000", WarningBG: "#F4F1E6", WarningFrame: "#A68930", WarningText: "#6D5817", ImportantText: "#117474", HighlightBG: "#D9EAF2" },
-  { id: 17, name: "أخضر زمردي", PageBG: "#F3F7F4", HeaderColor: "#1F512E", SectionBG: "#268241", SectionFrame: "#124E24", KeyBG: "#F2E5F5", KeyFrame: "#9B43B1", KeyText: "#5B1F6B", NoteBG: "#F5F1EA", NoteFrame: "#9B7D4B", NoteText: "#644F2B", BodyText: "#000000", WarningBG: "#E6F4F4", WarningFrame: "#2F9DA2", WarningText: "#176A6D", ImportantText: "#8F1470", HighlightBG: "#F2D9E2" },
-  { id: 18, name: "أرجواني", PageBG: "#F5F3F7", HeaderColor: "#3C1F51", SectionBG: "#9041C8", SectionFrame: "#6B259D", KeyBG: "#F4F5E5", KeyFrame: "#899037", KeyText: "#646B1F", NoteBG: "#EAF5F4", NoteFrame: "#499791", NoteText: "#2B645F", BodyText: "#000000", WarningBG: "#F4E6F0", WarningFrame: "#B23488", WarningText: "#6D1751", ImportantText: "#427411", HighlightBG: "#DBF2D9" },
-  { id: 19, name: "ذهبي فاتح", PageBG: "#F7F6F3", HeaderColor: "#514B1F", SectionBG: "#7E7325", SectionFrame: "#4A4311", KeyBG: "#E5EFF5", KeyFrame: "#4388B1", KeyText: "#1F4E6B", NoteBG: "#F5EAF3", NoteFrame: "#9B4B8A", NoteText: "#642B58", BodyText: "#000000", WarningBG: "#EBF4E6", WarningFrame: "#589E2E", WarningText: "#376D17", ImportantText: "#14338F", HighlightBG: "#DED9F2" },
-  { id: 20, name: "سماوي", PageBG: "#F3F6F7", HeaderColor: "#1F4951", SectionBG: "#297D8E", SectionFrame: "#154F5B", KeyBG: "#F5E5EA", KeyFrame: "#B14368", KeyText: "#6B1F38", NoteBG: "#F0F5EA", NoteFrame: "#709749", NoteText: "#47642B", BodyText: "#000000", WarningBG: "#E6E7F4", WarningFrame: "#343EB2", WarningText: "#171E6D", ImportantText: "#8F3314", HighlightBG: "#F2E6D9" },
-  { id: 21, name: "فوشيا", PageBG: "#F7F3F5", HeaderColor: "#511F3A", SectionBG: "#C73D88", SectionFrame: "#992463", KeyBG: "#E6F5E5", KeyFrame: "#409F3C", KeyText: "#226B1F", NoteBG: "#EAEDF5", NoteFrame: "#4B5B9B", NoteText: "#2B3764", BodyText: "#000000", WarningBG: "#F4E9E6", WarningFrame: "#B24E34", WarningText: "#6D2917", ImportantText: "#117845", HighlightBG: "#D9F2ED" },
-  { id: 22, name: "أخضر ربيعي", PageBG: "#F4F7F3", HeaderColor: "#2B511F", SectionBG: "#3D8226", SectionFrame: "#214E12", KeyBG: "#E9E5F5", KeyFrame: "#5F43B1", KeyText: "#321F6B", NoteBG: "#F5EBEA", NoteFrame: "#9B514B", NoteText: "#64302B", BodyText: "#000000", WarningBG: "#E6F4ED", WarningFrame: "#2E9E66", WarningText: "#176D42", ImportantText: "#70148F", HighlightBG: "#F2D9F0" },
-  { id: 23, name: "أزرق نيلي", PageBG: "#F3F3F7", HeaderColor: "#211F51", SectionBG: "#4741C8", SectionFrame: "#2A259D", KeyBG: "#F5EEE5", KeyFrame: "#B17F43", KeyText: "#6B481F", NoteBG: "#EAF5EE", NoteFrame: "#4B9B69", NoteText: "#2B6440", BodyText: "#000000", WarningBG: "#F1E6F4", WarningFrame: "#9834B2", WarningText: "#5C176D", ImportantText: "#6B6B0F", HighlightBG: "#E9F2D9" },
-  { id: 24, name: "برتقالي دافئ", PageBG: "#F7F4F3", HeaderColor: "#51301F", SectionBG: "#B25E34", SectionFrame: "#803F1E", KeyBG: "#E5F5F3", KeyFrame: "#3B9B8B", KeyText: "#1F6B5E", NoteBG: "#F1EAF5", NoteFrame: "#804B9B", NoteText: "#512B64", BodyText: "#000000", WarningBG: "#F3F4E6", WarningFrame: "#8A922A", WarningText: "#666D17", ImportantText: "#14708F", HighlightBG: "#D9E1F2" },
-  { id: 25, name: "نعناعي غامق", PageBG: "#F3F7F5", HeaderColor: "#1F513E", SectionBG: "#268260", SectionFrame: "#124E38", KeyBG: "#F5E5F3", KeyFrame: "#B143A4", KeyText: "#6B1F61", NoteBG: "#F5F5EA", NoteFrame: "#949147", NoteText: "#64622B", BodyText: "#000000", WarningBG: "#E6EFF4", WarningFrame: "#3482B2", WarningText: "#174D6D", ImportantText: "#8F1452", HighlightBG: "#F2D9DA" },
-  { id: 26, name: "موف", PageBG: "#F7F3F7", HeaderColor: "#4D1F51", SectionBG: "#BA39C6", SectionFrame: "#8B2395", KeyBG: "#EEF5E5", KeyFrame: "#70983A", KeyText: "#4B6B1F", NoteBG: "#EAF2F5", NoteFrame: "#4B879B", NoteText: "#2B5664", BodyText: "#000000", WarningBG: "#F4E6EB", WarningFrame: "#B2345E", WarningText: "#6D1734", ImportantText: "#117811", HighlightBG: "#D9F2DF" },
-  { id: 27, name: "ليموني", PageBG: "#F6F7F3", HeaderColor: "#47511F", SectionBG: "#687B24", SectionFrame: "#3B4610", KeyBG: "#E5EAF5", KeyFrame: "#4363B1", KeyText: "#1F356B", NoteBG: "#F5EAEF", NoteFrame: "#9B4B6F", NoteText: "#642B45", BodyText: "#000000", WarningBG: "#E6F4E6", WarningFrame: "#33A22F", WarningText: "#1A6D17", ImportantText: "#33148F", HighlightBG: "#E7D9F2" },
-  { id: 28, name: "أزرق سماء", PageBG: "#F3F5F7", HeaderColor: "#1F3851", SectionBG: "#3678BA", SectionFrame: "#205488", KeyBG: "#F5E5E5", KeyFrame: "#B14343", KeyText: "#6B1F1F", NoteBG: "#ECF5EA", NoteFrame: "#589B4B", NoteText: "#34642B", BodyText: "#000000", WarningBG: "#EAE6F4", WarningFrame: "#5334B2", WarningText: "#2D176D", ImportantText: "#8F5214", HighlightBG: "#F2EED9" },
-  { id: 29, name: "توتي فروتي", PageBG: "#F7F3F3", HeaderColor: "#511F29", SectionBG: "#C8415D", SectionFrame: "#9D253E", KeyBG: "#E5F5EA", KeyFrame: "#3C9F59", KeyText: "#1F6B35", NoteBG: "#ECEAF5", NoteFrame: "#554B9B", NoteText: "#322B64", BodyText: "#000000", WarningBG: "#F4EEE6", WarningFrame: "#B27834", WarningText: "#6D4617", ImportantText: "#117474", HighlightBG: "#D9EFF2" },
-  { id: 30, name: "أخضر زمردي 2", PageBG: "#F3F7F3", HeaderColor: "#1F5123", SectionBG: "#27862F", SectionFrame: "#135319", KeyBG: "#EFE5F5", KeyFrame: "#8443B1", KeyText: "#4B1F6B", NoteBG: "#F5EFEA", NoteFrame: "#9B6C4B", NoteText: "#64432B", BodyText: "#000000", WarningBG: "#E6F4F2", WarningFrame: "#2E9E8B", WarningText: "#176D5F", ImportantText: "#8F148F", HighlightBG: "#F2D9E8" },
-  { id: 31, name: "بنفسجي ملكي", PageBG: "#F4F3F7", HeaderColor: "#321F51", SectionBG: "#7441C8", SectionFrame: "#52259D", KeyBG: "#F5F3E5", KeyFrame: "#988C3A", KeyText: "#6B611F", NoteBG: "#EAF5F2", NoteFrame: "#4B9B84", NoteText: "#2B6453", BodyText: "#000000", WarningBG: "#F4E6F2", WarningFrame: "#B234A2", WarningText: "#6D1762", ImportantText: "#587010", HighlightBG: "#E0F2D9" },
-  { id: 32, name: "كهرماني", PageBG: "#F7F6F3", HeaderColor: "#51411F", SectionBG: "#8E6D29", SectionFrame: "#5B4415", KeyBG: "#E5F2F5", KeyFrame: "#4198AA", KeyText: "#1F5E6B", NoteBG: "#F5EAF5", NoteFrame: "#9B4B9B", NoteText: "#642B64", BodyText: "#000000", WarningBG: "#EEF4E6", WarningFrame: "#6C9A2D", WarningText: "#496D17", ImportantText: "#14338F", HighlightBG: "#D9D9F2" },
-  { id: 33, name: "تركواز", PageBG: "#F3F7F7", HeaderColor: "#1F514F", SectionBG: "#257E7B", SectionFrame: "#114A48", KeyBG: "#F5E5EE", KeyFrame: "#B1437F", KeyText: "#6B1F48", NoteBG: "#F2F5EA", NoteFrame: "#809749", NoteText: "#53642B", BodyText: "#000000", WarningBG: "#E6EAF4", WarningFrame: "#3457B2", WarningText: "#17306D", ImportantText: "#8F1414", HighlightBG: "#F2E0D9" },
-  { id: 34, name: "فوشيا 2", PageBG: "#F7F3F6", HeaderColor: "#511F45", SectionBG: "#C639A2", SectionFrame: "#952378", KeyBG: "#E9F5E5", KeyFrame: "#539B3B", KeyText: "#326B1F", NoteBG: "#EAEFF5", NoteFrame: "#4B6C9B", NoteText: "#2B4364", BodyText: "#000000", WarningBG: "#F4E6E6", WarningFrame: "#B23434", WarningText: "#6D1817", ImportantText: "#11782B", HighlightBG: "#D9F2E8" },
-  { id: 35, name: "أخضر ربيعي 2", PageBG: "#F5F7F3", HeaderColor: "#36511F", SectionBG: "#508226", SectionFrame: "#2E4E12", KeyBG: "#E6E5F5", KeyFrame: "#4843B1", KeyText: "#221F6B", NoteBG: "#F5EAEC", NoteFrame: "#9B4B54", NoteText: "#642B32", BodyText: "#000000", WarningBG: "#E6F4EA", WarningFrame: "#2FA251", WarningText: "#176D30", ImportantText: "#52148F", HighlightBG: "#EFD9F2" },
-  { id: 36, name: "أزرق نيلي 2", PageBG: "#F3F3F7", HeaderColor: "#1F2751", SectionBG: "#4157C8", SectionFrame: "#25399D", KeyBG: "#F5EBE5", KeyFrame: "#B16843", KeyText: "#6B381F", NoteBG: "#EAF5EC", NoteFrame: "#4B9B58", NoteText: "#2B6435", BodyText: "#000000", WarningBG: "#EEE6F4", WarningFrame: "#7E34B2", WarningText: "#4A176D", ImportantText: "#6B6B0F", HighlightBG: "#EEF2D9" },
-  { id: 37, name: "أحمر مرجاني 2", PageBG: "#F7F3F3", HeaderColor: "#51251F", SectionBG: "#C64B39", SectionFrame: "#953123", KeyBG: "#E5F5EF", KeyFrame: "#3B9B77", KeyText: "#1F6B4F", NoteBG: "#EFEAF5", NoteFrame: "#704B9B", NoteText: "#452B64", BodyText: "#000000", WarningBG: "#F4F3E6", WarningFrame: "#9A8D2D", WarningText: "#6D6317", ImportantText: "#117474", HighlightBG: "#D9E6F2" },
-  { id: 38, name: "أخضر زمردي 3", PageBG: "#F3F7F4", HeaderColor: "#1F5134", SectionBG: "#26824D", SectionFrame: "#124E2C", KeyBG: "#F4E5F5", KeyFrame: "#A943B1", KeyText: "#651F6B", NoteBG: "#F5F2EA", NoteFrame: "#9B874B", NoteText: "#64562B", BodyText: "#000000", WarningBG: "#E6F2F4", WarningFrame: "#3298AE", WarningText: "#175E6D", ImportantText: "#8F1470", HighlightBG: "#F2D9DF" },
-  { id: 39, name: "أرجواني 2", PageBG: "#F6F3F7", HeaderColor: "#431F51", SectionBG: "#A141C8", SectionFrame: "#7A259D", KeyBG: "#F2F5E5", KeyFrame: "#809438", KeyText: "#5B6B1F", NoteBG: "#EAF5F5", NoteFrame: "#4B979B", NoteText: "#2B6164", BodyText: "#000000", WarningBG: "#F4E6EE", WarningFrame: "#B23478", WarningText: "#6D1746", ImportantText: "#2B7811", HighlightBG: "#D9F2DA" },
-  { id: 40, name: "ذهبي فاتح 2", PageBG: "#F7F7F3", HeaderColor: "#51511F", SectionBG: "#767722", SectionFrame: "#424210", KeyBG: "#E5EDF5", KeyFrame: "#437AB1", KeyText: "#1F456B", NoteBG: "#F5EAF1", NoteFrame: "#9B4B80", NoteText: "#642B51", BodyText: "#000000", WarningBG: "#E9F4E6", WarningFrame: "#4AA22F", WarningText: "#2C6D17", ImportantText: "#14148F", HighlightBG: "#E2D9F2" },
-  { id: 41, name: "سماوي 2", PageBG: "#F3F6F7", HeaderColor: "#1F4251", SectionBG: "#2E7D9E", SectionFrame: "#19536B", KeyBG: "#F5E5E8", KeyFrame: "#B1435A", KeyText: "#6B1F2F", NoteBG: "#EEF5EA", NoteFrame: "#689B4B", NoteText: "#40642B", BodyText: "#000000", WarningBG: "#E7E6F4", WarningFrame: "#3934B2", WarningText: "#1B176D", ImportantText: "#8F3314", HighlightBG: "#F2E9D9" },
-  { id: 42, name: "وردي غامق", PageBG: "#F7F3F4", HeaderColor: "#511F34", SectionBG: "#C84179", SectionFrame: "#9D2556", KeyBG: "#E5F5E7", KeyFrame: "#3C9F45", KeyText: "#1F6B26", NoteBG: "#EAEBF5", NoteFrame: "#4B519B", NoteText: "#2B2F64", BodyText: "#000000", WarningBG: "#F4EBE6", WarningFrame: "#B25E34", WarningText: "#6D3417", ImportantText: "#11745B", HighlightBG: "#D9F2F0" },
-  { id: 43, name: "أخضر ربيعي 3", PageBG: "#F3F7F3", HeaderColor: "#25511F", SectionBG: "#318226", SectionFrame: "#1A4E12", KeyBG: "#EBE5F5", KeyFrame: "#6D43B1", KeyText: "#3C1F6B", NoteBG: "#F5EDEA", NoteFrame: "#9B5C4B", NoteText: "#64372B", BodyText: "#000000", WarningBG: "#E6F4EF", WarningFrame: "#2E9E75", WarningText: "#176D4E", ImportantText: "#8F148F", HighlightBG: "#F2D9ED" },
-  { id: 44, name: "بنفسجي ملكي 2", PageBG: "#F3F3F7", HeaderColor: "#271F51", SectionBG: "#5841C8", SectionFrame: "#39259D", KeyBG: "#F5F0E5", KeyFrame: "#AA8741", KeyText: "#6B521F", NoteBG: "#EAF5F0", NoteFrame: "#4B9B73", NoteText: "#2B6448", BodyText: "#000000", WarningBG: "#F3E6F4", WarningFrame: "#A834B2", WarningText: "#67176D", ImportantText: "#6B6B0F", HighlightBG: "#E5F2D9" },
-  { id: 45, name: "برتقالي دافئ 2", PageBG: "#F7F5F3", HeaderColor: "#51361F", SectionBG: "#A2642F", SectionFrame: "#70421A", KeyBG: "#E5F5F5", KeyFrame: "#3B9B98", KeyText: "#1F6B68", NoteBG: "#F3EAF5", NoteFrame: "#8A4B9B", NoteText: "#582B64", BodyText: "#000000", WarningBG: "#F1F4E6", WarningFrame: "#80962C", WarningText: "#5B6D17", ImportantText: "#14528F", HighlightBG: "#D9DEF2" },
-  { id: 46, name: "نعناعي غامق 2", PageBG: "#F3F7F6", HeaderColor: "#1F5145", SectionBG: "#26826C", SectionFrame: "#124E40", KeyBG: "#F5E5F1", KeyFrame: "#B14395", KeyText: "#6B1F57", NoteBG: "#F4F5EA", NoteFrame: "#8D9447", NoteText: "#5F642B", BodyText: "#000000", WarningBG: "#E6EDF4", WarningFrame: "#3471B2", WarningText: "#17416D", ImportantText: "#8F1433", HighlightBG: "#F2DBD9" },
-  { id: 47, name: "موف 2", PageBG: "#F7F3F7", HeaderColor: "#511F4F", SectionBG: "#BE37B8", SectionFrame: "#8C2188", KeyBG: "#ECF5E5", KeyFrame: "#679B3B", KeyText: "#416B1F", NoteBG: "#EAF1F5", NoteFrame: "#4B7C9B", NoteText: "#2B4E64", BodyText: "#000000", WarningBG: "#F4E6E9", WarningFrame: "#B2344E", WarningText: "#6D1729", ImportantText: "#117811", HighlightBG: "#D9F2E2" },
-  { id: 48, name: "ليموني 2", PageBG: "#F6F7F3", HeaderColor: "#40511F", SectionBG: "#607E25", SectionFrame: "#374A11", KeyBG: "#E5E8F5", KeyFrame: "#4355B1", KeyText: "#1F2B6B", NoteBG: "#F5EAEE", NoteFrame: "#9B4B65", NoteText: "#642B3E", BodyText: "#000000", WarningBG: "#E6F4E7", WarningFrame: "#2FA239", WarningText: "#176D1F", ImportantText: "#33148F", HighlightBG: "#EAD9F2" },
-  { id: 49, name: "أزرق سماء 2", PageBG: "#F3F4F7", HeaderColor: "#1F3251", SectionBG: "#4173C8", SectionFrame: "#25519D", KeyBG: "#F5E7E5", KeyFrame: "#B15243", KeyText: "#6B291F", NoteBG: "#EBF5EA", NoteFrame: "#4E9B4B", NoteText: "#2D642B", BodyText: "#000000", WarningBG: "#EBE6F4", WarningFrame: "#6434B2", WarningText: "#38176D", ImportantText: "#7D6212", HighlightBG: "#F2F1D9" },
-  { id: 50, name: "توتي فروتي 2", PageBG: "#F7F3F3", HeaderColor: "#511F23", SectionBG: "#C8414C", SectionFrame: "#9D252E", KeyBG: "#E5F5EC", KeyFrame: "#3C9F66", KeyText: "#1F6B3F", NoteBG: "#EDEAF5", NoteFrame: "#5F4B9B", NoteText: "#392B64", BodyText: "#000000", WarningBG: "#F4F0E6", WarningFrame: "#AE8532", WarningText: "#6D5117", ImportantText: "#117474", HighlightBG: "#D9ECF2" },
-  { id: 51, name: "أخضر زمردي 4", PageBG: "#F3F7F4", HeaderColor: "#1F512A", SectionBG: "#27863B", SectionFrame: "#135321", KeyBG: "#F1E5F5", KeyFrame: "#9243B1", KeyText: "#551F6B", NoteBG: "#F5F0EA", NoteFrame: "#9B764B", NoteText: "#644A2B", BodyText: "#000000", WarningBG: "#E6F4F4", WarningFrame: "#2E9E9A", WarningText: "#176D6A", ImportantText: "#8F1470", HighlightBG: "#F2D9E4" },
-  { id: 52, name: "أرجواني 3", PageBG: "#F5F3F7", HeaderColor: "#381F51", SectionBG: "#8541C8", SectionFrame: "#61259D", KeyBG: "#F5F5E5", KeyFrame: "#909037", KeyText: "#6A6B1F", NoteBG: "#EAF5F3", NoteFrame: "#49978B", NoteText: "#2B645B", BodyText: "#000000", WarningBG: "#F4E6F1", WarningFrame: "#B23492", WarningText: "#6D1758", ImportantText: "#427411", HighlightBG: "#DDF2D9" },
-  { id: 53, name: "كهرماني 2", PageBG: "#F7F6F3", HeaderColor: "#51471F", SectionBG: "#867327", SectionFrame: "#534613", KeyBG: "#E5F0F5", KeyFrame: "#4391B1", KeyText: "#1F546B", NoteBG: "#F5EAF4", NoteFrame: "#9B4B90", NoteText: "#642B5D", BodyText: "#000000", WarningBG: "#ECF4E6", WarningFrame: "#609E2E", WarningText: "#3E6D17", ImportantText: "#14338F", HighlightBG: "#DCD9F2" },
-  { id: 54, name: "تركواز 2", PageBG: "#F3F7F7", HeaderColor: "#1F4D51", SectionBG: "#277E86", SectionFrame: "#134D53", KeyBG: "#F5E5EC", KeyFrame: "#B14371", KeyText: "#6B1F3E", NoteBG: "#F1F5EA", NoteFrame: "#769749", NoteText: "#4C642B", BodyText: "#000000", WarningBG: "#E6E8F4", WarningFrame: "#3449B2", WarningText: "#17256D", ImportantText: "#8F1414", HighlightBG: "#F2E3D9" },
-  { id: 55, name: "فوشيا 3", PageBG: "#F7F3F5", HeaderColor: "#511F3E", SectionBG: "#C73D93", SectionFrame: "#99246C", KeyBG: "#E7F5E5", KeyFrame: "#489F3C", KeyText: "#286B1F", NoteBG: "#EAEDF5", NoteFrame: "#4B629B", NoteText: "#2B3B64", BodyText: "#000000", WarningBG: "#F4E8E6", WarningFrame: "#B24434", WarningText: "#6D2217", ImportantText: "#117845", HighlightBG: "#D9F2EB" },
-  { id: 56, name: "أخضر ربيعي 4", PageBG: "#F4F7F3", HeaderColor: "#2F511F", SectionBG: "#448226", SectionFrame: "#264E12", KeyBG: "#E8E5F5", KeyFrame: "#5643B1", KeyText: "#2C1F6B", NoteBG: "#F5EAEA", NoteFrame: "#9B4B4B", NoteText: "#642B2B", BodyText: "#000000", WarningBG: "#E6F4EC", WarningFrame: "#2FA260", WarningText: "#176D3C", ImportantText: "#70148F", HighlightBG: "#F2D9F2" },
-  { id: 57, name: "أزرق نيلي 3", PageBG: "#F3F3F7", HeaderColor: "#1F2151", SectionBG: "#4146C8", SectionFrame: "#25299D", KeyBG: "#F5EDE5", KeyFrame: "#B17643", KeyText: "#6B421F", NoteBG: "#EAF5EE", NoteFrame: "#4B9B62", NoteText: "#2B643C", BodyText: "#000000", WarningBG: "#F0E6F4", WarningFrame: "#8E34B2", WarningText: "#55176D", ImportantText: "#6B6B0F", HighlightBG: "#EBF2D9" },
-  { id: 58, name: "برتقالي دافئ 3", PageBG: "#F7F4F3", HeaderColor: "#512C1F", SectionBG: "#BA5836", SectionFrame: "#883B20", KeyBG: "#E5F5F1", KeyFrame: "#3B9B84", KeyText: "#1F6B58", NoteBG: "#F1EAF5", NoteFrame: "#7A4B9B", NoteText: "#4C2B64", BodyText: "#000000", WarningBG: "#F4F4E6", WarningFrame: "#91922A", WarningText: "#6D6D17", ImportantText: "#14708F", HighlightBG: "#D9E3F2" },
-  { id: 59, name: "نعناعي غامق 3", PageBG: "#F3F7F5", HeaderColor: "#1F513A", SectionBG: "#268259", SectionFrame: "#124E33", KeyBG: "#F5E5F4", KeyFrame: "#B143AC", KeyText: "#6B1F67", NoteBG: "#F5F4EA", NoteFrame: "#978E49", NoteText: "#645D2B", BodyText: "#000000", WarningBG: "#E6F0F4", WarningFrame: "#348BB2", WarningText: "#17536D", ImportantText: "#8F1452", HighlightBG: "#F2D9DC" },
-  { id: 60, name: "موف 3", PageBG: "#F6F3F7", HeaderColor: "#491F51", SectionBG: "#B241C8", SectionFrame: "#8A259D", KeyBG: "#F0F5E5", KeyFrame: "#78983A", KeyText: "#516B1F", NoteBG: "#EAF3F5", NoteFrame: "#4B8D9B", NoteText: "#2B5A64", BodyText: "#000000", WarningBG: "#F4E6EC", WarningFrame: "#B23468", WarningText: "#6D173B", ImportantText: "#2B7811", HighlightBG: "#D9F2DD" },
+  { id: 1, name: "كلاسيك أكاديمي", en: "Classic Academic", PageBG: "#F8F5F0", HeaderColor: "#2E4060", SectionBG: "#E8874A", SectionFrame: "#C96B2F", KeyBG: "#E8F7F9", KeyFrame: "#4C9DB0", KeyText: "#1A6B7A", NoteBG: "#F0EDF7", NoteFrame: "#655A7C", NoteText: "#3B3050", BodyText: "#000000", WarningBG: "#F2F4E6", WarningFrame: "#84922A", WarningText: "#626D17", ImportantText: "#14428F", HighlightBG: "#D9E0F2" },
+  { id: 2, name: "أزرق محايد", en: "Neutral Blue", PageBG: "#F5F8FA", HeaderColor: "#1B3A5C", SectionBG: "#2E6F9E", SectionFrame: "#1F4F73", KeyBG: "#E6F2F8", KeyFrame: "#3E8FBF", KeyText: "#14506E", NoteBG: "#EAEFF5", NoteFrame: "#52688A", NoteText: "#2A3A52", BodyText: "#000000", WarningBG: "#E8E6F4", WarningFrame: "#4934B2", WarningText: "#26176D", ImportantText: "#8F4514", HighlightBG: "#F2ECD9" },
+  { id: 3, name: "رمادي أنيق", en: "Slate Gray", PageBG: "#F7F7F6", HeaderColor: "#33363B", SectionBG: "#6E5046", SectionFrame: "#4F3A33", KeyBG: "#EDEDEA", KeyFrame: "#8A8580", KeyText: "#3A3833", NoteBG: "#F1ECEA", NoteFrame: "#8C6F62", NoteText: "#4A3A32", BodyText: "#000000", WarningBG: "#F4F4E6", WarningFrame: "#92922A", WarningText: "#6D6D17", ImportantText: "#14148F", HighlightBG: "#D9E3F2" },
+  { id: 4, name: "باستيل وردي", en: "Soft Rose", PageBG: "#FDF6F5", HeaderColor: "#8C4B5A", SectionBG: "#E8A0AC", SectionFrame: "#C97584", KeyBG: "#FCEDEF", KeyFrame: "#D98A9A", KeyText: "#8A3D4C", NoteBG: "#FBF0E9", NoteFrame: "#C99E84", NoteText: "#6E4A36", BodyText: "#000000", WarningBG: "#F4EEE6", WarningFrame: "#B27D34", WarningText: "#6D4917", ImportantText: "#127481", HighlightBG: "#D9EEF2" },
+  { id: 5, name: "باستيل نعناعي", en: "Mint Pastel", PageBG: "#F4FAF7", HeaderColor: "#2F6B57", SectionBG: "#6FBFA0", SectionFrame: "#409478", KeyBG: "#E7F7F1", KeyFrame: "#52B399", KeyText: "#1F6B53", NoteBG: "#EEF6F8", NoteFrame: "#6FA8B5", NoteText: "#2C5A66", BodyText: "#000000", WarningBG: "#E6EFF4", WarningFrame: "#3484B2", WarningText: "#174E6D", ImportantText: "#8F1452", HighlightBG: "#F2D9DA" },
+  { id: 6, name: "باستيل لافندر", en: "Lavender Pastel", PageBG: "#F8F6FB", HeaderColor: "#4A3F73", SectionBG: "#9A8AC7", SectionFrame: "#6F5DA3", KeyBG: "#EFEAF8", KeyFrame: "#8470B8", KeyText: "#4B3A7A", NoteBG: "#EAF0F6", NoteFrame: "#7E93B0", NoteText: "#354A66", BodyText: "#000000", WarningBG: "#F4E6F4", WarningFrame: "#B234B0", WarningText: "#6D176C", ImportantText: "#4C7411", HighlightBG: "#E3F2D9" },
+  { id: 7, name: "باستيل خوخي", en: "Peach Pastel", PageBG: "#FDF8F1", HeaderColor: "#8A5A2E", SectionBG: "#EFA85E", SectionFrame: "#D1873A", KeyBG: "#FCEFE0", KeyFrame: "#E0A05C", KeyText: "#7A4C20", NoteBG: "#FAF3E6", NoteFrame: "#C9A06A", NoteText: "#6B4E2A", BodyText: "#000000", WarningBG: "#F1F4E6", WarningFrame: "#7E9A2D", WarningText: "#576D17", ImportantText: "#14478F", HighlightBG: "#D9DDF2" },
+  { id: 8, name: "ليلي أزرق", en: "Midnight Blue", PageBG: "#1B1F2A", HeaderColor: "#E8ECF2", SectionBG: "#3D6FB4", SectionFrame: "#6E9CDB", KeyBG: "#223240", KeyFrame: "#5EC3D6", KeyText: "#8FE3F0", NoteBG: "#282235", NoteFrame: "#9E8FD6", NoteText: "#C9BBF5", BodyText: "#E6E8EC", WarningBG: "#31244C", WarningFrame: "#774DCB", WarningText: "#BBA5E9", ImportantText: "#8999E6", HighlightBG: "#403D1C" },
+  { id: 9, name: "ليلي بنفسجي", en: "Deep Violet", PageBG: "#201A2B", HeaderColor: "#F0E9F7", SectionBG: "#8A5FBF", SectionFrame: "#AE8AE0", KeyBG: "#271F38", KeyFrame: "#4FB3A8", KeyText: "#8FE0D4", NoteBG: "#2A2230", NoteFrame: "#C99A6B", NoteText: "#EAC79A", BodyText: "#EDE7F4", WarningBG: "#4C2444", WarningFrame: "#CB4DB2", WarningText: "#E9A5DB", ImportantText: "#CA89E6", HighlightBG: "#24401C" },
+  { id: 10, name: "ليلي أخضر", en: "Forest Night", PageBG: "#16201C", HeaderColor: "#E6F0EA", SectionBG: "#3E8E68", SectionFrame: "#63B58A", KeyBG: "#1C2A24", KeyFrame: "#5BAFA0", KeyText: "#9FE3D4", NoteBG: "#20251F", NoteFrame: "#A9A45E", NoteText: "#E1DC9E", BodyText: "#E7EDE9", WarningBG: "#24414C", WarningFrame: "#4DA9CB", WarningText: "#A5D6E9", ImportantText: "#89E6D1", HighlightBG: "#401C21" },
+  { id: 11, name: "طبي إكلينيكي", en: "Clinical Teal", PageBG: "#FAFCFD", HeaderColor: "#0E5C73", SectionBG: "#1C8FA8", SectionFrame: "#146C82", KeyBG: "#E3F6F4", KeyFrame: "#2BA89A", KeyText: "#0E6B5F", NoteBG: "#EAF4FB", NoteFrame: "#4A8FBF", NoteText: "#1B4F75", BodyText: "#000000", WarningBG: "#E6E7F4", WarningFrame: "#343DB2", WarningText: "#171D6D", ImportantText: "#8F3D14", HighlightBG: "#F2E6D9" },
+  { id: 12, name: "هندسي تقني", en: "Tech Amber", PageBG: "#F6F7F8", HeaderColor: "#22272E", SectionBG: "#E0A12C", SectionFrame: "#B8821B", KeyBG: "#E9EEF2", KeyFrame: "#4A6B8A", KeyText: "#1F3A52", NoteBG: "#EEEDEA", NoteFrame: "#8C8275", NoteText: "#4A4338", BodyText: "#000000", WarningBG: "#EFF4E6", WarningFrame: "#6E9A2D", WarningText: "#4B6D17", ImportantText: "#8F5214", HighlightBG: "#D9D9F2" },
+  { id: 13, name: "طبيعي ترابي", en: "Natural Earth", PageBG: "#F7F5EE", HeaderColor: "#4A4520", SectionBG: "#8A9B5E", SectionFrame: "#677A3E", KeyBG: "#EFF1E3", KeyFrame: "#7E9460", KeyText: "#435228", NoteBG: "#F1E9DE", NoteFrame: "#A07D52", NoteText: "#5C4327", BodyText: "#000000", WarningBG: "#E6F4E6", WarningFrame: "#2FA232", WarningText: "#176D1A", ImportantText: "#14308F", HighlightBG: "#E8D9F2" },
+  { id: 14, name: "ملكي ذهبي", en: "Royal Gold", PageBG: "#F9F7F1", HeaderColor: "#1F2A4A", SectionBG: "#B68A3E", SectionFrame: "#8C6A26", KeyBG: "#F3EEE0", KeyFrame: "#A9842F", KeyText: "#6B4F18", NoteBG: "#EFEAF1", NoteFrame: "#7A4F5E", NoteText: "#5A2E3C", BodyText: "#000000", WarningBG: "#EFF4E6", WarningFrame: "#709A2D", WarningText: "#4C6D17", ImportantText: "#14338F", HighlightBG: "#D9DAF2" },
+  { id: 15, name: "عصري جريء", en: "Bold Modern", PageBG: "#FBFBFA", HeaderColor: "#1A2E35", SectionBG: "#EB5E55", SectionFrame: "#C73E36", KeyBG: "#E3F4F2", KeyFrame: "#1FA39A", KeyText: "#0E6760", NoteBG: "#FDF1E3", NoteFrame: "#E0A23A", NoteText: "#7A4E12", BodyText: "#000000", WarningBG: "#F4F2E6", WarningFrame: "#A69030", WarningText: "#6D5D17", ImportantText: "#14148F", HighlightBG: "#D9E8F2" },
+  { id: 16, name: "أحمر مرجاني", en: "Coral Red", PageBG: "#F7F3F3", HeaderColor: "#511F1F", SectionBG: "#C84141", SectionFrame: "#9D2525", KeyBG: "#E5F5ED", KeyFrame: "#3B9B6B", KeyText: "#1F6B45", NoteBG: "#EEEAF5", NoteFrame: "#654B9B", NoteText: "#3E2B64", BodyText: "#000000", WarningBG: "#F4F1E6", WarningFrame: "#A68930", WarningText: "#6D5817", ImportantText: "#117474", HighlightBG: "#D9EAF2" },
+  { id: 17, name: "أخضر زمردي", en: "Emerald Green", PageBG: "#F3F7F4", HeaderColor: "#1F512E", SectionBG: "#268241", SectionFrame: "#124E24", KeyBG: "#F2E5F5", KeyFrame: "#9B43B1", KeyText: "#5B1F6B", NoteBG: "#F5F1EA", NoteFrame: "#9B7D4B", NoteText: "#644F2B", BodyText: "#000000", WarningBG: "#E6F4F4", WarningFrame: "#2F9DA2", WarningText: "#176A6D", ImportantText: "#8F1470", HighlightBG: "#F2D9E2" },
+  { id: 18, name: "أرجواني", en: "Purple Majesty", PageBG: "#F5F3F7", HeaderColor: "#3C1F51", SectionBG: "#9041C8", SectionFrame: "#6B259D", KeyBG: "#F4F5E5", KeyFrame: "#899037", KeyText: "#646B1F", NoteBG: "#EAF5F4", NoteFrame: "#499791", NoteText: "#2B645F", BodyText: "#000000", WarningBG: "#F4E6F0", WarningFrame: "#B23488", WarningText: "#6D1751", ImportantText: "#427411", HighlightBG: "#DBF2D9" },
+  { id: 19, name: "ذهبي فاتح", en: "Pale Gold", PageBG: "#F7F6F3", HeaderColor: "#514B1F", SectionBG: "#7E7325", SectionFrame: "#4A4311", KeyBG: "#E5EFF5", KeyFrame: "#4388B1", KeyText: "#1F4E6B", NoteBG: "#F5EAF3", NoteFrame: "#9B4B8A", NoteText: "#642B58", BodyText: "#000000", WarningBG: "#EBF4E6", WarningFrame: "#589E2E", WarningText: "#376D17", ImportantText: "#14338F", HighlightBG: "#DED9F2" },
+  { id: 20, name: "سماوي", en: "Sky Cyan", PageBG: "#F3F6F7", HeaderColor: "#1F4951", SectionBG: "#297D8E", SectionFrame: "#154F5B", KeyBG: "#F5E5EA", KeyFrame: "#B14368", KeyText: "#6B1F38", NoteBG: "#F0F5EA", NoteFrame: "#709749", NoteText: "#47642B", BodyText: "#000000", WarningBG: "#E6E7F4", WarningFrame: "#343EB2", WarningText: "#171E6D", ImportantText: "#8F3314", HighlightBG: "#F2E6D9" },
+  { id: 21, name: "فوشيا", en: "Fuchsia Pop", PageBG: "#F7F3F5", HeaderColor: "#511F3A", SectionBG: "#C73D88", SectionFrame: "#992463", KeyBG: "#E6F5E5", KeyFrame: "#409F3C", KeyText: "#226B1F", NoteBG: "#EAEDF5", NoteFrame: "#4B5B9B", NoteText: "#2B3764", BodyText: "#000000", WarningBG: "#F4E9E6", WarningFrame: "#B24E34", WarningText: "#6D2917", ImportantText: "#117845", HighlightBG: "#D9F2ED" },
+  { id: 22, name: "أخضر ربيعي", en: "Spring Leaf", PageBG: "#F4F7F3", HeaderColor: "#2B511F", SectionBG: "#3D8226", SectionFrame: "#214E12", KeyBG: "#E9E5F5", KeyFrame: "#5F43B1", KeyText: "#321F6B", NoteBG: "#F5EBEA", NoteFrame: "#9B514B", NoteText: "#64302B", BodyText: "#000000", WarningBG: "#E6F4ED", WarningFrame: "#2E9E66", WarningText: "#176D42", ImportantText: "#70148F", HighlightBG: "#F2D9F0" },
+  { id: 23, name: "أزرق نيلي", en: "Indigo Dusk", PageBG: "#F3F3F7", HeaderColor: "#211F51", SectionBG: "#4741C8", SectionFrame: "#2A259D", KeyBG: "#F5EEE5", KeyFrame: "#B17F43", KeyText: "#6B481F", NoteBG: "#EAF5EE", NoteFrame: "#4B9B69", NoteText: "#2B6440", BodyText: "#000000", WarningBG: "#F1E6F4", WarningFrame: "#9834B2", WarningText: "#5C176D", ImportantText: "#6B6B0F", HighlightBG: "#E9F2D9" },
+  { id: 24, name: "برتقالي دافئ", en: "Warm Amber", PageBG: "#F7F4F3", HeaderColor: "#51301F", SectionBG: "#B25E34", SectionFrame: "#803F1E", KeyBG: "#E5F5F3", KeyFrame: "#3B9B8B", KeyText: "#1F6B5E", NoteBG: "#F1EAF5", NoteFrame: "#804B9B", NoteText: "#512B64", BodyText: "#000000", WarningBG: "#F3F4E6", WarningFrame: "#8A922A", WarningText: "#666D17", ImportantText: "#14708F", HighlightBG: "#D9E1F2" },
+  { id: 25, name: "نعناعي غامق", en: "Deep Mint", PageBG: "#F3F7F5", HeaderColor: "#1F513E", SectionBG: "#268260", SectionFrame: "#124E38", KeyBG: "#F5E5F3", KeyFrame: "#B143A4", KeyText: "#6B1F61", NoteBG: "#F5F5EA", NoteFrame: "#949147", NoteText: "#64622B", BodyText: "#000000", WarningBG: "#E6EFF4", WarningFrame: "#3482B2", WarningText: "#174D6D", ImportantText: "#8F1452", HighlightBG: "#F2D9DA" },
+  { id: 26, name: "موف", en: "Mauve Velvet", PageBG: "#F7F3F7", HeaderColor: "#4D1F51", SectionBG: "#BA39C6", SectionFrame: "#8B2395", KeyBG: "#EEF5E5", KeyFrame: "#70983A", KeyText: "#4B6B1F", NoteBG: "#EAF2F5", NoteFrame: "#4B879B", NoteText: "#2B5664", BodyText: "#000000", WarningBG: "#F4E6EB", WarningFrame: "#B2345E", WarningText: "#6D1734", ImportantText: "#117811", HighlightBG: "#D9F2DF" },
+  { id: 27, name: "ليموني", en: "Lime Zest", PageBG: "#F6F7F3", HeaderColor: "#47511F", SectionBG: "#687B24", SectionFrame: "#3B4610", KeyBG: "#E5EAF5", KeyFrame: "#4363B1", KeyText: "#1F356B", NoteBG: "#F5EAEF", NoteFrame: "#9B4B6F", NoteText: "#642B45", BodyText: "#000000", WarningBG: "#E6F4E6", WarningFrame: "#33A22F", WarningText: "#1A6D17", ImportantText: "#33148F", HighlightBG: "#E7D9F2" },
+  { id: 28, name: "أزرق سماء", en: "Cerulean Sky", PageBG: "#F3F5F7", HeaderColor: "#1F3851", SectionBG: "#3678BA", SectionFrame: "#205488", KeyBG: "#F5E5E5", KeyFrame: "#B14343", KeyText: "#6B1F1F", NoteBG: "#ECF5EA", NoteFrame: "#589B4B", NoteText: "#34642B", BodyText: "#000000", WarningBG: "#EAE6F4", WarningFrame: "#5334B2", WarningText: "#2D176D", ImportantText: "#8F5214", HighlightBG: "#F2EED9" },
+  { id: 29, name: "توتي فروتي", en: "Berry Punch", PageBG: "#F7F3F3", HeaderColor: "#511F29", SectionBG: "#C8415D", SectionFrame: "#9D253E", KeyBG: "#E5F5EA", KeyFrame: "#3C9F59", KeyText: "#1F6B35", NoteBG: "#ECEAF5", NoteFrame: "#554B9B", NoteText: "#322B64", BodyText: "#000000", WarningBG: "#F4EEE6", WarningFrame: "#B27834", WarningText: "#6D4617", ImportantText: "#117474", HighlightBG: "#D9EFF2" },
+  { id: 30, name: "أخضر زمردي 2", en: "Emerald Mint", PageBG: "#F3F7F3", HeaderColor: "#1F5123", SectionBG: "#27862F", SectionFrame: "#135319", KeyBG: "#EFE5F5", KeyFrame: "#8443B1", KeyText: "#4B1F6B", NoteBG: "#F5EFEA", NoteFrame: "#9B6C4B", NoteText: "#64432B", BodyText: "#000000", WarningBG: "#E6F4F2", WarningFrame: "#2E9E8B", WarningText: "#176D5F", ImportantText: "#8F148F", HighlightBG: "#F2D9E8" },
+  { id: 31, name: "بنفسجي ملكي", en: "Imperial Violet", PageBG: "#F4F3F7", HeaderColor: "#321F51", SectionBG: "#7441C8", SectionFrame: "#52259D", KeyBG: "#F5F3E5", KeyFrame: "#988C3A", KeyText: "#6B611F", NoteBG: "#EAF5F2", NoteFrame: "#4B9B84", NoteText: "#2B6453", BodyText: "#000000", WarningBG: "#F4E6F2", WarningFrame: "#B234A2", WarningText: "#6D1762", ImportantText: "#587010", HighlightBG: "#E0F2D9" },
+  { id: 32, name: "كهرماني", en: "Golden Amber", PageBG: "#F7F6F3", HeaderColor: "#51411F", SectionBG: "#8E6D29", SectionFrame: "#5B4415", KeyBG: "#E5F2F5", KeyFrame: "#4198AA", KeyText: "#1F5E6B", NoteBG: "#F5EAF5", NoteFrame: "#9B4B9B", NoteText: "#642B64", BodyText: "#000000", WarningBG: "#EEF4E6", WarningFrame: "#6C9A2D", WarningText: "#496D17", ImportantText: "#14338F", HighlightBG: "#D9D9F2" },
+  { id: 33, name: "تركواز", en: "Ocean Turquoise", PageBG: "#F3F7F7", HeaderColor: "#1F514F", SectionBG: "#257E7B", SectionFrame: "#114A48", KeyBG: "#F5E5EE", KeyFrame: "#B1437F", KeyText: "#6B1F48", NoteBG: "#F2F5EA", NoteFrame: "#809749", NoteText: "#53642B", BodyText: "#000000", WarningBG: "#E6EAF4", WarningFrame: "#3457B2", WarningText: "#17306D", ImportantText: "#8F1414", HighlightBG: "#F2E0D9" },
+  { id: 34, name: "فوشيا 2", en: "Vivid Fuchsia", PageBG: "#F7F3F6", HeaderColor: "#511F45", SectionBG: "#C639A2", SectionFrame: "#952378", KeyBG: "#E9F5E5", KeyFrame: "#539B3B", KeyText: "#326B1F", NoteBG: "#EAEFF5", NoteFrame: "#4B6C9B", NoteText: "#2B4364", BodyText: "#000000", WarningBG: "#F4E6E6", WarningFrame: "#B23434", WarningText: "#6D1817", ImportantText: "#11782B", HighlightBG: "#D9F2E8" },
+  { id: 35, name: "أخضر ربيعي 2", en: "Meadow Green", PageBG: "#F5F7F3", HeaderColor: "#36511F", SectionBG: "#508226", SectionFrame: "#2E4E12", KeyBG: "#E6E5F5", KeyFrame: "#4843B1", KeyText: "#221F6B", NoteBG: "#F5EAEC", NoteFrame: "#9B4B54", NoteText: "#642B32", BodyText: "#000000", WarningBG: "#E6F4EA", WarningFrame: "#2FA251", WarningText: "#176D30", ImportantText: "#52148F", HighlightBG: "#EFD9F2" },
+  { id: 36, name: "أزرق نيلي 2", en: "Cobalt Indigo", PageBG: "#F3F3F7", HeaderColor: "#1F2751", SectionBG: "#4157C8", SectionFrame: "#25399D", KeyBG: "#F5EBE5", KeyFrame: "#B16843", KeyText: "#6B381F", NoteBG: "#EAF5EC", NoteFrame: "#4B9B58", NoteText: "#2B6435", BodyText: "#000000", WarningBG: "#EEE6F4", WarningFrame: "#7E34B2", WarningText: "#4A176D", ImportantText: "#6B6B0F", HighlightBG: "#EEF2D9" },
+  { id: 37, name: "أحمر مرجاني 2", en: "Sunset Coral", PageBG: "#F7F3F3", HeaderColor: "#51251F", SectionBG: "#C64B39", SectionFrame: "#953123", KeyBG: "#E5F5EF", KeyFrame: "#3B9B77", KeyText: "#1F6B4F", NoteBG: "#EFEAF5", NoteFrame: "#704B9B", NoteText: "#452B64", BodyText: "#000000", WarningBG: "#F4F3E6", WarningFrame: "#9A8D2D", WarningText: "#6D6317", ImportantText: "#117474", HighlightBG: "#D9E6F2" },
+  { id: 38, name: "أخضر زمردي 3", en: "Jade Forest", PageBG: "#F3F7F4", HeaderColor: "#1F5134", SectionBG: "#26824D", SectionFrame: "#124E2C", KeyBG: "#F4E5F5", KeyFrame: "#A943B1", KeyText: "#651F6B", NoteBG: "#F5F2EA", NoteFrame: "#9B874B", NoteText: "#64562B", BodyText: "#000000", WarningBG: "#E6F2F4", WarningFrame: "#3298AE", WarningText: "#175E6D", ImportantText: "#8F1470", HighlightBG: "#F2D9DF" },
+  { id: 39, name: "أرجواني 2", en: "Amethyst Glow", PageBG: "#F6F3F7", HeaderColor: "#431F51", SectionBG: "#A141C8", SectionFrame: "#7A259D", KeyBG: "#F2F5E5", KeyFrame: "#809438", KeyText: "#5B6B1F", NoteBG: "#EAF5F5", NoteFrame: "#4B979B", NoteText: "#2B6164", BodyText: "#000000", WarningBG: "#F4E6EE", WarningFrame: "#B23478", WarningText: "#6D1746", ImportantText: "#2B7811", HighlightBG: "#D9F2DA" },
+  { id: 40, name: "ذهبي فاتح 2", en: "Antique Gold", PageBG: "#F7F7F3", HeaderColor: "#51511F", SectionBG: "#767722", SectionFrame: "#424210", KeyBG: "#E5EDF5", KeyFrame: "#437AB1", KeyText: "#1F456B", NoteBG: "#F5EAF1", NoteFrame: "#9B4B80", NoteText: "#642B51", BodyText: "#000000", WarningBG: "#E9F4E6", WarningFrame: "#4AA22F", WarningText: "#2C6D17", ImportantText: "#14148F", HighlightBG: "#E2D9F2" },
+  { id: 41, name: "سماوي 2", en: "Aegean Cyan", PageBG: "#F3F6F7", HeaderColor: "#1F4251", SectionBG: "#2E7D9E", SectionFrame: "#19536B", KeyBG: "#F5E5E8", KeyFrame: "#B1435A", KeyText: "#6B1F2F", NoteBG: "#EEF5EA", NoteFrame: "#689B4B", NoteText: "#40642B", BodyText: "#000000", WarningBG: "#E7E6F4", WarningFrame: "#3934B2", WarningText: "#1B176D", ImportantText: "#8F3314", HighlightBG: "#F2E9D9" },
+  { id: 42, name: "وردي غامق", en: "Crimson Rose", PageBG: "#F7F3F4", HeaderColor: "#511F34", SectionBG: "#C84179", SectionFrame: "#9D2556", KeyBG: "#E5F5E7", KeyFrame: "#3C9F45", KeyText: "#1F6B26", NoteBG: "#EAEBF5", NoteFrame: "#4B519B", NoteText: "#2B2F64", BodyText: "#000000", WarningBG: "#F4EBE6", WarningFrame: "#B25E34", WarningText: "#6D3417", ImportantText: "#11745B", HighlightBG: "#D9F2F0" },
+  { id: 43, name: "أخضر ربيعي 3", en: "Alpine Green", PageBG: "#F3F7F3", HeaderColor: "#25511F", SectionBG: "#318226", SectionFrame: "#1A4E12", KeyBG: "#EBE5F5", KeyFrame: "#6D43B1", KeyText: "#3C1F6B", NoteBG: "#F5EDEA", NoteFrame: "#9B5C4B", NoteText: "#64372B", BodyText: "#000000", WarningBG: "#E6F4EF", WarningFrame: "#2E9E75", WarningText: "#176D4E", ImportantText: "#8F148F", HighlightBG: "#F2D9ED" },
+  { id: 44, name: "بنفسجي ملكي 2", en: "Royal Iris", PageBG: "#F3F3F7", HeaderColor: "#271F51", SectionBG: "#5841C8", SectionFrame: "#39259D", KeyBG: "#F5F0E5", KeyFrame: "#AA8741", KeyText: "#6B521F", NoteBG: "#EAF5F0", NoteFrame: "#4B9B73", NoteText: "#2B6448", BodyText: "#000000", WarningBG: "#F3E6F4", WarningFrame: "#A834B2", WarningText: "#67176D", ImportantText: "#6B6B0F", HighlightBG: "#E5F2D9" },
+  { id: 45, name: "برتقالي دافئ 2", en: "Terracotta", PageBG: "#F7F5F3", HeaderColor: "#51361F", SectionBG: "#A2642F", SectionFrame: "#70421A", KeyBG: "#E5F5F5", KeyFrame: "#3B9B98", KeyText: "#1F6B68", NoteBG: "#F3EAF5", NoteFrame: "#8A4B9B", NoteText: "#582B64", BodyText: "#000000", WarningBG: "#F1F4E6", WarningFrame: "#80962C", WarningText: "#5B6D17", ImportantText: "#14528F", HighlightBG: "#D9DEF2" },
+  { id: 46, name: "نعناعي غامق 2", en: "Spearmint", PageBG: "#F3F7F6", HeaderColor: "#1F5145", SectionBG: "#26826C", SectionFrame: "#124E40", KeyBG: "#F5E5F1", KeyFrame: "#B14395", KeyText: "#6B1F57", NoteBG: "#F4F5EA", NoteFrame: "#8D9447", NoteText: "#5F642B", BodyText: "#000000", WarningBG: "#E6EDF4", WarningFrame: "#3471B2", WarningText: "#17416D", ImportantText: "#8F1433", HighlightBG: "#F2DBD9" },
+  { id: 47, name: "موف 2", en: "Heather Mauve", PageBG: "#F7F3F7", HeaderColor: "#511F4F", SectionBG: "#BE37B8", SectionFrame: "#8C2188", KeyBG: "#ECF5E5", KeyFrame: "#679B3B", KeyText: "#416B1F", NoteBG: "#EAF1F5", NoteFrame: "#4B7C9B", NoteText: "#2B4E64", BodyText: "#000000", WarningBG: "#F4E6E9", WarningFrame: "#B2344E", WarningText: "#6D1729", ImportantText: "#117811", HighlightBG: "#D9F2E2" },
+  { id: 48, name: "ليموني 2", en: "Chartreuse", PageBG: "#F6F7F3", HeaderColor: "#40511F", SectionBG: "#607E25", SectionFrame: "#374A11", KeyBG: "#E5E8F5", KeyFrame: "#4355B1", KeyText: "#1F2B6B", NoteBG: "#F5EAEE", NoteFrame: "#9B4B65", NoteText: "#642B3E", BodyText: "#000000", WarningBG: "#E6F4E7", WarningFrame: "#2FA239", WarningText: "#176D1F", ImportantText: "#33148F", HighlightBG: "#EAD9F2" },
+  { id: 49, name: "أزرق سماء 2", en: "Horizon Blue", PageBG: "#F3F4F7", HeaderColor: "#1F3251", SectionBG: "#4173C8", SectionFrame: "#25519D", KeyBG: "#F5E7E5", KeyFrame: "#B15243", KeyText: "#6B291F", NoteBG: "#EBF5EA", NoteFrame: "#4E9B4B", NoteText: "#2D642B", BodyText: "#000000", WarningBG: "#EBE6F4", WarningFrame: "#6434B2", WarningText: "#38176D", ImportantText: "#7D6212", HighlightBG: "#F2F1D9" },
+  { id: 50, name: "توتي فروتي 2", en: "Ruby Berry", PageBG: "#F7F3F3", HeaderColor: "#511F23", SectionBG: "#C8414C", SectionFrame: "#9D252E", KeyBG: "#E5F5EC", KeyFrame: "#3C9F66", KeyText: "#1F6B3F", NoteBG: "#EDEAF5", NoteFrame: "#5F4B9B", NoteText: "#392B64", BodyText: "#000000", WarningBG: "#F4F0E6", WarningFrame: "#AE8532", WarningText: "#6D5117", ImportantText: "#117474", HighlightBG: "#D9ECF2" },
+  { id: 51, name: "أخضر زمردي 4", en: "Viridian", PageBG: "#F3F7F4", HeaderColor: "#1F512A", SectionBG: "#27863B", SectionFrame: "#135321", KeyBG: "#F1E5F5", KeyFrame: "#9243B1", KeyText: "#551F6B", NoteBG: "#F5F0EA", NoteFrame: "#9B764B", NoteText: "#644A2B", BodyText: "#000000", WarningBG: "#E6F4F4", WarningFrame: "#2E9E9A", WarningText: "#176D6A", ImportantText: "#8F1470", HighlightBG: "#F2D9E4" },
+  { id: 52, name: "أرجواني 3", en: "Orchid Purple", PageBG: "#F5F3F7", HeaderColor: "#381F51", SectionBG: "#8541C8", SectionFrame: "#61259D", KeyBG: "#F5F5E5", KeyFrame: "#909037", KeyText: "#6A6B1F", NoteBG: "#EAF5F3", NoteFrame: "#49978B", NoteText: "#2B645B", BodyText: "#000000", WarningBG: "#F4E6F1", WarningFrame: "#B23492", WarningText: "#6D1758", ImportantText: "#427411", HighlightBG: "#DDF2D9" },
+  { id: 53, name: "كهرماني 2", en: "Honey Gold", PageBG: "#F7F6F3", HeaderColor: "#51471F", SectionBG: "#867327", SectionFrame: "#534613", KeyBG: "#E5F0F5", KeyFrame: "#4391B1", KeyText: "#1F546B", NoteBG: "#F5EAF4", NoteFrame: "#9B4B90", NoteText: "#642B5D", BodyText: "#000000", WarningBG: "#ECF4E6", WarningFrame: "#609E2E", WarningText: "#3E6D17", ImportantText: "#14338F", HighlightBG: "#DCD9F2" },
+  { id: 54, name: "تركواز 2", en: "Deep Turquoise", PageBG: "#F3F7F7", HeaderColor: "#1F4D51", SectionBG: "#277E86", SectionFrame: "#134D53", KeyBG: "#F5E5EC", KeyFrame: "#B14371", KeyText: "#6B1F3E", NoteBG: "#F1F5EA", NoteFrame: "#769749", NoteText: "#4C642B", BodyText: "#000000", WarningBG: "#E6E8F4", WarningFrame: "#3449B2", WarningText: "#17256D", ImportantText: "#8F1414", HighlightBG: "#F2E3D9" },
+  { id: 55, name: "فوشيا 3", en: "Magenta Bloom", PageBG: "#F7F3F5", HeaderColor: "#511F3E", SectionBG: "#C73D93", SectionFrame: "#99246C", KeyBG: "#E7F5E5", KeyFrame: "#489F3C", KeyText: "#286B1F", NoteBG: "#EAEDF5", NoteFrame: "#4B629B", NoteText: "#2B3B64", BodyText: "#000000", WarningBG: "#F4E8E6", WarningFrame: "#B24434", WarningText: "#6D2217", ImportantText: "#117845", HighlightBG: "#D9F2EB" },
+  { id: 56, name: "أخضر ربيعي 4", en: "Basil Green", PageBG: "#F4F7F3", HeaderColor: "#2F511F", SectionBG: "#448226", SectionFrame: "#264E12", KeyBG: "#E8E5F5", KeyFrame: "#5643B1", KeyText: "#2C1F6B", NoteBG: "#F5EAEA", NoteFrame: "#9B4B4B", NoteText: "#642B2B", BodyText: "#000000", WarningBG: "#E6F4EC", WarningFrame: "#2FA260", WarningText: "#176D3C", ImportantText: "#70148F", HighlightBG: "#F2D9F2" },
+  { id: 57, name: "أزرق نيلي 3", en: "Midnight Indigo", PageBG: "#F3F3F7", HeaderColor: "#1F2151", SectionBG: "#4146C8", SectionFrame: "#25299D", KeyBG: "#F5EDE5", KeyFrame: "#B17643", KeyText: "#6B421F", NoteBG: "#EAF5EE", NoteFrame: "#4B9B62", NoteText: "#2B643C", BodyText: "#000000", WarningBG: "#F0E6F4", WarningFrame: "#8E34B2", WarningText: "#55176D", ImportantText: "#6B6B0F", HighlightBG: "#EBF2D9" },
+  { id: 58, name: "برتقالي دافئ 3", en: "Spiced Orange", PageBG: "#F7F4F3", HeaderColor: "#512C1F", SectionBG: "#BA5836", SectionFrame: "#883B20", KeyBG: "#E5F5F1", KeyFrame: "#3B9B84", KeyText: "#1F6B58", NoteBG: "#F1EAF5", NoteFrame: "#7A4B9B", NoteText: "#4C2B64", BodyText: "#000000", WarningBG: "#F4F4E6", WarningFrame: "#91922A", WarningText: "#6D6D17", ImportantText: "#14708F", HighlightBG: "#D9E3F2" },
+  { id: 59, name: "نعناعي غامق 3", en: "Pine Mint", PageBG: "#F3F7F5", HeaderColor: "#1F513A", SectionBG: "#268259", SectionFrame: "#124E33", KeyBG: "#F5E5F4", KeyFrame: "#B143AC", KeyText: "#6B1F67", NoteBG: "#F5F4EA", NoteFrame: "#978E49", NoteText: "#645D2B", BodyText: "#000000", WarningBG: "#E6F0F4", WarningFrame: "#348BB2", WarningText: "#17536D", ImportantText: "#8F1452", HighlightBG: "#F2D9DC" },
+  { id: 60, name: "موف 3", en: "Royal Mauve", PageBG: "#F6F3F7", HeaderColor: "#491F51", SectionBG: "#B241C8", SectionFrame: "#8A259D", KeyBG: "#F0F5E5", KeyFrame: "#78983A", KeyText: "#516B1F", NoteBG: "#EAF3F5", NoteFrame: "#4B8D9B", NoteText: "#2B5A64", BodyText: "#000000", WarningBG: "#F4E6EC", WarningFrame: "#B23468", WarningText: "#6D173B", ImportantText: "#2B7811", HighlightBG: "#D9F2DD" },
 ];
 
 /* Builds a PLATE_KINDS-shaped object (box colors per plate kind) out
@@ -4722,6 +5136,101 @@ function BlockRow({ block, t, theme, skin, kinds, bookId, onUpdate, onDelete, on
             )}
           </div>
 
+          {/* Smart Image Dimension & Alignment Controls */}
+          <div className="flex flex-col gap-2 p-2 rounded-xl border" style={{ borderColor: theme.hairline, background: theme.surfaceSoft }}>
+            <div className="flex items-center justify-between gap-1 flex-wrap">
+              <span className="text-[10.5px] font-bold" style={{ color: theme.inkSoft }}>
+                العرض:
+              </span>
+              <div className="flex gap-1">
+                {[
+                  ["25%", "25%"],
+                  ["50%", "50%"],
+                  ["75%", "75%"],
+                  ["100%", "100%"],
+                ].map(([w, label]) => {
+                  const active = (block.width || "100%") === w;
+                  return (
+                    <button
+                      key={w}
+                      type="button"
+                      onClick={() => onUpdate({ width: w })}
+                      className="educraft-btn text-[10px] font-bold px-2 py-0.5 rounded-md cursor-pointer"
+                      style={{
+                        background: active ? theme.accentSoft : theme.surface,
+                        color: active ? theme.accent : theme.inkSoft,
+                        border: active ? `1px solid ${theme.accent}44` : `1px solid ${theme.hairline}`,
+                      }}
+                    >
+                      {label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between gap-1 flex-wrap">
+              <span className="text-[10.5px] font-bold" style={{ color: theme.inkSoft }}>
+                المحاذاة:
+              </span>
+              <div className="flex gap-1">
+                {[
+                  ["left", "يسار"],
+                  ["center", "وسط"],
+                  ["right", "يمين"],
+                ].map(([al, label]) => {
+                  const active = (block.align || "center") === al;
+                  return (
+                    <button
+                      key={al}
+                      type="button"
+                      onClick={() => onUpdate({ align: al })}
+                      className="educraft-btn text-[10px] font-bold px-2 py-0.5 rounded-md cursor-pointer"
+                      style={{
+                        background: active ? theme.accentSoft : theme.surface,
+                        color: active ? theme.accent : theme.inkSoft,
+                        border: active ? `1px solid ${theme.accent}44` : `1px solid ${theme.hairline}`,
+                      }}
+                    >
+                      {label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between gap-1 flex-wrap">
+              <span className="text-[10.5px] font-bold" style={{ color: theme.inkSoft }}>
+                التناسب:
+              </span>
+              <div className="flex gap-1">
+                {[
+                  ["auto", "تلقائي ذكي"],
+                  ["16/9", "16:9"],
+                  ["4/3", "4:3"],
+                  ["1/1", "1:1"],
+                ].map(([asp, label]) => {
+                  const active = (block.aspectRatio || "auto") === asp;
+                  return (
+                    <button
+                      key={asp}
+                      type="button"
+                      onClick={() => onUpdate({ aspectRatio: asp })}
+                      className="educraft-btn text-[10px] font-bold px-2 py-0.5 rounded-md cursor-pointer"
+                      style={{
+                        background: active ? theme.accentSoft : theme.surface,
+                        color: active ? theme.accent : theme.inkSoft,
+                        border: active ? `1px solid ${theme.accent}44` : `1px solid ${theme.hairline}`,
+                      }}
+                    >
+                      {label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+
           <TextInput
             theme={theme}
             skin={skin}
@@ -4888,15 +5397,30 @@ function PlateBlock({ block, style, kinds, bookId = null, theme = null, skin = n
   if (block.kind === "image") {
     const isPlaceholder = block.isPlaceholder || !block.imageUrl;
     const resolvedUrl = block.imageUrl ? resolveBookImageUrl(bookId || block._bookId, block.imageUrl) : "";
+    const imgWidth = block.width || "100%";
+    const imgAlign = block.align || "center";
+    const imgFit = block.fitMode || "smart";
+    const imgAspect = block.aspectRatio || (imgFit === "smart" ? "auto" : "16/9");
+    const imgMaxH = block.maxHeight || (imgFit === "smart" ? "380px" : "480px");
+
+    const alignStyle =
+      imgAlign === "center"
+        ? { margin: "10px auto" }
+        : imgAlign === "left"
+        ? { margin: "10px auto 10px 0" }
+        : { margin: "10px 0 10px auto" };
+
     return (
       <div
         style={{
-          margin: "10px 0",
+          width: imgWidth,
+          maxWidth: "100%",
           background: "#fff",
-          borderRadius: 16,
+          borderRadius: 14,
           overflow: "hidden",
           border: `1.5px solid ${K.sectionTitle.border}`,
-          boxShadow: "0 4px 14px rgba(0,0,0,0.10)",
+          boxShadow: "0 3px 12px rgba(0,0,0,0.08)",
+          ...alignStyle,
           ...style,
         }}
       >
@@ -4904,43 +5428,59 @@ function PlateBlock({ block, style, kinds, bookId = null, theme = null, skin = n
           <div
             style={{
               width: "100%",
-              aspectRatio: "16/9",
+              height: imgWidth === "100%" ? 140 : 110,
               background: "linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)",
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
               justifyContent: "center",
               color: "#64748b",
-              gap: 8,
-              padding: 20,
+              gap: 6,
+              padding: 14,
               borderBottom: "1px dashed #cbd5e1",
             }}
           >
-            <ImageIcon size={32} style={{ opacity: 0.6 }} />
-            <span style={{ fontSize: 12, fontWeight: 600 }}>
+            <ImageIcon size={imgWidth === "100%" ? 26 : 20} style={{ opacity: 0.6 }} />
+            <span style={{ fontSize: 11, fontWeight: 700 }}>
               {block.alt || (block.title ? `${block.title}` : "صورة توضيحية")}
             </span>
           </div>
         ) : (
-          <img
-            src={resolvedUrl}
-            alt={block.alt || block.title || ""}
-            style={{ width: "100%", aspectRatio: "4/3", objectFit: "cover", display: "block" }}
-            onError={(e) => {
-              e.currentTarget.style.display = "none";
-              if (e.currentTarget.nextSibling) e.currentTarget.nextSibling.style.display = "flex";
+          <div
+            style={{
+              width: "100%",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              background: "#00000006",
+              overflow: "hidden",
             }}
-          />
+          >
+            <img
+              src={resolvedUrl}
+              alt={block.alt || block.title || ""}
+              style={{
+                width: "100%",
+                maxHeight: imgMaxH,
+                aspectRatio: imgAspect,
+                objectFit: imgFit === "cover" ? "cover" : "contain",
+                display: "block",
+              }}
+              onError={(e) => {
+                e.currentTarget.style.display = "none";
+              }}
+            />
+          </div>
         )}
         {(block.title || block.caption || block.meta) && (
-          <div style={{ padding: "10px 14px 12px" }}>
-            {block.title && <p style={{ fontWeight: 800, color: K.sectionTitle.border, margin: "0 0 4px", fontSize: 13 }}>{block.title}</p>}
+          <div style={{ padding: "8px 12px 10px", background: "#fff" }}>
+            {block.title && <p style={{ fontWeight: 800, color: K.sectionTitle.border, margin: "0 0 3px", fontSize: 12.5 }}>{block.title}</p>}
             {block.caption && (
-              <p style={{ margin: 0, fontSize: 12.5, lineHeight: 1.7, color: "#241B13" }} dir="auto">
+              <p style={{ margin: 0, fontSize: 11.5, lineHeight: 1.6, color: "#241B13" }} dir="auto">
                 {block.caption}
               </p>
             )}
-            {block.meta && <p style={{ margin: "4px 0 0", fontSize: 10.5, color: "#7a7a7a" }}>{block.meta}</p>}
+            {block.meta && <p style={{ margin: "3px 0 0", fontSize: 10, color: "#7a7a7a" }}>{block.meta}</p>}
           </div>
         )}
       </div>
@@ -5045,44 +5585,73 @@ function useFitScale() {
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
+    let rafId = null;
     const compute = () => {
-      const available = el.clientWidth - 16;
-      const fit = available > 0 ? Math.min(1.15, Math.max(0.2, available / A4_PAGE_WIDTH_PX)) : 1;
-      setFitScale(fit);
+      if (rafId) cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(() => {
+        if (!el) return;
+        const available = el.clientWidth - 24;
+        if (available <= 0) return;
+        const fit = Math.min(1.15, Math.max(0.35, Math.round((available / A4_PAGE_WIDTH_PX) * 100) / 100));
+        setFitScale((prev) => (Math.abs(prev - fit) >= 0.02 ? fit : prev));
+      });
     };
     compute();
     if (typeof ResizeObserver !== "undefined") {
       const ro = new ResizeObserver(compute);
       ro.observe(el);
-      return () => ro.disconnect();
+      return () => {
+        if (rafId) cancelAnimationFrame(rafId);
+        ro.disconnect();
+      };
     } else if (typeof window !== "undefined") {
       window.addEventListener("resize", compute);
-      return () => window.removeEventListener("resize", compute);
+      return () => {
+        if (rafId) cancelAnimationFrame(rafId);
+        window.removeEventListener("resize", compute);
+      };
     }
   }, []);
   const scale = zoomOverride ?? fitScale;
-  const zoomIn = () => setZoomOverride(Math.min(2, Math.round((scale + 0.15) * 100) / 100));
-  const zoomOut = () => setZoomOverride(Math.max(0.2, Math.round((scale - 0.15) * 100) / 100));
+  const zoomIn = () => setZoomOverride((prev) => Math.min(2, Math.round(((prev ?? fitScale) + 0.1) * 100) / 100));
+  const zoomOut = () => setZoomOverride((prev) => Math.max(0.35, Math.round(((prev ?? fitScale) - 0.1) * 100) / 100));
   const zoomFit = () => setZoomOverride(null);
   return { containerRef, scale, zoomIn, zoomOut, zoomFit, isFit: zoomOverride == null };
 }
 
 function ZoomBar({ t, theme, skin, scale, onZoomOut, onZoomIn, onFit, isFit }) {
   return (
-    <div className="flex items-center justify-end gap-1 mb-2">
-      <button onClick={onZoomOut} className="w-7 h-7 grid place-items-center shrink-0" style={{ borderRadius: skin.radiusSm, border: `1px solid ${theme.hairline}`, color: theme.ink }} title={t.zoomOut}>
+    <div className="flex items-center justify-end gap-1.5 mb-2.5">
+      <button
+        type="button"
+        onClick={onZoomOut}
+        className="educraft-btn w-7 h-7 grid place-items-center shrink-0 cursor-pointer rounded-lg border shadow-2xs"
+        style={{ borderColor: theme.hairline, color: theme.ink, background: theme.surface }}
+        title={t.zoomOut}
+      >
         <ZoomOut size={13} />
       </button>
       <button
+        type="button"
         onClick={onFit}
-        className="text-[11px] font-bold px-2.5 h-7 shrink-0"
-        style={{ borderRadius: skin.radiusSm, border: `1px solid ${theme.hairline}`, background: isFit ? theme.accentSoft : "transparent", color: isFit ? theme.accent : theme.ink }}
+        className="educraft-btn text-[11px] font-bold px-2.5 h-7 shrink-0 cursor-pointer rounded-lg border shadow-2xs"
+        style={{
+          borderColor: isFit ? `${theme.accent}44` : theme.hairline,
+          background: isFit ? theme.accentSoft : theme.surface,
+          color: isFit ? theme.accent : theme.ink,
+        }}
         title={t.zoomFit}
       >
-        {isFit ? <Maximize2 size={12} className="inline -mt-0.5 me-1" /> : null}
+        {isFit ? <Maximize2 size={11} className="inline -mt-0.5 me-1" /> : null}
         {Math.round(scale * 100)}%
       </button>
-      <button onClick={onZoomIn} className="w-7 h-7 grid place-items-center shrink-0" style={{ borderRadius: skin.radiusSm, border: `1px solid ${theme.hairline}`, color: theme.ink }} title={t.zoomIn}>
+      <button
+        type="button"
+        onClick={onZoomIn}
+        className="educraft-btn w-7 h-7 grid place-items-center shrink-0 cursor-pointer rounded-lg border shadow-2xs"
+        style={{ borderColor: theme.hairline, color: theme.ink, background: theme.surface }}
+        title={t.zoomIn}
+      >
         <ZoomIn size={13} />
       </button>
     </div>
@@ -5143,13 +5712,23 @@ function buildFullBookBlocks(book, lang) {
       leavesOf(sub.id).forEach((leaf) => {
         const blocks = leaf.pageBlocks || [];
         if (!blocks.length) return;
-        if (!first) out.push({ id: `${leaf.id}-fb-break`, kind: "pagebreak" });
+        if (!first) out.push({ id: `${leaf.id}-fb-break`, kind: "pagebreak", _leafId: leaf.id, _isLeafBreak: true });
         first = false;
         const leafTitle = lang === "ar" ? leaf.ar : leaf.en;
         const branchTitle = lang === "ar" ? br.ar : br.en;
         const paletteId = leaf.pagePaletteId || 1;
         blocks.forEach((b, i) => {
-          out.push({ ...b, id: `${leaf.id}-fb-${b.id || i}`, _leafTitle: leafTitle, _branchTitle: branchTitle, _paletteId: paletteId });
+          out.push({
+            ...b,
+            id: `${leaf.id}-fb-${b.id || i}`,
+            _origId: b.id,
+            _leafId: leaf.id,
+            _leaf: leaf,
+            _blockIndex: i,
+            _leafTitle: leafTitle,
+            _branchTitle: branchTitle,
+            _paletteId: paletteId,
+          });
         });
       });
     });
@@ -5157,14 +5736,527 @@ function buildFullBookBlocks(book, lang) {
   return out;
 }
 
-/* Read-only, whole-book A4 preview — for a reviewer who wants to
-   page through every leaf's printed pages back to back, the same
-   way the reader view lets someone go through every question in the
-   book rather than one card at a time. */
-function FullBookA4Preview({ book, lang, t, theme, skin, docTitle }) {
+/* Interactive Direct-on-Canvas block wrapper for A4 sheets */
+function CanvasBlockWrapper({
+  block,
+  kinds,
+  palette,
+  theme,
+  skin,
+  lang,
+  bookId,
+  onUpdate,
+  onDelete,
+  onMove,
+  onInsertBelow,
+}) {
+  const [isHovered, setIsHovered] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [showAddMenu, setShowAddMenu] = useState(false);
+  const fileInputRef = useRef(null);
+
+  const kind = block.kind;
+  const K = kinds[kind] || kinds.note || {};
+
+  const handleFileUpload = async (file) => {
+    if (!file || !file.type.startsWith("image/")) return;
+    try {
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        const dataUrl = e.target.result;
+        try {
+          const oldUrl = block.imageUrl;
+          const savedRelPath = await saveBookImageFs(bookId || "custom", file.name, dataUrl);
+          if (oldUrl && oldUrl.startsWith("assets/images/") && oldUrl !== savedRelPath) {
+            await deleteBookImageFs(bookId || "custom", oldUrl);
+          }
+          onUpdate({ imageUrl: savedRelPath, isPlaceholder: false });
+        } catch (err) {
+          console.error("Image upload failed:", err);
+        }
+      };
+      reader.readAsDataURL(file);
+    } catch (err) {}
+  };
+
+  return (
+    <div
+      className="relative group my-1.5 transition-all"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => {
+        setIsHovered(false);
+        setShowAddMenu(false);
+      }}
+      style={{
+        borderRadius: 14,
+        outline: isEditing
+          ? `2px solid ${theme.accent}`
+          : isHovered
+          ? `1.5px dashed ${theme.accent}66`
+          : "1.5px solid transparent",
+        outlineOffset: 3,
+      }}
+    >
+      {/* Floating Action Toolbar on hover or active */}
+      {(isHovered || isEditing) && (
+        <div
+          className="absolute -top-3.5 end-3 z-30 flex items-center gap-1 px-2 py-1 rounded-full shadow-lg border backdrop-blur-md educraft-modal-in"
+          style={{
+            background: theme.surface,
+            borderColor: theme.hairlineStrong,
+            color: theme.ink,
+          }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <span className="text-[10px] font-black uppercase px-1.5 py-0.5 rounded-md" style={{ background: theme.accentSoft, color: theme.accent }}>
+            {kind}
+          </span>
+          <div className="w-[1px] h-3 bg-black/10 mx-0.5" />
+          <button
+            type="button"
+            onClick={() => setIsEditing(!isEditing)}
+            className="w-6 h-6 rounded-md grid place-items-center cursor-pointer transition-colors"
+            style={{
+              background: isEditing ? theme.accent : theme.surfaceSoft,
+              color: isEditing ? theme.accentInk : theme.ink,
+            }}
+            title={isEditing ? (lang === "ar" ? "حفظ وعرض" : "Done") : (lang === "ar" ? "تعديل مباشر" : "Edit block")}
+          >
+            {isEditing ? <Check size={12} strokeWidth={3} /> : <Pencil size={11} />}
+          </button>
+          {onMove && (
+            <>
+              <button
+                type="button"
+                onClick={() => onMove(-1)}
+                className="w-6 h-6 rounded-md grid place-items-center cursor-pointer hover:bg-black/5"
+                title={lang === "ar" ? "تحريك لأعلى" : "Move up"}
+              >
+                <ArrowUp size={11} />
+              </button>
+              <button
+                type="button"
+                onClick={() => onMove(1)}
+                className="w-6 h-6 rounded-md grid place-items-center cursor-pointer hover:bg-black/5"
+                title={lang === "ar" ? "تحريك لأسفل" : "Move down"}
+              >
+                <ArrowDown size={11} />
+              </button>
+            </>
+          )}
+          {onInsertBelow && (
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setShowAddMenu(!showAddMenu)}
+                className="w-6 h-6 rounded-md grid place-items-center cursor-pointer hover:bg-black/5"
+                title={lang === "ar" ? "إدراج عنصر تحته" : "Insert below"}
+              >
+                <Plus size={12} />
+              </button>
+              {showAddMenu && (
+                <div
+                  className="absolute start-0 top-full mt-1.5 p-1.5 rounded-xl border shadow-xl z-50 flex flex-col gap-0.5 min-w-[140px] educraft-modal-in"
+                  style={{ background: theme.surface, borderColor: theme.hairline }}
+                >
+                  {[
+                    ["text", lang === "ar" ? "نص حر" : "Text"],
+                    ["sectionTitle", lang === "ar" ? "عنوان رئيسي" : "Section Title"],
+                    ["note", lang === "ar" ? "ملاحظة" : "Note"],
+                    ["keyterm", lang === "ar" ? "مصطلح رئيسي" : "Key Term"],
+                    ["warning", lang === "ar" ? "تنبيه" : "Warning"],
+                    ["important", lang === "ar" ? "هام جداً" : "Important"],
+                    ["image", lang === "ar" ? "صورة" : "Image"],
+                    ["table", lang === "ar" ? "جدول" : "Table"],
+                    ["code", lang === "ar" ? "صندوق كود" : "Code"],
+                  ].map(([k, lbl]) => (
+                    <button
+                      key={k}
+                      type="button"
+                      onClick={() => {
+                        onInsertBelow(k);
+                        setShowAddMenu(false);
+                      }}
+                      className="text-start px-2 py-1 text-xs font-bold rounded-lg hover:bg-black/5 cursor-pointer"
+                      style={{ color: theme.ink }}
+                    >
+                      + {lbl}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+          {onDelete && (
+            <button
+              type="button"
+              onClick={onDelete}
+              className="w-6 h-6 rounded-md grid place-items-center cursor-pointer hover:bg-red-50 text-red-600"
+              title={lang === "ar" ? "حذف العنصر" : "Delete block"}
+            >
+              <Trash2 size={11} />
+            </button>
+          )}
+        </div>
+      )}
+
+      {/* Main Block Rendering / Direct On-Canvas Editing */}
+      {isEditing ? (
+        <div
+          className="p-3.5 rounded-2xl border shadow-lg flex flex-col gap-2.5 educraft-modal-in"
+          style={{
+            background: theme.surface,
+            borderColor: theme.accent,
+            color: theme.ink,
+          }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="flex items-center justify-between border-b pb-2" style={{ borderColor: theme.hairline }}>
+            <span className="text-xs font-black" style={{ color: theme.accent }}>
+              {lang === "ar" ? `تعديل مباشر: ${kind}` : `Direct Edit: ${kind}`}
+            </span>
+            <button
+              type="button"
+              onClick={() => setIsEditing(false)}
+              className="educraft-btn text-xs font-bold px-3 py-1 rounded-lg cursor-pointer shadow-2xs"
+              style={{ background: theme.accent, color: theme.accentInk }}
+            >
+              {lang === "ar" ? "تم وحفظ" : "Done"}
+            </button>
+          </div>
+
+          {kind === "sectionTitle" ? (
+            <input
+              type="text"
+              autoFocus
+              dir="auto"
+              value={block.text || ""}
+              onChange={(e) => onUpdate({ text: e.target.value })}
+              className="w-full text-base font-bold px-3 py-2 rounded-xl border outline-none shadow-inner"
+              style={{ background: theme.surfaceSoft, borderColor: theme.hairline, color: theme.ink }}
+              placeholder={lang === "ar" ? "عنوان القسم..." : "Section title..."}
+            />
+          ) : kind === "text" ? (
+            <textarea
+              autoFocus
+              dir="auto"
+              rows={4}
+              value={block.text || ""}
+              onChange={(e) => onUpdate({ text: e.target.value })}
+              className="w-full text-sm font-medium px-3 py-2 rounded-xl border outline-none shadow-inner leading-relaxed"
+              style={{ background: theme.surfaceSoft, borderColor: theme.hairline, color: theme.ink }}
+              placeholder={lang === "ar" ? "اكتب النص هنا..." : "Type text here..."}
+            />
+          ) : kind === "image" ? (
+            <div className="flex flex-col gap-2">
+              <input
+                type="file"
+                ref={fileInputRef}
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => {
+                  if (e.target.files && e.target.files[0]) handleFileUpload(e.target.files[0]);
+                }}
+              />
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="educraft-btn text-xs font-bold px-3 py-1.5 rounded-xl border cursor-pointer flex items-center gap-1.5"
+                  style={{ background: theme.surfaceSoft, borderColor: theme.hairline, color: theme.ink }}
+                >
+                  <Upload size={12} />
+                  {lang === "ar" ? "اختيار / استبدال صورة من الجهاز" : "Choose / Replace File"}
+                </button>
+                {block.imageUrl && (
+                  <button
+                    type="button"
+                    onClick={() => onUpdate({ imageUrl: "", isPlaceholder: true })}
+                    className="text-xs text-red-600 font-bold px-2 py-1 rounded cursor-pointer"
+                  >
+                    {lang === "ar" ? "إزالة الصورة" : "Remove"}
+                  </button>
+                )}
+              </div>
+
+              {/* Dimension Controls */}
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-[11px] font-bold" style={{ color: theme.inkSoft }}>
+                  {lang === "ar" ? "العرض:" : "Width:"}
+                </span>
+                {["25%", "50%", "75%", "100%"].map((w) => (
+                  <button
+                    key={w}
+                    type="button"
+                    onClick={() => onUpdate({ width: w })}
+                    className="text-[10px] font-bold px-2 py-0.5 rounded cursor-pointer border"
+                    style={{
+                      background: (block.width || "100%") === w ? theme.accentSoft : theme.surface,
+                      borderColor: (block.width || "100%") === w ? theme.accent : theme.hairline,
+                      color: (block.width || "100%") === w ? theme.accent : theme.inkSoft,
+                    }}
+                  >
+                    {w}
+                  </button>
+                ))}
+                <span className="text-[11px] font-bold ms-2" style={{ color: theme.inkSoft }}>
+                  {lang === "ar" ? "المحاذاة:" : "Align:"}
+                </span>
+                {[
+                  ["left", "Left"],
+                  ["center", "Center"],
+                  ["right", "Right"],
+                ].map(([al, lbl]) => (
+                  <button
+                    key={al}
+                    type="button"
+                    onClick={() => onUpdate({ align: al })}
+                    className="text-[10px] font-bold px-2 py-0.5 rounded cursor-pointer border"
+                    style={{
+                      background: (block.align || "center") === al ? theme.accentSoft : theme.surface,
+                      borderColor: (block.align || "center") === al ? theme.accent : theme.hairline,
+                      color: (block.align || "center") === al ? theme.accent : theme.inkSoft,
+                    }}
+                  >
+                    {lbl}
+                  </button>
+                ))}
+              </div>
+
+              <input
+                type="text"
+                dir="auto"
+                value={block.title || ""}
+                onChange={(e) => onUpdate({ title: e.target.value })}
+                placeholder={lang === "ar" ? "عنوان الصورة (اختياري)..." : "Image title..."}
+                className="w-full text-xs font-bold px-3 py-1.5 rounded-xl border outline-none shadow-inner"
+                style={{ background: theme.surfaceSoft, borderColor: theme.hairline, color: theme.ink }}
+              />
+              <input
+                type="text"
+                dir="auto"
+                value={block.caption || ""}
+                onChange={(e) => onUpdate({ caption: e.target.value })}
+                placeholder={lang === "ar" ? "شرح / تعليق أسفل الصورة..." : "Image caption..."}
+                className="w-full text-xs font-medium px-3 py-1.5 rounded-xl border outline-none shadow-inner"
+                style={{ background: theme.surfaceSoft, borderColor: theme.hairline, color: theme.ink }}
+              />
+            </div>
+          ) : kind === "table" ? (
+            <div className="flex flex-col gap-2">
+              <input
+                type="text"
+                dir="auto"
+                value={block.title || ""}
+                onChange={(e) => onUpdate({ title: e.target.value })}
+                placeholder={lang === "ar" ? "عنوان الجدول..." : "Table title..."}
+                className="w-full text-xs font-bold px-3 py-1.5 rounded-xl border outline-none shadow-inner"
+                style={{ background: theme.surfaceSoft, borderColor: theme.hairline, color: theme.ink }}
+              />
+              <input
+                type="text"
+                dir="auto"
+                value={Array.isArray(block.headers) ? block.headers.join(", ") : (block.headers || "")}
+                onChange={(e) => onUpdate({ headers: e.target.value.split(",").map((s) => s.trim()) })}
+                placeholder={lang === "ar" ? "عناوين الأعمدة مفصولة بفواصل (العمود 1, العمود 2)..." : "Headers separated by commas..."}
+                className="w-full text-xs font-medium px-3 py-1.5 rounded-xl border outline-none shadow-inner"
+                style={{ background: theme.surfaceSoft, borderColor: theme.hairline, color: theme.ink }}
+              />
+              <textarea
+                dir="auto"
+                rows={3}
+                value={Array.isArray(block.rows) ? block.rows.map((r) => (Array.isArray(r) ? r.join(", ") : r)).join("\n") : (block.rows || "")}
+                onChange={(e) => {
+                  const lines = e.target.value.split("\n");
+                  onUpdate({ rows: lines.map((l) => l.split(",").map((c) => c.trim())) });
+                }}
+                placeholder={lang === "ar" ? "صفوف الجدول (كل صف في سطر، والخلايا مفصولة بفواصل)..." : "Rows (each row on a line, cells comma-separated)..."}
+                className="w-full text-xs font-mono px-3 py-1.5 rounded-xl border outline-none shadow-inner"
+                style={{ background: theme.surfaceSoft, borderColor: theme.hairline, color: theme.ink }}
+              />
+            </div>
+          ) : kind === "code" ? (
+            <textarea
+              dir="ltr"
+              rows={4}
+              value={block.text || ""}
+              onChange={(e) => onUpdate({ text: e.target.value })}
+              className="w-full text-xs font-mono px-3 py-2 rounded-xl border outline-none shadow-inner"
+              style={{ background: "#1e1e1e", color: "#d4d4d4", borderColor: theme.hairline }}
+              placeholder="// Code here..."
+            />
+          ) : (
+            <div className="flex flex-col gap-2">
+              <input
+                type="text"
+                dir="auto"
+                value={block.title || ""}
+                onChange={(e) => onUpdate({ title: e.target.value })}
+                placeholder={lang === "ar" ? "عنوان الملاحظة / التنبيه..." : "Card title..."}
+                className="w-full text-xs font-bold px-3 py-1.5 rounded-xl border outline-none shadow-inner"
+                style={{ background: theme.surfaceSoft, borderColor: theme.hairline, color: theme.ink }}
+              />
+              <textarea
+                dir="auto"
+                rows={3}
+                value={block.text || ""}
+                onChange={(e) => onUpdate({ text: e.target.value })}
+                className="w-full text-xs font-medium px-3 py-2 rounded-xl border outline-none shadow-inner leading-relaxed"
+                style={{ background: theme.surfaceSoft, borderColor: theme.hairline, color: theme.ink }}
+                placeholder={lang === "ar" ? "محتوى البطاقة..." : "Content..."}
+              />
+            </div>
+          )}
+        </div>
+      ) : (
+        <div onDoubleClick={() => setIsEditing(true)}>
+          <PlateBlock block={block} kinds={kinds} theme={theme} skin={skin} bookId={bookId} />
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* Whole-book A4 studio preview with full authoring ribbon and interactive manual editing */
+function FullBookA4Preview({
+  book,
+  lang,
+  t,
+  theme,
+  skin,
+  docTitle,
+  bookId,
+  onUpdateBook,
+  onUpdateLeaf,
+}) {
   const blocks = useMemo(() => buildFullBookBlocks(book, lang), [book, lang]);
+  const allLeaves = useMemo(() => book.nodes.filter((n) => n.level === "leaf"), [book]);
+  const [targetLeafId, setTargetLeafId] = useState(allLeaves[0]?.id || null);
+  const [palettePickerOpen, setPalettePickerOpen] = useState(false);
+  const [focusMode, setFocusMode] = useState(false);
+
+  const activeLeaf = allLeaves.find((l) => l.id === targetLeafId) || allLeaves[0];
+  const activePalette = paletteById(activeLeaf?.pagePaletteId || 1);
+  const activeKinds = plateKindsFor(activePalette);
+
   const { pages, measureRef } = usePagedBlocks(blocks);
   const { containerRef, scale, zoomIn, zoomOut, zoomFit, isFit } = useFitScale();
+
+  const addBlockToTargetLeaf = (kind) => {
+    if (!activeLeaf) return;
+    const currentBlocks = activeLeaf.pageBlocks || [];
+    const baseId = `${activeLeaf.id}-b-${Date.now()}`;
+    let newBlock;
+    if (kind === "table") {
+      newBlock = {
+        id: baseId,
+        kind,
+        title: "",
+        headers: [lang === "ar" ? "العمود 1" : "Column 1", lang === "ar" ? "العمود 2" : "Column 2"],
+        rows: [[lang === "ar" ? "خلية 1" : "Cell 1", lang === "ar" ? "خلية 2" : "Cell 2"]],
+        caption: "",
+      };
+    } else if (kind === "text") {
+      newBlock = { id: baseId, kind, text: "" };
+    } else if (kind === "image") {
+      newBlock = { id: baseId, kind, title: "", imageUrl: "", caption: "", isPlaceholder: true };
+    } else {
+      newBlock = { id: baseId, kind, title: "", text: "", imageUrl: "", caption: "" };
+    }
+    const nextBlocks = [...currentBlocks, newBlock];
+    if (onUpdateLeaf) {
+      onUpdateLeaf(activeLeaf.id, { pageBlocks: nextBlocks });
+    } else if (onUpdateBook) {
+      onUpdateBook({
+        nodes: book.nodes.map((n) => (n.id === activeLeaf.id ? { ...n, pageBlocks: nextBlocks } : n)),
+      });
+    }
+  };
+
+  const updateBlockInLeaf = (leafId, blockIdx, patch) => {
+    const target = book.nodes.find((n) => n.id === leafId);
+    if (!target) return;
+    const current = target.pageBlocks || [];
+    const next = current.map((b, idx) => (idx === blockIdx ? { ...b, ...patch } : b));
+    if (onUpdateLeaf) onUpdateLeaf(leafId, { pageBlocks: next });
+    else if (onUpdateBook) {
+      onUpdateBook({
+        nodes: book.nodes.map((n) => (n.id === leafId ? { ...n, pageBlocks: next } : n)),
+      });
+    }
+  };
+
+  const deleteBlockInLeaf = (leafId, blockIdx) => {
+    const target = book.nodes.find((n) => n.id === leafId);
+    if (!target) return;
+    const current = target.pageBlocks || [];
+    const next = current.filter((_, idx) => idx !== blockIdx);
+    if (onUpdateLeaf) onUpdateLeaf(leafId, { pageBlocks: next });
+    else if (onUpdateBook) {
+      onUpdateBook({
+        nodes: book.nodes.map((n) => (n.id === leafId ? { ...n, pageBlocks: next } : n)),
+      });
+    }
+  };
+
+  const moveBlockInLeaf = (leafId, blockIdx, dir) => {
+    const target = book.nodes.find((n) => n.id === leafId);
+    if (!target) return;
+    const current = [...(target.pageBlocks || [])];
+    const j = blockIdx + dir;
+    if (j < 0 || j >= current.length) return;
+    [current[blockIdx], current[j]] = [current[j], current[blockIdx]];
+    if (onUpdateLeaf) onUpdateLeaf(leafId, { pageBlocks: current });
+    else if (onUpdateBook) {
+      onUpdateBook({
+        nodes: book.nodes.map((n) => (n.id === leafId ? { ...n, pageBlocks: current } : n)),
+      });
+    }
+  };
+
+  const insertBelowInLeaf = (leafId, blockIdx, newKind) => {
+    const target = book.nodes.find((n) => n.id === leafId);
+    if (!target) return;
+    const current = [...(target.pageBlocks || [])];
+    const baseId = `${leafId}-b-${Date.now()}`;
+    let newBlock;
+    if (newKind === "table") {
+      newBlock = {
+        id: baseId,
+        kind: newKind,
+        title: "",
+        headers: [lang === "ar" ? "العمود 1" : "Column 1", lang === "ar" ? "العمود 2" : "Column 2"],
+        rows: [[lang === "ar" ? "خلية 1" : "Cell 1", lang === "ar" ? "خلية 2" : "Cell 2"]],
+        caption: "",
+      };
+    } else if (newKind === "text") {
+      newBlock = { id: baseId, kind: newKind, text: "" };
+    } else if (newKind === "image") {
+      newBlock = { id: baseId, kind: newKind, title: "", imageUrl: "", caption: "", isPlaceholder: true };
+    } else {
+      newBlock = { id: baseId, kind: newKind, title: "", text: "", imageUrl: "", caption: "" };
+    }
+    current.splice(blockIdx + 1, 0, newBlock);
+    if (onUpdateLeaf) onUpdateLeaf(leafId, { pageBlocks: current });
+    else if (onUpdateBook) {
+      onUpdateBook({
+        nodes: book.nodes.map((n) => (n.id === leafId ? { ...n, pageBlocks: current } : n)),
+      });
+    }
+  };
+
+  const BLOCK_KINDS = [
+    ["sectionTitle", t.blockSectionTitle, Heading2],
+    ["text", t.blockTextKind || "Text", AlignLeft],
+    ["table", t.blockTable || "Table", TableIcon],
+    ["keyterm", t.blockKeyterm, Tag],
+    ["note", t.blockNote, StickyNote],
+    ["warning", t.blockWarning, AlertTriangle],
+    ["important", t.blockImportant, AlertCircle],
+    ["image", t.blockImage, ImagePlus],
+    ["code", t.blockCode, Code2],
+    ["pagebreak", t.blockPagebreak, CornerDownLeft],
+  ];
 
   if (!blocks.length) {
     return (
@@ -5175,7 +6267,113 @@ function FullBookA4Preview({ book, lang, t, theme, skin, docTitle }) {
   }
 
   return (
-    <div>
+    <div className="flex flex-col gap-3">
+      {/* Floating 60 Palettes Modal for Active Leaf */}
+      <PlatePaletteModal
+        isOpen={palettePickerOpen}
+        onClose={() => setPalettePickerOpen(false)}
+        selectedId={activePalette.id}
+        onSelect={(id) => {
+          if (activeLeaf && onUpdateLeaf) {
+            onUpdateLeaf(activeLeaf.id, { pagePaletteId: id });
+          } else if (activeLeaf && onUpdateBook) {
+            onUpdateBook({
+              nodes: book.nodes.map((n) => (n.id === activeLeaf.id ? { ...n, pagePaletteId: id } : n)),
+            });
+          }
+        }}
+        lang={lang}
+        theme={theme}
+        skin={skin}
+      />
+
+      {/* RIBBON TOOLBAR — Active Across All Book Pages */}
+      <div className="overflow-x-auto" style={{ borderRadius: skin.radiusLg, border: `1px solid ${theme.hairline}`, background: theme.surface }}>
+        <div className="flex items-center gap-2 p-2 w-max min-w-full">
+          {/* Target Leaf Selector */}
+          <RibbonGroup label={lang === "ar" ? "الصفحة المستهدفة" : "Target Page"}>
+            <div className="flex items-center gap-1.5 px-2 py-1 rounded-xl border" style={{ background: theme.surfaceSoft, borderColor: theme.hairline }}>
+              <span className="text-xs font-bold shrink-0" style={{ color: theme.accent }}>
+                🎯
+              </span>
+              <select
+                value={targetLeafId || ""}
+                onChange={(e) => setTargetLeafId(e.target.value)}
+                className="text-xs font-bold bg-transparent outline-none cursor-pointer max-w-[180px] truncate"
+                style={{ color: theme.ink }}
+              >
+                {allLeaves.map((l) => (
+                  <option key={l.id} value={l.id}>
+                    {lang === "ar" ? l.ar : l.en}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </RibbonGroup>
+
+          <RibbonDivider theme={theme} />
+
+          {/* Palette Picker */}
+          <RibbonGroup label={t.pageGroup}>
+            <button
+              type="button"
+              onClick={() => setPalettePickerOpen(true)}
+              className="educraft-btn flex items-center gap-2 px-3 py-1.5 rounded-xl border cursor-pointer shadow-2xs"
+              style={{
+                background: activePalette.PageBG,
+                borderColor: theme.hairline,
+                color: activePalette.HeaderColor,
+              }}
+              title="60 Palettes Picker"
+            >
+              <div
+                className="w-4 h-4 rounded-full border shadow-2xs shrink-0"
+                style={{ background: activePalette.SectionBG, borderColor: activePalette.HeaderColor }}
+              />
+              <span className="text-xs font-bold whitespace-nowrap">{activePalette.en || activePalette.name}</span>
+              <ChevronDown size={12} className="opacity-70" />
+            </button>
+          </RibbonGroup>
+
+          <RibbonDivider theme={theme} />
+
+          {/* Insert Tools */}
+          <RibbonGroup label={t.insertGroup}>
+            {BLOCK_KINDS.map(([kind, label, Icon]) => (
+              <RibbonButton
+                key={kind}
+                icon={Icon}
+                label={label}
+                theme={theme}
+                skin={skin}
+                onClick={() => addBlockToTargetLeaf(kind)}
+                tone={activeKinds[kind]}
+              />
+            ))}
+          </RibbonGroup>
+
+          <RibbonDivider theme={theme} />
+
+          {/* Focus Mode */}
+          <RibbonGroup label={lang === "ar" ? "العرض" : "View"}>
+            <button
+              type="button"
+              onClick={() => setFocusMode(!focusMode)}
+              className="educraft-btn flex items-center gap-1.5 px-3 py-1.5 rounded-xl border cursor-pointer shadow-2xs text-xs font-bold transition-all"
+              style={{
+                background: focusMode ? theme.accent : theme.surfaceSoft,
+                color: focusMode ? theme.accentInk : theme.ink,
+                borderColor: focusMode ? theme.accent : theme.hairline,
+              }}
+            >
+              {focusMode ? <Minimize2 size={13} /> : <Maximize2 size={13} />}
+              <span>{focusMode ? (lang === "ar" ? "إظهار الهامش" : "Restore Margin") : (lang === "ar" ? "صفحة كاملة (Focus)" : "Focus Canvas")}</span>
+            </button>
+          </RibbonGroup>
+        </div>
+      </div>
+
+      {/* Hidden measuring pass */}
       <div ref={measureRef} style={{ position: "absolute", visibility: "hidden", pointerEvents: "none", width: "182mm", top: -99999, fontFamily: PAGE_FONT, fontSize: 15, lineHeight: 1.9 }}>
         {blocks.map((b, i) => (
           <PlateBlock key={b.id || i} block={b} kinds={plateKindsFor(paletteById(b._paletteId || 1))} theme={theme} skin={skin} />
@@ -5184,18 +6382,40 @@ function FullBookA4Preview({ book, lang, t, theme, skin, docTitle }) {
 
       <ZoomBar t={t} theme={theme} skin={skin} scale={scale} onZoomOut={zoomOut} onZoomIn={zoomIn} onFit={zoomFit} isFit={isFit} />
 
-      <div ref={containerRef} className="overflow-x-auto">
-        <div style={{ zoom: scale }}>
-          <div className="flex flex-col gap-6 items-center py-2">
+      <div ref={containerRef} className="overflow-x-auto overflow-y-visible flex justify-center py-2">
+        <div style={{ zoom: scale, transition: "zoom 0.22s cubic-bezier(0.16, 1, 0.3, 1)" }}>
+          <div className="flex flex-col gap-8 items-center py-2">
             {pages.map((pageBlocks, pi) => {
               const owner = pageBlocks[0];
+              const leafId = owner?._leafId;
+              const isTargetPage = leafId && leafId === targetLeafId;
               const palette = paletteById(owner?._paletteId || 1);
+              const kinds = plateKindsFor(palette);
+
               return (
                 <div
                   key={pi}
                   dir="rtl"
-                  style={{ width: "210mm", minHeight: "297mm", background: palette.PageBG, color: palette.BodyText, padding: "16mm 14mm", boxShadow: "0 4px 24px rgba(0,0,0,0.15)", borderRadius: 4, fontFamily: PAGE_FONT, fontSize: 15, lineHeight: 1.9 }}
+                  onClick={() => {
+                    if (leafId && leafId !== targetLeafId) setTargetLeafId(leafId);
+                  }}
+                  className="transition-all relative cursor-pointer"
+                  style={{
+                    width: "210mm",
+                    minHeight: "297mm",
+                    background: palette.PageBG,
+                    color: palette.BodyText,
+                    padding: "16mm 14mm",
+                    boxShadow: isTargetPage
+                      ? `0 0 0 3px ${theme.accent}, 0 8px 32px rgba(0,0,0,0.18)`
+                      : "0 4px 24px rgba(0,0,0,0.15)",
+                    borderRadius: 6,
+                    fontFamily: PAGE_FONT,
+                    fontSize: 15,
+                    lineHeight: 1.9,
+                  }}
                 >
+                  {/* Page Top Bar */}
                   <div
                     style={{
                       display: "flex",
@@ -5210,13 +6430,68 @@ function FullBookA4Preview({ book, lang, t, theme, skin, docTitle }) {
                     }}
                   >
                     <span>{docTitle}</span>
-                    <span>{owner?._branchTitle ? `${owner._branchTitle} — ${owner._leafTitle}` : owner?._leafTitle}</span>
+                    <div className="flex items-center gap-2">
+                      {isTargetPage && (
+                        <span
+                          className="text-[10px] font-black px-2 py-0.5 rounded-md shadow-2xs"
+                          style={{ background: theme.accent, color: theme.accentInk }}
+                        >
+                          {lang === "ar" ? "🎯 الصفحة النشطة للتحرير" : "🎯 Active Target"}
+                        </span>
+                      )}
+                      <span>{owner?._branchTitle ? `${owner._branchTitle} — ${owner._leafTitle}` : owner?._leafTitle}</span>
+                    </div>
                   </div>
 
-                  {pageBlocks.map((b, i) => (
-                    <PlateBlock key={b.id || i} block={b} kinds={plateKindsFor(paletteById(b._paletteId || 1))} theme={theme} skin={skin} />
-                  ))}
-                  <p style={{ position: "relative", top: "8mm", textAlign: "center", fontSize: 10, color: "#b3a692" }}>{t.pageOf(pi + 1, pages.length)}</p>
+                  {/* Render page blocks with direct CanvasBlockWrapper */}
+                  {pageBlocks.map((b, i) => {
+                    const blockLeafId = b._leafId;
+                    const blockIdx = typeof b._blockIndex === "number" ? b._blockIndex : i;
+
+                    return (
+                      <CanvasBlockWrapper
+                        key={b.id || i}
+                        block={b}
+                        kinds={kinds}
+                        palette={palette}
+                        theme={theme}
+                        skin={skin}
+                        lang={lang}
+                        bookId={bookId}
+                        onUpdate={(patch) => updateBlockInLeaf(blockLeafId, blockIdx, patch)}
+                        onDelete={() => deleteBlockInLeaf(blockLeafId, blockIdx)}
+                        onMove={(dir) => moveBlockInLeaf(blockLeafId, blockIdx, dir)}
+                        onInsertBelow={(k) => insertBelowInLeaf(blockLeafId, blockIdx, k)}
+                      />
+                    );
+                  })}
+
+                  {/* Add Block to this leaf quick button */}
+                  {leafId && (
+                    <div className="mt-4 flex justify-center">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setTargetLeafId(leafId);
+                          const target = book.nodes.find((n) => n.id === leafId);
+                          const current = target?.pageBlocks || [];
+                          const baseId = `${leafId}-b-${Date.now()}`;
+                          const newBlock = { id: baseId, kind: "text", text: "" };
+                          if (onUpdateLeaf) onUpdateLeaf(leafId, { pageBlocks: [...current, newBlock] });
+                        }}
+                        className="educraft-btn flex items-center gap-1.5 text-xs font-bold px-4 py-1.5 rounded-xl border border-dashed hover:border-solid cursor-pointer shadow-2xs opacity-70 hover:opacity-100 transition-all"
+                        style={{ background: `${palette.HeaderColor}0d`, borderColor: palette.HeaderColor, color: palette.HeaderColor }}
+                      >
+                        <Plus size={12} />
+                        <span>{lang === "ar" ? "إضافة عنصر جديد لأسفل هذه الصفحة" : "+ Add Block to This Leaf"}</span>
+                      </button>
+                    </div>
+                  )}
+
+                  <p style={{ position: "relative", top: "8mm", textAlign: "center", fontSize: 10, color: "#b3a692" }}>
+                    {t.pageOf(pi + 1, pages.length)}
+                  </p>
                 </div>
               );
             })}
@@ -5270,8 +6545,8 @@ function SingleLeafA4Preview({ leaf, book, lang, theme, skin }) {
 
       <ZoomBar t={t} theme={theme} skin={skin} scale={scale} onZoomOut={zoomOut} onZoomIn={zoomIn} onFit={zoomFit} isFit={isFit} />
 
-      <div ref={containerRef} className="overflow-x-auto">
-        <div style={{ zoom: scale }}>
+      <div ref={containerRef} className="overflow-x-auto overflow-y-visible flex justify-center py-2">
+        <div style={{ zoom: scale, transition: "zoom 0.22s cubic-bezier(0.16, 1, 0.3, 1)" }}>
           <div className="flex flex-col gap-6 items-center py-2">
             {pages.map((pageBlocks, pi) => (
               <div
@@ -5322,7 +6597,282 @@ function SingleLeafA4Preview({ leaf, book, lang, theme, skin }) {
   );
 }
 
+/* Floating modal for selecting from all 60 Thiqa A4 Plate Palettes */
+function PlatePaletteModal({ isOpen, onClose, selectedId, onSelect, lang, theme, skin }) {
+  const [search, setSearch] = useState("");
+  const [filterCat, setFilterCat] = useState("all");
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, onClose]);
+
+  if (!isOpen) return null;
+
+  const categories = [
+    { id: "all", en: "All (60)", ar: "الكل (60)" },
+    { id: "academic", en: "Academic & Neutral", ar: "أكاديمي ومحايد", ids: [1, 2, 3, 11, 12, 14, 23, 36] },
+    { id: "pastel", en: "Soft Pastel", ar: "باستيل وناعم", ids: [4, 5, 6, 7, 19, 28, 40] },
+    { id: "dark", en: "Night & Dark", ar: "ليلي وداكن", ids: [8, 9, 10] },
+    { id: "vibrant", en: "Vibrant & Rich", ar: "حيوي ومتنوع", ids: [13, 15, 16, 17, 18, 20, 21, 22, 24, 25, 26, 27, 29, 30, 31, 32, 33, 34, 35, 37, 38, 39, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60] },
+  ];
+
+  const filtered = PAGE_PALETTES.filter((p) => {
+    if (filterCat !== "all") {
+      const cat = categories.find((c) => c.id === filterCat);
+      if (cat && cat.ids && !cat.ids.includes(p.id)) return false;
+    }
+    if (search.trim()) {
+      const q = search.toLowerCase().trim();
+      return (
+        (p.en && p.en.toLowerCase().includes(q)) ||
+        (p.name && p.name.toLowerCase().includes(q)) ||
+        String(p.id).includes(q)
+      );
+    }
+    return true;
+  });
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/60 backdrop-blur-md"
+      onClick={onClose}
+    >
+      <div
+        className="w-full max-w-5xl max-h-[90vh] rounded-3xl border shadow-2xl flex flex-col overflow-hidden educraft-modal-in"
+        style={{
+          background: theme.surface,
+          borderColor: theme.hairlineStrong,
+          color: theme.ink,
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div
+          className="flex items-center justify-between px-6 py-4 border-b flex-wrap gap-3"
+          style={{ borderColor: theme.hairline, background: theme.surfaceSoft }}
+        >
+          <div className="flex items-center gap-3">
+            <div
+              className="w-10 h-10 rounded-2xl grid place-items-center shadow-xs"
+              style={{ background: theme.accentSoft, color: theme.accent }}
+            >
+              <Palette size={20} />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="text-base font-black tracking-tight" style={{ color: theme.ink }}>
+                  60 Document & Print Plates
+                </h3>
+                <span className="text-[11px] font-bold px-2 py-0.5 rounded-full" style={{ background: theme.accentSoft, color: theme.accent }}>
+                  Curated Presets
+                </span>
+              </div>
+              <p className="text-xs font-medium" style={{ color: theme.inkSoft }}>
+                Click any plate to preview instantly on the A4 page canvas
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="educraft-btn w-9 h-9 rounded-xl grid place-items-center cursor-pointer border shadow-2xs"
+            style={{ background: theme.surface, borderColor: theme.hairline, color: theme.inkSoft }}
+            title="Close (Esc)"
+          >
+            <X size={16} />
+          </button>
+        </div>
+
+        {/* Search & Category Filter Bar */}
+        <div className="px-6 py-3 border-b flex flex-wrap items-center justify-between gap-3" style={{ borderColor: theme.hairline, background: theme.surface }}>
+          <div className="relative flex-1 min-w-[240px]">
+            <input
+              type="text"
+              autoFocus
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search by name or plate # (e.g. Mint, Midnight, Amber, 14)..."
+              className="w-full text-xs font-medium px-3.5 py-2 rounded-xl border outline-none pe-8 shadow-2xs"
+              style={{ background: theme.surfaceSoft, borderColor: theme.hairline, color: theme.ink }}
+            />
+            {search && (
+              <button
+                type="button"
+                onClick={() => setSearch("")}
+                className="absolute end-2.5 top-1/2 -translate-y-1/2 text-xs font-bold cursor-pointer"
+                style={{ color: theme.inkSoft }}
+              >
+                ✕
+              </button>
+            )}
+          </div>
+
+          <div className="flex items-center gap-1.5 flex-wrap">
+            {categories.map((cat) => (
+              <button
+                key={cat.id}
+                type="button"
+                onClick={() => setFilterCat(cat.id)}
+                className="educraft-btn text-xs font-bold px-3 py-1.5 rounded-xl cursor-pointer shadow-2xs"
+                style={{
+                  background: filterCat === cat.id ? theme.accent : theme.surfaceSoft,
+                  color: filterCat === cat.id ? theme.accentInk : theme.inkSoft,
+                  border: `1px solid ${filterCat === cat.id ? theme.accent : theme.hairline}`,
+                }}
+              >
+                {cat.en}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* 60 Palettes Grid */}
+        <div className="p-6 overflow-y-auto max-h-[62vh]" style={{ background: theme.canvas }}>
+          {filtered.length === 0 ? (
+            <div className="text-center py-16 flex flex-col items-center justify-center gap-2">
+              <Palette size={32} style={{ color: theme.inkSoft, opacity: 0.5 }} />
+              <p className="text-sm font-semibold" style={{ color: theme.inkSoft }}>
+                No palettes match "{search}"
+              </p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3.5">
+              {filtered.map((p) => {
+                const isSelected = selectedId === p.id;
+                const enTitle = p.en || p.name;
+                return (
+                  <button
+                    key={p.id}
+                    type="button"
+                    onClick={() => onSelect(p.id)}
+                    className="educraft-btn group relative p-3 rounded-2xl border text-start flex flex-col justify-between gap-2.5 cursor-pointer transition-all"
+                    style={{
+                      background: theme.surface,
+                      borderColor: isSelected ? theme.accent : theme.hairline,
+                      boxShadow: isSelected
+                        ? `0 0 0 2.5px ${theme.accent}, 0 8px 24px rgba(0,0,0,0.12)`
+                        : "0 2px 8px rgba(0,0,0,0.04)",
+                    }}
+                  >
+                    {/* Realistic Mini A4 Sheet Preview */}
+                    <div
+                      className="w-full aspect-[1/1.32] rounded-xl border p-2 flex flex-col justify-between overflow-hidden shadow-sm relative transition-transform group-hover:scale-[1.02]"
+                      style={{
+                        background: p.PageBG,
+                        borderColor: `${p.HeaderColor}33`,
+                      }}
+                    >
+                      {/* Sheet Header line */}
+                      <div className="flex items-center justify-between pb-1 border-b" style={{ borderColor: `${p.HeaderColor}44` }}>
+                        <div className="h-1.5 w-1/2 rounded-full" style={{ background: p.HeaderColor }} />
+                        <div className="h-1.5 w-1.5 rounded-full" style={{ background: p.SectionBG }} />
+                      </div>
+
+                      {/* Section card with accent frame */}
+                      <div
+                        className="rounded p-1.5 flex flex-col gap-1 border"
+                        style={{
+                          background: `${p.SectionBG}18`,
+                          borderColor: p.SectionFrame || p.SectionBG,
+                        }}
+                      >
+                        <div className="h-2 w-3/4 rounded" style={{ background: p.SectionBG }} />
+                        <div className="h-1 w-full rounded-full opacity-40" style={{ background: p.BodyText }} />
+                        <div className="h-1 w-2/3 rounded-full opacity-40" style={{ background: p.BodyText }} />
+                      </div>
+
+                      {/* Note card / keyframe */}
+                      <div
+                        className="rounded px-1.5 py-1 flex items-center gap-1 border"
+                        style={{
+                          background: p.NoteBG || `${p.KeyBG}33`,
+                          borderColor: p.NoteFrame || p.KeyFrame,
+                        }}
+                      >
+                        <div className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: p.KeyFrame || p.HeaderColor }} />
+                        <div className="h-1 w-3/4 rounded-full opacity-60" style={{ background: p.NoteText || p.KeyText }} />
+                      </div>
+
+                      {/* Selection Checkmark Badge */}
+                      {isSelected && (
+                        <div
+                          className="absolute end-1.5 top-1.5 w-5 h-5 rounded-full grid place-items-center shadow-md"
+                          style={{ background: theme.accent, color: theme.accentInk }}
+                        >
+                          <Check size={11} strokeWidth={3} />
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Card Label Information */}
+                    <div className="flex flex-col gap-0.5 w-full min-w-0">
+                      <div className="flex items-center justify-between gap-1">
+                        <span
+                          className="text-[11px] font-black tracking-tight truncate flex-1"
+                          style={{ color: isSelected ? theme.accent : theme.ink }}
+                          title={enTitle}
+                        >
+                          {enTitle}
+                        </span>
+                        <span
+                          className="text-[9px] font-black px-1.5 py-0.5 rounded shrink-0 font-mono"
+                          style={{ background: theme.surfaceSoft, color: theme.inkSoft }}
+                        >
+                          #{p.id < 10 ? `0${p.id}` : p.id}
+                        </span>
+                      </div>
+                      {p.name && (
+                        <span className="text-[10px] font-semibold truncate opacity-60" dir="rtl">
+                          {p.name}
+                        </span>
+                      )}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div
+          className="flex items-center justify-between px-6 py-3.5 border-t flex-wrap gap-3"
+          style={{ borderColor: theme.hairline, background: theme.surfaceSoft }}
+        >
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-bold" style={{ color: theme.inkSoft }}>
+              Selected Plate:
+            </span>
+            <span
+              className="text-xs font-black px-2.5 py-1 rounded-xl shadow-2xs"
+              style={{ background: theme.surface, color: theme.accent, border: `1px solid ${theme.hairline}` }}
+            >
+              #{selectedId} {PAGE_PALETTES.find((p) => p.id === selectedId)?.en || PAGE_PALETTES.find((p) => p.id === selectedId)?.name}
+            </span>
+          </div>
+
+          <button
+            type="button"
+            onClick={onClose}
+            className="educraft-btn text-xs font-bold px-6 py-2 rounded-xl cursor-pointer shadow-sm"
+            style={{ background: theme.accent, color: theme.accentInk }}
+          >
+            Done & Apply
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function A4PageBuilder({ leaf, lang, theme, skin, t, onUpdateLeaf, allLeavesCards, docTitle, pageTitle, bookId }) {
+  const [palettePickerOpen, setPalettePickerOpen] = useState(false);
+  const [focusMode, setFocusMode] = useState(false);
   const blocks = leaf.pageBlocks || [];
   const palette = paletteById(leaf.pagePaletteId || 1);
   const kinds = plateKindsFor(palette);
@@ -5385,32 +6935,39 @@ function A4PageBuilder({ leaf, lang, theme, skin, t, onUpdateLeaf, allLeavesCard
 
   return (
     <div className="flex flex-col gap-3">
-      {/* RIBBON — grouped tool buttons, Word/PowerPoint-style: icon on
-          top, short caption below each group. Scrolls horizontally
-          instead of wrapping, so it stays usable on phones. */}
+      {/* Floating 60 Palettes Modal */}
+      <PlatePaletteModal
+        isOpen={palettePickerOpen}
+        onClose={() => setPalettePickerOpen(false)}
+        selectedId={palette.id}
+        onSelect={(id) => onUpdateLeaf({ pagePaletteId: id })}
+        lang={lang}
+        theme={theme}
+        skin={skin}
+      />
+
+      {/* RIBBON — grouped tool buttons */}
       <div className="overflow-x-auto" style={{ borderRadius: skin.radiusLg, border: `1px solid ${theme.hairline}`, background: theme.surface }}>
-        <div className="flex items-start gap-1 p-2 w-max min-w-full">
+        <div className="flex items-center gap-2 p-2 w-max min-w-full">
           <RibbonGroup label={t.pageGroup}>
-            <div className="flex flex-col items-center gap-1 px-1 py-1">
-              <div className="grid grid-cols-8 gap-1">
-                {PAGE_PALETTES.map((p) => (
-                  <button
-                    key={p.id}
-                    onClick={() => onUpdateLeaf({ pagePaletteId: p.id })}
-                    title={p.name}
-                    className="w-4 h-4 rounded-full shrink-0"
-                    style={{
-                      background: p.SectionBG,
-                      border: `2px solid ${palette.id === p.id ? theme.ink : "transparent"}`,
-                      boxShadow: palette.id === p.id ? `0 0 0 2px ${theme.accent}` : "none",
-                    }}
-                  />
-                ))}
-              </div>
-              <p className="text-[9px] font-semibold whitespace-nowrap" style={{ color: theme.inkSoft }}>
-                {palette.name}
-              </p>
-            </div>
+            <button
+              type="button"
+              onClick={() => setPalettePickerOpen(true)}
+              className="educraft-btn flex items-center gap-2 px-3 py-1.5 rounded-xl border cursor-pointer shadow-2xs"
+              style={{
+                background: palette.PageBG,
+                borderColor: theme.hairline,
+                color: palette.HeaderColor,
+              }}
+              title="Open 60 Palettes Picker"
+            >
+              <div
+                className="w-4 h-4 rounded-full border shadow-2xs shrink-0"
+                style={{ background: palette.SectionBG, borderColor: palette.HeaderColor }}
+              />
+              <span className="text-xs font-bold whitespace-nowrap">{palette.en || palette.name}</span>
+              <ChevronDown size={12} className="opacity-70" />
+            </button>
           </RibbonGroup>
 
           <RibbonDivider theme={theme} />
@@ -5426,24 +6983,47 @@ function A4PageBuilder({ leaf, lang, theme, skin, t, onUpdateLeaf, allLeavesCard
           <RibbonGroup label={t.addBlock}>
             <RibbonButton icon={Wand2} label={t.genFromCards} theme={theme} skin={skin} onClick={generateFromCards} />
           </RibbonGroup>
+
+          <RibbonDivider theme={theme} />
+
+          {/* Focus Mode Canvas Button */}
+          <RibbonGroup label={lang === "ar" ? "العرض" : "View"}>
+            <button
+              type="button"
+              onClick={() => setFocusMode(!focusMode)}
+              className="educraft-btn flex items-center gap-1.5 px-3 py-1.5 rounded-xl border cursor-pointer shadow-2xs text-xs font-bold transition-all"
+              style={{
+                background: focusMode ? theme.accent : theme.surfaceSoft,
+                color: focusMode ? theme.accentInk : theme.ink,
+                borderColor: focusMode ? theme.accent : theme.hairline,
+              }}
+              title={focusMode ? (lang === "ar" ? "إظهار الشريط الجانبي" : "Show Sidebar") : (lang === "ar" ? "وضع الصفحة الكاملة المباشر" : "Direct Full-Page Focus Canvas")}
+            >
+              {focusMode ? <Minimize2 size={13} /> : <Maximize2 size={13} />}
+              <span>
+                {focusMode
+                  ? (lang === "ar" ? "إظهار الشريط الجانبي" : "Show Sidebar")
+                  : (lang === "ar" ? "صفحة كاملة (Focus)" : "Focus Canvas")}
+              </span>
+            </button>
+          </RibbonGroup>
         </div>
       </div>
 
-      <div className="grid lg:grid-cols-[1fr_260px] gap-4 items-start">
-        {/* CANVAS — comes first in the DOM so it shows before the task
-            pane when this stacks to one column on small screens. */}
+      <div className={`grid ${focusMode ? "grid-cols-1" : "lg:grid-cols-[1fr_280px]"} gap-4 items-start`}>
+        {/* CANVAS */}
         <div className="order-1 min-w-0">
           <ZoomBar t={t} theme={theme} skin={skin} scale={scale} onZoomOut={zoomOut} onZoomIn={zoomIn} onFit={zoomFit} isFit={isFit} />
 
-          {/* hidden measuring pass — same width, invisible */}
+          {/* hidden measuring pass */}
           <div ref={measureRef} style={{ position: "absolute", visibility: "hidden", pointerEvents: "none", width: "182mm", top: -99999, fontFamily: PAGE_FONT, fontSize: 15, lineHeight: 1.9 }}>
             {blocks.map((b, i) => (
               <PlateBlock key={b.id || i} block={b} kinds={kinds} theme={theme} skin={skin} />
             ))}
           </div>
 
-          <div ref={containerRef} className="overflow-x-auto">
-            <div style={{ zoom: scale }}>
+          <div ref={containerRef} className="overflow-x-auto overflow-y-visible flex justify-center py-2">
+            <div style={{ zoom: scale, transition: "zoom 0.22s cubic-bezier(0.16, 1, 0.3, 1)" }}>
               <div className="flex flex-col gap-6 items-center py-2">
                 {pages.map((pageBlocks, pi) => (
                   <div
@@ -5476,9 +7056,61 @@ function A4PageBuilder({ leaf, lang, theme, skin, t, onUpdateLeaf, allLeavesCard
                       </div>
                     )}
 
-                    {pageBlocks.map((b, i) => (
-                      <PlateBlock key={b.id || i} block={b} kinds={kinds} theme={theme} skin={skin} />
-                    ))}
+                    {pageBlocks.map((b, i) => {
+                      const origIdx = blocks.findIndex((x) => x.id === b.id);
+                      const blockIndex = origIdx !== -1 ? origIdx : i;
+                      return (
+                        <CanvasBlockWrapper
+                          key={b.id || i}
+                          block={b}
+                          kinds={kinds}
+                          palette={palette}
+                          theme={theme}
+                          skin={skin}
+                          lang={lang}
+                          bookId={bookId}
+                          onUpdate={(patch) => updateBlock(blockIndex, patch)}
+                          onDelete={() => deleteBlock(blockIndex)}
+                          onMove={(dir) => moveBlock(blockIndex, dir)()}
+                          onInsertBelow={(newKind) => {
+                            const baseId = `${leaf.id}-b-${Date.now()}`;
+                            let newBlock;
+                            if (newKind === "table") {
+                              newBlock = {
+                                id: baseId,
+                                kind: newKind,
+                                title: "",
+                                headers: [lang === "ar" ? "العمود 1" : "Column 1", lang === "ar" ? "العمود 2" : "Column 2"],
+                                rows: [[lang === "ar" ? "خلية 1" : "Cell 1", lang === "ar" ? "خلية 2" : "Cell 2"]],
+                                caption: "",
+                              };
+                            } else if (newKind === "text") {
+                              newBlock = { id: baseId, kind: newKind, text: "" };
+                            } else if (newKind === "image") {
+                              newBlock = { id: baseId, kind: newKind, title: "", imageUrl: "", caption: "", isPlaceholder: true };
+                            } else {
+                              newBlock = { id: baseId, kind: newKind, title: "", text: "", imageUrl: "", caption: "" };
+                            }
+                            const next = [...blocks];
+                            next.splice(blockIndex + 1, 0, newBlock);
+                            setBlocks(next);
+                          }}
+                        />
+                      );
+                    })}
+
+                    <div className="mt-4 flex justify-center">
+                      <button
+                        type="button"
+                        onClick={() => addBlock("text")}
+                        className="educraft-btn flex items-center gap-1.5 text-xs font-bold px-4 py-1.5 rounded-xl border border-dashed hover:border-solid cursor-pointer shadow-2xs opacity-70 hover:opacity-100 transition-all"
+                        style={{ background: `${palette.HeaderColor}0d`, borderColor: palette.HeaderColor, color: palette.HeaderColor }}
+                      >
+                        <Plus size={12} />
+                        <span>{lang === "ar" ? "إضافة عنصر جديد لأسفل هذه الصفحة" : "+ Add Block to Page"}</span>
+                      </button>
+                    </div>
+
                     <p style={{ position: "relative", top: "8mm", textAlign: "center", fontSize: 10, color: "#b3a692" }}>{t.pageOf(pi + 1, pages.length)}</p>
                   </div>
                 ))}
@@ -5487,30 +7119,30 @@ function A4PageBuilder({ leaf, lang, theme, skin, t, onUpdateLeaf, allLeavesCard
           </div>
         </div>
 
-        {/* TASK PANE — the editable block list, Word "Styles pane"
-            style: a slim column beside the canvas on wide screens,
-            a full-width panel below it once the layout stacks. */}
-        <div className="order-2 p-3" style={{ borderRadius: skin.radiusLg, border: `1px solid ${theme.hairline}`, background: theme.surface, alignSelf: "start" }}>
-          <p className="text-[10px] font-bold uppercase tracking-wide mb-2" style={{ color: theme.inkSoft }}>
-            {t.addBlock}
-          </p>
-          <div className="max-h-[40vh] lg:max-h-[70vh] overflow-y-auto">
-            {blocks.map((b, i) => (
-              <BlockRow
-                key={b.id || i}
-                block={b}
-                t={t}
-                theme={theme}
-                skin={skin}
-                kinds={kinds}
-                bookId={bookId}
-                onUpdate={(p) => updateBlock(i, p)}
-                onDelete={() => deleteBlock(i)}
-                onMove={(dir) => moveBlock(i, dir)}
-              />
-            ))}
+        {/* TASK PANE (hidden when in Focus Mode) */}
+        {!focusMode && (
+          <div className="order-2 p-3" style={{ borderRadius: skin.radiusLg, border: `1px solid ${theme.hairline}`, background: theme.surface, alignSelf: "start" }}>
+            <p className="text-[10px] font-bold uppercase tracking-wide mb-2" style={{ color: theme.inkSoft }}>
+              {t.addBlock}
+            </p>
+            <div className="max-h-[40vh] lg:max-h-[70vh] overflow-y-auto">
+              {blocks.map((b, i) => (
+                <BlockRow
+                  key={b.id || i}
+                  block={b}
+                  t={t}
+                  theme={theme}
+                  skin={skin}
+                  kinds={kinds}
+                  bookId={bookId}
+                  onUpdate={(p) => updateBlock(i, p)}
+                  onDelete={() => deleteBlock(i)}
+                  onMove={(dir) => moveBlock(i, dir)}
+                />
+              ))}
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
@@ -5623,22 +7255,47 @@ function EditorRibbon({ book, lang, theme, t, onImportBook, addCard, addQuestion
   const groupStyle = { background: theme.surface, borderRadius: 14, border: `1px solid ${theme.hairline}`, padding: 8 };
   const iconBtn = { height: 28, borderRadius: 8, background: theme.surfaceSoft, display: "grid", placeItems: "center", color: theme.ink };
   return (
-    <div className="flex flex-col gap-2" style={{ width: 150 }}>
-      <div style={groupStyle}>
-        <p className="text-[9px] font-bold uppercase mb-1.5" style={{ color: theme.inkSoft }}>
-          {t.files}
-        </p>
-        <div className="flex gap-1.5 mb-1.5">
-          <button onClick={() => fileRef.current?.click()} className="flex-1" style={iconBtn} title={t.importBookJson}>
-            <FileUp size={14} />
+    <div className="flex flex-col gap-2.5 w-full md:w-[220px] shrink-0">
+      {/* Files & Export Panel */}
+      <div style={groupStyle} className="shadow-2xs">
+        <div className="flex items-center gap-1.5 mb-2 pb-1 border-b" style={{ borderColor: theme.hairline }}>
+          <FolderOpen size={12} style={{ color: theme.accent }} />
+          <span className="text-[10px] font-black uppercase tracking-wider" style={{ color: theme.ink }}>
+            {t.files}
+          </span>
+        </div>
+        <div className="flex gap-1.5 mb-2">
+          <button
+            type="button"
+            onClick={() => fileRef.current?.click()}
+            className="educraft-btn flex-1 flex items-center justify-center gap-1 text-[10px] font-bold py-1.5 rounded-lg border cursor-pointer"
+            style={{ background: theme.surfaceSoft, borderColor: theme.hairline, color: theme.ink }}
+            title={t.importBookJson}
+          >
+            <FileUp size={13} style={{ color: theme.accent }} />
+            <span>{lang === "ar" ? "استيراد" : "Import"}</span>
           </button>
-          <button onClick={() => downloadJSON(`${book.id}.json`, book)} className="flex-1" style={iconBtn} title={t.exportBookJson}>
-            <FileDown size={14} />
+          <button
+            type="button"
+            onClick={() => downloadJSON(`${book.id}.json`, book)}
+            className="educraft-btn flex-1 flex items-center justify-center gap-1 text-[10px] font-bold py-1.5 rounded-lg border cursor-pointer"
+            style={{ background: theme.surfaceSoft, borderColor: theme.hairline, color: theme.ink }}
+            title={t.exportBookJson}
+          >
+            <FileDown size={13} style={{ color: theme.accent }} />
+            <span>{lang === "ar" ? "تصدير" : "Export"}</span>
           </button>
           <input ref={fileRef} type="file" accept="application/json" onChange={onFile} className="hidden" />
         </div>
-        <button onClick={() => orderedImagesRef.current?.click()} className="w-full flex items-center justify-center gap-1.5 text-[10px] font-bold py-1.5 mb-1.5" style={{ borderRadius: 8, background: theme.surfaceSoft, color: theme.ink }} title={t.importOrderedImages}>
-          <ImagePlus size={12} /> 0·1·2
+        <button
+          type="button"
+          onClick={() => orderedImagesRef.current?.click()}
+          className="educraft-btn w-full flex items-center justify-center gap-1.5 text-[10px] font-bold py-1.5 mb-1.5 rounded-lg border cursor-pointer"
+          style={{ background: theme.surfaceSoft, borderColor: theme.hairline, color: theme.ink }}
+          title={t.importOrderedImages}
+        >
+          <ImagePlus size={13} style={{ color: theme.accent }} />
+          <span>{lang === "ar" ? "صور مرقمة 0·1·2" : "Numbered Images"}</span>
         </button>
         <input
           ref={orderedImagesRef}
@@ -5653,8 +7310,15 @@ function EditorRibbon({ book, lang, theme, t, onImportBook, addCard, addQuestion
           }}
           className="hidden"
         />
-        <button onClick={() => manifestFolderRef.current?.click()} className="w-full flex items-center justify-center gap-1.5 text-[10px] font-bold py-1.5" style={{ borderRadius: 8, background: theme.surfaceSoft, color: theme.ink }} title={t.importManifestFolder}>
-          <FolderOpen size={12} /> manifest
+        <button
+          type="button"
+          onClick={() => manifestFolderRef.current?.click()}
+          className="educraft-btn w-full flex items-center justify-center gap-1.5 text-[10px] font-bold py-1.5 rounded-lg border cursor-pointer"
+          style={{ background: theme.surfaceSoft, borderColor: theme.hairline, color: theme.ink }}
+          title={t.importManifestFolder}
+        >
+          <FolderOpen size={13} style={{ color: theme.accent }} />
+          <span>{lang === "ar" ? "مجلد مانيفست" : "Manifest Folder"}</span>
         </button>
         <input
           ref={manifestFolderRef}
@@ -5669,35 +7333,73 @@ function EditorRibbon({ book, lang, theme, t, onImportBook, addCard, addQuestion
           className="hidden"
         />
         {importStatus && (
-          <p className="text-[9px] mt-1.5" style={{ color: importStatus.ok ? theme.accent : "#C0392B" }}>
+          <p className="text-[10px] mt-2 p-1.5 rounded font-semibold text-center" style={{ background: importStatus.ok ? `${theme.accent}15` : "#C0392B15", color: importStatus.ok ? theme.accent : "#C0392B" }}>
             {importStatus.text}
           </p>
         )}
       </div>
-      <div style={groupStyle}>
-        <p className="text-[9px] font-bold uppercase mb-1.5" style={{ color: theme.inkSoft }}>
-          {t.card}
-        </p>
-        <button onClick={addCard} className="w-full text-[10px] font-bold py-1.5" style={{ borderRadius: 8, background: theme.accentSoft, color: theme.accent }}>
-          + {t.newCard}
+
+      {/* Card Actions */}
+      <div style={groupStyle} className="shadow-2xs">
+        <div className="flex items-center gap-1.5 mb-2 pb-1 border-b" style={{ borderColor: theme.hairline }}>
+          <LayoutGrid size={12} style={{ color: theme.accent }} />
+          <span className="text-[10px] font-black uppercase tracking-wider" style={{ color: theme.ink }}>
+            {t.card}
+          </span>
+        </div>
+        <button
+          type="button"
+          onClick={addCard}
+          className="educraft-btn w-full flex items-center justify-center gap-1.5 text-xs font-bold py-2 rounded-xl cursor-pointer shadow-2xs border"
+          style={{ background: theme.accent, color: theme.accentInk, borderColor: theme.accent }}
+        >
+          <Plus size={14} />
+          <span>{t.newCard}</span>
         </button>
       </div>
-      <div style={groupStyle}>
-        <p className="text-[9px] font-bold uppercase mb-1.5" style={{ color: theme.inkSoft }}>
-          {t.addQuestion}
-        </p>
-        <div className="grid grid-cols-3 gap-1 max-h-40 overflow-y-auto">
+
+      {/* Questions Palette with Readable Labels */}
+      <div style={groupStyle} className="shadow-2xs">
+        <div className="flex items-center gap-1.5 mb-2 pb-1 border-b" style={{ borderColor: theme.hairline }}>
+          <PlusCircle size={12} style={{ color: theme.accent }} />
+          <span className="text-[10px] font-black uppercase tracking-wider" style={{ color: theme.ink }}>
+            {t.addQuestion}
+          </span>
+        </div>
+        <div className="grid grid-cols-1 gap-1 max-h-56 overflow-y-auto pe-0.5">
           {Object.entries(TYPE_META).map(([key, meta]) => (
-            <button key={key} onClick={() => addQuestionOfType(key)} className="h-7 grid place-items-center" style={{ borderRadius: 7, background: meta.color.bg, color: meta.color.ink }} title={lang === "ar" ? meta.ar : meta.en}>
-              <meta.Icon size={12} />
+            <button
+              key={key}
+              type="button"
+              onClick={() => addQuestionOfType(key)}
+              className="educraft-btn text-start flex items-center gap-2 px-2 py-1.5 rounded-lg cursor-pointer border hover:border-indigo-300"
+              style={{
+                background: theme.surfaceSoft,
+                borderColor: theme.hairline,
+                color: theme.ink,
+              }}
+              title={lang === "ar" ? meta.ar : meta.en}
+            >
+              <meta.Icon size={13} style={{ color: theme.accent }} className="shrink-0" />
+              <span className="text-[10px] font-bold truncate">
+                {lang === "ar" ? meta.ar : meta.en}
+              </span>
             </button>
           ))}
         </div>
       </div>
-      <div style={groupStyle}>
-        <label className="flex items-start gap-1.5 cursor-pointer">
-          <input type="checkbox" checked={voiceEnabled} onChange={(e) => onVoiceEnabledChange(e.target.checked)} className="mt-0.5" />
-          <span className="text-[10px] font-semibold" style={{ color: theme.ink }}>
+
+      {/* Voice / TTS Toggle */}
+      <div style={groupStyle} className="shadow-2xs">
+        <label className="flex items-center gap-2 cursor-pointer select-none">
+          <input
+            type="checkbox"
+            checked={voiceEnabled}
+            onChange={(e) => onVoiceEnabledChange(e.target.checked)}
+            className="cursor-pointer"
+          />
+          <Volume2 size={13} style={{ color: theme.accent }} />
+          <span className="text-[10px] font-bold" style={{ color: theme.ink }}>
             {t.voiceFeature}
           </span>
         </label>
@@ -5706,39 +7408,55 @@ function EditorRibbon({ book, lang, theme, t, onImportBook, addCard, addQuestion
   );
 }
 
-function EditorBreadcrumb({ book, lang, leaf, card, theme }) {
-  const branch = leaf && book?.nodes ? book.nodes.find((n) => n.id === book.nodes.find((s) => s.id === leaf.parent)?.parent) : null;
-  const steps = [
-    { n: 1, active: true, label: (lang === "ar" ? book?.ar?.title : book?.en?.title) || book?.en?.title || book?.ar?.title || "" },
-    { n: 2, active: !!leaf, label: branch ? (lang === "ar" ? branch.ar : branch.en) : "" },
-    { n: 3, active: !!leaf, label: leaf ? (lang === "ar" ? leaf.ar : leaf.en) : "" },
-    { n: 4, active: !!card, label: card ? "" : "" },
-  ];
+function EditorBreadcrumb({ book, lang, leaf, card, theme, onBackToTree }) {
+  const branch = leaf && book?.nodes ? book.nodes.find((n) => n.id === leaf.parent || n.id === book.nodes.find((s) => s.id === leaf.parent)?.parent) : null;
+  const bookTitle = (lang === "ar" ? book?.ar?.title : book?.en?.title) || book?.en?.title || book?.ar?.title || "";
+  const branchTitle = branch ? (lang === "ar" ? branch.ar : branch.en) : "";
+  const leafTitle = leaf ? (lang === "ar" ? leaf.ar : leaf.en) : "";
+
   return (
-    <div className="flex items-center gap-2 flex-wrap">
-      {steps.map((s, i) => (
-        <span key={s.n} className="flex items-center gap-2">
+    <div className="flex items-center gap-1.5 text-xs font-semibold flex-wrap">
+      <button
+        type="button"
+        onClick={onBackToTree}
+        className="educraft-btn flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border hover:border-indigo-400 cursor-pointer shadow-2xs"
+        style={{ background: theme.surface, borderColor: theme.hairline, color: theme.ink }}
+        title={lang === "ar" ? "عرض شجرة المعرفة" : "View knowledge tree"}
+      >
+        <BookOpen size={13} style={{ color: theme.accent }} />
+        <span className="font-bold">{bookTitle}</span>
+      </button>
+
+      {branchTitle && (
+        <>
+          <span style={{ color: theme.hairlineStrong }}>›</span>
           <span
-            className="w-6 h-6 grid place-items-center text-[10px] font-bold shrink-0"
-            style={{ borderRadius: 999, background: s.active ? theme.accent : theme.surface, color: s.active ? theme.accentInk : theme.inkSoft, border: `1px solid ${s.active ? theme.accent : theme.hairline}` }}
+            className="flex items-center gap-1 px-2 py-1 rounded-lg"
+            style={{ color: theme.inkSoft }}
           >
-            {s.n}
+            <GitBranch size={12} />
+            <span>{branchTitle}</span>
           </span>
-          {s.label && (
-            <span className="text-[11px] font-semibold" style={{ color: theme.inkSoft }}>
-              {s.label}
-            </span>
-          )}
-          {i < steps.length - 1 && (
-            <span style={{ color: theme.hairlineStrong }}>›</span>
-          )}
-        </span>
-      ))}
+        </>
+      )}
+
+      {leafTitle && (
+        <>
+          <span style={{ color: theme.hairlineStrong }}>›</span>
+          <span
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl font-bold"
+            style={{ background: theme.accentSoft, color: theme.accent, border: `1px solid ${theme.accent}33` }}
+          >
+            <FileText size={12} />
+            <span className="max-w-[240px] truncate">{leafTitle}</span>
+          </span>
+        </>
+      )}
     </div>
   );
 }
 
-function EditorView({ book, lang, theme, skin, voiceEnabled, onVoiceEnabledChange, onUpdateBook }) {
+function EditorView({ book, lang, theme, skin, voiceEnabled, onVoiceEnabledChange, onUpdateBook, onChangeBookFlavor, bookFlavorId, onBackToTree }) {
   const t = EDITOR_STR[lang];
   const [tab, setTab] = useState("cards");
   const [selectedLeafId, setSelectedLeafId] = useState(
@@ -5759,10 +7477,12 @@ function EditorView({ book, lang, theme, skin, voiceEnabled, onVoiceEnabledChang
   }, [allLeaves, selectedLeafId]);
 
   const handleAddBranch = (titleOverride) => {
-    const title = (titleOverride || window.prompt(lang === "ar" ? "أدخل عنوان الفرع الجديد:" : "Enter new branch title:"))?.trim();
+    const raw = typeof titleOverride === "string" ? titleOverride.trim() : null;
+    const title = raw || (typeof window !== "undefined" ? window.prompt(lang === "ar" ? "أدخل عنوان الفرع الجديد:" : "Enter new branch title:") : "")?.trim();
     if (!title) return;
+    const branchId = `branch-${Date.now()}`;
     const newBranch = {
-      id: `branch-${Date.now().toString(36)}`,
+      id: branchId,
       level: "branch",
       parent: null,
       en: title,
@@ -5772,7 +7492,8 @@ function EditorView({ book, lang, theme, skin, voiceEnabled, onVoiceEnabledChang
   };
 
   const handleAddLeaf = (parentId, titleOverride) => {
-    const title = (titleOverride || window.prompt(lang === "ar" ? "أدخل عنوان الورقة الجديدة:" : "Enter new leaf title:"))?.trim();
+    const raw = typeof titleOverride === "string" ? titleOverride.trim() : null;
+    const title = raw || (typeof window !== "undefined" ? window.prompt(lang === "ar" ? "أدخل عنوان الورقة الجديدة:" : "Enter new leaf title:") : "")?.trim();
     if (!title) return;
     const newLeafId = `leaf-${Date.now().toString(36)}`;
     const newLeaf = {
@@ -5869,30 +7590,70 @@ function EditorView({ book, lang, theme, skin, voiceEnabled, onVoiceEnabledChang
   return (
     <div className="educraft-panel-in" style={{ background: `linear-gradient(180deg, ${theme.accentSoft} 0%, ${theme.canvas} 55%)`, borderRadius: 20, padding: 16 }}>
       <div className="flex items-center justify-between flex-wrap gap-3 mb-4">
-        <EditorBreadcrumb book={book} lang={lang} leaf={leaf} card={card} theme={theme} />
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3 flex-wrap">
+          <EditorBreadcrumb book={book} lang={lang} leaf={leaf} card={card} theme={theme} onBackToTree={onBackToTree} />
+          {onChangeBookFlavor && (
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl border shadow-xs" style={{ background: theme.surface, borderColor: theme.hairline }}>
+              <Palette size={12} style={{ color: theme.inkSoft }} />
+              <div className="flex items-center gap-1">
+                {Object.entries(FLAVORS).map(([fid, f]) => {
+                  const pal = f[theme === FLAVORS[fid]?.dark ? "dark" : "light"] || f.light;
+                  const isSelected = (bookFlavorId || book.flavorId) === fid;
+                  return (
+                    <button
+                      key={fid}
+                      type="button"
+                      onClick={() => onChangeBookFlavor(fid)}
+                      className="educraft-btn relative p-0.5 rounded-full cursor-pointer"
+                      style={{
+                        border: isSelected ? `2px solid ${theme.ink}` : "1.5px solid transparent",
+                        boxShadow: isSelected ? `0 0 0 1px ${theme.accent}` : "none",
+                      }}
+                      title={f[lang] || fid}
+                    >
+                      <div className="w-3.5 h-3.5 rounded-full flex overflow-hidden" style={{ border: `1px solid ${pal.hairlineStrong}` }}>
+                        <div className="w-1/2 h-full" style={{ background: pal.accent }} />
+                        <div className="w-1/2 h-full" style={{ background: pal.canvas }} />
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className="flex items-center p-1 rounded-xl border shadow-xs" style={{ background: theme.surface, borderColor: theme.hairline }}>
           {[
-            ["cards", t.tabCards],
-            ["pages", t.tabPages],
-          ].map(([id, label]) => (
+            ["cards", t.tabCards, LayoutGrid],
+            ["pages", t.tabPages, FileText],
+            ["all_pages", lang === "ar" ? "كل صفحات الكتاب" : "All Book Pages", Library],
+          ].map(([id, label, Icon]) => (
             <button
               key={id}
+              type="button"
               onClick={() => setTab(id)}
-              className="text-sm font-bold px-3.5 py-2"
-              style={{ borderRadius: skin.radiusSm, background: tab === id ? theme.accent : theme.surface, color: tab === id ? theme.accentInk : theme.ink }}
+              className="educraft-btn flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-lg cursor-pointer"
+              style={{
+                background: tab === id ? theme.accentSoft : "transparent",
+                color: tab === id ? theme.accent : theme.inkSoft,
+                border: tab === id ? `1px solid ${theme.accent}33` : "1px solid transparent",
+              }}
             >
+              <Icon size={13} style={{ color: tab === id ? theme.accent : theme.inkSoft }} />
               {label}
             </button>
           ))}
         </div>
       </div>
 
-      <div className="grid md:grid-cols-[200px_1fr] gap-4">
+      <div className="grid lg:grid-cols-[280px_1fr] gap-4">
         <div className="p-3" style={{ borderRadius: skin.radiusLg, border: `1px solid ${theme.hairline}`, background: theme.surface, alignSelf: "start" }}>
           <EditorLeafNav
             book={book}
             lang={lang}
             theme={theme}
+            skin={skin}
             selectedLeafId={selectedLeafId}
             onSelect={(id) => {
               setSelectedLeafId(id);
@@ -5961,24 +7722,28 @@ function EditorView({ book, lang, theme, skin, voiceEnabled, onVoiceEnabledChang
             )
           )}
 
-          {tab === "pages" ? (
+          {tab === "all_pages" ? (
+            <div className="flex-1 min-w-0">
+              <FullBookA4Preview
+                book={book}
+                lang={lang}
+                t={t}
+                theme={theme}
+                skin={skin}
+                docTitle={lang === "ar" ? book.ar?.title : book.en?.title}
+                bookId={book.id}
+                onUpdateBook={onUpdateBook}
+                onUpdateLeaf={(targetId, patch) => {
+                  onUpdateBook((prev) => ({
+                    ...prev,
+                    nodes: prev.nodes.map((n) => (n.id === targetId ? { ...n, ...patch } : n)),
+                  }));
+                }}
+              />
+            </div>
+          ) : tab === "pages" ? (
             <>
-              <div className="flex items-center justify-between gap-2 mb-3 flex-wrap">
-                <p className="text-xs" style={{ color: theme.inkSoft }}>
-                  {previewWholeBook ? t.wholeBookSub : t.pagesSub}
-                </p>
-                <button
-                  onClick={() => setPreviewWholeBook((v) => !v)}
-                  className="text-xs font-bold px-3 py-1.5 flex items-center gap-1.5"
-                  style={{ borderRadius: skin.radiusSm, background: previewWholeBook ? theme.accent : theme.surface, color: previewWholeBook ? theme.accentInk : theme.ink, border: `1px solid ${theme.hairline}` }}
-                >
-                  <Library size={13} />
-                  {previewWholeBook ? t.backToLeafPages : t.previewWholeBook}
-                </button>
-              </div>
-              {previewWholeBook ? (
-                <FullBookA4Preview book={book} lang={lang} t={t} theme={theme} skin={skin} docTitle={lang === "ar" ? book.ar?.title : book.en?.title} />
-              ) : !leaf ? (
+              {!leaf ? (
                 <p className="text-sm" style={{ color: theme.inkSoft }}>
                   {t.noLeaf}
                 </p>
@@ -6005,9 +7770,15 @@ function EditorView({ book, lang, theme, skin, voiceEnabled, onVoiceEnabledChang
                     {cards.map((c, i) => (
                       <button
                         key={c.id || i}
+                        type="button"
                         onClick={() => setSelectedCardIdx(i)}
-                        className="text-xs font-bold px-3 py-1.5"
-                        style={{ borderRadius: 999, background: selectedCardIdx === i ? theme.accent : theme.surface, color: selectedCardIdx === i ? theme.accentInk : theme.ink }}
+                        className="educraft-btn text-xs font-bold px-3 py-1.5 cursor-pointer"
+                        style={{
+                          borderRadius: 999,
+                          background: selectedCardIdx === i ? theme.accentSoft : theme.surface,
+                          color: selectedCardIdx === i ? theme.accent : theme.inkSoft,
+                          border: selectedCardIdx === i ? `1px solid ${theme.accent}33` : `1px solid ${theme.hairline}`,
+                        }}
                       >
                         {t.card} {i + 1}
                       </button>
@@ -6778,6 +8549,68 @@ function ViewEmptyState({
   );
 }
 
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+  componentDidCatch(error, errorInfo) {
+    console.error("[EDUcraft ErrorBoundary caught error]:", error, errorInfo);
+  }
+  render() {
+    if (this.state.hasError) {
+      const { theme, skin, ui, onReset } = this.props;
+      return (
+        <div
+          className="flex flex-col items-center justify-center text-center p-8 sm:p-14 max-w-lg mx-auto my-8 educraft-panel-in"
+          style={{
+            ...panelStyle(skin, theme, { soft: true }),
+            borderRadius: skin?.radiusLg || 16,
+            minHeight: 320,
+          }}
+        >
+          <div
+            className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4 text-amber-600 bg-amber-500/10 shadow-sm"
+          >
+            <RotateCcw size={30} />
+          </div>
+          <h2 className="text-xl font-bold mb-2" style={{ color: theme?.ink || "#111827" }}>
+            {ui?.errorOccurred || (this.props.lang === "ar" ? "حدث خطأ غير متوقع في العرض" : "Something went wrong")}
+          </h2>
+          <p className="text-sm mb-6 max-w-md opacity-75" style={{ color: theme?.inkSoft || "#6b7280", lineHeight: 1.6 }}>
+            {this.state.error?.message || (this.props.lang === "ar" ? "يمكنك العودة إلى المكتبة لمتابعة عملك بأمان." : "You can return to your library safely.")}
+          </p>
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => {
+                this.setState({ hasError: false, error: null });
+                if (onReset) onReset();
+              }}
+              className="educraft-btn text-xs font-bold px-4 py-2.5 rounded-xl cursor-pointer shadow-sm"
+              style={{ background: theme?.accent || "#3B82F6", color: theme?.accentInk || "#ffffff" }}
+            >
+              {ui?.navLibrary || "Back to Library"}
+            </button>
+            <button
+              type="button"
+              onClick={() => window.location.reload()}
+              className="educraft-btn text-xs font-bold px-4 py-2.5 rounded-xl border cursor-pointer"
+              style={{ borderColor: theme?.hairline || "#d1d5db", color: theme?.ink || "#111827", background: theme?.surface || "#ffffff" }}
+            >
+              {ui?.tryAgain || "Reload Page"}
+            </button>
+          </div>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 /* onExportBook / onExportCollection are injected by the top-level
    EDUcraft.jsx wrapper (see that file) — they build the actual
    downloadable .html file using the pre-bundled export assets. This
@@ -7519,9 +9352,28 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
         }
         .educraft-panel-in { animation: educraft-rise .3s ease both; }
         .educraft-modal-in { animation: educraft-pop .22s ease both; }
+        .educraft-btn {
+          transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+                      box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+                      background-color 0.15s ease,
+                      border-color 0.15s ease,
+                      color 0.15s ease;
+        }
+        .educraft-btn:hover {
+          transform: translateY(-1px);
+        }
+        .educraft-btn:active {
+          transform: scale(0.97) !important;
+        }
+        .educraft-pill {
+          transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .educraft-pill:active {
+          transform: scale(0.96);
+        }
       `}</style>
 
-      <div className="educraft-root max-w-5xl mx-auto px-5 sm:px-8 pb-16">
+      <div className={`educraft-root ${view === "editor" ? "max-w-[1560px]" : "max-w-5xl"} mx-auto px-4 sm:px-8 pb-16 transition-all duration-300`}>
         {/* header */}
         <header
           className="flex items-center justify-between gap-4 mt-6 px-5 py-3.5 flex-wrap"
@@ -7543,43 +9395,72 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
 
           <nav className="hidden md:flex items-center gap-1">
             <button
+              type="button"
               onClick={() => setView("library")}
-              className="flex items-center gap-1.5 text-sm font-semibold px-3 py-2 transition-colors"
-              style={{ borderRadius: skin.radiusSm, color: view === "library" ? theme.accentInk : theme.ink, background: view === "library" ? theme.accent : "transparent" }}
+              className="educraft-btn flex items-center gap-1.5 text-sm font-semibold px-3.5 py-2 cursor-pointer"
+              style={{
+                borderRadius: skin.radiusSm,
+                color: view === "library" ? theme.accent : theme.inkSoft,
+                background: view === "library" ? theme.accentSoft : "transparent",
+                border: view === "library" ? `1px solid ${theme.accent}33` : "1px solid transparent",
+                fontWeight: view === "library" ? 700 : 500,
+              }}
             >
-              <Library size={14} />
+              <Library size={14} style={{ color: view === "library" ? theme.accent : theme.inkSoft }} />
               {ui.navLibrary}
             </button>
             <button
+              type="button"
               onClick={() => setView("tree")}
-              className="flex items-center gap-1.5 text-sm font-semibold px-3 py-2 transition-colors cursor-pointer"
-              style={{ borderRadius: skin.radiusSm, color: view === "tree" ? theme.accentInk : theme.ink, background: view === "tree" ? theme.accent : "transparent" }}
+              className="educraft-btn flex items-center gap-1.5 text-sm font-semibold px-3.5 py-2 cursor-pointer"
+              style={{
+                borderRadius: skin.radiusSm,
+                color: view === "tree" ? theme.accent : theme.inkSoft,
+                background: view === "tree" ? theme.accentSoft : "transparent",
+                border: view === "tree" ? `1px solid ${theme.accent}33` : "1px solid transparent",
+                fontWeight: view === "tree" ? 700 : 500,
+              }}
             >
-              <GitBranch size={14} />
+              <GitBranch size={14} style={{ color: view === "tree" ? theme.accent : theme.inkSoft }} />
               {ui.navTree}
             </button>
             <button
+              type="button"
               onClick={() => setView("editor")}
-              className="flex items-center gap-1.5 text-sm font-semibold px-3 py-2 transition-colors cursor-pointer"
-              style={{ borderRadius: skin.radiusSm, color: view === "editor" ? theme.accentInk : theme.ink, background: view === "editor" ? theme.accent : "transparent" }}
+              className="educraft-btn flex items-center gap-1.5 text-sm font-semibold px-3.5 py-2 cursor-pointer"
+              style={{
+                borderRadius: skin.radiusSm,
+                color: view === "editor" ? theme.accent : theme.inkSoft,
+                background: view === "editor" ? theme.accentSoft : "transparent",
+                border: view === "editor" ? `1px solid ${theme.accent}33` : "1px solid transparent",
+                fontWeight: view === "editor" ? 700 : 500,
+              }}
             >
-              <Settings size={14} />
+              <Settings size={14} style={{ color: view === "editor" ? theme.accent : theme.inkSoft }} />
               {ui.navEditor}
             </button>
             <button
+              type="button"
               onClick={() => setView("planner")}
-              className="flex items-center gap-1.5 text-sm font-semibold px-3 py-2 transition-colors cursor-pointer"
-              style={{ borderRadius: skin.radiusSm, color: view === "planner" ? theme.accentInk : theme.ink, background: view === "planner" ? theme.accent : "transparent" }}
+              className="educraft-btn flex items-center gap-1.5 text-sm font-semibold px-3.5 py-2 cursor-pointer"
+              style={{
+                borderRadius: skin.radiusSm,
+                color: view === "planner" ? theme.accent : theme.inkSoft,
+                background: view === "planner" ? theme.accentSoft : "transparent",
+                border: view === "planner" ? `1px solid ${theme.accent}33` : "1px solid transparent",
+                fontWeight: view === "planner" ? 700 : 500,
+              }}
             >
-              <CalendarDays size={14} />
+              <CalendarDays size={14} style={{ color: view === "planner" ? theme.accent : theme.inkSoft }} />
               {ui.navPlanner}
             </button>
           </nav>
 
           <div className="flex items-center gap-1.5">
             <button
+              type="button"
               onClick={() => setLang((l) => (l === "en" ? "ar" : "en"))}
-              className="flex items-center gap-1.5 text-xs font-semibold px-2.5 py-2"
+              className="educraft-btn flex items-center gap-1.5 text-xs font-semibold px-2.5 py-2 cursor-pointer"
               style={{ borderRadius: skin.radiusSm, color: theme.ink, minHeight: 40 }}
               aria-label="Toggle language"
             >
@@ -7587,16 +9468,18 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
               {ui.langToggle}
             </button>
             <button
+              type="button"
               onClick={() => setMode((m) => (m === "light" ? "dark" : "light"))}
-              className="p-2"
+              className="educraft-btn p-2 cursor-pointer"
               style={{ borderRadius: skin.radiusSm, color: theme.ink, minHeight: 40, minWidth: 40 }}
               aria-label="Toggle theme"
             >
               {mode === "light" ? <Moon size={16} /> : <Sun size={16} />}
             </button>
             <button
+              type="button"
               onClick={() => setSettingsOpen(true)}
-              className="p-2"
+              className="educraft-btn p-2 cursor-pointer"
               style={{ borderRadius: skin.radiusSm, color: theme.ink, minHeight: 40, minWidth: 40 }}
               aria-label={ui.navSettings}
               title={ui.navSettings}
@@ -7608,40 +9491,69 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
           {/* mobile nav row */}
           <nav className="flex md:hidden items-center gap-1 w-full justify-center pt-1">
             <button
+              type="button"
               onClick={() => setView("library")}
-              className="flex items-center gap-1.5 text-xs font-semibold px-3 py-2 transition-colors cursor-pointer"
-              style={{ borderRadius: skin.radiusSm, color: view === "library" ? theme.accentInk : theme.ink, background: view === "library" ? theme.accent : "transparent" }}
+              className="educraft-btn flex items-center gap-1.5 text-xs font-semibold px-3 py-2 cursor-pointer"
+              style={{
+                borderRadius: skin.radiusSm,
+                color: view === "library" ? theme.accent : theme.inkSoft,
+                background: view === "library" ? theme.accentSoft : "transparent",
+                border: view === "library" ? `1px solid ${theme.accent}33` : "1px solid transparent",
+                fontWeight: view === "library" ? 700 : 500,
+              }}
             >
-              <Library size={13} />
+              <Library size={13} style={{ color: view === "library" ? theme.accent : theme.inkSoft }} />
               {ui.navLibrary}
             </button>
             <button
+              type="button"
               onClick={() => setView("tree")}
-              className="flex items-center gap-1.5 text-xs font-semibold px-3 py-2 transition-colors cursor-pointer"
-              style={{ borderRadius: skin.radiusSm, color: view === "tree" ? theme.accentInk : theme.ink, background: view === "tree" ? theme.accent : "transparent" }}
+              className="educraft-btn flex items-center gap-1.5 text-xs font-semibold px-3 py-2 cursor-pointer"
+              style={{
+                borderRadius: skin.radiusSm,
+                color: view === "tree" ? theme.accent : theme.inkSoft,
+                background: view === "tree" ? theme.accentSoft : "transparent",
+                border: view === "tree" ? `1px solid ${theme.accent}33` : "1px solid transparent",
+                fontWeight: view === "tree" ? 700 : 500,
+              }}
             >
-              <GitBranch size={13} />
+              <GitBranch size={13} style={{ color: view === "tree" ? theme.accent : theme.inkSoft }} />
               {ui.navTree}
             </button>
             <button
+              type="button"
               onClick={() => setView("editor")}
-              className="flex items-center gap-1.5 text-xs font-semibold px-3 py-2 transition-colors cursor-pointer"
-              style={{ borderRadius: skin.radiusSm, color: view === "editor" ? theme.accentInk : theme.ink, background: view === "editor" ? theme.accent : "transparent" }}
+              className="educraft-btn flex items-center gap-1.5 text-xs font-semibold px-3 py-2 cursor-pointer"
+              style={{
+                borderRadius: skin.radiusSm,
+                color: view === "editor" ? theme.accent : theme.inkSoft,
+                background: view === "editor" ? theme.accentSoft : "transparent",
+                border: view === "editor" ? `1px solid ${theme.accent}33` : "1px solid transparent",
+                fontWeight: view === "editor" ? 700 : 500,
+              }}
             >
-              <Settings size={13} />
+              <Settings size={13} style={{ color: view === "editor" ? theme.accent : theme.inkSoft }} />
               {ui.navEditor}
             </button>
             <button
+              type="button"
               onClick={() => setView("planner")}
-              className="flex items-center gap-1.5 text-xs font-semibold px-3 py-2 transition-colors cursor-pointer"
-              style={{ borderRadius: skin.radiusSm, color: view === "planner" ? theme.accentInk : theme.ink, background: view === "planner" ? theme.accent : "transparent" }}
+              className="educraft-btn flex items-center gap-1.5 text-xs font-semibold px-3 py-2 cursor-pointer"
+              style={{
+                borderRadius: skin.radiusSm,
+                color: view === "planner" ? theme.accent : theme.inkSoft,
+                background: view === "planner" ? theme.accentSoft : "transparent",
+                border: view === "planner" ? `1px solid ${theme.accent}33` : "1px solid transparent",
+                fontWeight: view === "planner" ? 700 : 500,
+              }}
             >
-              <CalendarDays size={13} />
+              <CalendarDays size={13} style={{ color: view === "planner" ? theme.accent : theme.inkSoft }} />
               {ui.navPlanner}
             </button>
           </nav>
         </header>
 
+        <ErrorBoundary theme={theme} skin={skin} ui={ui} lang={lang} onReset={() => setView("library")}>
         <div className="pt-8">
           {view === "library" ? (
             <LibraryView
@@ -7761,6 +9673,9 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
                   voiceEnabled={voiceEnabled}
                   onVoiceEnabledChange={setVoiceEnabled}
                   onUpdateBook={updateCurrentBook}
+                  onChangeBookFlavor={(fid) => setBookFlavor(currentBook.id, fid)}
+                  bookFlavorId={currentBookFlavorId}
+                  onBackToTree={() => setView("tree")}
                 />
               </div>
             ) : (
@@ -8021,6 +9936,7 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
             />
           )}
         </div>
+        </ErrorBoundary>
       </div>
 
       {settingsOpen && (

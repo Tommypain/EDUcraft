@@ -35,9 +35,28 @@ export function computeTreeLayout(nodes, crossLinks = [], dir = "ltr", lang = "a
     }
   });
 
-  // Backward compatibility: If book already has complete manual x/y coordinates, preserve them!
+  // Backward compatibility: If book already has complete manual x/y coordinates, verify they don't collide
   const allHaveCoords = nodes.length > 0 && nodes.every((n) => n.x !== undefined && n.y !== undefined && n.x !== null && n.y !== null && !isNaN(Number(n.x)) && !isNaN(Number(n.y)));
+  let hasOverlap = false;
   if (allHaveCoords) {
+    const leafNodes = nodes.filter((n) => n.level === "leaf");
+    for (let i = 0; i < leafNodes.length; i++) {
+      for (let j = i + 1; j < leafNodes.length; j++) {
+        const a = leafNodes[i];
+        const b = leafNodes[j];
+        const dx = Math.abs(Number(a.x) - Number(b.x));
+        const dy = Math.abs(Number(a.y) - Number(b.y));
+        const minSpacing = ((dims[a.id]?.w || 140) + (dims[b.id]?.w || 140)) / 2 + 10;
+        if (dy < 28 && dx < minSpacing) {
+          hasOverlap = true;
+          break;
+        }
+      }
+      if (hasOverlap) break;
+    }
+  }
+
+  if (allHaveCoords && !hasOverlap) {
     const positions = {};
     let maxX = 0;
     let maxY = 0;
@@ -61,8 +80,10 @@ export function computeTreeLayout(nodes, crossLinks = [], dir = "ltr", lang = "a
     if (sLeaves.length === 0) {
       subTreeWidths[s.id] = dims[s.id].w;
     } else {
-      const leavesTotalW = sLeaves.reduce((sum, l) => sum + dims[l.id].w, 0) + (sLeaves.length - 1) * 24;
-      subTreeWidths[s.id] = Math.max(dims[s.id].w, leavesTotalW);
+      const useStagger = sLeaves.length > 2;
+      const staggerFactor = sLeaves.length > 6 ? 2.2 : (useStagger ? 1.6 : 1);
+      const leavesTotalW = (sLeaves.reduce((sum, l) => sum + dims[l.id].w, 0) / staggerFactor) + (sLeaves.length - 1) * 20;
+      subTreeWidths[s.id] = Math.max(dims[s.id].w + 32, leavesTotalW);
     }
   });
 
@@ -87,10 +108,10 @@ export function computeTreeLayout(nodes, crossLinks = [], dir = "ltr", lang = "a
     }
   });
 
-  const interBranchGap = 64;
+  const interBranchGap = 72;
   const totalContentW = branches.reduce((sum, b) => sum + branchTreeWidths[b.id], 0) + Math.max(0, branches.length - 1) * interBranchGap;
-  const vbW = Math.max(900, Math.round(totalContentW + 140));
-  const vbH = 380;
+  const vbW = Math.max(960, Math.round(totalContentW + 160));
+  const vbH = 460;
 
   const positions = {};
   let currentBranchX = (vbW - totalContentW) / 2;
@@ -111,12 +132,21 @@ export function computeTreeLayout(nodes, crossLinks = [], dir = "ltr", lang = "a
         const sLeaves = isSubCollapsed ? [] : leaves.filter((l) => l.parent === s.id && !collapsedNodeIds.has(l.id));
 
         if (sLeaves.length > 0) {
-          const lTotalW = sLeaves.reduce((sum, l) => sum + dims[l.id].w, 0) + (sLeaves.length - 1) * 24;
-          let curLeafX = curSubX + (sW - lTotalW) / 2;
-          sLeaves.forEach((l) => {
+          const useStagger = sLeaves.length > 2;
+          const tierCount = sLeaves.length > 6 ? 3 : (useStagger ? 2 : 1);
+          const lGap = useStagger ? 20 : 28;
+          let curLeafX = curSubX;
+
+          sLeaves.forEach((l, lIdx) => {
             const lW = dims[l.id].w;
-            positions[l.id] = { x: curLeafX + lW / 2, y: 300 };
-            curLeafX += lW + 24;
+            let tierY = 295;
+            if (tierCount === 3) {
+              tierY = 285 + (lIdx % 3) * 56;
+            } else if (tierCount === 2) {
+              tierY = (lIdx % 2 === 0) ? 295 : 355;
+            }
+            positions[l.id] = { x: curLeafX + lW / 2, y: tierY };
+            curLeafX += lW + lGap;
           });
           const firstL = positions[sLeaves[0].id];
           const lastL = positions[sLeaves[sLeaves.length - 1].id];
@@ -128,12 +158,14 @@ export function computeTreeLayout(nodes, crossLinks = [], dir = "ltr", lang = "a
         curSubX += sW + 36;
       });
 
-      // Also position any direct branch leaves
+      // Position any direct branch leaves
       if (bLeaves.length > 0) {
+        const useStagger = bLeaves.length > 2;
         let curDirectLeafX = currentBranchX;
-        bLeaves.forEach((l) => {
+        bLeaves.forEach((l, lIdx) => {
           const lW = dims[l.id].w;
-          positions[l.id] = { x: curDirectLeafX + lW / 2, y: 300 };
+          const tierY = useStagger ? (lIdx % 2 === 0 ? 295 : 355) : 300;
+          positions[l.id] = { x: curDirectLeafX + lW / 2, y: tierY };
           curDirectLeafX += lW + 24;
         });
       }
@@ -142,11 +174,13 @@ export function computeTreeLayout(nodes, crossLinks = [], dir = "ltr", lang = "a
       const lastS = positions[bSubs[bSubs.length - 1].id];
       positions[b.id] = { x: (firstS.x + lastS.x) / 2, y: 56 };
     } else if (bLeaves.length > 0) {
+      const useStagger = bLeaves.length > 2;
       const lTotalW = bLeaves.reduce((sum, l) => sum + dims[l.id].w, 0) + (bLeaves.length - 1) * 24;
       let curLeafX = currentBranchX + (bW - lTotalW) / 2;
-      bLeaves.forEach((l) => {
+      bLeaves.forEach((l, lIdx) => {
         const lW = dims[l.id].w;
-        positions[l.id] = { x: curLeafX + lW / 2, y: 300 };
+        const tierY = useStagger ? (lIdx % 2 === 0 ? 295 : 355) : 300;
+        positions[l.id] = { x: curLeafX + lW / 2, y: tierY };
         curLeafX += lW + 24;
       });
       const firstL = positions[bLeaves[0].id];
@@ -159,7 +193,17 @@ export function computeTreeLayout(nodes, crossLinks = [], dir = "ltr", lang = "a
     currentBranchX += bW + interBranchGap;
   });
 
-  return { vbW, vbH, positions, dims };
+  let maxYPos = 380;
+  let maxXPos = vbW;
+  Object.entries(positions).forEach(([id, p]) => {
+    const w = dims[id]?.w || 120;
+    if (p.y > maxYPos) maxYPos = p.y;
+    if (p.x + w / 2 > maxXPos) maxXPos = p.x + w / 2;
+  });
+  const finalVbW = Math.max(vbW, Math.round(maxXPos + 80));
+  const finalVbH = Math.max(420, Math.round(maxYPos + 75));
+
+  return { vbW: finalVbW, vbH: finalVbH, positions, dims };
 }
 
 /* ──────────────────────────────────────────────────────────────────────────
@@ -687,24 +731,26 @@ export function KnowledgeTreeEnhanced({
         >
           <button
             onClick={() => setViewMode("outline")}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg transition-all"
+            className="educraft-btn flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold rounded-lg cursor-pointer"
             style={{
-              background: viewMode === "outline" ? theme.accent : "transparent",
-              color: viewMode === "outline" ? theme.accentInk : theme.inkSoft,
+              background: viewMode === "outline" ? theme.accentSoft : "transparent",
+              color: viewMode === "outline" ? theme.accent : theme.inkSoft,
+              border: viewMode === "outline" ? `1px solid ${theme.accent}33` : "1px solid transparent",
             }}
           >
-            <LayoutList size={13} />
+            <LayoutList size={13} style={{ color: viewMode === "outline" ? theme.accent : theme.inkSoft }} />
             <span>{lang === "ar" ? "شجرة المنهج" : "Curriculum Outline"}</span>
           </button>
           <button
             onClick={() => setViewMode("graph")}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg transition-all"
+            className="educraft-btn flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold rounded-lg cursor-pointer"
             style={{
-              background: viewMode === "graph" ? theme.accent : "transparent",
-              color: viewMode === "graph" ? theme.accentInk : theme.inkSoft,
+              background: viewMode === "graph" ? theme.accentSoft : "transparent",
+              color: viewMode === "graph" ? theme.accent : theme.inkSoft,
+              border: viewMode === "graph" ? `1px solid ${theme.accent}33` : "1px solid transparent",
             }}
           >
-            <GitBranch size={13} />
+            <GitBranch size={13} style={{ color: viewMode === "graph" ? theme.accent : theme.inkSoft }} />
             <span>{lang === "ar" ? "الخريطة التفاعلية" : "Mindmap"}</span>
           </button>
         </div>
