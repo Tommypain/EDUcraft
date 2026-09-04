@@ -78,6 +78,7 @@ import {
   Table as TableIcon,
   AlignLeft,
   Image as ImageIcon,
+  Search,
 } from "lucide-react";
 import { ImportModal } from "./utils/ImportModal.jsx";
 import { SyntaxCodeBlock, LiveCodeEditor } from "./utils/syntax.jsx";
@@ -1084,7 +1085,7 @@ function EssayBody({ c, dir, value = "", setValue, ui, theme }) {
         onChange={(e) => setValue(e.target.value)}
         rows={4}
         placeholder="…"
-        className="w-full resize-none rounded-2xl border-2 px-4 py-3 text-sm outline-none"
+        className="educraft-textarea w-full resize-none rounded-2xl border-2 px-4 py-3 text-sm outline-none shadow-inner"
         style={{ borderColor: theme.hairlineStrong, background: theme.canvas, color: theme.ink }}
       />
       <button
@@ -3647,8 +3648,8 @@ function TextInput({ value, onChange, theme, skin, placeholder, type = "text" })
       value={value ?? ""}
       onChange={(e) => onChange(type === "number" ? e.target.valueAsNumber : e.target.value)}
       placeholder={placeholder}
-      className="w-full text-sm px-3 py-2"
-      style={{ borderRadius: skin.radiusSm, border: `1px solid ${theme.hairline}`, background: theme.surface, color: theme.ink }}
+      className="educraft-input w-full text-xs font-medium px-3.5 py-2 rounded-xl border outline-none shadow-2xs transition-all"
+      style={{ borderColor: theme.hairlineStrong, background: theme.surface, color: theme.ink }}
     />
   );
 }
@@ -3678,17 +3679,40 @@ function RichField({ value, onChange, theme, skin, placeholder, minHeight = 76 }
     onChange(ref.current.innerHTML);
   };
   const COLORS = ["#241B13", "#E8654A", "#0E7C79", "#8B5CF6", "#D97706", "#E11D48"];
-  const btnStyle = { borderRadius: 6, color: theme.ink, background: theme.surface, border: `1px solid ${theme.hairline}` };
+  const btnStyle = { borderRadius: 8, color: theme.ink, background: theme.surface, border: `1px solid ${theme.hairlineStrong}` };
   return (
     <div>
-      <div className="flex flex-wrap items-center gap-1.5 mb-1.5 p-1.5" style={{ borderRadius: skin.radiusSm, background: theme.surfaceSoft, border: `1px solid ${theme.hairline}` }}>
-        <button type="button" onClick={() => exec("bold")} className="w-7 h-7 grid place-items-center font-black text-xs" style={btnStyle} title="Bold">
+      <div
+        className="flex flex-wrap items-center gap-1.5 mb-2 p-1.5 rounded-xl border shadow-2xs"
+        style={{ background: theme.surfaceSoft, borderColor: theme.hairlineStrong }}
+      >
+        <button
+          type="button"
+          onClick={() => exec("bold")}
+          className="educraft-btn w-7 h-7 rounded-lg grid place-items-center font-black text-xs cursor-pointer border shadow-2xs hover:bg-black/5"
+          style={btnStyle}
+          title="Bold"
+        >
           B
         </button>
-        {COLORS.map((c) => (
-          <button key={c} type="button" onClick={() => exec("foreColor", c)} className="w-5 h-5 rounded-full shrink-0" style={{ background: c, border: `1px solid ${theme.hairlineStrong}` }} title={c} />
-        ))}
-        <select onChange={(e) => e.target.value && exec("fontName", e.target.value)} className="text-xs px-1.5 py-1" style={{ ...btnStyle, maxWidth: 84 }} defaultValue="">
+        <div className="flex items-center gap-1 px-1">
+          {COLORS.map((c) => (
+            <button
+              key={c}
+              type="button"
+              onClick={() => exec("foreColor", c)}
+              className="educraft-btn w-4.5 h-4.5 rounded-full shrink-0 cursor-pointer shadow-2xs hover:scale-115 transition-transform"
+              style={{ background: c, border: `1px solid ${theme.hairlineStrong}` }}
+              title={c}
+            />
+          ))}
+        </div>
+        <select
+          onChange={(e) => e.target.value && exec("fontName", e.target.value)}
+          className="text-xs font-bold px-2 py-1 rounded-lg border outline-none cursor-pointer"
+          style={{ ...btnStyle, maxWidth: 84 }}
+          defaultValue=""
+        >
           <option value="" disabled>
             Aa
           </option>
@@ -3696,14 +3720,30 @@ function RichField({ value, onChange, theme, skin, placeholder, minHeight = 76 }
           <option value="Georgia">Serif</option>
           <option value="sans-serif">Sans</option>
         </select>
-        <span className="w-px h-5 mx-0.5" style={{ background: theme.hairlineStrong }} />
-        <button type="button" onClick={() => wrapBdi("auto")} className="text-[10px] font-bold px-2 py-1" style={btnStyle} title="BDI — auto isolate">
+        <span className="w-px h-5 mx-0.5 bg-black/15 dark:bg-white/15" />
+        <button
+          type="button"
+          onClick={() => wrapBdi("auto")}
+          className="educraft-btn text-[10px] font-bold px-2 py-1 rounded-lg cursor-pointer hover:bg-black/5"
+          style={btnStyle}
+          title="BDI — auto isolate"
+        >
           bdi
         </button>
-        <button type="button" onClick={() => wrapBdi("ltr")} className="text-[10px] font-bold px-2 py-1" style={btnStyle}>
+        <button
+          type="button"
+          onClick={() => wrapBdi("ltr")}
+          className="educraft-btn text-[10px] font-bold px-2 py-1 rounded-lg cursor-pointer hover:bg-black/5"
+          style={btnStyle}
+        >
           LTR
         </button>
-        <button type="button" onClick={() => wrapBdi("rtl")} className="text-[10px] font-bold px-2 py-1" style={btnStyle}>
+        <button
+          type="button"
+          onClick={() => wrapBdi("rtl")}
+          className="educraft-btn text-[10px] font-bold px-2 py-1 rounded-lg cursor-pointer hover:bg-black/5"
+          style={btnStyle}
+        >
           RTL
         </button>
       </div>
@@ -3713,8 +3753,8 @@ function RichField({ value, onChange, theme, skin, placeholder, minHeight = 76 }
         suppressContentEditableWarning
         dir="auto"
         onInput={() => onChange(ref.current.innerHTML)}
-        className="w-full text-sm px-3 py-2.5 outline-none"
-        style={{ minHeight, borderRadius: skin.radiusSm, border: `1px solid ${theme.hairline}`, background: theme.surface, color: theme.ink, lineHeight: 1.7 }}
+        className="educraft-textarea w-full text-xs font-medium px-3.5 py-2.5 outline-none rounded-xl border shadow-inner transition-all"
+        style={{ minHeight, borderColor: theme.hairlineStrong, background: theme.surface, color: theme.ink, lineHeight: 1.7 }}
         data-placeholder={placeholder}
       />
     </div>
@@ -3809,8 +3849,8 @@ function QuestionFields({ q, lang, onChangeLang, theme, skin, t }) {
             value={c.model || ""}
             onChange={(e) => set({ model: e.target.value })}
             rows={3}
-            className="w-full text-sm px-3 py-2"
-            style={{ borderRadius: skin.radiusSm, border: `1px solid ${theme.hairline}`, background: theme.surface, color: theme.ink }}
+            className="educraft-textarea w-full text-xs px-3 py-2 rounded-xl border outline-none shadow-inner"
+            style={{ borderColor: theme.hairline, background: theme.surface, color: theme.ink }}
           />
         </FieldRow>
       );
@@ -3875,8 +3915,8 @@ function QuestionFields({ q, lang, onChangeLang, theme, skin, t }) {
               value={(c.items || []).map((p) => p.join(":")).join("\n")}
               onChange={(e) => set({ items: e.target.value.split("\n").filter(Boolean).map((l) => l.split(":").map((s) => s.trim())) })}
               rows={4}
-              className="w-full text-sm px-3 py-2"
-              style={{ borderRadius: skin.radiusSm, border: `1px solid ${theme.hairline}`, background: theme.surface, color: theme.ink, fontFamily: "monospace" }}
+              className="educraft-textarea w-full text-xs px-3 py-2 rounded-xl border outline-none shadow-inner"
+              style={{ borderColor: theme.hairline, background: theme.surface, color: theme.ink, fontFamily: "monospace" }}
             />
           </FieldRow>
         </>
@@ -4109,8 +4149,8 @@ function QuestionEditorRow({ q, lang, theme, skin, t, onUpdate, onDelete, allLea
               value={q.code?.src || ""}
               onChange={(e) => onUpdate({ code: { ...(q.code || {}), src: e.target.value } })}
               rows={4}
-              className="w-full text-sm px-3 py-2"
-              style={{ borderRadius: skin.radiusSm, border: `1px solid ${theme.hairline}`, background: theme.canvas, color: theme.ink, fontFamily: "'Space Mono', monospace" }}
+              className="educraft-textarea w-full text-xs font-mono px-3 py-2 rounded-xl border outline-none shadow-inner"
+              style={{ borderColor: theme.hairline, background: theme.canvas, color: theme.ink, fontFamily: "'Space Mono', monospace" }}
             />
           )}
         </FieldRow>
@@ -4151,9 +4191,9 @@ function MediaUploadField({ label, uploadLabel, removeLabel, accept, value, onCh
   const approxMB = value ? Math.round(((value.length * 0.75) / (1024 * 1024)) * 10) / 10 : 0;
 
   return (
-    <div className="mb-3">
-      <div className="flex items-center justify-between mb-1.5">
-        <p className="text-[11px] font-bold uppercase tracking-wide" style={{ color: theme.inkSoft }}>
+    <div className="mb-2">
+      <div className="flex items-center justify-between mb-1">
+        <p className="text-[10px] font-bold uppercase tracking-wider" style={{ color: theme.inkSoft }}>
           {label}
         </p>
         {value && (
@@ -4164,17 +4204,17 @@ function MediaUploadField({ label, uploadLabel, removeLabel, accept, value, onCh
       </div>
 
       {value ? (
-        <div className="flex flex-col gap-1.5">
+        <div className="flex flex-col gap-1.5 p-2 rounded-xl border" style={{ borderColor: theme.hairline, background: theme.surfaceSoft }}>
           {kind === "video" ? (
-            <video src={value} controls playsInline className="w-full" style={{ borderRadius: skin.radiusSm, maxHeight: 160, background: "#000" }} />
+            <video src={value} controls playsInline className="w-full rounded-lg" style={{ maxHeight: 140, background: "#000" }} />
           ) : (
             <audio src={value} controls className="w-full" />
           )}
           <button
             type="button"
             onClick={() => onChange(null)}
-            className="self-start text-[11px] font-bold px-2 py-1"
-            style={{ borderRadius: 6, color: "#7A2A12", background: "#FFD9CE" }}
+            className="educraft-btn self-start text-[10px] font-bold px-2 py-1 rounded-lg border cursor-pointer"
+            style={{ color: "#991B1B", background: "#FEE2E2", borderColor: "#FECACA" }}
           >
             {removeLabel}
           </button>
@@ -4182,8 +4222,8 @@ function MediaUploadField({ label, uploadLabel, removeLabel, accept, value, onCh
       ) : (
         <label
           htmlFor={inputId}
-          className="flex items-center justify-center text-xs font-bold px-3 py-2.5 cursor-pointer"
-          style={{ borderRadius: skin.radiusSm, border: `1px dashed ${theme.hairlineStrong}`, color: theme.inkSoft, background: theme.surface }}
+          className="educraft-btn flex items-center justify-center gap-1.5 text-xs font-semibold px-3 py-2 cursor-pointer rounded-xl border border-dashed transition-colors"
+          style={{ borderColor: theme.hairlineStrong, color: theme.inkSoft, background: theme.surfaceSoft }}
         >
           {busy ? "…" : uploadLabel}
         </label>
@@ -4298,15 +4338,15 @@ function CardEditor({ card, lang, theme, skin, t, onUpdateCard, onDeleteCard, al
   const linkedItems = Array.from(new Map(allCardLinks.map((l) => [linkKey(l), l])).values());
 
   return (
-    <div className="educraft-panel-in" style={{ borderRadius: skin.radiusLg, border: `1px solid ${theme.hairlineStrong}`, background: theme.surfaceSoft, padding: 14 }}>
-      <div className="flex items-start justify-between gap-3 mb-3">
-        <p className="text-xs font-bold" style={{ color: theme.inkSoft }}>
+    <div className="educraft-panel-in shadow-xs" style={{ borderRadius: 20, border: `1px solid ${theme.hairlineStrong}`, background: theme.surface, padding: 18 }}>
+      <div className="flex items-start justify-between gap-3 mb-3.5">
+        <p className="text-xs font-bold uppercase tracking-wider" style={{ color: theme.inkSoft }}>
           {t.cardImage}
         </p>
         <button
           onClick={onDeleteCard}
-          className="educraft-btn text-xs font-bold px-2.5 py-1.5 shrink-0 cursor-pointer"
-          style={{ borderRadius: 8, color: "#991B1B", background: "#FEE2E2", border: "1px solid #FECACA" }}
+          className="educraft-btn text-xs font-bold px-3 py-1.5 shrink-0 cursor-pointer rounded-xl border shadow-2xs transition-colors hover:bg-red-100"
+          style={{ color: "#991B1B", background: "#FEE2E2", borderColor: "#FECACA" }}
         >
           {t.deleteCard}
         </button>
@@ -4383,36 +4423,38 @@ function CardEditor({ card, lang, theme, skin, t, onUpdateCard, onDeleteCard, al
         </div>
       )}
 
-      <MediaUploadField
-        label={t.cardVideo}
-        uploadLabel={t.uploadVideo}
-        removeLabel={t.removeMedia}
-        accept="video/*"
-        value={card.video}
-        onChange={(v) => onUpdateCard({ video: v })}
-        theme={theme}
-        skin={skin}
-        kind="video"
-      />
-      <MediaUploadField
-        label={t.cardAudio}
-        uploadLabel={t.uploadAudio}
-        removeLabel={t.removeMedia}
-        accept="audio/*"
-        value={card.audio}
-        onChange={(v) => onUpdateCard({ audio: v })}
-        theme={theme}
-        skin={skin}
-        kind="audio"
-      />
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-3">
+        <MediaUploadField
+          label={t.cardVideo}
+          uploadLabel={t.uploadVideo}
+          removeLabel={t.removeMedia}
+          accept="video/*"
+          value={card.video}
+          onChange={(v) => onUpdateCard({ video: v })}
+          theme={theme}
+          skin={skin}
+          kind="video"
+        />
+        <MediaUploadField
+          label={t.cardAudio}
+          uploadLabel={t.uploadAudio}
+          removeLabel={t.removeMedia}
+          accept="audio/*"
+          value={card.audio}
+          onChange={(v) => onUpdateCard({ audio: v })}
+          theme={theme}
+          skin={skin}
+          kind="audio"
+        />
+      </div>
 
       <input
         value={card.note || ""}
         onChange={(e) => onUpdateCard({ note: e.target.value })}
         placeholder={t.cardNote}
         dir="auto"
-        className="w-full text-xs px-3 py-2 mb-3"
-        style={{ borderRadius: skin.radiusSm, border: `1px solid ${theme.hairline}`, background: theme.surface, color: theme.inkSoft }}
+        className="educraft-input w-full text-xs font-medium px-3.5 py-2 mb-3.5 rounded-xl border outline-none shadow-2xs"
+        style={{ borderColor: theme.hairlineStrong, background: theme.surfaceSoft, color: theme.ink }}
       />
 
       {/* chip strip: questions + aggregated knowledge-link tags, mixed like the sketch */}
@@ -4538,7 +4580,7 @@ function EditorLeafNav({ book, lang, theme, skin, selectedLeafId, onSelect, onAd
         key={l.id}
         type="button"
         onClick={() => onSelect(l.id)}
-        className="educraft-btn w-full text-start text-xs font-semibold px-2.5 py-2 flex items-center justify-between gap-2 cursor-pointer transition-all rounded-xl relative group"
+        className="educraft-btn w-full text-start text-xs px-3 py-2 flex items-center justify-between gap-2.5 cursor-pointer transition-all rounded-xl relative group shadow-2xs"
         style={{
           background: isSelected ? theme.accentSoft : "transparent",
           color: isSelected ? theme.accent : theme.ink,
@@ -4548,18 +4590,19 @@ function EditorLeafNav({ book, lang, theme, skin, selectedLeafId, onSelect, onAd
       >
         {isSelected && (
           <span
-            className="absolute start-0 top-1.5 bottom-1.5 w-1 rounded-full"
+            className="absolute start-0 top-1.5 bottom-1.5 w-1 rounded-full shadow-xs"
             style={{ background: theme.accent }}
           />
         )}
-        <span className="line-clamp-2 leading-relaxed flex-1 ps-1 font-medium text-[11px] sm:text-xs">
+        <span className="line-clamp-2 leading-relaxed flex-1 ps-1 font-semibold text-[11px] sm:text-xs">
           {title}
         </span>
         <span
-          className="text-[10px] font-bold px-1.5 py-0.5 rounded-md shrink-0"
+          className="text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0 tabular-nums shadow-2xs"
           style={{
-            background: isSelected ? `${theme.accent}22` : theme.surfaceSoft,
+            background: isSelected ? `${theme.accent}25` : theme.surfaceSoft,
             color: isSelected ? theme.accent : theme.inkSoft,
+            border: `1px solid ${isSelected ? `${theme.accent}44` : theme.hairline}`,
           }}
         >
           {(l.questions || []).length}
@@ -4643,23 +4686,24 @@ function EditorLeafNav({ book, lang, theme, skin, selectedLeafId, onSelect, onAd
         </div>
       )}
 
-      {/* Quick Search Filter if multiple nodes */}
-      {branches.length > 2 && (
+      {/* Quick Search Filter with Search Icon and Clear Button */}
+      {branches.length > 1 && (
         <div className="relative">
+          <Search size={13} className="absolute start-2.5 top-1/2 -translate-y-1/2 opacity-40 pointer-events-none" style={{ color: theme.ink }} />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder={lang === "ar" ? "تصفية الأوراق..." : "Filter leaves..."}
-            className="w-full text-xs px-2.5 py-1.5 rounded-lg border outline-none pe-7"
-            style={{ background: theme.surfaceSoft, borderColor: theme.hairline, color: theme.ink }}
+            placeholder={lang === "ar" ? "بحث في أوراق المنهج..." : "Filter leaves..."}
+            className="w-full text-xs ps-8 pe-7 py-2 rounded-xl border outline-none transition-all"
+            style={{ background: theme.surfaceSoft, borderColor: theme.hairlineStrong, color: theme.ink }}
           />
           {searchQuery && (
             <button
               type="button"
               onClick={() => setSearchQuery("")}
-              className="absolute end-2 top-1/2 -translate-y-1/2 text-xs font-bold"
-              style={{ color: theme.inkSoft }}
+              className="absolute end-2.5 top-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-black/10 flex items-center justify-center text-[10px] font-bold opacity-60 hover:opacity-100"
+              style={{ color: theme.ink }}
             >
               ✕
             </button>
@@ -4696,15 +4740,26 @@ function EditorLeafNav({ book, lang, theme, skin, selectedLeafId, onSelect, onAd
             const isAddingLeafHere = addingLeafToId === b.id;
 
             return (
-              <div key={b.id} className="rounded-xl p-1.5 transition-colors" style={{ background: theme.surfaceSoft }}>
+              <div
+                key={b.id}
+                className="rounded-2xl p-2 transition-all border shadow-2xs"
+                style={{ background: theme.surface, borderColor: theme.hairline }}
+              >
                 {/* Branch Header */}
                 <div className="flex items-center justify-between gap-1 mb-1 px-1">
                   <div
                     onClick={() => toggleCollapse(b.id)}
-                    className="flex items-center gap-1.5 cursor-pointer flex-1 min-w-0 select-none py-1"
+                    className="flex items-center gap-2 cursor-pointer flex-1 min-w-0 select-none py-1 group"
                   >
-                    {isCollapsed ? <ChevronRight size={13} style={{ color: theme.accent }} /> : <ChevronDown size={13} style={{ color: theme.accent }} />}
-                    <span className="text-xs font-bold tracking-tight truncate" style={{ color: theme.accent }}>
+                    <ChevronDown
+                      size={14}
+                      className="transition-transform duration-200 shrink-0"
+                      style={{
+                        color: theme.accent,
+                        transform: isCollapsed ? "rotate(-90deg)" : "rotate(0deg)",
+                      }}
+                    />
+                    <span className="text-xs font-black tracking-tight truncate group-hover:opacity-85" style={{ color: theme.ink }}>
                       {lang === "ar" ? b.ar : b.en}
                     </span>
                   </div>
@@ -4715,15 +4770,15 @@ function EditorLeafNav({ book, lang, theme, skin, selectedLeafId, onSelect, onAd
                         setAddingLeafToId(isAddingLeafHere ? null : b.id);
                         setNewLeafTitle("");
                       }}
-                      className="educraft-btn text-[10px] font-bold px-1.5 py-0.5 rounded-md flex items-center gap-0.5 shrink-0 cursor-pointer border"
+                      className="educraft-btn text-[10px] font-bold px-2 py-1 rounded-lg flex items-center gap-1 shrink-0 cursor-pointer border shadow-2xs"
                       style={{
-                        background: isAddingLeafHere ? theme.accent : theme.surface,
-                        color: isAddingLeafHere ? theme.accentInk : theme.ink,
-                        borderColor: theme.hairline,
+                        background: isAddingLeafHere ? theme.accent : theme.surfaceSoft,
+                        color: isAddingLeafHere ? theme.accentInk : theme.inkSoft,
+                        borderColor: theme.hairlineStrong,
                       }}
                       title={lang === "ar" ? "إضافة ورقة لهذا الفرع" : "Add leaf to this branch"}
                     >
-                      <Plus size={10} />
+                      <Plus size={11} />
                       <span>{lang === "ar" ? "ورقة" : "Leaf"}</span>
                     </button>
                   )}
@@ -4999,40 +5054,61 @@ function BlockRow({ block, t, theme, skin, kinds, bookId, onUpdate, onDelete, on
   };
 
   return (
-    <div className="p-2.5 mb-2" style={{ borderRadius: 10, border: `1px solid ${theme.hairline}`, background: theme.surface }}>
-      <div className="flex items-center gap-1.5 mb-2">
-        <select
-          value={kind}
-          onChange={(e) => onUpdate({ kind: e.target.value })}
-          className="text-xs font-bold px-2 py-1.5"
-          style={{ borderRadius: 6, border: `1px solid ${theme.hairline}`, background: theme.surfaceSoft, color: theme.ink }}
-        >
-          <option value="sectionTitle">{t.blockSectionTitle}</option>
-          <option value="text">{t.blockTextKind}</option>
-          <option value="table">{t.blockTable}</option>
-          <option value="keyterm">{t.blockKeyterm}</option>
-          <option value="note">{t.blockNote}</option>
-          <option value="warning">{t.blockWarning}</option>
-          <option value="important">{t.blockImportant}</option>
-          <option value="image">{t.blockImage}</option>
-          <option value="code">{t.blockCode}</option>
-          <option value="pagebreak">{t.blockPagebreak}</option>
-        </select>
-        <div className="flex items-center gap-1 ms-auto">
-          <button onClick={onMove(-1)} className="w-6 h-6 grid place-items-center" style={{ borderRadius: 6, color: theme.ink }} title={t.moveUp}>
-            <ArrowUp size={13} />
+    <div className="p-3 mb-2.5 rounded-2xl border transition-all shadow-2xs hover:shadow-xs" style={{ background: theme.surface, borderColor: theme.hairlineStrong }}>
+      <div className="flex items-center gap-1.5 mb-2.5">
+        <div className="relative flex-1">
+          <select
+            value={kind}
+            onChange={(e) => onUpdate({ kind: e.target.value })}
+            className="w-full text-xs font-bold px-3 py-1.5 rounded-xl border outline-none cursor-pointer appearance-none pe-7 shadow-2xs transition-colors"
+            style={{ background: theme.surfaceSoft, borderColor: theme.hairlineStrong, color: theme.ink }}
+          >
+            <option value="sectionTitle">{t.blockSectionTitle}</option>
+            <option value="text">{t.blockTextKind}</option>
+            <option value="table">{t.blockTable}</option>
+            <option value="keyterm">{t.blockKeyterm}</option>
+            <option value="note">{t.blockNote}</option>
+            <option value="warning">{t.blockWarning}</option>
+            <option value="important">{t.blockImportant}</option>
+            <option value="image">{t.blockImage}</option>
+            <option value="code">{t.blockCode}</option>
+            <option value="pagebreak">{t.blockPagebreak}</option>
+          </select>
+          <ChevronDown size={12} className="absolute end-2.5 top-1/2 -translate-y-1/2 opacity-60 pointer-events-none" style={{ color: theme.ink }} />
+        </div>
+        <div className="flex items-center gap-1 shrink-0">
+          <button
+            type="button"
+            onClick={onMove(-1)}
+            className="educraft-btn w-7 h-7 rounded-lg grid place-items-center cursor-pointer border shadow-2xs hover:bg-black/5"
+            style={{ background: theme.surfaceSoft, borderColor: theme.hairline, color: theme.ink }}
+            title={t.moveUp}
+          >
+            <ArrowUp size={12} />
           </button>
-          <button onClick={onMove(1)} className="w-6 h-6 grid place-items-center" style={{ borderRadius: 6, color: theme.ink }} title={t.moveDown}>
-            <ArrowDown size={13} />
+          <button
+            type="button"
+            onClick={onMove(1)}
+            className="educraft-btn w-7 h-7 rounded-lg grid place-items-center cursor-pointer border shadow-2xs hover:bg-black/5"
+            style={{ background: theme.surfaceSoft, borderColor: theme.hairline, color: theme.ink }}
+            title={t.moveDown}
+          >
+            <ArrowDown size={12} />
           </button>
-          <button onClick={onDelete} className="w-6 h-6 grid place-items-center" style={{ borderRadius: 6, color: "#C0392B" }} title={t.removeBlock}>
-            <Trash2 size={13} />
+          <button
+            type="button"
+            onClick={onDelete}
+            className="educraft-btn w-7 h-7 rounded-lg grid place-items-center cursor-pointer border shadow-2xs hover:bg-red-50"
+            style={{ background: theme.surfaceSoft, borderColor: theme.hairline, color: "#C0392B" }}
+            title={t.removeBlock}
+          >
+            <Trash2 size={12} />
           </button>
         </div>
       </div>
 
       {kind === "pagebreak" ? (
-        <p className="text-[11px]" style={{ color: theme.inkSoft }}>
+        <p className="text-[11px] font-semibold text-center py-2" style={{ color: theme.inkSoft }}>
           — {t.blockPagebreak} —
         </p>
       ) : kind === "text" ? (
@@ -5041,8 +5117,8 @@ function BlockRow({ block, t, theme, skin, kinds, bookId, onUpdate, onDelete, on
           onChange={(e) => onUpdate({ text: e.target.value })}
           rows={3}
           dir="auto"
-          className="w-full text-sm px-2.5 py-1.5"
-          style={{ borderRadius: 6, border: `1px solid ${theme.hairline}`, background: theme.surfaceSoft, color: theme.ink }}
+          className="educraft-textarea w-full text-xs font-medium px-3 py-2 rounded-xl border outline-none shadow-inner"
+          style={{ borderColor: theme.hairlineStrong, background: theme.surfaceSoft, color: theme.ink }}
           placeholder={t.blockText}
         />
       ) : kind === "table" ? (
@@ -5067,8 +5143,8 @@ function BlockRow({ block, t, theme, skin, kinds, bookId, onUpdate, onDelete, on
             }}
             rows={4}
             dir="auto"
-            className="w-full text-sm px-2.5 py-1.5"
-            style={{ borderRadius: 6, border: `1px solid ${theme.hairline}`, background: theme.surfaceSoft, color: theme.ink, fontFamily: "monospace" }}
+            className="educraft-textarea w-full text-xs font-mono px-3 py-2 rounded-xl border outline-none shadow-inner"
+            style={{ borderColor: theme.hairlineStrong, background: theme.surfaceSoft, color: theme.ink }}
             placeholder={t.tableRows}
           />
           <TextInput theme={theme} skin={skin} value={block.caption || ""} onChange={(v) => onUpdate({ caption: v })} placeholder={t.imageCaption} />
@@ -5247,8 +5323,8 @@ function BlockRow({ block, t, theme, skin, kinds, bookId, onUpdate, onDelete, on
             onChange={(e) => onUpdate({ caption: e.target.value })}
             rows={2}
             dir="auto"
-            className="w-full text-sm px-2.5 py-1.5"
-            style={{ borderRadius: 6, border: `1px solid ${theme.hairline}`, background: theme.surfaceSoft, color: theme.ink }}
+            className="educraft-textarea w-full text-xs font-medium px-3 py-2 rounded-xl border outline-none shadow-inner"
+            style={{ borderColor: theme.hairlineStrong, background: theme.surfaceSoft, color: theme.ink }}
             placeholder={t.imageCaption}
           />
         </div>
@@ -5270,8 +5346,8 @@ function BlockRow({ block, t, theme, skin, kinds, bookId, onUpdate, onDelete, on
             onChange={(e) => onUpdate({ text: e.target.value })}
             rows={2}
             dir="auto"
-            className="w-full text-sm px-2.5 py-1.5"
-            style={{ borderRadius: 6, border: `1px solid ${theme.hairline}`, background: theme.surfaceSoft, color: theme.ink }}
+            className="educraft-textarea w-full text-xs font-medium px-3 py-2 rounded-xl border outline-none shadow-inner"
+            style={{ borderColor: theme.hairlineStrong, background: theme.surfaceSoft, color: theme.ink }}
             placeholder={t.blockText}
           />
         </div>
@@ -5592,7 +5668,7 @@ function useFitScale() {
         if (!el) return;
         const available = el.clientWidth - 24;
         if (available <= 0) return;
-        const fit = Math.min(1.15, Math.max(0.35, Math.round((available / A4_PAGE_WIDTH_PX) * 100) / 100));
+        const fit = Math.min(1.0, Math.max(0.35, Math.round((available / A4_PAGE_WIDTH_PX) * 100) / 100));
         setFitScale((prev) => (Math.abs(prev - fit) >= 0.02 ? fit : prev));
       });
     };
@@ -5622,38 +5698,40 @@ function useFitScale() {
 function ZoomBar({ t, theme, skin, scale, onZoomOut, onZoomIn, onFit, isFit }) {
   return (
     <div className="flex items-center justify-end gap-1.5 mb-2.5">
-      <button
-        type="button"
-        onClick={onZoomOut}
-        className="educraft-btn w-7 h-7 grid place-items-center shrink-0 cursor-pointer rounded-lg border shadow-2xs"
-        style={{ borderColor: theme.hairline, color: theme.ink, background: theme.surface }}
-        title={t.zoomOut}
-      >
-        <ZoomOut size={13} />
-      </button>
-      <button
-        type="button"
-        onClick={onFit}
-        className="educraft-btn text-[11px] font-bold px-2.5 h-7 shrink-0 cursor-pointer rounded-lg border shadow-2xs"
-        style={{
-          borderColor: isFit ? `${theme.accent}44` : theme.hairline,
-          background: isFit ? theme.accentSoft : theme.surface,
-          color: isFit ? theme.accent : theme.ink,
-        }}
-        title={t.zoomFit}
-      >
-        {isFit ? <Maximize2 size={11} className="inline -mt-0.5 me-1" /> : null}
-        {Math.round(scale * 100)}%
-      </button>
-      <button
-        type="button"
-        onClick={onZoomIn}
-        className="educraft-btn w-7 h-7 grid place-items-center shrink-0 cursor-pointer rounded-lg border shadow-2xs"
-        style={{ borderColor: theme.hairline, color: theme.ink, background: theme.surface }}
-        title={t.zoomIn}
-      >
-        <ZoomIn size={13} />
-      </button>
+      <div className="inline-flex items-center p-1 rounded-xl educraft-glass border shadow-2xs gap-1" style={{ borderColor: theme.hairline }}>
+        <button
+          type="button"
+          onClick={onZoomOut}
+          className="educraft-btn w-7 h-7 grid place-items-center shrink-0 cursor-pointer rounded-lg border shadow-2xs hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+          style={{ borderColor: theme.hairline, color: theme.ink, background: theme.surface }}
+          title={t.zoomOut}
+        >
+          <ZoomOut size={13} />
+        </button>
+        <button
+          type="button"
+          onClick={onFit}
+          className="educraft-btn text-[11px] font-bold px-2.5 h-7 shrink-0 cursor-pointer rounded-lg border shadow-2xs transition-colors"
+          style={{
+            borderColor: isFit ? `${theme.accent}44` : theme.hairline,
+            background: isFit ? theme.accentSoft : theme.surface,
+            color: isFit ? theme.accent : theme.ink,
+          }}
+          title={t.zoomFit}
+        >
+          {isFit ? <Maximize2 size={11} className="inline -mt-0.5 me-1" /> : null}
+          {Math.round(scale * 100)}%
+        </button>
+        <button
+          type="button"
+          onClick={onZoomIn}
+          className="educraft-btn w-7 h-7 grid place-items-center shrink-0 cursor-pointer rounded-lg border shadow-2xs hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+          style={{ borderColor: theme.hairline, color: theme.ink, background: theme.surface }}
+          title={t.zoomIn}
+        >
+          <ZoomIn size={13} />
+        </button>
+      </div>
     </div>
   );
 }
@@ -5665,33 +5743,48 @@ function ZoomBar({ t, theme, skin, scale, onZoomOut, onZoomIn, onFit, isFit }) {
    or overflowing, so it stays usable on phones and tablets too. */
 function RibbonGroup({ label, children }) {
   return (
-    <div className="flex flex-col items-stretch shrink-0">
-      <div className="flex items-end gap-1 px-1 flex-1">{children}</div>
-      <p className="text-center text-[9px] font-semibold uppercase tracking-wide mt-1 px-1" style={{ opacity: 0.6 }}>
+    <div className="flex flex-col items-center shrink-0 px-1 py-0.5">
+      <div className="flex items-center gap-1.5 flex-1">{children}</div>
+      <p className="text-center text-[10px] font-bold uppercase tracking-wider mt-1 px-1 opacity-50 select-none">
         {label}
       </p>
     </div>
   );
 }
 function RibbonDivider({ theme }) {
-  return <div className="self-stretch w-px my-1.5 shrink-0" style={{ background: theme.hairline }} />;
+  return <div className="self-center w-px h-8 mx-1 shrink-0 opacity-20" style={{ background: theme.ink }} />;
 }
 function RibbonButton({ icon: Icon, label, active, onClick, theme, skin, tone }) {
+  const iconFg = tone?.fg || (active ? theme.accent : theme.ink);
   return (
     <button
+      type="button"
       onClick={onClick}
       title={label}
-      className="flex flex-col items-center justify-center gap-0.5 px-2 py-1.5 shrink-0"
+      className="educraft-btn flex flex-col items-center justify-center gap-1 px-2.5 py-1.5 shrink-0 rounded-xl cursor-pointer hover:bg-black/5 dark:hover:bg-white/5 transition-all shadow-2xs"
       style={{
-        borderRadius: skin.radiusSm,
-        minWidth: 52,
+        minWidth: 54,
         background: active ? theme.accentSoft : "transparent",
-        color: tone?.fg || (active ? theme.accent : theme.ink),
-        border: `1px solid ${active ? theme.accent : "transparent"}`,
+        color: active ? theme.accent : theme.ink,
+        border: active ? `1px solid ${theme.accent}44` : "1px solid transparent",
       }}
     >
-      <Icon size={16} />
-      <span className="text-[9px] font-bold leading-none whitespace-nowrap">{label}</span>
+      <div
+        className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 transition-transform"
+        style={{
+          background: tone?.bg || (active ? `${theme.accent}20` : theme.surfaceSoft),
+          color: iconFg,
+          border: `1px solid ${tone?.border || theme.hairline}`,
+        }}
+      >
+        <Icon size={14} strokeWidth={2.2} />
+      </div>
+      <span
+        className="text-[10px] font-bold leading-none whitespace-nowrap text-center truncate max-w-[68px]"
+        style={{ color: active ? theme.accent : theme.ink }}
+      >
+        {label}
+      </span>
     </button>
   );
 }
@@ -6258,16 +6351,8 @@ function FullBookA4Preview({
     ["pagebreak", t.blockPagebreak, CornerDownLeft],
   ];
 
-  if (!blocks.length) {
-    return (
-      <p className="text-sm" style={{ color: "#00000088" }}>
-        {t.emptyBook}
-      </p>
-    );
-  }
-
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-3 min-w-0 w-full">
       {/* Floating 60 Palettes Modal for Active Leaf */}
       <PlatePaletteModal
         isOpen={palettePickerOpen}
@@ -6288,7 +6373,7 @@ function FullBookA4Preview({
       />
 
       {/* RIBBON TOOLBAR — Active Across All Book Pages */}
-      <div className="overflow-x-auto" style={{ borderRadius: skin.radiusLg, border: `1px solid ${theme.hairline}`, background: theme.surface }}>
+      <div className="overflow-x-auto educraft-glass shadow-xs mb-3" style={{ borderRadius: skin.radiusLg, border: `1px solid ${theme.hairline}` }}>
         <div className="flex items-center gap-2 p-2 w-max min-w-full">
           {/* Target Leaf Selector */}
           <RibbonGroup label={lang === "ar" ? "الصفحة المستهدفة" : "Target Page"}>
@@ -6380,123 +6465,237 @@ function FullBookA4Preview({
         ))}
       </div>
 
-      <ZoomBar t={t} theme={theme} skin={skin} scale={scale} onZoomOut={zoomOut} onZoomIn={zoomIn} onFit={zoomFit} isFit={isFit} />
+      <div className={`grid ${focusMode ? "grid-cols-1" : "xl:grid-cols-[minmax(0,1fr)_260px] 2xl:grid-cols-[minmax(0,1fr)_280px] grid-cols-1"} gap-4 items-start min-w-0 w-full`}>
+        {/* CANVAS */}
+        <div className="order-1 min-w-0 overflow-hidden">
+          <ZoomBar t={t} theme={theme} skin={skin} scale={scale} onZoomOut={zoomOut} onZoomIn={zoomIn} onFit={zoomFit} isFit={isFit} />
 
-      <div ref={containerRef} className="overflow-x-auto overflow-y-visible flex justify-center py-2">
-        <div style={{ zoom: scale, transition: "zoom 0.22s cubic-bezier(0.16, 1, 0.3, 1)" }}>
-          <div className="flex flex-col gap-8 items-center py-2">
-            {pages.map((pageBlocks, pi) => {
-              const owner = pageBlocks[0];
-              const leafId = owner?._leafId;
-              const isTargetPage = leafId && leafId === targetLeafId;
-              const palette = paletteById(owner?._paletteId || 1);
-              const kinds = plateKindsFor(palette);
+          <div ref={containerRef} className="overflow-x-auto overflow-y-visible flex justify-center py-2">
+            <div style={{ zoom: scale, transition: "zoom 0.22s cubic-bezier(0.16, 1, 0.3, 1)" }}>
+              <div className="flex flex-col gap-8 items-center py-2">
+                {pages.length === 0 ? (
+                  activeLeaf ? (
+                    <div
+                      dir="rtl"
+                      className="educraft-paper-sheet transition-all relative"
+                      style={{
+                        width: "210mm",
+                        minHeight: "297mm",
+                        background: activePalette.PageBG,
+                        color: activePalette.BodyText,
+                        padding: "16mm 14mm",
+                        borderRadius: 6,
+                        fontFamily: PAGE_FONT,
+                        fontSize: 15,
+                        lineHeight: 1.9,
+                      }}
+                    >
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                          paddingBottom: "0.6rem",
+                          marginBottom: "1rem",
+                          borderBottom: `2px solid ${activePalette.HeaderColor}`,
+                          color: activePalette.HeaderColor,
+                          fontWeight: 700,
+                          fontSize: 12,
+                        }}
+                      >
+                        <span>{docTitle}</span>
+                        <span>{lang === "ar" ? activeLeaf.ar : activeLeaf.en}</span>
+                      </div>
 
-              return (
-                <div
-                  key={pi}
-                  dir="rtl"
-                  onClick={() => {
-                    if (leafId && leafId !== targetLeafId) setTargetLeafId(leafId);
-                  }}
-                  className="transition-all relative cursor-pointer"
-                  style={{
-                    width: "210mm",
-                    minHeight: "297mm",
-                    background: palette.PageBG,
-                    color: palette.BodyText,
-                    padding: "16mm 14mm",
-                    boxShadow: isTargetPage
-                      ? `0 0 0 3px ${theme.accent}, 0 8px 32px rgba(0,0,0,0.18)`
-                      : "0 4px 24px rgba(0,0,0,0.15)",
-                    borderRadius: 6,
-                    fontFamily: PAGE_FONT,
-                    fontSize: 15,
-                    lineHeight: 1.9,
-                  }}
-                >
-                  {/* Page Top Bar */}
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      paddingBottom: "0.6rem",
-                      marginBottom: "1rem",
-                      borderBottom: `2px solid ${palette.HeaderColor}`,
-                      color: palette.HeaderColor,
-                      fontWeight: 700,
-                      fontSize: 12,
-                    }}
-                  >
-                    <span>{docTitle}</span>
-                    <div className="flex items-center gap-2">
-                      {isTargetPage && (
-                        <span
-                          className="text-[10px] font-black px-2 py-0.5 rounded-md shadow-2xs"
-                          style={{ background: theme.accent, color: theme.accentInk }}
+                      <div className="flex flex-col items-center justify-center py-16 text-center">
+                        <p className="text-sm font-bold mb-2" style={{ color: activePalette.HeaderColor }}>
+                          {lang === "ar" ? "الصفحة جاهزة لإضافة المحتوى" : "This page is ready for content"}
+                        </p>
+                        <p className="text-xs mb-6 max-w-sm opacity-70" style={{ color: activePalette.BodyText }}>
+                          {lang === "ar"
+                            ? "استخدم شريط الأدوات بالأعلى لإدراج عناوين، نصوص، جداول أو صور — أو اضغط على الزر أدناه لإضافة أول عنصر."
+                            : "Use the ribbon tools above to insert titles, text, tables, or images — or click the button below to add your first block."}
+                        </p>
+                        <button
+                          type="button"
+                          onClick={() => addBlockToTargetLeaf("text")}
+                          className="educraft-btn flex items-center gap-1.5 text-xs font-bold px-5 py-2.5 rounded-xl border shadow-sm cursor-pointer"
+                          style={{ background: activePalette.SectionBG, color: activePalette.HeaderColor, borderColor: activePalette.SectionFrame }}
                         >
-                          {lang === "ar" ? "🎯 الصفحة النشطة للتحرير" : "🎯 Active Target"}
-                        </span>
-                      )}
-                      <span>{owner?._branchTitle ? `${owner._branchTitle} — ${owner._leafTitle}` : owner?._leafTitle}</span>
+                          <Plus size={14} />
+                          <span>{lang === "ar" ? "إضافة أول كتلة لهذه الصفحة" : "Add First Block to Page"}</span>
+                        </button>
+                      </div>
                     </div>
-                  </div>
-
-                  {/* Render page blocks with direct CanvasBlockWrapper */}
-                  {pageBlocks.map((b, i) => {
-                    const blockLeafId = b._leafId;
-                    const blockIdx = typeof b._blockIndex === "number" ? b._blockIndex : i;
+                  ) : (
+                    <div className="p-8 text-center rounded-2xl border" style={{ background: theme.surface, borderColor: theme.hairline }}>
+                      <p className="text-sm font-semibold" style={{ color: theme.inkSoft }}>
+                        {t.emptyBook}
+                      </p>
+                    </div>
+                  )
+                ) : (
+                  pages.map((pageBlocks, pi) => {
+                    const owner = pageBlocks[0];
+                    const leafId = owner?._leafId;
+                    const isTargetPage = leafId && leafId === targetLeafId;
+                    const palette = paletteById(owner?._paletteId || 1);
+                    const kinds = plateKindsFor(palette);
 
                     return (
-                      <CanvasBlockWrapper
-                        key={b.id || i}
-                        block={b}
-                        kinds={kinds}
-                        palette={palette}
-                        theme={theme}
-                        skin={skin}
-                        lang={lang}
-                        bookId={bookId}
-                        onUpdate={(patch) => updateBlockInLeaf(blockLeafId, blockIdx, patch)}
-                        onDelete={() => deleteBlockInLeaf(blockLeafId, blockIdx)}
-                        onMove={(dir) => moveBlockInLeaf(blockLeafId, blockIdx, dir)}
-                        onInsertBelow={(k) => insertBelowInLeaf(blockLeafId, blockIdx, k)}
-                      />
-                    );
-                  })}
-
-                  {/* Add Block to this leaf quick button */}
-                  {leafId && (
-                    <div className="mt-4 flex justify-center">
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setTargetLeafId(leafId);
-                          const target = book.nodes.find((n) => n.id === leafId);
-                          const current = target?.pageBlocks || [];
-                          const baseId = `${leafId}-b-${Date.now()}`;
-                          const newBlock = { id: baseId, kind: "text", text: "" };
-                          if (onUpdateLeaf) onUpdateLeaf(leafId, { pageBlocks: [...current, newBlock] });
+                      <div
+                        key={pi}
+                        dir="rtl"
+                        onClick={() => {
+                          if (leafId && leafId !== targetLeafId) setTargetLeafId(leafId);
                         }}
-                        className="educraft-btn flex items-center gap-1.5 text-xs font-bold px-4 py-1.5 rounded-xl border border-dashed hover:border-solid cursor-pointer shadow-2xs opacity-70 hover:opacity-100 transition-all"
-                        style={{ background: `${palette.HeaderColor}0d`, borderColor: palette.HeaderColor, color: palette.HeaderColor }}
+                        className="educraft-paper-sheet transition-all relative cursor-pointer"
+                        style={{
+                          width: "210mm",
+                          minHeight: "297mm",
+                          background: palette.PageBG,
+                          color: palette.BodyText,
+                          padding: "16mm 14mm",
+                          boxShadow: isTargetPage
+                            ? `0 0 0 3px ${theme.accent}, 0 12px 36px -4px rgba(0,0,0,0.18)`
+                            : undefined,
+                          borderRadius: 6,
+                          fontFamily: PAGE_FONT,
+                          fontSize: 15,
+                          lineHeight: 1.9,
+                        }}
                       >
-                        <Plus size={12} />
-                        <span>{lang === "ar" ? "إضافة عنصر جديد لأسفل هذه الصفحة" : "+ Add Block to This Leaf"}</span>
-                      </button>
-                    </div>
-                  )}
+                        {/* Page Top Bar */}
+                        <div
+                          style={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                            paddingBottom: "0.6rem",
+                            marginBottom: "1rem",
+                            borderBottom: `2px solid ${palette.HeaderColor}`,
+                            color: palette.HeaderColor,
+                            fontWeight: 700,
+                            fontSize: 12,
+                          }}
+                        >
+                          <span>{docTitle}</span>
+                          <div className="flex items-center gap-2">
+                            {isTargetPage && (
+                              <span
+                                className="text-[10px] font-black px-2 py-0.5 rounded-md shadow-2xs"
+                                style={{ background: theme.accent, color: theme.accentInk }}
+                              >
+                                {lang === "ar" ? "🎯 الصفحة النشطة للتحرير" : "🎯 Active Target"}
+                              </span>
+                            )}
+                            <span>{owner?._branchTitle ? `${owner._branchTitle} — ${owner._leafTitle}` : owner?._leafTitle}</span>
+                          </div>
+                        </div>
 
-                  <p style={{ position: "relative", top: "8mm", textAlign: "center", fontSize: 10, color: "#b3a692" }}>
-                    {t.pageOf(pi + 1, pages.length)}
-                  </p>
-                </div>
-              );
-            })}
+                        {/* Render page blocks with direct CanvasBlockWrapper */}
+                        {pageBlocks.map((b, i) => {
+                          const blockLeafId = b._leafId;
+                          const blockIdx = typeof b._blockIndex === "number" ? b._blockIndex : i;
+
+                          return (
+                            <CanvasBlockWrapper
+                              key={b.id || i}
+                              block={b}
+                              kinds={kinds}
+                              palette={palette}
+                              theme={theme}
+                              skin={skin}
+                              lang={lang}
+                              bookId={bookId}
+                              onUpdate={(patch) => updateBlockInLeaf(blockLeafId, blockIdx, patch)}
+                              onDelete={() => deleteBlockInLeaf(blockLeafId, blockIdx)}
+                              onMove={(dir) => moveBlockInLeaf(blockLeafId, blockIdx, dir)}
+                              onInsertBelow={(k) => insertBelowInLeaf(blockLeafId, blockIdx, k)}
+                            />
+                          );
+                        })}
+
+                        {/* Add Block to this leaf quick button */}
+                        {leafId && (
+                          <div className="mt-4 flex justify-center">
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setTargetLeafId(leafId);
+                                const target = book.nodes.find((n) => n.id === leafId);
+                                const current = target?.pageBlocks || [];
+                                const baseId = `${leafId}-b-${Date.now()}`;
+                                const newBlock = { id: baseId, kind: "text", text: "" };
+                                if (onUpdateLeaf) onUpdateLeaf(leafId, { pageBlocks: [...current, newBlock] });
+                              }}
+                              className="educraft-btn flex items-center gap-1.5 text-xs font-bold px-4 py-1.5 rounded-xl border border-dashed hover:border-solid cursor-pointer shadow-2xs opacity-70 hover:opacity-100 transition-all"
+                              style={{ background: `${palette.HeaderColor}0d`, borderColor: palette.HeaderColor, color: palette.HeaderColor }}
+                            >
+                              <Plus size={12} />
+                              <span>{lang === "ar" ? "إضافة عنصر جديد لأسفل هذه الصفحة" : "+ Add Block to This Leaf"}</span>
+                            </button>
+                          </div>
+                        )}
+
+                        <p style={{ position: "relative", top: "8mm", textAlign: "center", fontSize: 10, color: "#b3a692" }}>
+                          {t.pageOf(pi + 1, pages.length)}
+                        </p>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+            </div>
           </div>
         </div>
+
+        {/* TASK PANE (Inspector for active target leaf in All Book Pages) */}
+        {!focusMode && activeLeaf && (
+          <div className="order-2 p-3 min-w-0 w-full" style={{ borderRadius: skin.radiusLg, border: `1px solid ${theme.hairline}`, background: theme.surface, alignSelf: "start" }}>
+            <div className="flex items-center justify-between gap-1 mb-2 pb-1 border-b" style={{ borderColor: theme.hairline }}>
+              <p className="text-[10px] font-bold uppercase tracking-wide truncate" style={{ color: theme.inkSoft }}>
+                {lang === "ar" ? "عناصر: " : "Blocks: "}
+                <span style={{ color: theme.accent }}>{lang === "ar" ? activeLeaf.ar : activeLeaf.en}</span>
+              </p>
+              <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full shrink-0" style={{ background: theme.accentSoft, color: theme.accent }}>
+                {(activeLeaf.pageBlocks || []).length}
+              </span>
+            </div>
+            <div className="max-h-[40vh] xl:max-h-[70vh] overflow-y-auto">
+              {(activeLeaf.pageBlocks || []).map((b, i) => (
+                <BlockRow
+                  key={b.id || i}
+                  block={b}
+                  t={t}
+                  theme={theme}
+                  skin={skin}
+                  kinds={activeKinds}
+                  bookId={bookId}
+                  onUpdate={(p) => updateBlockInLeaf(activeLeaf.id, i, p)}
+                  onDelete={() => deleteBlockInLeaf(activeLeaf.id, i)}
+                  onMove={(dir) => moveBlockInLeaf(activeLeaf.id, i, dir)}
+                />
+              ))}
+              {(activeLeaf.pageBlocks || []).length === 0 && (
+                <div className="text-center py-6">
+                  <p className="text-xs mb-3" style={{ color: theme.inkSoft }}>
+                    {lang === "ar" ? "لا توجد عناصر بعد في هذه الصفحة" : "No blocks in this page yet"}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => addBlockToTargetLeaf("text")}
+                    className="educraft-btn text-xs font-bold px-3 py-1.5 rounded-lg border"
+                    style={{ background: theme.surfaceSoft, borderColor: theme.hairline, color: theme.ink }}
+                  >
+                    + {t.blockTextKind || "Text"}
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -6934,7 +7133,7 @@ function A4PageBuilder({ leaf, lang, theme, skin, t, onUpdateLeaf, allLeavesCard
   ];
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-3 min-w-0 w-full">
       {/* Floating 60 Palettes Modal */}
       <PlatePaletteModal
         isOpen={palettePickerOpen}
@@ -6947,7 +7146,7 @@ function A4PageBuilder({ leaf, lang, theme, skin, t, onUpdateLeaf, allLeavesCard
       />
 
       {/* RIBBON — grouped tool buttons */}
-      <div className="overflow-x-auto" style={{ borderRadius: skin.radiusLg, border: `1px solid ${theme.hairline}`, background: theme.surface }}>
+      <div className="overflow-x-auto educraft-glass shadow-xs mb-3" style={{ borderRadius: skin.radiusLg, border: `1px solid ${theme.hairline}` }}>
         <div className="flex items-center gap-2 p-2 w-max min-w-full">
           <RibbonGroup label={t.pageGroup}>
             <button
@@ -7010,7 +7209,7 @@ function A4PageBuilder({ leaf, lang, theme, skin, t, onUpdateLeaf, allLeavesCard
         </div>
       </div>
 
-      <div className={`grid ${focusMode ? "grid-cols-1" : "lg:grid-cols-[1fr_280px]"} gap-4 items-start`}>
+      <div className={`grid ${focusMode ? "grid-cols-1" : "xl:grid-cols-[minmax(0,1fr)_260px] 2xl:grid-cols-[minmax(0,1fr)_280px] grid-cols-1"} gap-4 items-start min-w-0 w-full`}>
         {/* CANVAS */}
         <div className="order-1 min-w-0">
           <ZoomBar t={t} theme={theme} skin={skin} scale={scale} onZoomOut={zoomOut} onZoomIn={zoomIn} onFit={zoomFit} isFit={isFit} />
@@ -7029,7 +7228,8 @@ function A4PageBuilder({ leaf, lang, theme, skin, t, onUpdateLeaf, allLeavesCard
                   <div
                     key={pi}
                     dir="rtl"
-                    style={{ width: "210mm", minHeight: "297mm", background: palette.PageBG, color: palette.BodyText, padding: "16mm 14mm", boxShadow: "0 4px 24px rgba(0,0,0,0.15)", borderRadius: 4, fontFamily: PAGE_FONT, fontSize: 15, lineHeight: 1.9 }}
+                    className="educraft-paper-sheet"
+                    style={{ width: "210mm", minHeight: "297mm", background: palette.PageBG, color: palette.BodyText, padding: "16mm 14mm", borderRadius: 6, fontFamily: PAGE_FONT, fontSize: 15, lineHeight: 1.9 }}
                   >
                     <div
                       style={{
@@ -7121,11 +7321,11 @@ function A4PageBuilder({ leaf, lang, theme, skin, t, onUpdateLeaf, allLeavesCard
 
         {/* TASK PANE (hidden when in Focus Mode) */}
         {!focusMode && (
-          <div className="order-2 p-3" style={{ borderRadius: skin.radiusLg, border: `1px solid ${theme.hairline}`, background: theme.surface, alignSelf: "start" }}>
+          <div className="order-2 p-3 min-w-0 w-full" style={{ borderRadius: skin.radiusLg, border: `1px solid ${theme.hairline}`, background: theme.surface, alignSelf: "start" }}>
             <p className="text-[10px] font-bold uppercase tracking-wide mb-2" style={{ color: theme.inkSoft }}>
               {t.addBlock}
             </p>
-            <div className="max-h-[40vh] lg:max-h-[70vh] overflow-y-auto">
+            <div className="max-h-[40vh] xl:max-h-[70vh] overflow-y-auto">
               {blocks.map((b, i) => (
                 <BlockRow
                   key={b.id || i}
@@ -7252,15 +7452,14 @@ function EditorRibbon({ book, lang, theme, t, onImportBook, addCard, addQuestion
     reader.readAsText(f);
     e.target.value = "";
   };
-  const groupStyle = { background: theme.surface, borderRadius: 14, border: `1px solid ${theme.hairline}`, padding: 8 };
-  const iconBtn = { height: 28, borderRadius: 8, background: theme.surfaceSoft, display: "grid", placeItems: "center", color: theme.ink };
+  const groupStyle = { background: theme.surface, borderRadius: 18, border: `1px solid ${theme.hairlineStrong}`, padding: 12 };
   return (
-    <div className="flex flex-col gap-2.5 w-full md:w-[220px] shrink-0">
+    <div className="flex flex-col gap-3 w-full md:w-[220px] shrink-0">
       {/* Files & Export Panel */}
-      <div style={groupStyle} className="shadow-2xs">
-        <div className="flex items-center gap-1.5 mb-2 pb-1 border-b" style={{ borderColor: theme.hairline }}>
-          <FolderOpen size={12} style={{ color: theme.accent }} />
-          <span className="text-[10px] font-black uppercase tracking-wider" style={{ color: theme.ink }}>
+      <div style={groupStyle} className="shadow-xs">
+        <div className="flex items-center gap-1.5 mb-2.5 pb-1.5 border-b" style={{ borderColor: theme.hairline }}>
+          <FolderOpen size={13} style={{ color: theme.accent }} />
+          <span className="text-[11px] font-black uppercase tracking-wider" style={{ color: theme.ink }}>
             {t.files}
           </span>
         </div>
@@ -7268,8 +7467,8 @@ function EditorRibbon({ book, lang, theme, t, onImportBook, addCard, addQuestion
           <button
             type="button"
             onClick={() => fileRef.current?.click()}
-            className="educraft-btn flex-1 flex items-center justify-center gap-1 text-[10px] font-bold py-1.5 rounded-lg border cursor-pointer"
-            style={{ background: theme.surfaceSoft, borderColor: theme.hairline, color: theme.ink }}
+            className="educraft-btn flex-1 flex items-center justify-center gap-1.5 text-[11px] font-bold py-2 rounded-xl border cursor-pointer shadow-2xs hover:bg-black/5"
+            style={{ background: theme.surfaceSoft, borderColor: theme.hairlineStrong, color: theme.ink }}
             title={t.importBookJson}
           >
             <FileUp size={13} style={{ color: theme.accent }} />
@@ -7278,8 +7477,8 @@ function EditorRibbon({ book, lang, theme, t, onImportBook, addCard, addQuestion
           <button
             type="button"
             onClick={() => downloadJSON(`${book.id}.json`, book)}
-            className="educraft-btn flex-1 flex items-center justify-center gap-1 text-[10px] font-bold py-1.5 rounded-lg border cursor-pointer"
-            style={{ background: theme.surfaceSoft, borderColor: theme.hairline, color: theme.ink }}
+            className="educraft-btn flex-1 flex items-center justify-center gap-1.5 text-[11px] font-bold py-2 rounded-xl border cursor-pointer shadow-2xs hover:bg-black/5"
+            style={{ background: theme.surfaceSoft, borderColor: theme.hairlineStrong, color: theme.ink }}
             title={t.exportBookJson}
           >
             <FileDown size={13} style={{ color: theme.accent }} />
@@ -7290,8 +7489,8 @@ function EditorRibbon({ book, lang, theme, t, onImportBook, addCard, addQuestion
         <button
           type="button"
           onClick={() => orderedImagesRef.current?.click()}
-          className="educraft-btn w-full flex items-center justify-center gap-1.5 text-[10px] font-bold py-1.5 mb-1.5 rounded-lg border cursor-pointer"
-          style={{ background: theme.surfaceSoft, borderColor: theme.hairline, color: theme.ink }}
+          className="educraft-btn w-full flex items-center justify-center gap-1.5 text-[11px] font-bold py-2 mb-1.5 rounded-xl border cursor-pointer shadow-2xs hover:bg-black/5"
+          style={{ background: theme.surfaceSoft, borderColor: theme.hairlineStrong, color: theme.ink }}
           title={t.importOrderedImages}
         >
           <ImagePlus size={13} style={{ color: theme.accent }} />
@@ -7313,8 +7512,8 @@ function EditorRibbon({ book, lang, theme, t, onImportBook, addCard, addQuestion
         <button
           type="button"
           onClick={() => manifestFolderRef.current?.click()}
-          className="educraft-btn w-full flex items-center justify-center gap-1.5 text-[10px] font-bold py-1.5 rounded-lg border cursor-pointer"
-          style={{ background: theme.surfaceSoft, borderColor: theme.hairline, color: theme.ink }}
+          className="educraft-btn w-full flex items-center justify-center gap-1.5 text-[11px] font-bold py-2 rounded-xl border cursor-pointer shadow-2xs hover:bg-black/5"
+          style={{ background: theme.surfaceSoft, borderColor: theme.hairlineStrong, color: theme.ink }}
           title={t.importManifestFolder}
         >
           <FolderOpen size={13} style={{ color: theme.accent }} />
@@ -7333,27 +7532,27 @@ function EditorRibbon({ book, lang, theme, t, onImportBook, addCard, addQuestion
           className="hidden"
         />
         {importStatus && (
-          <p className="text-[10px] mt-2 p-1.5 rounded font-semibold text-center" style={{ background: importStatus.ok ? `${theme.accent}15` : "#C0392B15", color: importStatus.ok ? theme.accent : "#C0392B" }}>
+          <p className="text-[10px] mt-2 p-2 rounded-xl font-bold text-center border" style={{ background: importStatus.ok ? `${theme.accent}15` : "#C0392B15", color: importStatus.ok ? theme.accent : "#C0392B", borderColor: importStatus.ok ? `${theme.accent}33` : "#C0392B33" }}>
             {importStatus.text}
           </p>
         )}
       </div>
 
       {/* Card Actions */}
-      <div style={groupStyle} className="shadow-2xs">
-        <div className="flex items-center gap-1.5 mb-2 pb-1 border-b" style={{ borderColor: theme.hairline }}>
-          <LayoutGrid size={12} style={{ color: theme.accent }} />
-          <span className="text-[10px] font-black uppercase tracking-wider" style={{ color: theme.ink }}>
+      <div style={groupStyle} className="shadow-xs">
+        <div className="flex items-center gap-1.5 mb-2.5 pb-1.5 border-b" style={{ borderColor: theme.hairline }}>
+          <LayoutGrid size={13} style={{ color: theme.accent }} />
+          <span className="text-[11px] font-black uppercase tracking-wider" style={{ color: theme.ink }}>
             {t.card}
           </span>
         </div>
         <button
           type="button"
           onClick={addCard}
-          className="educraft-btn w-full flex items-center justify-center gap-1.5 text-xs font-bold py-2 rounded-xl cursor-pointer shadow-2xs border"
+          className="educraft-btn w-full flex items-center justify-center gap-1.5 text-xs font-bold py-2.5 rounded-xl cursor-pointer shadow-sm border transition-transform"
           style={{ background: theme.accent, color: theme.accentInk, borderColor: theme.accent }}
         >
-          <Plus size={14} />
+          <Plus size={15} />
           <span>{t.newCard}</span>
         </button>
       </div>
@@ -7366,13 +7565,13 @@ function EditorRibbon({ book, lang, theme, t, onImportBook, addCard, addQuestion
             {t.addQuestion}
           </span>
         </div>
-        <div className="grid grid-cols-1 gap-1 max-h-56 overflow-y-auto pe-0.5">
+        <div className="grid grid-cols-1 gap-1.5 max-h-60 overflow-y-auto pe-0.5 custom-scrollbar">
           {Object.entries(TYPE_META).map(([key, meta]) => (
             <button
               key={key}
               type="button"
               onClick={() => addQuestionOfType(key)}
-              className="educraft-btn text-start flex items-center gap-2 px-2 py-1.5 rounded-lg cursor-pointer border hover:border-indigo-300"
+              className="educraft-btn text-start flex items-center gap-2 px-2.5 py-1.5 rounded-xl cursor-pointer border transition-all group"
               style={{
                 background: theme.surfaceSoft,
                 borderColor: theme.hairline,
@@ -7380,8 +7579,13 @@ function EditorRibbon({ book, lang, theme, t, onImportBook, addCard, addQuestion
               }}
               title={lang === "ar" ? meta.ar : meta.en}
             >
-              <meta.Icon size={13} style={{ color: theme.accent }} className="shrink-0" />
-              <span className="text-[10px] font-bold truncate">
+              <div
+                className="w-5 h-5 rounded-lg flex items-center justify-center shrink-0 shadow-2xs transition-transform group-hover:scale-105"
+                style={{ background: meta.color.bg, color: meta.color.ink }}
+              >
+                <meta.Icon size={11} strokeWidth={2.5} />
+              </div>
+              <span className="text-[11px] font-semibold truncate tracking-tight">
                 {lang === "ar" ? meta.ar : meta.en}
               </span>
             </button>
@@ -7419,8 +7623,8 @@ function EditorBreadcrumb({ book, lang, leaf, card, theme, onBackToTree }) {
       <button
         type="button"
         onClick={onBackToTree}
-        className="educraft-btn flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border hover:border-indigo-400 cursor-pointer shadow-2xs"
-        style={{ background: theme.surface, borderColor: theme.hairline, color: theme.ink }}
+        className="educraft-btn flex items-center gap-1.5 px-3 py-1.5 rounded-xl border cursor-pointer transition-all hover:shadow-sm"
+        style={{ background: theme.surface, borderColor: theme.hairlineStrong, color: theme.ink }}
         title={lang === "ar" ? "عرض شجرة المعرفة" : "View knowledge tree"}
       >
         <BookOpen size={13} style={{ color: theme.accent }} />
@@ -7429,12 +7633,12 @@ function EditorBreadcrumb({ book, lang, leaf, card, theme, onBackToTree }) {
 
       {branchTitle && (
         <>
-          <span style={{ color: theme.hairlineStrong }}>›</span>
+          <ChevronRight size={12} className="opacity-40" />
           <span
-            className="flex items-center gap-1 px-2 py-1 rounded-lg"
+            className="flex items-center gap-1.5 px-2 py-1 rounded-lg text-xs"
             style={{ color: theme.inkSoft }}
           >
-            <GitBranch size={12} />
+            <GitBranch size={12} className="opacity-70" />
             <span>{branchTitle}</span>
           </span>
         </>
@@ -7442,9 +7646,9 @@ function EditorBreadcrumb({ book, lang, leaf, card, theme, onBackToTree }) {
 
       {leafTitle && (
         <>
-          <span style={{ color: theme.hairlineStrong }}>›</span>
+          <ChevronRight size={12} className="opacity-40" />
           <span
-            className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl font-bold"
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl font-bold text-xs"
             style={{ background: theme.accentSoft, color: theme.accent, border: `1px solid ${theme.accent}33` }}
           >
             <FileText size={12} />
@@ -7588,12 +7792,24 @@ function EditorView({ book, lang, theme, skin, voiceEnabled, onVoiceEnabledChang
   };
 
   return (
-    <div className="educraft-panel-in" style={{ background: `linear-gradient(180deg, ${theme.accentSoft} 0%, ${theme.canvas} 55%)`, borderRadius: 20, padding: 16 }}>
-      <div className="flex items-center justify-between flex-wrap gap-3 mb-4">
+    <div
+      className="educraft-panel-in"
+      style={{
+        background: `linear-gradient(180deg, ${theme.accentSoft} 0%, ${theme.canvas} 55%)`,
+        borderRadius: 20,
+        padding: 16,
+        border: `1px solid ${theme.hairline}`,
+      }}
+    >
+      {/* Apple-grade Frosted Glass Top Navigation Header */}
+      <div
+        className="flex items-center justify-between flex-wrap gap-3 mb-5 p-2 rounded-2xl educraft-glass shadow-xs"
+        style={{ borderColor: theme.hairline }}
+      >
         <div className="flex items-center gap-3 flex-wrap">
           <EditorBreadcrumb book={book} lang={lang} leaf={leaf} card={card} theme={theme} onBackToTree={onBackToTree} />
           {onChangeBookFlavor && (
-            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl border shadow-xs" style={{ background: theme.surface, borderColor: theme.hairline }}>
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl border shadow-2xs" style={{ background: theme.surface, borderColor: theme.hairline }}>
               <Palette size={12} style={{ color: theme.inkSoft }} />
               <div className="flex items-center gap-1">
                 {Object.entries(FLAVORS).map(([fid, f]) => {
@@ -7604,14 +7820,14 @@ function EditorView({ book, lang, theme, skin, voiceEnabled, onVoiceEnabledChang
                       key={fid}
                       type="button"
                       onClick={() => onChangeBookFlavor(fid)}
-                      className="educraft-btn relative p-0.5 rounded-full cursor-pointer"
+                      className="educraft-btn relative p-0.5 rounded-full cursor-pointer transition-transform"
                       style={{
-                        border: isSelected ? `2px solid ${theme.ink}` : "1.5px solid transparent",
-                        boxShadow: isSelected ? `0 0 0 1px ${theme.accent}` : "none",
+                        transform: isSelected ? "scale(1.15)" : "scale(1)",
+                        boxShadow: isSelected ? `0 0 0 1.5px ${theme.accent}` : "none",
                       }}
                       title={f[lang] || fid}
                     >
-                      <div className="w-3.5 h-3.5 rounded-full flex overflow-hidden" style={{ border: `1px solid ${pal.hairlineStrong}` }}>
+                      <div className="w-3.5 h-3.5 rounded-full flex overflow-hidden shadow-2xs" style={{ border: `1px solid ${pal.hairlineStrong}` }}>
                         <div className="w-1/2 h-full" style={{ background: pal.accent }} />
                         <div className="w-1/2 h-full" style={{ background: pal.canvas }} />
                       </div>
@@ -7623,32 +7839,40 @@ function EditorView({ book, lang, theme, skin, voiceEnabled, onVoiceEnabledChang
           )}
         </div>
 
-        <div className="flex items-center p-1 rounded-xl border shadow-xs" style={{ background: theme.surface, borderColor: theme.hairline }}>
+        {/* Apple/macOS Segmented Tab Switcher */}
+        <div
+          className="flex items-center p-1 rounded-xl border shadow-inner"
+          style={{ background: theme.surfaceSoft, borderColor: theme.hairline }}
+        >
           {[
             ["cards", t.tabCards, LayoutGrid],
             ["pages", t.tabPages, FileText],
             ["all_pages", lang === "ar" ? "كل صفحات الكتاب" : "All Book Pages", Library],
-          ].map(([id, label, Icon]) => (
-            <button
-              key={id}
-              type="button"
-              onClick={() => setTab(id)}
-              className="educraft-btn flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-lg cursor-pointer"
-              style={{
-                background: tab === id ? theme.accentSoft : "transparent",
-                color: tab === id ? theme.accent : theme.inkSoft,
-                border: tab === id ? `1px solid ${theme.accent}33` : "1px solid transparent",
-              }}
-            >
-              <Icon size={13} style={{ color: tab === id ? theme.accent : theme.inkSoft }} />
-              {label}
-            </button>
-          ))}
+          ].map(([id, label, Icon]) => {
+            const active = tab === id;
+            return (
+              <button
+                key={id}
+                type="button"
+                onClick={() => setTab(id)}
+                className="educraft-btn flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-lg cursor-pointer transition-all"
+                style={{
+                  background: active ? theme.surface : "transparent",
+                  color: active ? theme.accent : theme.inkSoft,
+                  boxShadow: active ? "0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)" : "none",
+                  border: active ? `1px solid ${theme.hairlineStrong}` : "1px solid transparent",
+                }}
+              >
+                <Icon size={13} style={{ color: active ? theme.accent : theme.inkSoft }} />
+                <span>{label}</span>
+              </button>
+            );
+          })}
         </div>
       </div>
 
-      <div className="grid lg:grid-cols-[280px_1fr] gap-4">
-        <div className="p-3" style={{ borderRadius: skin.radiusLg, border: `1px solid ${theme.hairline}`, background: theme.surface, alignSelf: "start" }}>
+      <div className="grid lg:grid-cols-[280px_1fr] gap-4 min-w-0 items-start">
+        <div className="p-3 shrink-0" style={{ borderRadius: skin.radiusLg, border: `1px solid ${theme.hairline}`, background: theme.surface, alignSelf: "start" }}>
           <EditorLeafNav
             book={book}
             lang={lang}
@@ -7664,7 +7888,7 @@ function EditorView({ book, lang, theme, skin, voiceEnabled, onVoiceEnabledChang
           />
         </div>
 
-        <div>
+        <div className="min-w-0 w-full">
           {!previewWholeBook && !leaf ? (
             <div className="p-8 text-center rounded-2xl border flex flex-col items-center justify-center gap-3 my-4" style={{ background: theme.surface, borderColor: theme.hairline }}>
               <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: theme.accentSoft, color: theme.accent }}>
@@ -7766,23 +7990,39 @@ function EditorView({ book, lang, theme, skin, voiceEnabled, onVoiceEnabledChang
             leaf && (
               <div className="flex gap-4 items-start">
                 <div className="flex-1 min-w-0">
-                  <div className="flex flex-wrap items-center gap-1.5 mb-3">
-                    {cards.map((c, i) => (
-                      <button
-                        key={c.id || i}
-                        type="button"
-                        onClick={() => setSelectedCardIdx(i)}
-                        className="educraft-btn text-xs font-bold px-3 py-1.5 cursor-pointer"
-                        style={{
-                          borderRadius: 999,
-                          background: selectedCardIdx === i ? theme.accentSoft : theme.surface,
-                          color: selectedCardIdx === i ? theme.accent : theme.inkSoft,
-                          border: selectedCardIdx === i ? `1px solid ${theme.accent}33` : `1px solid ${theme.hairline}`,
-                        }}
-                      >
-                        {t.card} {i + 1}
-                      </button>
-                    ))}
+                  <div
+                    className="flex items-center gap-1.5 p-1 rounded-2xl border shadow-inner mb-4 overflow-x-auto"
+                    style={{ background: theme.surfaceSoft, borderColor: theme.hairline }}
+                  >
+                    {cards.map((c, i) => {
+                      const active = selectedCardIdx === i;
+                      return (
+                        <button
+                          key={c.id || i}
+                          type="button"
+                          onClick={() => setSelectedCardIdx(i)}
+                          className="educraft-btn text-xs font-bold px-3.5 py-1.5 rounded-xl cursor-pointer transition-all shrink-0"
+                          style={{
+                            background: active ? theme.surface : "transparent",
+                            color: active ? theme.accent : theme.inkSoft,
+                            boxShadow: active ? "0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)" : "none",
+                            border: active ? `1px solid ${theme.hairlineStrong}` : "1px solid transparent",
+                          }}
+                        >
+                          {t.card} {i + 1}
+                        </button>
+                      );
+                    })}
+                    <button
+                      type="button"
+                      onClick={addCard}
+                      className="educraft-btn text-xs font-bold px-3 py-1.5 rounded-xl cursor-pointer transition-all shrink-0 flex items-center gap-1 opacity-70 hover:opacity-100"
+                      style={{ color: theme.accent }}
+                      title={t.newCard}
+                    >
+                      <Plus size={13} />
+                      <span>{t.newCard}</span>
+                    </button>
                   </div>
 
                   {card && (
