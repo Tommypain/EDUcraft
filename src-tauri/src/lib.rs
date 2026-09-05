@@ -14,6 +14,7 @@ pub mod asset_resolver;
 pub mod book_manager;
 pub mod contracts;
 pub mod export_engine;
+pub mod runtime;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
