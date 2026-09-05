@@ -6,6 +6,7 @@
 pub mod blocks;
 pub mod composition;
 pub mod declarative;
+pub mod events;
 pub mod registry;
 pub mod slots;
 pub mod theme_tokens;
@@ -15,6 +16,7 @@ pub mod validator;
 pub use blocks::*;
 pub use composition::*;
 pub use declarative::*;
+pub use events::*;
 pub use registry::*;
 pub use slots::*;
 pub use theme_tokens::*;
