@@ -10,6 +10,7 @@
 mod commands;
 pub mod asset_engine;
 pub mod asset_intelligence;
+pub mod asset_resolver;
 pub mod book_manager;
 pub mod contracts;
 pub mod export_engine;

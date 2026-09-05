@@ -257,3 +257,26 @@ export interface PluginManifestContract {
   };
   [key: string]: unknown;
 }
+
+export interface AssetResolutionQuery {
+  topic?: string;
+  asset_type?: AssetType;
+  role?: AssetRole;
+  concept?: string;
+  context?: string;
+  min_score?: number;
+}
+
+export interface ScoredCandidate {
+  asset_id: string;
+  score: number;
+  match_reasons: string[];
+}
+
+export interface AssetResolutionResult {
+  resolved: boolean;
+  asset_id?: string;
+  score: number;
+  candidates: ScoredCandidate[];
+  reason?: string;
+}
