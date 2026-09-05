@@ -9,6 +9,7 @@
 
 mod commands;
 pub mod book_manager;
+pub mod contracts;
 pub mod export_engine;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]

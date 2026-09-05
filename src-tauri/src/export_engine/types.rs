@@ -31,18 +31,83 @@ pub struct BookLocale {
     pub extra: HashMap<String, serde_json::Value>,
 }
 
+pub fn default_schema_version() -> String {
+    "1.0".to_string()
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Default, PartialEq, Eq)]
+pub struct BookAssetsMeta {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub manifest_path: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub total_count: Option<usize>,
+    #[serde(flatten)]
+    pub extra: HashMap<String, serde_json::Value>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Default, PartialEq, Eq)]
+pub struct BookMetadata {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub author: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub created_at: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub updated_at: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub version: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub license: Option<String>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub tags: Vec<String>,
+    #[serde(flatten)]
+    pub extra: HashMap<String, serde_json::Value>,
+}
+
 /// A full book as serialised from the React state.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ExportBook {
+    #[serde(default = "default_schema_version")]
+    pub schema_version: String,
     pub id: String,
     pub ar: BookLocale,
     pub en: BookLocale,
     pub nodes: Vec<BookNode>,
     #[serde(default)]
     pub cross_links: Vec<serde_json::Value>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub capabilities: Vec<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub assets: Option<BookAssetsMeta>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub metadata: Option<BookMetadata>,
     /// Remaining book fields (cover gradient, etc.) passed through as-is.
     #[serde(flatten)]
     pub extra: HashMap<String, serde_json::Value>,
+}
+
+impl Default for ExportBook {
+    fn default() -> Self {
+        Self {
+            schema_version: default_schema_version(),
+            id: String::new(),
+            ar: BookLocale {
+                title: String::new(),
+                tagline: None,
+                extra: HashMap::new(),
+            },
+            en: BookLocale {
+                title: String::new(),
+                tagline: None,
+                extra: HashMap::new(),
+            },
+            nodes: Vec::new(),
+            cross_links: Vec::new(),
+            capabilities: Vec::new(),
+            assets: None,
+            metadata: None,
+            extra: HashMap::new(),
+        }
+    }
 }
 
 /// A folder/encyclopedia collection.

@@ -179,6 +179,7 @@ mod tests {
             ],
             cross_links: vec![],
             extra: HashMap::new(),
+            ..ExportBook::default()
         };
 
         let mut report = ValidationReport::default();
@@ -209,6 +210,7 @@ mod tests {
                 serde_json::json!({ "from": "n1", "to": "n1" }),
             ],
             extra: HashMap::new(),
+            ..ExportBook::default()
         };
 
         let mut report = ValidationReport::default();
