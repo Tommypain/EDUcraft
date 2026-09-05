@@ -149,6 +149,19 @@ export interface CardContract {
   [key: string]: unknown;
 }
 
+export type AssetType =
+  | "image"
+  | "diagram"
+  | "chart"
+  | "table"
+  | "audio"
+  | "video"
+  | "document"
+  | "pdfFigure"
+  | "model3d"
+  | "interactiveDiagram"
+  | "unknown";
+
 export type AssetRole =
   | "figure"
   | "diagram"
@@ -156,10 +169,13 @@ export type AssetRole =
   | "card"
   | "solution"
   | "icon"
+  | "decorative"
   | "unknown";
 
 export interface KnowledgeAsset {
   id: string;
+  asset_type?: AssetType;
+  role?: AssetRole;
   original_filename: string;
   storage_path: string;
   mime_type: string;
@@ -168,7 +184,8 @@ export interface KnowledgeAsset {
   width?: number;
   height?: number;
   aspect_ratio?: number;
-  role?: AssetRole;
+  duration_seconds?: number;
+  is_decorative?: boolean;
   caption?: LocalizedString;
   alt?: LocalizedString;
   tags?: string[];

@@ -101,3 +101,132 @@ pub fn delete_book_asset(
         Ok(false)
     }
 }
+
+pub fn compute_sha256(data: &[u8]) -> String {
+    use sha2::{Digest, Sha256};
+    let mut hasher = Sha256::new();
+    hasher.update(data);
+    let result = hasher.finalize();
+    let mut s = String::with_capacity(64);
+    for b in result {
+        use std::fmt::Write;
+        let _ = write!(s, "{:02x}", b);
+    }
+    s
+}
+
+pub fn load_manifest(book_dir: &Path) -> Result<Option<crate::contracts::KnowledgeAssetManifest>, String> {
+    let manifest_file = book_dir.join("assets").join("manifest.json");
+    if !manifest_file.exists() {
+        return Ok(None);
+    }
+    let content = fs::read_to_string(&manifest_file)
+        .map_err(|e| format!("Failed to read asset manifest '{}': {}", manifest_file.display(), e))?;
+    let manifest: crate::contracts::KnowledgeAssetManifest = serde_json::from_str(&content)
+        .map_err(|e| format!("Failed to parse asset manifest '{}': {}", manifest_file.display(), e))?;
+    Ok(Some(manifest))
+}
+
+pub fn save_manifest(
+    book_dir: &Path,
+    manifest: &crate::contracts::KnowledgeAssetManifest,
+) -> Result<(), String> {
+    manifest.validate()?;
+    let assets_dir = book_dir.join("assets");
+    if !assets_dir.exists() {
+        fs::create_dir_all(&assets_dir)
+            .map_err(|e| format!("Failed to create assets directory '{}': {}", assets_dir.display(), e))?;
+    }
+    let manifest_file = assets_dir.join("manifest.json");
+    let json_bytes = serde_json::to_vec_pretty(manifest)
+        .map_err(|e| format!("Failed to serialize asset manifest: {}", e))?;
+    fs::write(&manifest_file, json_bytes)
+        .map_err(|e| format!("Failed to write asset manifest '{}': {}", manifest_file.display(), e))?;
+    Ok(())
+}
+
+pub fn collect_book_asset_references(book: &crate::export_engine::types::ExportBook) -> Vec<String> {
+    use std::collections::HashSet;
+    let mut refs = HashSet::new();
+
+    for node in &book.nodes {
+        if node.level != "leaf" {
+            continue;
+        }
+
+        // 1. pageBlocks
+        if let Some(blocks) = node.extra.get("pageBlocks").and_then(|p| p.as_array()) {
+            for b in blocks {
+                if let Some(aid) = b.get("asset_id").and_then(|v| v.as_str()) {
+                    if !aid.trim().is_empty() {
+                        refs.insert(aid.to_string());
+                    }
+                }
+            }
+        }
+
+        // 2. helper closure to scan questions
+        let mut scan_question = |q: &serde_json::Value| {
+            if let Some(arr) = q.get("asset_ids").and_then(|a| a.as_array()) {
+                for id_val in arr {
+                    if let Some(s) = id_val.as_str() {
+                        if !s.trim().is_empty() {
+                            refs.insert(s.to_string());
+                        }
+                    }
+                }
+            }
+            if let Some(aid) = q.get("asset_id").and_then(|v| v.as_str()) {
+                if !aid.trim().is_empty() {
+                    refs.insert(aid.to_string());
+                }
+            }
+            let mut scan_content = |c: &serde_json::Value| {
+                if let Some(c_arr) = c.as_array() {
+                    for b in c_arr {
+                        if let Some(aid) = b.get("asset_id").and_then(|v| v.as_str()) {
+                            if !aid.trim().is_empty() {
+                                refs.insert(aid.to_string());
+                            }
+                        }
+                    }
+                }
+            };
+            if let Some(c) = q.get("content") {
+                scan_content(c);
+            }
+            if let Some(en) = q.get("en").and_then(|v| v.as_object()) {
+                if let Some(c) = en.get("content") {
+                    scan_content(c);
+                }
+            }
+            if let Some(ar) = q.get("ar").and_then(|v| v.as_object()) {
+                if let Some(c) = ar.get("content") {
+                    scan_content(c);
+                }
+            }
+        };
+
+        if let Some(cards) = node.extra.get("cards").and_then(|c| c.as_array()) {
+            for card in cards {
+                if let Some(groups) = card.get("questionGroups").and_then(|g| g.as_array()) {
+                    for g in groups {
+                        if let Some(qs) = g.get("questions").and_then(|q| q.as_array()) {
+                            for q in qs {
+                                scan_question(q);
+                            }
+                        }
+                    }
+                }
+            }
+        } else if let Some(qs) = node.extra.get("questions").and_then(|q| q.as_array()) {
+            for q in qs {
+                scan_question(q);
+            }
+        }
+    }
+
+    let mut list: Vec<String> = refs.into_iter().collect();
+    list.sort();
+    list
+}

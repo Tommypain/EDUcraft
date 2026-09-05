@@ -112,6 +112,8 @@ fn test_knowledge_asset_manifest_validation() {
 
     let asset = KnowledgeAsset {
         id: "ast_01h8xcell001".to_string(),
+        asset_type: educraft_lib::contracts::AssetType::Image,
+        role: AssetRole::Figure,
         original_filename: "cell_membrane.png".to_string(),
         storage_path: "assets/images/cell_membrane.png".to_string(),
         mime_type: "image/png".to_string(),
@@ -120,7 +122,8 @@ fn test_knowledge_asset_manifest_validation() {
         width: Some(1920),
         height: Some(1080),
         aspect_ratio: Some(1.777),
-        role: Some(AssetRole::Figure),
+        duration_seconds: None,
+        is_decorative: false,
         caption: Some(LocalizedText {
             ar: Some("غشاء الخلية البلازمي".to_string()),
             en: Some("Cell Plasma Membrane".to_string()),
@@ -134,7 +137,7 @@ fn test_knowledge_asset_manifest_validation() {
     assert!(manifest.validate().is_ok());
 
     let retrieved = manifest.get_asset("ast_01h8xcell001").expect("Asset must be found");
-    assert_eq!(retrieved.role, Some(AssetRole::Figure));
+    assert_eq!(retrieved.role, AssetRole::Figure);
     assert_eq!(retrieved.byte_size, 45120);
 
     // Mismatched ID test
