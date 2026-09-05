@@ -398,4 +398,41 @@ export interface DeclarativePluginContract {
   macros?: DeclarativeMacroDefContract[];
 }
 
+// ============================================================================
+// Titanium Building Blocks Contract
+// ============================================================================
+
+export type SlotIdContract =
+  | "header_actions"
+  | "sidebar_tabs"
+  | "leaf_header"
+  | "leaf_footer"
+  | "page_overlay"
+  | "modal_dialog";
+
+export interface SlotItemContract {
+  id: string;
+  slot: SlotIdContract;
+  plugin_id: string;
+  title: string;
+  priority?: number;
+  payload?: Record<string, unknown>;
+}
+
+export interface RenderedBlockContract {
+  kind: string;
+  html: string;
+  is_fallback: boolean;
+}
+
+export interface QuestionScoreContract {
+  question_type: string;
+  score: number;
+  max_score: number;
+  is_correct: boolean;
+  is_fallback: boolean;
+  feedback?: string;
+}
+
+
 
