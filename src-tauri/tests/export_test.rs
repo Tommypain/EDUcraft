@@ -26,6 +26,7 @@ fn test_real_book_export_pipeline() {
         flavor_id: "normal".to_string(),
         book_flavors: HashMap::from([(book.id.clone(), "normal".to_string())]),
         covers: HashMap::new(),
+        disable_editor: false,
     };
 
     // 1. Validation & sanitization
@@ -36,14 +37,15 @@ fn test_real_book_export_pipeline() {
     let seed_json = seed_to_safe_json(&seed).expect("Seed JSON safe serialization");
     assert!(!seed_json.contains("</script"));
 
-    // 3. Build HTML
-    let html = build_export_html(&ExportHtmlOptions {
-        title: &book.ar.title,
-        favicon: "data:,",
-        lang: "ar",
-        dir: lang_to_dir("ar"),
-        seed_json: &seed_json,
-    });
+    // 3. Build HTML with resolved cover favicon
+    let favicon = educraft_lib::export_engine::html_builder::resolve_seed_cover_favicon(&seed, Some(&book.id));
+    let html = build_export_html(&ExportHtmlOptions::new(
+        &book.ar.title,
+        &favicon,
+        "ar",
+        lang_to_dir("ar"),
+        &seed_json,
+    ));
 
     // 4. Assertions on generated HTML
     assert!(html.starts_with("<!DOCTYPE html>"));
@@ -51,6 +53,9 @@ fn test_real_book_export_pipeline() {
     assert!(html.contains(r#"dir="rtl""#));
     assert!(html.contains("window.__EDUCRAFT_EXPORT__ ="));
     assert!(html.contains(&book.ar.title));
+    assert!(html.contains(r#"<link rel="icon""#));
+    assert!(html.contains(r#"<link rel="apple-touch-icon""#));
+    assert!(html.contains(r#"<meta property="og:image""#));
     assert!(html.len() > 1_000_000, "Exported HTML should be a full standalone bundle (>1MB)");
 
     // Write to disk for manual & browser verification

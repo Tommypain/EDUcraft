@@ -3,7 +3,8 @@
 //! This module has NO Tauri dependency — it takes typed data and returns a String.
 //! It is fully unit-testable without a running Tauri context.
 
-use super::bundle_loader::{UI_BUNDLE_CSS, UI_BUNDLE_JS};
+use std::borrow::Cow;
+use super::bundle_loader::{get_ui_bundle_css, get_ui_bundle_js};
 use super::types::ExportSeed;
 
 const EXPORT_FONT_LINKS: &str = concat!(
@@ -49,33 +50,202 @@ pub fn escape_script_close(s: &str) -> String {
 }
 
 /// Options for building the export HTML document.
+#[derive(Debug, Clone)]
 pub struct ExportHtmlOptions<'a> {
     pub title: &'a str,
     pub favicon: &'a str,
     pub lang: &'a str,
     pub dir: &'a str,
     pub seed_json: &'a str,
+    pub custom_js: Option<&'a str>,
+    pub custom_css: Option<&'a str>,
+}
+
+impl<'a> ExportHtmlOptions<'a> {
+    pub fn new(title: &'a str, favicon: &'a str, lang: &'a str, dir: &'a str, seed_json: &'a str) -> Self {
+        Self {
+            title,
+            favicon,
+            lang,
+            dir,
+            seed_json,
+            custom_js: None,
+            custom_css: None,
+        }
+    }
+}
+
+/// Determine image MIME type from Data URI or default to image/png.
+pub fn mime_type_from_data_uri(uri: &str) -> &'static str {
+    if uri.starts_with("data:image/svg+xml") {
+        "image/svg+xml"
+    } else if uri.starts_with("data:image/jpeg") || uri.starts_with("data:image/jpg") {
+        "image/jpeg"
+    } else if uri.starts_with("data:image/webp") {
+        "image/webp"
+    } else if uri.starts_with("data:image/gif") {
+        "image/gif"
+    } else {
+        "image/png"
+    }
+}
+
+/// Build an inline SVG favicon data URI from a book's cover gradient colours and icon.
+pub fn build_svg_favicon(book_extra: &std::collections::HashMap<String, serde_json::Value>) -> String {
+    let from = book_extra
+        .get("cover")
+        .and_then(|c| c.get("from"))
+        .and_then(|v| v.as_str())
+        .unwrap_or("#38BDF8");
+    let to = book_extra
+        .get("cover")
+        .and_then(|c| c.get("to"))
+        .and_then(|v| v.as_str())
+        .unwrap_or("#0284C7");
+    let icon = book_extra
+        .get("cover")
+        .and_then(|c| c.get("icon"))
+        .and_then(|v| v.as_str())
+        .unwrap_or("code");
+
+    let icon_path = if icon == "code" {
+        r#"<path d="M12 15 L7 20 L12 25 M20 15 L25 20 L20 25 M18 13 L14 27" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none" opacity="0.95"/>"#
+    } else {
+        r#"<path d="M10 13 C7 13 7 19 10 20 C13 21 13 27 10 27" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none" opacity="0.95"/><circle cx="16" cy="15" r="1.5" fill="white"/><circle cx="16" cy="25" r="1.5" fill="white"/>"#
+    };
+
+    let svg = format!(
+        r#"<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="{from}"/><stop offset="100%" stop-color="{to}"/></linearGradient></defs><rect width="32" height="32" rx="7" fill="url(#g)"/><rect x="2" y="2" width="28" height="28" rx="5.5" fill="none" stroke="white" stroke-opacity="0.3" stroke-width="1"/>{icon_path}</svg>"#,
+        from = from,
+        to = to,
+        icon_path = icon_path
+    );
+
+    format!(
+        "data:image/svg+xml,{}",
+        svg.chars()
+            .map(|c| match c {
+                '<' => "%3C".to_string(),
+                '>' => "%3E".to_string(),
+                '#' => "%23".to_string(),
+                '"' => "'".to_string(),
+                _ => c.to_string(),
+            })
+            .collect::<String>()
+    )
+}
+
+/// Fallback default SVG favicon data URI.
+pub fn build_default_svg_favicon() -> String {
+    let svg = r##"<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="7" fill="#4f46e5"/><path d="M9 16 L16 9 L23 16 L16 23 Z" fill="white" opacity="0.9"/></svg>"##;
+    format!(
+        "data:image/svg+xml,{}",
+        svg.chars()
+            .map(|c| match c {
+                '<' => "%3C".to_string(),
+                '>' => "%3E".to_string(),
+                '#' => "%23".to_string(),
+                '"' => "'".to_string(),
+                _ => c.to_string(),
+            })
+            .collect::<String>()
+    )
+}
+
+/// Resolve the best cover image / favicon for an export seed.
+/// Checks custom user-uploaded covers in seed.covers, then book gradient/icon cover,
+/// then fallback default.
+pub fn resolve_seed_cover_favicon(seed: &ExportSeed, target_book_id: Option<&str>) -> String {
+    // 1. Try to find a custom uploaded cover in seed.covers for the target book
+    if let Some(bid) = target_book_id {
+        if let Some(c) = seed.covers.get(bid) {
+            if !c.trim().is_empty() && c.starts_with("data:image/") {
+                return c.clone();
+            }
+        }
+    }
+    // 2. Try start_book_id in seed.covers
+    if !seed.start_book_id.is_empty() {
+        if let Some(c) = seed.covers.get(&seed.start_book_id) {
+            if !c.trim().is_empty() && c.starts_with("data:image/") {
+                return c.clone();
+            }
+        }
+    }
+    // 3. Try any book in seed.covers
+    for (_bid, c) in &seed.covers {
+        if !c.trim().is_empty() && c.starts_with("data:image/") {
+            return c.clone();
+        }
+    }
+    // 4. Try the target book's extra cover field
+    let target_book = target_book_id
+        .and_then(|bid| seed.books.iter().find(|b| b.id == bid))
+        .or_else(|| seed.books.first());
+
+    if let Some(book) = target_book {
+        return build_svg_favicon(&book.extra);
+    }
+
+    // 5. Default fallback
+    build_default_svg_favicon()
 }
 
 /// Build the complete standalone HTML document.
 ///
 /// The returned String is a fully self-contained HTML file that:
-/// - Embeds the minified React bundle (from `UI_BUNDLE_JS`)
-/// - Embeds the compiled Tailwind CSS (from `UI_BUNDLE_CSS`)
+/// - Embeds the minified React bundle (from dynamic loader or custom_js)
+/// - Embeds the compiled Tailwind CSS (from dynamic loader or custom_css)
 /// - Injects `window.__EDUCRAFT_EXPORT__` with the serialised book data
+/// - Embeds custom book cover image in favicon, apple-touch-icon, and OpenGraph tags
 /// - Works offline in any modern browser
 pub fn build_export_html(opts: &ExportHtmlOptions<'_>) -> String {
     let escaped_title = escape_html(opts.title);
-    let safe_bundle = escape_script_close(UI_BUNDLE_JS);
+    let bundle_js = match opts.custom_js {
+        Some(js) => Cow::Borrowed(js),
+        None => get_ui_bundle_js(),
+    };
+    let bundle_css = match opts.custom_css {
+        Some(css) => Cow::Borrowed(css),
+        None => get_ui_bundle_css(),
+    };
+    let safe_bundle = escape_script_close(&bundle_js);
+    let mime = mime_type_from_data_uri(opts.favicon);
+
+    let cover_meta_tags = if !opts.favicon.is_empty() && opts.favicon != "data:," {
+        format!(
+            concat!(
+                r#"<link rel="icon" type="{mime}" href="{favicon}">"#, "\n",
+                r#"<link rel="apple-touch-icon" href="{favicon}">"#, "\n",
+                r#"<meta property="og:title" content="{title}">"#, "\n",
+                r#"<meta property="og:image" content="{favicon}">"#, "\n",
+                r#"<meta name="twitter:card" content="summary_large_image">"#, "\n",
+                r#"<meta name="twitter:title" content="{title}">"#, "\n",
+                r#"<meta name="twitter:image" content="{favicon}">"#, "\n",
+                r#"<meta name="thumbnail" content="{favicon}">"#
+            ),
+            mime = mime,
+            favicon = opts.favicon,
+            title = escaped_title
+        )
+    } else {
+        format!(r#"<link rel="icon" href="{favicon}">"#, favicon = opts.favicon)
+    };
 
     format!(
         r#"<!DOCTYPE html>
 <html lang="{lang}" dir="{dir}">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, viewport-fit=cover">
+<meta name="application-name" content="EDUcraft">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="educraft-title" content="{title}">
+<meta name="educraft-lang" content="{lang}">
+<meta name="educraft-dir" content="{dir}">
 <title>{title}</title>
-<link rel="icon" href="{favicon}">
+{cover_meta}
 {font_links}
 <style>{css}</style>
 </head>
@@ -88,9 +258,9 @@ pub fn build_export_html(opts: &ExportHtmlOptions<'_>) -> String {
         lang = opts.lang,
         dir = opts.dir,
         title = escaped_title,
-        favicon = opts.favicon,
+        cover_meta = cover_meta_tags,
         font_links = EXPORT_FONT_LINKS,
-        css = UI_BUNDLE_CSS,
+        css = bundle_css,
         seed = opts.seed_json,
         bundle = safe_bundle,
     )

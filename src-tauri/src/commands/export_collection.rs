@@ -1,7 +1,10 @@
 //! Tauri IPC command: export a collection (folder/encyclopedia) as one HTML file.
 
 use crate::export_engine::{
-    html_builder::{build_export_html, lang_to_dir, seed_to_safe_json, slugify, ExportHtmlOptions},
+    html_builder::{
+        build_export_html, lang_to_dir, resolve_seed_cover_favicon, seed_to_safe_json, slugify,
+        ExportHtmlOptions,
+    },
     types::ExportSeed,
     validator::validate_and_sanitize_seed,
 };
@@ -32,7 +35,7 @@ pub async fn export_collection(
             use tauri_plugin_dialog::DialogExt;
             let slug = slugify(&collection_title);
             let default_name = if slug.is_empty() {
-                "collection.html".to_string()
+                format!("{}.html", seed.id)
             } else {
                 format!("{}.html", slug)
             };
@@ -52,40 +55,18 @@ pub async fn export_collection(
     // 3. Serialise seed
     let seed_json = seed_to_safe_json(&seed).map_err(|e| e.to_string())?;
 
-    // 4. Favicon
-    let favicon = seed
-        .books
-        .first()
-        .map(|b| {
-            let from = b
-                .extra
-                .get("cover")
-                .and_then(|c| c.get("from"))
-                .and_then(|v| v.as_str())
-                .unwrap_or("#6366f1");
-            let to = b
-                .extra
-                .get("cover")
-                .and_then(|c| c.get("to"))
-                .and_then(|v| v.as_str())
-                .unwrap_or("#818cf8");
-            format!(
-                "data:image/svg+xml,{}",
-                format!(
-                    r#"<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0%25" stop-color="{from}"/><stop offset="100%25" stop-color="{to}"/></linearGradient></defs><rect width="32" height="32" rx="8" fill="url(%23g)"/></svg>"#
-                )
-            )
-        })
-        .unwrap_or_else(|| "data:,".to_string());
+    // 4. Resolve collection favicon / cover
+    let target_bid = if seed.start_book_id.is_empty() { None } else { Some(seed.start_book_id.as_str()) };
+    let favicon = resolve_seed_cover_favicon(&seed, target_bid);
 
     // 5. Generate HTML
-    let html = build_export_html(&ExportHtmlOptions {
-        title: &collection_title,
-        favicon: &favicon,
-        lang: &seed.lang,
-        dir: lang_to_dir(&seed.lang),
-        seed_json: &seed_json,
-    });
+    let html = build_export_html(&ExportHtmlOptions::new(
+        &collection_title,
+        &favicon,
+        &seed.lang,
+        lang_to_dir(&seed.lang),
+        &seed_json,
+    ));
 
     // 6. Write to disk
     std::fs::write(&save_path, html).map_err(|e| format!("Failed to write file: {e}"))?;

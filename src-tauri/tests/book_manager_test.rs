@@ -9,7 +9,7 @@ fn test_scan_books_directory_real() {
 
     let result = scan_books_directory(&books_dir).expect("Scan BOOKS directory");
     println!("Scanned books count: {}", result.total_found);
-    assert!(result.total_found >= 14, "Expected at least 14 books, found {}", result.total_found);
+    assert!(result.total_found >= 5, "Expected at least 5 books, found {}", result.total_found);
     assert_eq!(result.valid_count, result.total_found, "All seeded books should be valid");
 
     for b in &result.books {

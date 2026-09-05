@@ -4,10 +4,17 @@
   * {
     box-sizing: border-box;
   }
-  body {
+  html, body {
     margin: 0;
     padding: 0;
+    max-width: 100vw;
+    overflow-x: clip;
     -webkit-font-smoothing: antialiased;
+  }
+  .educraft-root {
+    width: 100%;
+    max-width: 100vw;
+    box-sizing: border-box;
   }
 }
 
@@ -448,24 +455,104 @@ table.thiqa-table tr:nth-child(even) td {
 }
 
 @media print {
+  html, body {
+    background: #ffffff !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+    height: auto !important;
+    overflow: visible !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Reset container zoom, transforms, and padding that disrupt print flow */
+  .educraft-root,
+  .educraft-root *,
+  div[style*="zoom"] {
+    zoom: 1 !important;
+    transform: none !important;
+    max-width: none !important;
+    box-shadow: none !important;
+  }
+
+  /* Hide non-printable app shell, headers, ribbons, and modals */
+  header, nav, aside, .educraft-glass, .educraft-modal-in, [role="dialog"], button,
+  .educraft-block-toolbar, [data-editor-controls], .no-print, select, input,
+  .educraft-zoom-bar, .educraft-ribbon {
+    display: none !important;
+  }
+
+  /* Force exact A4 sheet display */
+  .educraft-paper-sheet {
+    display: block !important;
+    width: 210mm !important;
+    min-height: 297mm !important;
+    max-height: 297mm !important;
+    height: 297mm !important;
+    break-after: page !important;
+    page-break-after: always !important;
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+    box-shadow: none !important;
+    outline: none !important;
+    margin: 0 !important;
+    border: none !important;
+    border-radius: 0 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+  }
+
+  .educraft-paper-sheet:last-child {
+    break-after: auto !important;
+    page-break-after: auto !important;
+  }
+
+  .print-hidden-sheet {
+    display: none !important;
+  }
+
   .plate {
     break-after: page;
     page-break-after: always;
-    box-shadow: none;
-    margin: 0;
+    box-shadow: none !important;
+    margin: 0 !important;
   }
   .plate:last-child {
     break-after: auto;
     page-break-after: auto;
   }
-  .box { break-inside: auto; box-decoration-break: clone; -webkit-box-decoration-break: clone; box-shadow: none; }
+  .box { break-inside: avoid; box-decoration-break: clone; -webkit-box-decoration-break: clone; box-shadow: none; }
   .media-card { break-inside: avoid; box-shadow: none; }
-  .code-box { break-inside: auto; box-shadow: none; }
+  .code-box { break-inside: avoid; box-shadow: none; }
   .code-box pre { break-inside: auto; white-space: pre-wrap; word-break: break-word; orphans: 3; widows: 3; }
   p, li { orphans: 3; widows: 3; }
 }
 
 @page {
-  size: A4;
+  size: A4 portrait;
   margin: 0;
+}
+
+/* Mobile and Tablet Responsiveness Rules */
+html, body {
+  overflow-x: hidden;
+  max-width: 100vw;
+  -webkit-tap-highlight-color: transparent;
+}
+
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .pb-safe {
+    padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+  }
+}
+
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
 }

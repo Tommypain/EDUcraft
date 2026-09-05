@@ -37,6 +37,8 @@ const dom = new JSDOM(htmlContent, {
   virtualConsole,
   url: "http://localhost:3000/",
   beforeParse(window) {
+    window.requestAnimationFrame = window.requestAnimationFrame || ((cb) => setTimeout(cb, 16));
+    window.cancelAnimationFrame = window.cancelAnimationFrame || ((id) => clearTimeout(id));
     window.matchMedia = window.matchMedia || function() {
       return { matches: false, addListener: function() {}, removeListener: function() {} };
     };

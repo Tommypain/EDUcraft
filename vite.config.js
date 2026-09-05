@@ -4,6 +4,7 @@ import tailwindcss from "@tailwindcss/vite";
 import { spawn } from "child_process";
 import path from "path";
 import fs from "fs";
+import os from "os";
 import { fileURLToPath } from "url";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -35,6 +36,9 @@ function rustExporterPlugin() {
               ...process.env,
               LIBRARY_PATH: path.resolve(__dirname, "src-tauri/.pkgconfig/lib"),
               PKG_CONFIG_PATH: path.resolve(__dirname, "src-tauri/.pkgconfig"),
+              EDUCRAFT_PROJECT_ROOT: __dirname,
+              EDUCRAFT_BUNDLE_JS_PATH: path.resolve(__dirname, "src-tauri/assets/ui_bundle.js"),
+              EDUCRAFT_BUNDLE_CSS_PATH: path.resolve(__dirname, "src-tauri/assets/ui_bundle.css"),
             },
           });
 
@@ -71,6 +75,97 @@ function rustExporterPlugin() {
 
       server.middlewares.use("/__api/export_book", handleExport);
       server.middlewares.use("/__api/export_collection", handleExport);
+
+      // 1.2 Export PDF endpoint via Headless Engine
+      const handleExportPdf = (req, res, next) => {
+        if (req.method !== "POST") return next();
+        const chunks = [];
+        req.on("data", (chunk) => chunks.push(chunk));
+        req.on("end", async () => {
+          const payload = Buffer.concat(chunks);
+          const binPath = path.resolve(__dirname, "src-tauri/target/debug/export_cli");
+
+          if (!fs.existsSync(binPath)) {
+            res.statusCode = 503;
+            res.setHeader("Content-Type", "application/json");
+            res.end(JSON.stringify({ error: "export_cli binary not found. Run: npm run build:cli" }));
+            return;
+          }
+
+          const proc = spawn(binPath, [], {
+            env: {
+              ...process.env,
+              LIBRARY_PATH: path.resolve(__dirname, "src-tauri/.pkgconfig/lib"),
+              PKG_CONFIG_PATH: path.resolve(__dirname, "src-tauri/.pkgconfig"),
+              EDUCRAFT_PROJECT_ROOT: __dirname,
+              EDUCRAFT_BUNDLE_JS_PATH: path.resolve(__dirname, "src-tauri/assets/ui_bundle.js"),
+              EDUCRAFT_BUNDLE_CSS_PATH: path.resolve(__dirname, "src-tauri/assets/ui_bundle.css"),
+            },
+          });
+
+          const htmlChunks = [];
+          proc.stdout.on("data", (d) => htmlChunks.push(d));
+          proc.stdin.write(payload);
+          proc.stdin.end();
+
+          try {
+            await new Promise((resolve, reject) => {
+              proc.on("close", (code) => code === 0 ? resolve() : reject(new Error(`export_cli exited with code ${code}`)));
+              proc.on("error", reject);
+            });
+
+            const htmlBuf = Buffer.concat(htmlChunks);
+            const tmpHtml = path.join(os.tmpdir(), `educraft_pdf_${Date.now()}.html`);
+            const tmpPdf = path.join(os.tmpdir(), `educraft_pdf_${Date.now()}.pdf`);
+            fs.writeFileSync(tmpHtml, htmlBuf);
+
+            const browsers = [
+              "/usr/bin/brave-browser",
+              "/usr/bin/google-chrome-stable",
+              "/usr/bin/google-chrome",
+              "/usr/bin/chromium",
+              "/usr/bin/chromium-browser"
+            ];
+            const browserBin = browsers.find((b) => fs.existsSync(b));
+            if (!browserBin) {
+              throw new Error("No headless browser found. Please use instant vector print.");
+            }
+
+            const printProc = spawn(browserBin, [
+              "--headless",
+              "--disable-gpu",
+              "--no-pdf-header-footer",
+              `--print-to-pdf=${tmpPdf}`,
+              "--virtual-time-budget=2500",
+              tmpHtml,
+            ]);
+
+            await new Promise((resolve, reject) => {
+              printProc.on("close", (code) => code === 0 ? resolve() : reject(new Error(`Headless browser exited with code ${code}`)));
+              printProc.on("error", reject);
+            });
+
+            if (fs.existsSync(tmpPdf)) {
+              const pdfData = fs.readFileSync(tmpPdf);
+              res.setHeader("Content-Type", "application/pdf");
+              res.setHeader("Content-Disposition", 'attachment; filename="book.pdf"');
+              res.end(pdfData);
+              try { fs.unlinkSync(tmpHtml); fs.unlinkSync(tmpPdf); } catch (_) {}
+            } else {
+              throw new Error("PDF file generation failed");
+            }
+          } catch (err) {
+            console.error("[Vite PDF Exporter] Error:", err);
+            if (!res.headersSent) {
+              res.statusCode = 500;
+              res.setHeader("Content-Type", "application/json");
+              res.end(JSON.stringify({ error: String(err.message || err) }));
+            }
+          }
+        });
+      };
+
+      server.middlewares.use("/__api/export_pdf", handleExportPdf);
 
       // 2. Book Management endpoints
       server.middlewares.use("/__api/books/scan", (req, res, next) => {
@@ -180,7 +275,7 @@ function rustExporterPlugin() {
 
             const binPath = path.resolve(__dirname, "src-tauri/target/debug/books_cli");
             const booksDir = path.resolve(__dirname, "BOOKS");
-            const tempJsonPath = path.resolve(__dirname, `.temp_import_${bookId}_${Date.now()}.json`);
+            const tempJsonPath = path.resolve(os.tmpdir(), `.temp_import_${bookId}_${Date.now()}.json`);
             fs.writeFileSync(tempJsonPath, finalJson);
 
             const proc = spawn(binPath, ["import_commit", bookId, tempJsonPath, booksDir], {
@@ -295,7 +390,7 @@ function rustExporterPlugin() {
         req.on("data", (chunk) => (body += chunk));
         req.on("end", () => {
           const binPath = path.resolve(__dirname, "src-tauri/target/debug/books_cli");
-          const tempMetaPath = path.resolve(__dirname, `.temp_meta_${Date.now()}.json`);
+          const tempMetaPath = path.resolve(os.tmpdir(), `.temp_meta_${Date.now()}.json`);
           try {
             fs.writeFileSync(tempMetaPath, body || "{}");
             const proc = spawn(binPath, ["export_full_db", tempMetaPath, path.resolve(__dirname, "BOOKS")], {
@@ -330,7 +425,7 @@ function rustExporterPlugin() {
         req.on("data", (chunk) => (body += chunk));
         req.on("end", () => {
           const binPath = path.resolve(__dirname, "src-tauri/target/debug/books_cli");
-          const tempDumpPath = path.resolve(__dirname, `.temp_dump_${Date.now()}.json`);
+          const tempDumpPath = path.resolve(os.tmpdir(), `.temp_dump_${Date.now()}.json`);
           try {
             const parsed = JSON.parse(body);
             const mode = parsed.mode || "merge";
@@ -403,7 +498,13 @@ export default defineConfig({
         }
       : undefined,
     watch: {
-      ignored: ["**/src-tauri/**"],
+      ignored: [
+        "**/src-tauri/**",
+        "**/BOOKS/**",
+        "**/.temp*",
+        "**/.temp_*",
+        "**/public/assets/**",
+      ],
     },
   },
 });

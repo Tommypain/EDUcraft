@@ -74,4 +74,7 @@ pub struct ExportSeed {
     /// base64 data URIs keyed by book id
     #[serde(default)]
     pub covers: HashMap<String, String>,
+    /// When true, the exported HTML completely hides and disables the editor mode
+    #[serde(rename = "disableEditor", default)]
+    pub disable_editor: bool,
 }

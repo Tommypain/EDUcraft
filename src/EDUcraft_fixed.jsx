@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect, useRef, Component } from "react";
+import { createPortal } from "react-dom";
 import {
   BookOpen,
   Library,
@@ -40,9 +41,13 @@ import {
   FileDown,
   FileText,
   ImagePlus,
+  Folder,
   FolderOpen,
   FolderPlus,
   Folders,
+  FolderInput,
+  Home,
+  Database,
   BookCopy,
   Plus,
   PlusCircle,
@@ -79,7 +84,10 @@ import {
   AlignLeft,
   Image as ImageIcon,
   Search,
+  Printer,
 } from "lucide-react";
+import { jsPDF } from "jspdf";
+import html2canvas from "html2canvas";
 import { ImportModal } from "./utils/ImportModal.jsx";
 import { SyntaxCodeBlock, LiveCodeEditor } from "./utils/syntax.jsx";
 import { KnowledgeTreeEnhanced } from "./utils/KnowledgeTree.jsx";
@@ -472,15 +480,29 @@ const UI = {
     treePlannerCta: "To-do & calendar",
     treeExportCta: "Export as HTML",
     exportToast: "Downloaded — open the file in any browser, it works fully offline.",
-    libraryNewFolder: "New folder",
-    libraryNewEncyclopedia: "New encyclopedia",
+    libraryNewFolder: "New Folder",
+    libraryNewEncyclopedia: "New Encyclopedia",
+    libraryNewBook: "New Book",
+    libraryNewItemBtn: "New",
+    libraryCreateItemTitle: "Create New Item",
+    libraryCreateBookTitle: "Create New Book",
+    libraryCreateFolderTitle: "Create New Folder",
+    libraryCreateEncyclopediaTitle: "Create New Encyclopedia",
+    libraryMoveTo: "Move to…",
+    libraryMoveItemSuccess: "Item moved successfully",
+    libraryLocationLabel: "Save Inside",
+    libraryTitleLabel: "Title",
+    libraryTaglineLabel: "Description or Tagline",
+    libraryCoverThemeLabel: "Cover Theme",
+    libraryConfirmDeleteCollectionTitle: "Delete Collection",
+    libraryConfirmDeleteCollectionBtn: "Delete Collection",
     collectionNamePromptFolder: "Name this folder",
     collectionNamePromptEncyclopedia: "Name this encyclopedia",
     libraryAddToFolder: "Add to…",
     libraryRemoveFromCollection: "Remove",
     libraryDeleteCollection: "Delete",
-    libraryDeleteCollectionConfirm: "Delete this — the books and encyclopedias inside go back to the main library. Continue?",
-    libraryEmptyCollection: "Nothing in here yet. Go back to the library and use \"Add to…\" on a book or encyclopedia to file it here.",
+    libraryDeleteCollectionConfirm: "Delete this collection? The books and sub-items inside will return to the main library shelf.",
+    libraryEmptyCollection: "Nothing in here yet. Use the New button or Move option on any book or item to place it here.",
     folderBadge: "Folder",
     encyclopediaBadge: "Encyclopedia",
     booksCountLabel: "books",
@@ -514,7 +536,6 @@ const UI = {
     treeExpandAll: "Expand all",
     treeSearchResults: "matching nodes",
     treeNoResults: "No matching nodes found",
-    libraryNewBook: "+ New Book",
     editorEmptyTitle: "No Book Selected",
     editorEmptySub: "Select an existing book from your library to edit, or create a brand new book from scratch.",
     treeEmptyTitle: "Knowledge Tree is Empty",
@@ -652,19 +673,32 @@ const UI = {
     plannerAllDone: "خلّصت كل أوراق الكتاب ده. تسلم إيدك.",
     treePlannerCta: "المهام والتقويم",
     treeExportCta: "صدّر كملف HTML",
-    exportToast: "اتحمّل — افتح الملف بأي متصفح، وهيشتغل من غير نت خالص.",
-    libraryNewFolder: "شنطة جديدة",
+    libraryNewFolder: "مجلد جديد",
     libraryNewEncyclopedia: "موسوعة جديدة",
-    collectionNamePromptFolder: "اسم الشنطة",
+    libraryNewBook: "كتاب جديد",
+    libraryNewItemBtn: "جديد",
+    libraryCreateItemTitle: "إنشاء عنصر جديد",
+    libraryCreateBookTitle: "إنشاء كتاب جديد",
+    libraryCreateFolderTitle: "إنشاء مجلد جديد",
+    libraryCreateEncyclopediaTitle: "إنشاء موسوعة جديدة",
+    libraryMoveTo: "نقل إلى…",
+    libraryMoveItemSuccess: "تم نقل العنصر بنجاح",
+    libraryLocationLabel: "الموقع / الحفظ داخل",
+    libraryTitleLabel: "العنوان",
+    libraryTaglineLabel: "الوصف أو النبذة المختصرة",
+    libraryCoverThemeLabel: "سمة الغلاف",
+    libraryConfirmDeleteCollectionTitle: "حذف المجلد / الموسوعة",
+    libraryConfirmDeleteCollectionBtn: "تأكيد الحذف",
+    collectionNamePromptFolder: "اسم المجلد",
     collectionNamePromptEncyclopedia: "اسم الموسوعة",
-    libraryAddToFolder: "ضيفه لـ…",
-    libraryRemoveFromCollection: "شيله من هنا",
-    libraryDeleteCollection: "احذف",
-    libraryDeleteCollectionConfirm: "هتمسح ده — الكتب والموسوعات اللي جواه هترجع للمكتبة الرئيسية. تكمل؟",
-    libraryEmptyCollection: "مفيش حاجة هنا لسه. ارجع للمكتبة واستخدم \"ضيفه لـ…\" على أي كتاب أو موسوعة عشان تحطه هنا.",
-    folderBadge: "شنطة",
+    libraryAddToFolder: "نقل إلى…",
+    libraryRemoveFromCollection: "إزالة من هنا",
+    libraryDeleteCollection: "حذف",
+    libraryDeleteCollectionConfirm: "هل تريد حذف هذا المجلد/الموسوعة؟ الكتب والمجلدات الفرعية التي بداخلها ستعود إلى رف المكتبة الرئيسي ولن تُحذف.",
+    libraryEmptyCollection: "لا يوجد أي محتوى هنا حالياً. استخدم زر \"جديد\" لإنشاء كتب بداخلها أو زر \"نقل\" لوضع محتويات هنا.",
+    folderBadge: "مجلد",
     encyclopediaBadge: "موسوعة",
-    booksCountLabel: "كتب",
+    booksCountLabel: "عناصر",
     libraryRootCrumb: "المكتبة",
     libraryImportJson: "استيراد JSON",
     importModalTitle: "استيراد JSON الذكي",
@@ -695,7 +729,6 @@ const UI = {
     treeExpandAll: "فتح الكل",
     treeSearchResults: "عناصر مطابقة",
     treeNoResults: "لا توجد نتائج مطابقة",
-    libraryNewBook: "+ كتاب جديد",
     editorEmptyTitle: "لا يوجد كتاب محدد حالياً",
     editorEmptySub: "اختر كتاباً موجوداً من مكتبتك لتعديله، أو أنشئ كتاباً جديداً فارغاً من الصفر.",
     treeEmptyTitle: "شجرة المعرفة فارغة",
@@ -933,13 +966,23 @@ function uid(prefix) {
    can hold books and encyclopedias; encyclopedias hold only books —
    both are the same shape so the Library can render them uniformly. */
 function parentCollectionOf(itemId, collections) {
-  return collections.find((c) => c.itemIds.includes(itemId)) || null;
+  return (collections || []).find((c) => (c.itemIds || []).includes(itemId)) || null;
+}
+function isDescendantOf(candidateId, ancestorId, collections) {
+  if (!candidateId || !ancestorId || candidateId === ancestorId) return false;
+  const ancestor = (collections || []).find((c) => c.id === ancestorId);
+  if (!ancestor || !ancestor.itemIds) return false;
+  if (ancestor.itemIds.includes(candidateId)) return true;
+  for (const childId of ancestor.itemIds) {
+    if (isDescendantOf(candidateId, childId, collections)) return true;
+  }
+  return false;
 }
 function rootLibraryItems(collections, books) {
-  const childIds = new Set(collections.flatMap((c) => c.itemIds));
+  const childIds = new Set((collections || []).flatMap((c) => c.itemIds || []));
   return {
-    rootCollections: collections.filter((c) => !childIds.has(c.id)),
-    rootBooks: books.filter((b) => !childIds.has(b.id)),
+    rootCollections: (collections || []).filter((c) => !childIds.has(c.id)),
+    rootBooks: (books || []).filter((b) => !childIds.has(b.id)),
   };
 }
 
@@ -2159,21 +2202,665 @@ function EditableCover({ book, theme, skin, ui, coverUrl, onChangeCover, onClear
 }
 
 /* =================================================================
+   ItemMoveDropdown — Sleek Apple/Thiqa popover menu replacing native select
+================================================================== */
+function ItemMoveDropdown({
+  item,
+  itemType, // "book" | "encyclopedia" | "folder"
+  collections = [],
+  currentParentId = null,
+  onMove,
+  theme,
+  skin,
+  lang,
+  dir,
+}) {
+  const [isOpen, setIsOpen] = useState(false);
+  const containerRef = useRef(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleClickOutside = (e) => {
+      if (containerRef.current && !containerRef.current.contains(e.target)) {
+        setIsOpen(false);
+      }
+    };
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") setIsOpen(false);
+    };
+    window.addEventListener("pointerdown", handleClickOutside, true);
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("pointerdown", handleClickOutside, true);
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isOpen]);
+
+  // Determine current active parent collection
+  const activeParent = collections.find((c) => (c.itemIds || []).includes(item.id));
+  const activeParentId = activeParent ? activeParent.id : "root";
+
+  // Destinations:
+  // Folders:
+  const availableFolders = collections.filter((c) => {
+    if (c.kind !== "folder") return false;
+    if (itemType === "folder") {
+      // Cannot move a folder into itself or any of its descendants
+      if (c.id === item.id) return false;
+      if (isDescendantOf(c.id, item.id, collections)) return false;
+    }
+    return true;
+  });
+
+  // Encyclopedias: (only books can go into encyclopedias)
+  const availableEncyclopedias = itemType === "book" ? collections.filter((c) => c.kind === "encyclopedia") : [];
+
+  const handleSelect = (targetId) => {
+    setIsOpen(false);
+    if (onMove) {
+      onMove(item.id, targetId);
+    }
+  };
+
+  return (
+    <div ref={containerRef} className="relative inline-block" onClick={(e) => e.stopPropagation()}>
+      <button
+        type="button"
+        onClick={() => setIsOpen((prev) => !prev)}
+        className="educraft-btn flex items-center gap-1 text-[11px] font-bold px-2.5 py-1.5 transition-all cursor-pointer"
+        style={{
+          borderRadius: skin.radiusSm,
+          border: `1.5px solid ${isOpen ? theme.accent : skinBorderColor(skin, theme)}`,
+          background: isOpen ? theme.accentSoft : theme.surface,
+          color: isOpen ? theme.accent : theme.ink,
+        }}
+        title={lang === "ar" ? "نقل إلى مجلد أو موسوعة" : "Move to folder or encyclopedia"}
+        aria-expanded={isOpen}
+      >
+        <FolderInput size={12} className={isOpen ? "text-indigo-500" : "opacity-70"} />
+        <span>{lang === "ar" ? "نقل" : "Move"}</span>
+        <ChevronDown size={10} className={`opacity-60 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`} />
+      </button>
+
+      {isOpen && (
+        <div
+          className="absolute z-50 bottom-full mb-2 end-0 w-60 max-h-72 overflow-y-auto p-1.5 rounded-2xl border flex flex-col gap-1 shadow-2xl educraft-modal-in"
+          style={{
+            background: theme.surface,
+            borderColor: theme.hairlineStrong,
+            boxShadow: "0 18px 38px -4px rgba(0,0,0,0.28), 0 0 0 1px rgba(0,0,0,0.06)",
+            backdropFilter: "blur(20px)",
+            WebkitBackdropFilter: "blur(20px)",
+          }}
+        >
+          <div className="px-2.5 py-1.5 text-[10px] font-black uppercase tracking-wider text-start" style={{ color: theme.inkSoft }}>
+            {lang === "ar" ? "نقل العنصر إلى..." : "Move item to..."}
+          </div>
+
+          {/* Root shelf */}
+          <button
+            type="button"
+            onClick={() => handleSelect("root")}
+            className={`flex items-center justify-between w-full px-2.5 py-2 text-xs rounded-xl text-start transition-colors ${
+              activeParentId === "root" ? "font-bold shadow-sm" : "hover:bg-black/5 dark:hover:bg-white/5"
+            }`}
+            style={{
+              color: activeParentId === "root" ? theme.accent : theme.ink,
+              background: activeParentId === "root" ? theme.accentSoft : "transparent",
+            }}
+          >
+            <div className="flex items-center gap-2 truncate">
+              <Home size={13} className="shrink-0 opacity-80" />
+              <span className="truncate">{lang === "ar" ? "المكتبة الرئيسية (الرف العام)" : "Main Library Shelf"}</span>
+            </div>
+            {activeParentId === "root" && <Check size={13} className="shrink-0 text-emerald-500" />}
+          </button>
+
+          {/* Folders group */}
+          {availableFolders.length > 0 && (
+            <>
+              <div className="border-t my-1" style={{ borderColor: theme.hairline }} />
+              <div className="px-2.5 py-1 text-[10px] font-bold text-start opacity-70 flex items-center gap-1.5" style={{ color: theme.inkSoft }}>
+                <Folder size={11} className="text-amber-500" />
+                <span>{lang === "ar" ? "المجلدات" : "Folders"}</span>
+              </div>
+              {availableFolders.map((f) => {
+                const isSelected = activeParentId === f.id;
+                return (
+                  <button
+                    key={f.id}
+                    type="button"
+                    onClick={() => handleSelect(f.id)}
+                    className={`flex items-center justify-between w-full px-2.5 py-2 text-xs rounded-xl text-start transition-colors ${
+                      isSelected ? "font-bold shadow-sm" : "hover:bg-black/5 dark:hover:bg-white/5"
+                    }`}
+                    style={{
+                      color: isSelected ? theme.accent : theme.ink,
+                      background: isSelected ? theme.accentSoft : "transparent",
+                    }}
+                  >
+                    <div className="flex items-center gap-2 truncate">
+                      <FolderOpen size={13} className="shrink-0 text-amber-500" />
+                      <span className="truncate">{f.title}</span>
+                    </div>
+                    {isSelected && <Check size={13} className="shrink-0 text-emerald-500" />}
+                  </button>
+                );
+              })}
+            </>
+          )}
+
+          {/* Encyclopedias group */}
+          {availableEncyclopedias.length > 0 && (
+            <>
+              <div className="border-t my-1" style={{ borderColor: theme.hairline }} />
+              <div className="px-2.5 py-1 text-[10px] font-bold text-start opacity-70 flex items-center gap-1.5" style={{ color: theme.inkSoft }}>
+                <BookCopy size={11} className="text-indigo-500" />
+                <span>{lang === "ar" ? "الموسوعات" : "Encyclopedias"}</span>
+              </div>
+              {availableEncyclopedias.map((enc) => {
+                const isSelected = activeParentId === enc.id;
+                return (
+                  <button
+                    key={enc.id}
+                    type="button"
+                    onClick={() => handleSelect(enc.id)}
+                    className={`flex items-center justify-between w-full px-2.5 py-2 text-xs rounded-xl text-start transition-colors ${
+                      isSelected ? "font-bold shadow-sm" : "hover:bg-black/5 dark:hover:bg-white/5"
+                    }`}
+                    style={{
+                      color: isSelected ? theme.accent : theme.ink,
+                      background: isSelected ? theme.accentSoft : "transparent",
+                    }}
+                  >
+                    <div className="flex items-center gap-2 truncate">
+                      <BookCopy size={13} className="shrink-0 text-indigo-500" />
+                      <span className="truncate">{enc.title}</span>
+                    </div>
+                    {isSelected && <Check size={13} className="shrink-0 text-emerald-500" />}
+                  </button>
+                );
+              })}
+            </>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* =================================================================
+   CreateItemModal — Modal replacing window.prompt for creating
+   Books, Encyclopedias, and Folders
+================================================================== */
+const BOOK_COVER_PALETTES = [
+  { name: "Blue", from: "#3B82F6", to: "#1D4ED8" },
+  { name: "Emerald", from: "#10B981", to: "#047857" },
+  { name: "Purple", from: "#8B5CF6", to: "#6D28D9" },
+  { name: "Amber", from: "#F59E0B", to: "#D97706" },
+  { name: "Rose", from: "#F43F5E", to: "#BE123C" },
+  { name: "Indigo", from: "#6366F1", to: "#4338CA" },
+  { name: "Slate", from: "#475569", to: "#0F172A" },
+  { name: "Teal", from: "#14B8A6", to: "#0F766E" },
+];
+
+function CreateItemModal({
+  isOpen,
+  onClose,
+  initialKind = "book",
+  defaultParentId = null,
+  collections = [],
+  onCreate,
+  theme,
+  skin,
+  lang,
+  dir,
+  ui,
+}) {
+  const [kind, setKind] = useState(initialKind);
+  const [title, setTitle] = useState("");
+  const [tagline, setTagline] = useState("");
+  const [parentId, setParentId] = useState(defaultParentId || "root");
+  const [selectedPalette, setSelectedPalette] = useState(0);
+
+  useEffect(() => {
+    if (isOpen) {
+      setKind(initialKind);
+      setTitle("");
+      setTagline("");
+      setParentId(defaultParentId || "root");
+      setSelectedPalette(0);
+    }
+  }, [isOpen, initialKind, defaultParentId]);
+
+  if (!isOpen) return null;
+
+  const folderDestinations = collections.filter((c) => c.kind === "folder");
+  const encyclopediaDestinations = kind === "book" ? collections.filter((c) => c.kind === "encyclopedia") : [];
+
+  const handleSubmit = (e) => {
+    if (e) e.preventDefault();
+    if (!title.trim()) return;
+
+    const pal = BOOK_COVER_PALETTES[selectedPalette] || BOOK_COVER_PALETTES[0];
+    const payload = {
+      kind,
+      title: title.trim(),
+      tagline: tagline.trim(),
+      parentId: parentId === "root" ? null : parentId,
+      cover:
+        kind === "book"
+          ? {
+              from: pal.from,
+              to: pal.to,
+              icon: "book",
+            }
+          : undefined,
+    };
+
+    onCreate(payload);
+    onClose();
+  };
+
+  const getKindTitle = () => {
+    if (kind === "book") return ui.libraryCreateBookTitle || (lang === "ar" ? "إنشاء كتاب جديد" : "Create New Book");
+    if (kind === "encyclopedia") return ui.libraryCreateEncyclopediaTitle || (lang === "ar" ? "إنشاء موسوعة جديدة" : "Create New Encyclopedia");
+    return ui.libraryCreateFolderTitle || (lang === "ar" ? "إنشاء مجلد جديد" : "Create New Folder");
+  };
+
+  const getKindSub = () => {
+    if (kind === "book") return lang === "ar" ? "أدخل تفاصيل الكتاب الجديد واختر موقعه ومظهره لبدء بناء الشجرة." : "Enter book details, select location and theme to start building.";
+    if (kind === "encyclopedia") return lang === "ar" ? "الموسوعة هي وعاء يضم عدة كتب ذات صلة ببعضها البعض." : "An encyclopedia groups multiple related books into one container.";
+    return lang === "ar" ? "المجلد يساعدك في تنظيم وتصنيف الكتب والموسوعات داخل مجلدات رئيسية وفرعية." : "Folders help you organize books and encyclopedias hierarchically.";
+  };
+
+  return (
+    <div
+      role="dialog"
+      aria-modal="true"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      style={{
+        background: "rgba(0, 0, 0, 0.65)",
+        backdropFilter: "blur(12px)",
+        WebkitBackdropFilter: "blur(12px)",
+      }}
+      onClick={onClose}
+    >
+      <div
+        className="w-full max-w-lg rounded-3xl border shadow-2xl p-6 educraft-modal-in max-h-[90vh] overflow-y-auto"
+        style={{
+          background: theme.surface,
+          borderColor: skinBorderColor(skin, theme),
+          boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.35)",
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="flex items-start justify-between gap-4 mb-5">
+          <div className="flex items-center gap-3">
+            <div
+              className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 shadow-sm"
+              style={{
+                background: kind === "book" ? theme.accentSoft : kind === "encyclopedia" ? "rgba(99, 102, 241, 0.15)" : "rgba(245, 158, 11, 0.15)",
+                color: kind === "book" ? theme.accent : kind === "encyclopedia" ? "#6366F1" : "#F59E0B",
+              }}
+            >
+              {kind === "book" ? <BookOpen size={24} /> : kind === "encyclopedia" ? <BookCopy size={24} /> : <FolderPlus size={24} />}
+            </div>
+            <div>
+              <h2 className="text-xl font-bold" style={{ fontFamily: ui.displayFont, color: theme.ink }}>
+                {getKindTitle()}
+              </h2>
+              <p className="text-xs mt-0.5" style={{ color: theme.inkSoft, lineHeight: 1.4 }}>
+                {getKindSub()}
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="p-1.5 rounded-xl opacity-70 hover:opacity-100 transition-opacity"
+            style={{ color: theme.ink }}
+            aria-label={ui.closeModal || "Close"}
+          >
+            <X size={18} />
+          </button>
+        </div>
+
+        {/* Kind tabs */}
+        <div className="grid grid-cols-3 gap-1.5 p-1 rounded-2xl mb-5" style={{ background: theme.hairlineSoft || "rgba(0,0,0,0.04)" }}>
+          <button
+            type="button"
+            onClick={() => setKind("book")}
+            className={`flex items-center justify-center gap-1.5 py-2 text-xs font-bold rounded-xl transition-all cursor-pointer ${
+              kind === "book" ? "shadow-sm" : "opacity-70 hover:opacity-100"
+            }`}
+            style={{
+              background: kind === "book" ? theme.surface : "transparent",
+              color: kind === "book" ? theme.accent : theme.ink,
+            }}
+          >
+            <BookOpen size={13} />
+            <span>{ui.libraryNewBook || (lang === "ar" ? "كتاب" : "Book")}</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setKind("encyclopedia")}
+            className={`flex items-center justify-center gap-1.5 py-2 text-xs font-bold rounded-xl transition-all cursor-pointer ${
+              kind === "encyclopedia" ? "shadow-sm" : "opacity-70 hover:opacity-100"
+            }`}
+            style={{
+              background: kind === "encyclopedia" ? theme.surface : "transparent",
+              color: kind === "encyclopedia" ? "#6366F1" : theme.ink,
+            }}
+          >
+            <BookCopy size={13} />
+            <span>{ui.encyclopediaBadge || (lang === "ar" ? "موسوعة" : "Encyclopedia")}</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setKind("folder")}
+            className={`flex items-center justify-center gap-1.5 py-2 text-xs font-bold rounded-xl transition-all cursor-pointer ${
+              kind === "folder" ? "shadow-sm" : "opacity-70 hover:opacity-100"
+            }`}
+            style={{
+              background: kind === "folder" ? theme.surface : "transparent",
+              color: kind === "folder" ? "#F59E0B" : theme.ink,
+            }}
+          >
+            <FolderPlus size={13} />
+            <span>{ui.folderBadge || (lang === "ar" ? "مجلد" : "Folder")}</span>
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          {/* Title Input */}
+          <div>
+            <label className="block text-xs font-bold mb-1.5" style={{ color: theme.ink }}>
+              {ui.libraryTitleLabel || (lang === "ar" ? "العنوان" : "Title")} <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              autoFocus
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder={
+                kind === "book"
+                  ? (lang === "ar" ? "مثال: أساسيات علوم الحاسوب" : "e.g., Computer Science Essentials")
+                  : kind === "encyclopedia"
+                  ? (lang === "ar" ? "مثال: موسوعة تطوير الويب الشاملة" : "e.g., Fullstack Web Development")
+                  : (lang === "ar" ? "مثال: مقررات 2026" : "e.g., Courses 2026")
+              }
+              className="w-full px-3.5 py-2.5 text-sm rounded-xl border outline-none transition-all"
+              style={{
+                background: theme.canvas,
+                borderColor: theme.hairlineStrong,
+                color: theme.ink,
+              }}
+              required
+            />
+          </div>
+
+          {/* Tagline / Subtitle */}
+          <div>
+            <label className="block text-xs font-bold mb-1.5" style={{ color: theme.inkSoft }}>
+              {ui.libraryTaglineLabel || (lang === "ar" ? "الوصف أو النبذة المختصرة" : "Description / Tagline")}
+            </label>
+            <input
+              type="text"
+              value={tagline}
+              onChange={(e) => setTagline(e.target.value)}
+              placeholder={lang === "ar" ? "نبذة توضيحية اختيارية..." : "Optional brief description..."}
+              className="w-full px-3.5 py-2 text-sm rounded-xl border outline-none transition-all"
+              style={{
+                background: theme.canvas,
+                borderColor: theme.hairlineStrong,
+                color: theme.ink,
+              }}
+            />
+          </div>
+
+          {/* Location / Parent Picker */}
+          <div>
+            <label className="block text-xs font-bold mb-1.5" style={{ color: theme.ink }}>
+              {ui.libraryLocationLabel || (lang === "ar" ? "الموقع / الحفظ داخل" : "Location / Save Inside")}
+            </label>
+            <div className="relative">
+              <select
+                value={parentId}
+                onChange={(e) => setParentId(e.target.value)}
+                className="w-full appearance-none px-3.5 py-2.5 text-sm rounded-xl border outline-none transition-all font-semibold cursor-pointer"
+                style={{
+                  background: theme.canvas,
+                  borderColor: theme.hairlineStrong,
+                  color: theme.ink,
+                }}
+              >
+                <option value="root">🏠 {lang === "ar" ? "المكتبة الرئيسية (الرف العام)" : "Main Library (Root)"}</option>
+                {folderDestinations.length > 0 && (
+                  <optgroup label={lang === "ar" ? "📁 المجلدات" : "📁 Folders"}>
+                    {folderDestinations.map((f) => (
+                      <option key={f.id} value={f.id}>
+                        📁 {f.title}
+                      </option>
+                    ))}
+                  </optgroup>
+                )}
+                {encyclopediaDestinations.length > 0 && (
+                  <optgroup label={lang === "ar" ? "📚 الموسوعات" : "📚 Encyclopedias"}>
+                    {encyclopediaDestinations.map((enc) => (
+                      <option key={enc.id} value={enc.id}>
+                        📚 {enc.title}
+                      </option>
+                    ))}
+                  </optgroup>
+                )}
+              </select>
+              <div className="absolute top-1/2 -translate-y-1/2 end-3 pointer-events-none opacity-60">
+                <ChevronDown size={14} />
+              </div>
+            </div>
+          </div>
+
+          {/* Cover Color Picker (for Books) */}
+          {kind === "book" && (
+            <div>
+              <label className="block text-xs font-bold mb-2" style={{ color: theme.inkSoft }}>
+                {ui.libraryCoverThemeLabel || (lang === "ar" ? "سمة الغلاف" : "Cover Theme")}
+              </label>
+              <div className="flex items-center gap-2.5 flex-wrap">
+                {BOOK_COVER_PALETTES.map((pal, idx) => {
+                  const isSelected = selectedPalette === idx;
+                  return (
+                    <button
+                      key={pal.name}
+                      type="button"
+                      onClick={() => setSelectedPalette(idx)}
+                      className={`w-8 h-8 rounded-xl transition-all transform flex items-center justify-center cursor-pointer ${
+                        isSelected ? "scale-110 shadow-md ring-2 ring-offset-2" : "opacity-85 hover:scale-105"
+                      }`}
+                      style={{
+                        background: `linear-gradient(135deg, ${pal.from}, ${pal.to})`,
+                        ringColor: pal.to,
+                      }}
+                      title={pal.name}
+                    >
+                      {isSelected && <Check size={14} className="text-white drop-shadow-sm" />}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Actions */}
+          <div className="flex items-center justify-end gap-3 pt-3 border-t mt-2" style={{ borderColor: theme.hairline }}>
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 text-xs font-bold rounded-xl transition-colors hover:bg-black/5 dark:hover:bg-white/5 cursor-pointer"
+              style={{ color: theme.inkSoft }}
+            >
+              {ui.cancel || (lang === "ar" ? "إلغاء" : "Cancel")}
+            </button>
+            <button
+              type="submit"
+              disabled={!title.trim()}
+              className="educraft-btn flex items-center gap-2 px-5 py-2.5 text-xs font-bold rounded-xl shadow-md transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+              style={{
+                background: theme.accent,
+                color: theme.accentInk,
+              }}
+            >
+              <Plus size={14} />
+              <span>{ui.libraryCreateBtn || (lang === "ar" ? "إنشاء" : "Create")}</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+/* =================================================================
+   ConfirmDeleteModal — Custom modal replacing window.confirm
+================================================================== */
+function ConfirmDeleteModal({
+  isOpen,
+  onClose,
+  onConfirm,
+  title,
+  message,
+  theme,
+  skin,
+  lang,
+  ui,
+}) {
+  if (!isOpen) return null;
+
+  return (
+    <div
+      role="dialog"
+      aria-modal="true"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      style={{
+        background: "rgba(0, 0, 0, 0.65)",
+        backdropFilter: "blur(12px)",
+        WebkitBackdropFilter: "blur(12px)",
+      }}
+      onClick={onClose}
+    >
+      <div
+        className="w-full max-w-md rounded-3xl border shadow-2xl p-6 educraft-modal-in"
+        style={{
+          background: theme.surface,
+          borderColor: skinBorderColor(skin, theme),
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center gap-3.5 mb-4">
+          <div className="w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 bg-red-500/10 text-red-500">
+            <AlertTriangle size={22} />
+          </div>
+          <div>
+            <h3 className="text-lg font-bold" style={{ color: theme.ink }}>
+              {ui.libraryConfirmDeleteTitle || (lang === "ar" ? "تأكيد الحذف" : "Confirm Deletion")}
+            </h3>
+            {title && (
+              <div className="text-xs font-semibold truncate max-w-xs mt-0.5" style={{ color: theme.accent }}>
+                "{title}"
+              </div>
+            )}
+          </div>
+        </div>
+
+        <p className="text-sm mb-6" style={{ color: theme.inkSoft, lineHeight: 1.6 }}>
+          {message}
+        </p>
+
+        <div className="flex items-center justify-end gap-2.5">
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-4 py-2 text-xs font-bold rounded-xl transition-colors hover:bg-black/5 dark:hover:bg-white/5 cursor-pointer"
+            style={{ color: theme.ink }}
+          >
+            {ui.cancel || (lang === "ar" ? "إلغاء" : "Cancel")}
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              onConfirm();
+              onClose();
+            }}
+            className="educraft-btn flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-xl text-white shadow-sm cursor-pointer"
+            style={{ background: "#EF4444" }}
+          >
+            <Trash2 size={13} />
+            <span>{ui.libraryConfirmDeleteBtn || (lang === "ar" ? "تأكيد الحذف" : "Delete")}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* =================================================================
    LibraryView — the shelf. Each card is the cover + title + a
    quick tally of branches / questions inside that book's tree.
 ================================================================== */
-function LibraryView({ lang, ui, theme, dir, onOpen, skin, covers, onChangeCover, onClearCover, books, collections, libraryPath, onEnterCollection, onCrumb, onCreateCollection, onDeleteCollection, onAssignToCollection, onRemoveFromCollection, onExportBook, onExportCollection, onOpenImportModal, onDeleteBook, plans = {}, isExporting = false, onRescan, isScanning = false, onExportDatabase, onRestoreDatabase, onCreateNewBook }) {
+function LibraryView({
+  lang,
+  ui,
+  theme,
+  dir,
+  onOpen,
+  skin,
+  covers,
+  onChangeCover,
+  onClearCover,
+  books,
+  collections,
+  libraryPath,
+  onEnterCollection,
+  onCrumb,
+  onCreateCollection,
+  onDeleteCollection,
+  onAssignToCollection,
+  onRemoveFromCollection,
+  onMoveItem,
+  onExportBook,
+  onExportCollection,
+  onOpenImportModal,
+  onDeleteBook,
+  plans = {},
+  isExporting = false,
+  onRescan,
+  isScanning = false,
+  onExportDatabase,
+  onRestoreDatabase,
+  onCreateNewBook,
+}) {
   const ArrowIcon = dir === "rtl" ? ArrowLeft : ArrowRight;
   const atRoot = libraryPath.length === 0;
   const currentCollection = atRoot ? null : collections.find((c) => c.id === libraryPath[libraryPath.length - 1]);
+
   const [exportMenuBookId, setExportMenuBookId] = useState(null);
+  const [newMenuOpen, setNewMenuOpen] = useState(false);
+  const [toolsMenuOpen, setToolsMenuOpen] = useState(false);
+  const [createModalConfig, setCreateModalConfig] = useState({ isOpen: false, kind: "book", defaultParentId: null });
+  const [deleteConfirmConfig, setDeleteConfirmConfig] = useState({ isOpen: false, title: "", message: "", onConfirm: null });
 
   useEffect(() => {
-    if (!exportMenuBookId) return;
-    const closeMenu = () => setExportMenuBookId(null);
-    window.addEventListener("click", closeMenu);
-    return () => window.removeEventListener("click", closeMenu);
-  }, [exportMenuBookId]);
+    if (!exportMenuBookId && !newMenuOpen && !toolsMenuOpen) return;
+    const closeAll = () => {
+      setExportMenuBookId(null);
+      setNewMenuOpen(false);
+      setToolsMenuOpen(false);
+    };
+    window.addEventListener("click", closeAll);
+    return () => window.removeEventListener("click", closeAll);
+  }, [exportMenuBookId, newMenuOpen, toolsMenuOpen]);
 
   let itemBooks = [];
   let itemCollections = [];
@@ -2182,13 +2869,32 @@ function LibraryView({ lang, ui, theme, dir, onOpen, skin, covers, onChangeCover
     itemCollections = rootCollections;
     itemBooks = rootBooks;
   } else if (currentCollection) {
-    itemCollections = collections.filter((c) => currentCollection.itemIds.includes(c.id));
-    itemBooks = books.filter((b) => currentCollection.itemIds.includes(b.id));
+    itemCollections = collections.filter((c) => (currentCollection.itemIds || []).includes(c.id));
+    itemBooks = books.filter((b) => (currentCollection.itemIds || []).includes(b.id));
   }
 
-  // where a root-level item can be filed: folders take books+encyclopedias, encyclopedias take books only
-  const foldersAvailable = collections.filter((c) => c.kind === "folder");
-  const targetsFor = (kind) => (kind === "book" ? collections.filter((c) => c.kind === "folder" || c.kind === "encyclopedia") : foldersAvailable);
+  const handleMove = (itemId, targetId) => {
+    if (onMoveItem) {
+      onMoveItem(itemId, targetId);
+    } else {
+      if (onRemoveFromCollection) onRemoveFromCollection(itemId);
+      if (targetId && targetId !== "root" && onAssignToCollection) {
+        onAssignToCollection(itemId, targetId);
+      }
+    }
+  };
+
+  const handleModalCreate = ({ kind, title, tagline, parentId, cover }) => {
+    if (kind === "book") {
+      if (onCreateNewBook) {
+        onCreateNewBook({ title, tagline, parentId, cover });
+      }
+    } else {
+      if (onCreateCollection) {
+        onCreateCollection({ kind, title, parentId });
+      }
+    }
+  };
 
   const CollectionIcon = (kind) => (kind === "encyclopedia" ? BookCopy : FolderOpen);
 
@@ -2209,33 +2915,64 @@ function LibraryView({ lang, ui, theme, dir, onOpen, skin, covers, onChangeCover
       ) : (
         <div className="mb-6">
           <div className="flex items-center gap-1.5 text-xs font-bold mb-3 flex-wrap" style={{ color: theme.inkSoft }}>
-            <button onClick={() => onCrumb(0)} className="hover:underline" style={{ color: theme.inkSoft }}>
-              {ui.libraryRootCrumb}
+            <button onClick={() => onCrumb(0)} className="hover:underline flex items-center gap-1 cursor-pointer" style={{ color: theme.inkSoft }}>
+              <Home size={12} />
+              <span>{ui.libraryRootCrumb}</span>
             </button>
             {libraryPath.map((id, i) => {
               const c = collections.find((x) => x.id === id);
               if (!c) return null;
+              const isLast = i === libraryPath.length - 1;
               return (
                 <span key={id} className="flex items-center gap-1.5">
                   <ChevronRight size={11} style={{ transform: dir === "rtl" ? "scaleX(-1)" : "none" }} />
-                  <button onClick={() => onCrumb(i + 1)} className="hover:underline" style={{ color: i === libraryPath.length - 1 ? theme.ink : theme.inkSoft }}>
-                    {c.title}
+                  <button
+                    onClick={() => onCrumb(i + 1)}
+                    className="hover:underline flex items-center gap-1 cursor-pointer"
+                    style={{ color: isLast ? theme.ink : theme.inkSoft, fontWeight: isLast ? "bold" : "normal" }}
+                  >
+                    {c.kind === "encyclopedia" ? <BookCopy size={11} className="text-indigo-500" /> : <FolderOpen size={11} className="text-amber-500" />}
+                    <span>{c.title}</span>
                   </button>
                 </span>
               );
             })}
           </div>
           {currentCollection && (
-            <div className="flex items-center justify-between gap-3 flex-wrap">
-              <h1 className="text-2xl font-bold" style={{ fontFamily: ui.displayFont, color: theme.ink }}>
-                {currentCollection.title}
-              </h1>
+            <div className="flex items-center justify-between gap-3 flex-wrap p-4 rounded-2xl border" style={{ background: theme.surface, borderColor: theme.hairline }}>
+              <div className="flex items-center gap-3">
+                <div
+                  className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
+                  style={{
+                    background: currentCollection.kind === "encyclopedia" ? "rgba(99, 102, 241, 0.15)" : "rgba(245, 158, 11, 0.15)",
+                    color: currentCollection.kind === "encyclopedia" ? "#6366F1" : "#F59E0B",
+                  }}
+                >
+                  {currentCollection.kind === "encyclopedia" ? <BookCopy size={20} /> : <FolderOpen size={20} />}
+                </div>
+                <div>
+                  <span className="inline-block text-[10px] font-black uppercase tracking-wide px-2 py-0.5 rounded-full mb-1" style={{ background: theme.accentSoft, color: theme.accent }}>
+                    {currentCollection.kind === "encyclopedia" ? ui.encyclopediaBadge : ui.folderBadge}
+                  </span>
+                  <h1 className="text-2xl font-bold" style={{ fontFamily: ui.displayFont, color: theme.ink }}>
+                    {currentCollection.title}
+                  </h1>
+                </div>
+              </div>
               <button
-                onClick={() => onDeleteCollection(currentCollection.id)}
-                className="flex items-center gap-1.5 text-xs font-bold px-3 py-1.5"
+                type="button"
+                onClick={() => {
+                  setDeleteConfirmConfig({
+                    isOpen: true,
+                    title: currentCollection.title,
+                    message: ui.libraryDeleteCollectionConfirm,
+                    onConfirm: () => onDeleteCollection(currentCollection.id),
+                  });
+                }}
+                className="flex items-center gap-1.5 text-xs font-bold px-3.5 py-2 transition-all hover:opacity-90 cursor-pointer"
                 style={{ borderRadius: skin.radiusSm, border: `1.5px solid ${INCORRECT.border}`, color: INCORRECT.border }}
               >
-                <Trash2 size={12} />
+                <Trash2 size={13} />
                 {ui.libraryDeleteCollection}
               </button>
             </div>
@@ -2243,87 +2980,276 @@ function LibraryView({ lang, ui, theme, dir, onOpen, skin, covers, onChangeCover
         </div>
       )}
 
-      {atRoot && (
-        <div className="flex items-center gap-2 mb-6 flex-wrap">
-          {onRescan && (
-            <button
-              onClick={onRescan}
-              disabled={isScanning}
-              className="flex items-center gap-1.5 text-xs font-bold px-3.5 py-2 transition-all hover:opacity-90 disabled:opacity-50"
-              style={{ borderRadius: skin.radiusSm, border: `1.5px solid ${skinBorderColor(skin, theme)}`, color: theme.ink, minHeight: 36 }}
-              title={lang === "ar" ? "فحص وتحديث مجلد الكتب من القرص" : "Rescan books folder from disk"}
-            >
-              <RotateCcw size={13} className={isScanning ? "animate-spin text-indigo-500" : ""} />
-              {lang === "ar" ? (isScanning ? "جارٍ الفحص..." : "تحديث المكتبة") : (isScanning ? "Scanning..." : "Refresh Library")}
-            </button>
-          )}
-          {onCreateNewBook && (
+      {/* Reworked Toolbar (available at Root and inside Collections) */}
+      <div className="flex items-center justify-between gap-2.5 mb-6 flex-wrap">
+        {/* Left: Creation Actions */}
+        <div className="flex items-center gap-2 flex-wrap">
+          {/* Primary New Dropdown */}
+          <div className="relative">
             <button
               type="button"
-              onClick={onCreateNewBook}
-              className="educraft-btn flex items-center gap-1.5 text-xs font-bold px-3.5 py-2 cursor-pointer"
-              style={{ borderRadius: skin.radiusSm, border: `1.5px solid ${skinBorderColor(skin, theme)}`, background: theme.surface, color: theme.ink, minHeight: 36 }}
-              title={ui.libraryNewBook}
+              onClick={(e) => {
+                e.stopPropagation();
+                setNewMenuOpen((v) => !v);
+              }}
+              className="educraft-btn flex items-center gap-2 text-xs font-bold px-3.5 py-2 shadow-sm cursor-pointer"
+              style={{
+                borderRadius: skin.radiusSm,
+                background: theme.accent,
+                color: theme.accentInk,
+                minHeight: 38,
+              }}
+              title={ui.libraryNewItemBtn || "New"}
             >
-              <Plus size={13} style={{ color: theme.accent }} />
-              {ui.libraryNewBook}
+              <Plus size={15} />
+              <span>{ui.libraryNewItemBtn || (lang === "ar" ? "جديد" : "New")}</span>
+              <ChevronDown size={11} className={`opacity-80 transition-transform duration-200 ${newMenuOpen ? "rotate-180" : ""}`} />
             </button>
+
+            {newMenuOpen && (
+              <div
+                onClick={(e) => e.stopPropagation()}
+                className="absolute z-40 top-full mt-1.5 start-0 w-56 p-1.5 rounded-2xl shadow-2xl border flex flex-col gap-1 educraft-modal-in"
+                style={{
+                  background: theme.surface,
+                  borderColor: theme.hairlineStrong,
+                  boxShadow: "0 16px 36px -4px rgba(0,0,0,0.25)",
+                  backdropFilter: "blur(20px)",
+                  WebkitBackdropFilter: "blur(20px)",
+                }}
+              >
+                {/* New Book */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setNewMenuOpen(false);
+                    setCreateModalConfig({ isOpen: true, kind: "book", defaultParentId: currentCollection?.id || null });
+                  }}
+                  className="flex items-center gap-2.5 w-full px-3 py-2 text-xs font-semibold rounded-xl text-start transition-colors hover:bg-black/5 dark:hover:bg-white/5 cursor-pointer"
+                  style={{ color: theme.ink }}
+                >
+                  <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0" style={{ background: theme.accentSoft, color: theme.accent }}>
+                    <BookOpen size={14} />
+                  </div>
+                  <div>
+                    <div className="font-bold">{ui.libraryNewBook || (lang === "ar" ? "كتاب جديد" : "New Book")}</div>
+                    <div className="text-[10px] opacity-70" style={{ color: theme.inkSoft }}>
+                      {lang === "ar" ? "منهج تفاعلي وشجرة أسئلة" : "Interactive curriculum"}
+                    </div>
+                  </div>
+                </button>
+
+                {/* New Encyclopedia (allowed at root or in folder) */}
+                {(!currentCollection || currentCollection.kind === "folder") && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setNewMenuOpen(false);
+                      setCreateModalConfig({ isOpen: true, kind: "encyclopedia", defaultParentId: currentCollection?.id || null });
+                    }}
+                    className="flex items-center gap-2.5 w-full px-3 py-2 text-xs font-semibold rounded-xl text-start transition-colors hover:bg-black/5 dark:hover:bg-white/5 cursor-pointer"
+                    style={{ color: theme.ink }}
+                  >
+                    <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 bg-indigo-500/10 text-indigo-500">
+                      <BookCopy size={14} />
+                    </div>
+                    <div>
+                      <div className="font-bold">{ui.libraryNewEncyclopedia || (lang === "ar" ? "موسوعة جديدة" : "New Encyclopedia")}</div>
+                      <div className="text-[10px] opacity-70" style={{ color: theme.inkSoft }}>
+                        {lang === "ar" ? "مجموعة كتب شاملة" : "Collection of books"}
+                      </div>
+                    </div>
+                  </button>
+                )}
+
+                {/* New Folder (allowed at root or in folder) */}
+                {(!currentCollection || currentCollection.kind === "folder") && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setNewMenuOpen(false);
+                      setCreateModalConfig({ isOpen: true, kind: "folder", defaultParentId: currentCollection?.id || null });
+                    }}
+                    className="flex items-center gap-2.5 w-full px-3 py-2 text-xs font-semibold rounded-xl text-start transition-colors hover:bg-black/5 dark:hover:bg-white/5 cursor-pointer"
+                    style={{ color: theme.ink }}
+                  >
+                    <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 bg-amber-500/10 text-amber-500">
+                      <FolderPlus size={14} />
+                    </div>
+                    <div>
+                      <div className="font-bold">{currentCollection ? (lang === "ar" ? "مجلد فرعي جديد" : "New Subfolder") : (ui.libraryNewFolder || (lang === "ar" ? "مجلد جديد" : "New Folder"))}</div>
+                      <div className="text-[10px] opacity-70" style={{ color: theme.inkSoft }}>
+                        {lang === "ar" ? "تنظيم وهيكلة المحتوى" : "Organize books & items"}
+                      </div>
+                    </div>
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Quick action buttons for fast access */}
+          <button
+            type="button"
+            onClick={() => setCreateModalConfig({ isOpen: true, kind: "book", defaultParentId: currentCollection?.id || null })}
+            className="hidden sm:flex educraft-btn items-center gap-1.5 text-xs font-bold px-3 py-2 cursor-pointer"
+            style={{
+              borderRadius: skin.radiusSm,
+              border: `1.5px solid ${skinBorderColor(skin, theme)}`,
+              background: theme.surface,
+              color: theme.ink,
+              minHeight: 38,
+            }}
+            title={ui.libraryNewBook}
+          >
+            <BookOpen size={13} style={{ color: theme.accent }} />
+            <span>{ui.libraryNewBook || (lang === "ar" ? "كتاب جديد" : "New Book")}</span>
+          </button>
+
+          {(!currentCollection || currentCollection.kind === "folder") && (
+            <>
+              <button
+                type="button"
+                onClick={() => setCreateModalConfig({ isOpen: true, kind: "encyclopedia", defaultParentId: currentCollection?.id || null })}
+                className="hidden md:flex educraft-btn items-center gap-1.5 text-xs font-bold px-3 py-2 cursor-pointer"
+                style={{
+                  borderRadius: skin.radiusSm,
+                  border: `1.5px solid ${skinBorderColor(skin, theme)}`,
+                  background: theme.surface,
+                  color: theme.ink,
+                  minHeight: 38,
+                }}
+                title={ui.libraryNewEncyclopedia}
+              >
+                <BookCopy size={13} className="text-indigo-500" />
+                <span>{ui.libraryNewEncyclopedia || (lang === "ar" ? "موسوعة جديدة" : "New Encyclopedia")}</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setCreateModalConfig({ isOpen: true, kind: "folder", defaultParentId: currentCollection?.id || null })}
+                className="hidden md:flex educraft-btn items-center gap-1.5 text-xs font-bold px-3 py-2 cursor-pointer"
+                style={{
+                  borderRadius: skin.radiusSm,
+                  border: `1.5px solid ${skinBorderColor(skin, theme)}`,
+                  background: theme.surface,
+                  color: theme.ink,
+                  minHeight: 38,
+                }}
+                title={ui.libraryNewFolder}
+              >
+                <FolderPlus size={13} className="text-amber-500" />
+                <span>{currentCollection ? (lang === "ar" ? "مجلد فرعي" : "Subfolder") : (ui.libraryNewFolder || (lang === "ar" ? "مجلد جديد" : "New Folder"))}</span>
+              </button>
+            </>
           )}
+        </div>
+
+        {/* Right: Tools & Maintenance */}
+        <div className="flex items-center gap-2">
           <button
             type="button"
             onClick={onOpenImportModal}
-            className="educraft-btn flex items-center gap-1.5 text-xs font-bold px-3.5 py-2 cursor-pointer"
-            style={{ borderRadius: skin.radiusSm, border: `1.5px solid ${skinBorderColor(skin, theme)}`, background: theme.surface, color: theme.ink, minHeight: 36 }}
+            className="educraft-btn flex items-center gap-1.5 text-xs font-bold px-3 py-2 cursor-pointer"
+            style={{
+              borderRadius: skin.radiusSm,
+              border: `1.5px solid ${skinBorderColor(skin, theme)}`,
+              background: theme.surface,
+              color: theme.ink,
+              minHeight: 38,
+            }}
             title={ui.libraryImportJson}
           >
             <FileUp size={13} style={{ color: theme.accent }} />
-            {ui.libraryImportJson}
+            <span className="hidden sm:inline">{ui.libraryImportJson}</span>
           </button>
-          {onExportDatabase && (
-            <button
-              type="button"
-              onClick={onExportDatabase}
-              className="educraft-btn flex items-center gap-1.5 text-xs font-bold px-3.5 py-2 cursor-pointer"
-              style={{ borderRadius: skin.radiusSm, border: `1.5px solid ${skinBorderColor(skin, theme)}`, background: theme.surface, color: theme.ink, minHeight: 36 }}
-              title={ui.exportDatabaseBackupLabel}
-            >
-              <FileDown size={13} />
-              {ui.exportDatabaseBackupLabel}
-            </button>
-          )}
-          {onRestoreDatabase && (
-            <button
-              type="button"
-              onClick={onRestoreDatabase}
-              className="educraft-btn flex items-center gap-1.5 text-xs font-bold px-3.5 py-2 cursor-pointer"
-              style={{ borderRadius: skin.radiusSm, border: `1.5px solid ${skinBorderColor(skin, theme)}`, background: theme.surface, color: theme.ink, minHeight: 36 }}
-              title={ui.restoreDatabaseBackupLabel}
-            >
-              <FileUp size={13} />
-              {ui.restoreDatabaseBackupLabel}
-            </button>
-          )}
-          <button
-            type="button"
-            onClick={() => onCreateCollection("folder")}
-            className="educraft-btn flex items-center gap-1.5 text-xs font-bold px-3.5 py-2 cursor-pointer"
-            style={{ borderRadius: skin.radiusSm, border: `1.5px solid ${skinBorderColor(skin, theme)}`, background: theme.surface, color: theme.ink, minHeight: 36 }}
-          >
-            <FolderPlus size={13} />
-            {ui.libraryNewFolder}
-          </button>
-          <button
-            type="button"
-            onClick={() => onCreateCollection("encyclopedia")}
-            className="educraft-btn flex items-center gap-1.5 text-xs font-bold px-3.5 py-2 cursor-pointer"
-            style={{ borderRadius: skin.radiusSm, border: `1.5px solid ${skinBorderColor(skin, theme)}`, background: theme.surface, color: theme.ink, minHeight: 36 }}
-          >
-            <Plus size={13} />
-            {ui.libraryNewEncyclopedia}
-          </button>
-        </div>
-      )}
 
+          <div className="relative">
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setToolsMenuOpen((v) => !v);
+              }}
+              className="educraft-btn flex items-center gap-1.5 text-xs font-bold px-3 py-2 cursor-pointer"
+              style={{
+                borderRadius: skin.radiusSm,
+                border: `1.5px solid ${skinBorderColor(skin, theme)}`,
+                background: theme.surface,
+                color: theme.ink,
+                minHeight: 38,
+              }}
+              title={lang === "ar" ? "أدوات المكتبة وقاعدة البيانات" : "Library Tools & Database"}
+            >
+              <Database size={13} />
+              <span className="hidden md:inline">{lang === "ar" ? "أدوات" : "Tools"}</span>
+              <ChevronDown size={10} className="opacity-60" />
+            </button>
+
+            {toolsMenuOpen && (
+              <div
+                onClick={(e) => e.stopPropagation()}
+                className="absolute z-40 top-full mt-1.5 end-0 w-52 p-1.5 rounded-2xl shadow-2xl border flex flex-col gap-1 educraft-modal-in"
+                style={{
+                  background: theme.surface,
+                  borderColor: theme.hairlineStrong,
+                  boxShadow: "0 16px 36px -4px rgba(0,0,0,0.25)",
+                  backdropFilter: "blur(20px)",
+                  WebkitBackdropFilter: "blur(20px)",
+                }}
+              >
+                {onRescan && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setToolsMenuOpen(false);
+                      onRescan();
+                    }}
+                    disabled={isScanning}
+                    className="flex items-center gap-2 w-full px-2.5 py-2 text-xs font-semibold rounded-xl text-start transition-colors hover:bg-black/5 dark:hover:bg-white/5 disabled:opacity-50 cursor-pointer"
+                    style={{ color: theme.ink }}
+                  >
+                    <RotateCcw size={13} className={isScanning ? "animate-spin text-indigo-500" : ""} />
+                    <span>{lang === "ar" ? (isScanning ? "جارٍ الفحص..." : "تحديث المكتبة من القرص") : (isScanning ? "Scanning..." : "Rescan Library")}</span>
+                  </button>
+                )}
+
+                {onExportDatabase && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setToolsMenuOpen(false);
+                      onExportDatabase();
+                    }}
+                    className="flex items-center gap-2 w-full px-2.5 py-2 text-xs font-semibold rounded-xl text-start transition-colors hover:bg-black/5 dark:hover:bg-white/5 cursor-pointer"
+                    style={{ color: theme.ink }}
+                  >
+                    <FileDown size={13} />
+                    <span>{ui.exportDatabaseBackupLabel}</span>
+                  </button>
+                )}
+
+                {onRestoreDatabase && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setToolsMenuOpen(false);
+                      onRestoreDatabase();
+                    }}
+                    className="flex items-center gap-2 w-full px-2.5 py-2 text-xs font-semibold rounded-xl text-start transition-colors hover:bg-black/5 dark:hover:bg-white/5 cursor-pointer"
+                    style={{ color: theme.ink }}
+                  >
+                    <FileUp size={13} />
+                    <span>{ui.restoreDatabaseBackupLabel}</span>
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Empty shelf state at Root */}
       {atRoot && itemCollections.length === 0 && itemBooks.length === 0 && (
         <div
           className="p-8 sm:p-14 text-center rounded-2xl border flex flex-col items-center justify-center gap-3 my-4 educraft-panel-in"
@@ -2341,17 +3267,15 @@ function LibraryView({ lang, ui, theme, dir, onOpen, skin, covers, onChangeCover
               : "Start by creating a new book from scratch to build its knowledge tree, or import existing books via JSON."}
           </p>
           <div className="flex items-center gap-3 mt-3 flex-wrap justify-center">
-            {onCreateNewBook && (
-              <button
-                type="button"
-                onClick={onCreateNewBook}
-                className="flex items-center gap-2 text-sm font-bold px-4 py-2.5 shadow-sm transition-all hover:scale-105 cursor-pointer"
-                style={{ borderRadius: skin.radiusSm, background: theme.accent, color: theme.accentInk }}
-              >
-                <Plus size={15} />
-                {ui.createNewBookCta}
-              </button>
-            )}
+            <button
+              type="button"
+              onClick={() => setCreateModalConfig({ isOpen: true, kind: "book", defaultParentId: null })}
+              className="flex items-center gap-2 text-sm font-bold px-4 py-2.5 shadow-sm transition-all hover:scale-105 cursor-pointer"
+              style={{ borderRadius: skin.radiusSm, background: theme.accent, color: theme.accentInk }}
+            >
+              <Plus size={15} />
+              {ui.createNewBookCta}
+            </button>
             <button
               type="button"
               onClick={onOpenImportModal}
@@ -2365,18 +3289,53 @@ function LibraryView({ lang, ui, theme, dir, onOpen, skin, covers, onChangeCover
         </div>
       )}
 
+      {/* Empty state inside Collection */}
       {!atRoot && itemCollections.length === 0 && itemBooks.length === 0 && (
-        <p className="text-sm p-5" style={{ ...panelStyle(skin, theme, { soft: true }), color: theme.inkSoft }}>
-          {ui.libraryEmptyCollection}
-        </p>
+        <div
+          className="p-8 sm:p-12 text-center rounded-2xl border flex flex-col items-center justify-center gap-3 my-4 educraft-panel-in"
+          style={{ background: theme.surface, borderColor: theme.hairline }}
+        >
+          <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: theme.accentSoft, color: theme.accent }}>
+            {currentCollection?.kind === "encyclopedia" ? <BookCopy size={24} /> : <FolderOpen size={24} />}
+          </div>
+          <h3 className="text-lg font-bold" style={{ color: theme.ink }}>
+            {currentCollection?.kind === "encyclopedia"
+              ? (lang === "ar" ? "الموسوعة فارغة حالياً" : "Encyclopedia is Empty")
+              : (lang === "ar" ? "المجلد فارغ حالياً" : "Folder is Empty")}
+          </h3>
+          <p className="text-xs max-w-sm" style={{ color: theme.inkSoft, lineHeight: 1.6 }}>
+            {currentCollection?.kind === "encyclopedia"
+              ? (lang === "ar" ? "أضف كتباً إلى هذه الموسوعة أو أنشئ كتاباً جديداً بداخلها مباشرة." : "Add books to this encyclopedia or create a new book inside it.")
+              : (lang === "ar" ? "أنشئ كتباً، موسوعات، أو مجلدات فرعية داخل هذا المجلد، أو انقل عناصر إليه من المكتبة." : "Create books, encyclopedias, or subfolders here, or move items into this folder.")}
+          </p>
+          <div className="flex items-center gap-2 mt-2">
+            <button
+              type="button"
+              onClick={() => setCreateModalConfig({ isOpen: true, kind: "book", defaultParentId: currentCollection.id })}
+              className="flex items-center gap-1.5 text-xs font-bold px-3.5 py-2 rounded-lg cursor-pointer"
+              style={{ background: theme.accent, color: theme.accentInk }}
+            >
+              <Plus size={14} />
+              <span>{lang === "ar" ? "إنشاء كتاب هنا" : "Create Book Here"}</span>
+            </button>
+          </div>
+        </div>
       )}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+        {/* Collections (Folders and Encyclopedias) */}
         {itemCollections.map((col) => {
           const Icon = CollectionIcon(col.kind);
-          const childCount = col.itemIds.length;
+          const childCount = (col.itemIds || []).length;
           return (
-            <div key={col.id} className="group flex gap-4 p-4 text-start" style={{ ...panelStyle(skin, theme), cursor: "pointer" }} onClick={() => onEnterCollection(col.id)} role="button" tabIndex={0}>
+            <div
+              key={col.id}
+              className="group flex gap-4 p-4 text-start"
+              style={{ ...panelStyle(skin, theme), cursor: "pointer" }}
+              onClick={() => onEnterCollection(col.id)}
+              role="button"
+              tabIndex={0}
+            >
               <div className="shrink-0 grid place-items-center" style={{ width: 96, height: 126, borderRadius: skin.radiusMd * 0.7, background: theme.accentSoft, color: theme.accent }}>
                 <Icon size={34} />
               </div>
@@ -2393,7 +3352,7 @@ function LibraryView({ lang, ui, theme, dir, onOpen, skin, covers, onChangeCover
                   <span className="text-xs font-semibold" style={{ color: theme.inkSoft }}>
                     {childCount} {ui.booksCountLabel}
                   </span>
-                  <div className="flex items-center gap-1.5">
+                  <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
                     {onExportCollection && (
                       <button
                         onClick={(e) => {
@@ -2401,7 +3360,7 @@ function LibraryView({ lang, ui, theme, dir, onOpen, skin, covers, onChangeCover
                           onExportCollection(col);
                         }}
                         disabled={isExporting}
-                        className="p-1.5 transition-all hover:scale-110 disabled:opacity-40"
+                        className="p-1.5 transition-all hover:scale-110 disabled:opacity-40 cursor-pointer"
                         style={{ borderRadius: skin.radiusSm, color: theme.inkSoft }}
                         aria-label={ui.treeExportCta}
                         title={ui.treeExportCta}
@@ -2409,37 +3368,37 @@ function LibraryView({ lang, ui, theme, dir, onOpen, skin, covers, onChangeCover
                         <FileDown size={13} />
                       </button>
                     )}
-                    {atRoot ? (
-                    col.kind === "encyclopedia" && foldersAvailable.length > 0 ? (
-                      <select
-                        onClick={(e) => e.stopPropagation()}
-                        onChange={(e) => { if (e.target.value) { onAssignToCollection(col.id, e.target.value); e.target.value = ""; } }}
-                        defaultValue=""
-                        className="text-[11px] font-bold px-2 py-1"
-                        style={{ borderRadius: skin.radiusSm, border: `1.5px solid ${skinBorderColor(skin, theme)}`, background: theme.surface, color: theme.ink }}
-                      >
-                        <option value="">{ui.libraryAddToFolder}</option>
-                        {foldersAvailable.map((f) => (
-                          <option key={f.id} value={f.id}>
-                            {f.title}
-                          </option>
-                        ))}
-                      </select>
-                    ) : (
-                      <ArrowIcon size={14} style={{ color: theme.inkSoft }} />
-                    )
-                  ) : (
+                    {/* Custom Apple-grade Move Dropdown */}
+                    <ItemMoveDropdown
+                      item={col}
+                      itemType={col.kind}
+                      collections={collections}
+                      currentParentId={currentCollection?.id || null}
+                      onMove={handleMove}
+                      theme={theme}
+                      skin={skin}
+                      lang={lang}
+                      dir={dir}
+                    />
+                    {/* Delete collection button */}
                     <button
+                      type="button"
                       onClick={(e) => {
                         e.stopPropagation();
-                        onRemoveFromCollection(col.id);
+                        setDeleteConfirmConfig({
+                          isOpen: true,
+                          title: col.title,
+                          message: ui.libraryDeleteCollectionConfirm,
+                          onConfirm: () => onDeleteCollection(col.id),
+                        });
                       }}
-                      className="text-[11px] font-bold px-2 py-1"
-                      style={{ borderRadius: skin.radiusSm, color: theme.inkSoft }}
+                      className="p-1.5 hover:opacity-100 transition-opacity cursor-pointer"
+                      style={{ borderRadius: skin.radiusSm, color: INCORRECT.border }}
+                      aria-label={ui.libraryDeleteCollection}
+                      title={ui.libraryDeleteCollection}
                     >
-                      <X size={11} className="inline" /> {ui.libraryRemoveFromCollection}
+                      <Trash2 size={13} />
                     </button>
-                  )}
                   </div>
                 </div>
               </div>
@@ -2447,13 +3406,14 @@ function LibraryView({ lang, ui, theme, dir, onOpen, skin, covers, onChangeCover
           );
         })}
 
+        {/* Books */}
         {itemBooks.map((book) => {
           const branchCount = book.nodes.filter((n) => n.level === "branch").length;
           const questionCount = book.nodes.reduce((sum, n) => sum + (n.level === "leaf" ? leafCards(n).reduce((s, g) => s + g.questions.length, 0) : 0), 0);
           const totalLeaves = book.nodes.filter((n) => n.level === "leaf").length;
           const doneLeaves = (plans[book.id]?.doneLeafIds || []).filter((id) => book.nodes.some((n) => n.id === id)).length;
           const progressPct = totalLeaves > 0 ? Math.round((doneLeaves / totalLeaves) * 100) : 0;
-          const targets = targetsFor("book");
+
           return (
             <div
               key={book.id}
@@ -2501,7 +3461,7 @@ function LibraryView({ lang, ui, theme, dir, onOpen, skin, covers, onChangeCover
                   <span className="text-xs font-semibold" style={{ color: theme.inkSoft }}>
                     {branchCount} {ui.branchesLabel} · {questionCount} {ui.questionsLabel}
                   </span>
-                  <div className="flex items-center gap-1.5">
+                  <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
                     {onExportBook && (
                       <div className="relative">
                         <button
@@ -2511,7 +3471,7 @@ function LibraryView({ lang, ui, theme, dir, onOpen, skin, covers, onChangeCover
                             setExportMenuBookId((prev) => (prev === book.id ? null : book.id));
                           }}
                           disabled={isExporting}
-                          className="flex items-center gap-0.5 p-1.5 transition-all hover:scale-105 disabled:opacity-40"
+                          className="flex items-center gap-0.5 p-1.5 transition-all hover:scale-105 disabled:opacity-40 cursor-pointer"
                           style={{ borderRadius: skin.radiusSm, color: theme.inkSoft }}
                           aria-label={ui.treeExportCta}
                           title={ui.treeExportCta}
@@ -2536,7 +3496,7 @@ function LibraryView({ lang, ui, theme, dir, onOpen, skin, covers, onChangeCover
                                 setExportMenuBookId(null);
                                 onExportBook(book, "html");
                               }}
-                              className="flex items-center gap-2 w-full text-start px-2.5 py-1.5 text-xs font-bold rounded-lg transition-colors hover:bg-black/5 dark:hover:bg-white/5"
+                              className="flex items-center gap-2 w-full text-start px-2.5 py-1.5 text-xs font-bold rounded-lg transition-colors hover:bg-black/5 dark:hover:bg-white/5 cursor-pointer"
                               style={{ color: theme.ink }}
                             >
                               <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
@@ -2549,7 +3509,7 @@ function LibraryView({ lang, ui, theme, dir, onOpen, skin, covers, onChangeCover
                                 setExportMenuBookId(null);
                                 onExportBook(book, "json");
                               }}
-                              className="flex items-center gap-2 w-full text-start px-2.5 py-1.5 text-xs font-bold rounded-lg transition-colors hover:bg-black/5 dark:hover:bg-white/5"
+                              className="flex items-center gap-2 w-full text-start px-2.5 py-1.5 text-xs font-bold rounded-lg transition-colors hover:bg-black/5 dark:hover:bg-white/5 cursor-pointer"
                               style={{ color: theme.ink }}
                             >
                               <span className="w-2 h-2 rounded-full bg-indigo-500 shrink-0" />
@@ -2561,11 +3521,12 @@ function LibraryView({ lang, ui, theme, dir, onOpen, skin, covers, onChangeCover
                     )}
                     {onDeleteBook && (
                       <button
+                        type="button"
                         onClick={(e) => {
                           e.stopPropagation();
                           onDeleteBook(book);
                         }}
-                        className="p-1.5 hover:opacity-100 transition-opacity"
+                        className="p-1.5 hover:opacity-100 transition-opacity cursor-pointer"
                         style={{ borderRadius: skin.radiusSm, color: INCORRECT.border }}
                         aria-label={ui.libraryDeleteBook}
                         title={ui.libraryDeleteBook}
@@ -2573,40 +3534,18 @@ function LibraryView({ lang, ui, theme, dir, onOpen, skin, covers, onChangeCover
                         <Trash2 size={13} />
                       </button>
                     )}
-                    {atRoot ? (
-                    targets.length > 0 ? (
-                      <select
-                        onClick={(e) => e.stopPropagation()}
-                        onChange={(e) => { if (e.target.value) { onAssignToCollection(book.id, e.target.value); e.target.value = ""; } }}
-                        defaultValue=""
-                        className="text-[11px] font-bold px-2 py-1"
-                        style={{ borderRadius: skin.radiusSm, border: `1.5px solid ${skinBorderColor(skin, theme)}`, background: theme.surface, color: theme.ink }}
-                      >
-                        <option value="">{ui.libraryAddToFolder}</option>
-                        {targets.map((t) => (
-                          <option key={t.id} value={t.id}>
-                            {t.title}
-                          </option>
-                        ))}
-                      </select>
-                    ) : (
-                      <span className="flex items-center gap-1 text-xs font-bold px-2.5 py-1.5 rounded-full transition-colors" style={{ background: theme.accentSoft, color: theme.accent }}>
-                        {ui.openBook}
-                        <ArrowIcon size={12} />
-                      </span>
-                    )
-                  ) : (
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onRemoveFromCollection(book.id);
-                      }}
-                      className="text-[11px] font-bold px-2 py-1"
-                      style={{ borderRadius: skin.radiusSm, color: theme.inkSoft }}
-                    >
-                      <X size={11} className="inline" /> {ui.libraryRemoveFromCollection}
-                    </button>
-                  )}
+                    {/* Custom Apple-grade Move Dropdown */}
+                    <ItemMoveDropdown
+                      item={book}
+                      itemType="book"
+                      collections={collections}
+                      currentParentId={currentCollection?.id || null}
+                      onMove={handleMove}
+                      theme={theme}
+                      skin={skin}
+                      lang={lang}
+                      dir={dir}
+                    />
                   </div>
                 </div>
               </div>
@@ -2614,6 +3553,34 @@ function LibraryView({ lang, ui, theme, dir, onOpen, skin, covers, onChangeCover
           );
         })}
       </div>
+
+      {/* Creation Modal */}
+      <CreateItemModal
+        isOpen={createModalConfig.isOpen}
+        onClose={() => setCreateModalConfig((prev) => ({ ...prev, isOpen: false }))}
+        initialKind={createModalConfig.kind}
+        defaultParentId={createModalConfig.defaultParentId}
+        collections={collections}
+        onCreate={handleModalCreate}
+        theme={theme}
+        skin={skin}
+        lang={lang}
+        dir={dir}
+        ui={ui}
+      />
+
+      {/* Confirm Deletion Modal */}
+      <ConfirmDeleteModal
+        isOpen={deleteConfirmConfig.isOpen}
+        onClose={() => setDeleteConfirmConfig((prev) => ({ ...prev, isOpen: false }))}
+        onConfirm={deleteConfirmConfig.onConfirm}
+        title={deleteConfirmConfig.title}
+        message={deleteConfirmConfig.message}
+        theme={theme}
+        skin={skin}
+        lang={lang}
+        ui={ui}
+      />
     </section>
   );
 }
@@ -2633,52 +3600,52 @@ function TreeView({ book, lang, ui, theme, dir, onBack, skin, selectedLeaf, onSe
         {ui.backToLibrary}
       </button>
 
-      <div className="flex items-center justify-between gap-3 mb-6 flex-wrap">
-        <div className="flex items-center gap-3">
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-6">
+        <div className="flex items-center gap-3 w-full md:w-auto">
           <div className="shrink-0" style={{ width: 56, height: 74, borderRadius: skin.radiusMd * 0.55, overflow: "hidden" }}>
             <EditableCover book={book} theme={theme} skin={skin} ui={ui} coverUrl={covers[book.id]} onChangeCover={onChangeCover} onClearCover={onClearCover} radius={skin.radiusMd * 0.55} />
           </div>
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold" style={{ fontFamily: ui.displayFont, color: theme.ink, lineHeight: 1.25 }}>
+          <div className="min-w-0 flex-1">
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold break-words" style={{ fontFamily: ui.displayFont, color: theme.ink, lineHeight: 1.25 }}>
               {book[lang]?.title || book.en?.title || book.ar?.title}
             </h1>
-            <p className="text-sm" style={{ color: theme.inkSoft }}>
+            <p className="text-xs sm:text-sm line-clamp-2 mt-0.5" style={{ color: theme.inkSoft }}>
               {book[lang]?.tagline || book.en?.tagline || book.ar?.tagline}
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-2 shrink-0 flex-wrap">
+        <div className="grid grid-cols-2 gap-2 w-full md:w-auto md:flex md:items-center">
           {onReadThrough && (
             <button
               type="button"
               onClick={onReadThrough}
-              className="educraft-btn flex items-center gap-2 text-sm font-bold px-4 py-2.5 cursor-pointer"
+              className="educraft-btn flex items-center justify-center gap-1.5 text-xs sm:text-sm font-bold px-3 sm:px-4 py-2.5 cursor-pointer"
               style={{ borderRadius: skin.radiusSm, border: `1.5px solid ${skinBorderColor(skin, theme)}`, color: theme.ink, background: theme.surface, minHeight: 42 }}
             >
               <BookOpen size={15} style={{ color: theme.accent }} />
-              {ui.readThroughCta}
+              <span className="truncate">{ui.readThroughCta}</span>
             </button>
           )}
           <button
             type="button"
             onClick={onBrowse}
-            className="educraft-btn flex items-center gap-2 text-sm font-bold px-4 py-2.5 cursor-pointer"
+            className="educraft-btn flex items-center justify-center gap-1.5 text-xs sm:text-sm font-bold px-3 sm:px-4 py-2.5 cursor-pointer"
             style={{ borderRadius: skin.radiusSm, border: `1.5px solid ${skinBorderColor(skin, theme)}`, color: theme.ink, background: theme.surface, minHeight: 42 }}
           >
             <ListFilter size={15} style={{ color: theme.accent }} />
-            {ui.browseCta}
+            <span className="truncate">{ui.browseCta}</span>
           </button>
         </div>
       </div>
 
-      <div className="flex items-center gap-2 mb-6 flex-wrap">
+      <div className="flex items-center gap-2 mb-6 flex-wrap w-full">
         {onChangeBookFlavor && (
-          <div className="flex items-center gap-1.5 px-3 py-1.5 me-auto" style={{ borderRadius: skin.radiusSm, border: `1.5px solid ${skinBorderColor(skin, theme)}`, background: theme.surface }}>
-            <Palette size={13} style={{ color: theme.inkSoft }} />
-            <span className="text-[11px] font-bold me-1" style={{ color: theme.inkSoft }}>
+          <div className="flex items-center gap-1.5 px-2.5 py-1.5 max-w-full overflow-x-auto scrollbar-none" style={{ borderRadius: skin.radiusSm, border: `1.5px solid ${skinBorderColor(skin, theme)}`, background: theme.surface }}>
+            <Palette size={13} className="shrink-0" style={{ color: theme.inkSoft }} />
+            <span className="text-[11px] font-bold me-1 shrink-0" style={{ color: theme.inkSoft }}>
               {ui.bookFlavorLabel || (lang === "ar" ? "نكهة الكتاب:" : "Flavor:")}
             </span>
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1.5 shrink-0">
               {Object.entries(FLAVORS).map(([fid, f]) => {
                 const pal = f[theme === FLAVORS[fid]?.dark ? "dark" : "light"] || f.light;
                 const isSelected = bookFlavorId === fid;
@@ -2910,7 +3877,7 @@ function DeckView({ node, book, lang, ui, theme, dir, skin, cardMode, scrollDir,
                   }}
                 >
                   <FileText size={13} />
-                  <span>{lang === "ar" ? "شيتات A4" : "A4 Pages"}</span>
+                  <span>{lang === "ar" ? "المحتوى والقراءة" : "Study & Reading"}</span>
                 </button>
                 <button
                   onClick={() => setActiveTab("deck")}
@@ -3243,8 +4210,8 @@ function BrowseView({ book, lang, ui, theme, dir, skin, onBack, bookFlavorId, on
    Liquid glass / Pixel art) and how the question deck moves (Paged
    vs Scroll, with a direction sub-choice once Scroll is picked).
 ================================================================== */
-function SettingsPanel({ ui, theme, dir, skinId, onSkinChange, flavorId, onFlavorChange, mode, cardMode, onCardModeChange, scrollDir, onScrollDirChange, voiceEnabled, onVoiceEnabledChange, onClose, onReset, onExportDatabase, onRestoreDatabase }) {
-  const skin = SKINS[skinId];
+function SettingsPanel({ ui, theme, dir, skinId, onSkinChange, flavorId, onFlavorChange, mode, cardMode, onCardModeChange, scrollDir, onScrollDirChange, voiceEnabled, onVoiceEnabledChange, disableEditorInExport, onDisableEditorInExportChange, isExportSeed, onClose, onReset, onExportDatabase, onRestoreDatabase }) {
+  const skin = SKINS[skinId] || SKINS.normal;
   const themeOptions = [
     { id: "normal", label: ui.themeNormal, desc: ui.themeNormalDesc, Icon: Sun },
     { id: "glass", label: ui.themeGlass, desc: ui.themeGlassDesc, Icon: Sparkles },
@@ -3450,6 +4417,44 @@ function SettingsPanel({ ui, theme, dir, skinId, onSkinChange, flavorId, onFlavo
             </span>
           </label>
         </div>
+
+        {/* Extracted HTML Editor Lock Setting */}
+        {!isExportSeed && (
+          <div className="mt-6 pt-5" style={{ borderTop: `1px solid ${theme.hairline}` }}>
+            <p className="text-xs font-bold uppercase tracking-wide mb-1" style={{ color: theme.inkSoft }}>
+              {dir === "rtl" ? "حماية النسخ المستخرجة (HTML)" : "Extracted HTML Protection"}
+            </p>
+            <p className="text-xs mb-3" style={{ color: theme.inkSoft, lineHeight: 1.5 }}>
+              {dir === "rtl"
+                ? "التحكم في صلاحيات وإمكانية التحرير عند استخراج الكتب كملفات HTML مستقلة للطلاب والقراء."
+                : "Control whether editor mode is available when exporting standalone HTML files."}
+            </p>
+            <label
+              className="flex items-start gap-3 cursor-pointer p-3 rounded-xl border transition-all hover:bg-black/5 dark:hover:bg-white/5"
+              style={{
+                borderColor: disableEditorInExport ? theme.accent : skinBorderColor(skin, theme),
+                background: disableEditorInExport ? theme.accentSoft : "transparent",
+              }}
+            >
+              <input
+                type="checkbox"
+                checked={!!disableEditorInExport}
+                onChange={(e) => onDisableEditorInExportChange && onDisableEditorInExportChange(e.target.checked)}
+                className="mt-0.5 accent-red-600 rounded"
+              />
+              <span className="flex-1 min-w-0">
+                <span className="block text-sm font-bold" style={{ color: theme.ink }}>
+                  {dir === "rtl" ? "قفل ومنع وضع التحرير في نسخ الـ HTML المستخرجة" : "Lock & Disable Editor in Extracted HTML"}
+                </span>
+                <span className="block text-xs mt-0.5" style={{ color: theme.inkSoft, lineHeight: 1.4 }}>
+                  {dir === "rtl"
+                    ? "عند التفعيل، يتم تصدير الكتاب كنسخة قراءة واختبارات فقط، ويتم إخفاء المحرر وأزرار التعديل بالكامل لحماية محتوى الكتاب من التعديل أو العبث."
+                    : "When enabled, exported HTML files are strictly locked to reader mode, hiding the editor and all modification tools to protect the curriculum."}
+                </span>
+              </span>
+            </label>
+          </div>
+        )}
 
         <div className="mt-6 pt-5" style={{ borderTop: `1px solid ${theme.hairline}` }}>
           <p className="text-xs font-bold uppercase tracking-wide mb-1" style={{ color: theme.inkSoft }}>
@@ -4990,17 +5995,20 @@ const PAGE_PALETTES = [
    of one of the 60 palettes above — this is what actually renders,
    so switching palettes recolors every plate on the page instantly. */
 function plateKindsFor(palette) {
+  const p = palette || PAGE_PALETTES[0];
   return {
-    sectionTitle: { bg: palette.SectionBG, fg: "#FFFFFF", border: palette.SectionFrame, bar: true },
-    keyterm: { bg: palette.KeyBG, fg: palette.KeyText, border: palette.KeyFrame },
-    note: { bg: palette.NoteBG, fg: palette.NoteText, border: palette.NoteFrame },
-    warning: { bg: palette.WarningBG, fg: palette.WarningText, border: palette.WarningFrame, strong: true },
-    important: { bg: palette.HighlightBG, fg: palette.ImportantText, border: palette.ImportantText, strong: true },
+    sectionTitle: { bg: p.SectionBG || "#E8874A", fg: "#FFFFFF", border: p.SectionFrame || "#C96B2F", bar: true },
+    keyterm: { bg: p.KeyBG || "#E8F7F9", fg: p.KeyText || "#1A6B7A", border: p.KeyFrame || "#4C9DB0" },
+    note: { bg: p.NoteBG || "#F0EDF7", fg: p.NoteText || "#3B3050", border: p.NoteFrame || "#655A7C" },
+    warning: { bg: p.WarningBG || "#F2F4E6", fg: p.WarningText || "#626D17", border: p.WarningFrame || "#84922A", strong: true },
+    important: { bg: p.HighlightBG || "#D9E0F2", fg: p.ImportantText || "#14428F", border: p.ImportantText || "#14428F", strong: true },
     code: { bg: "#0D0D0D", fg: "#D4D4D4", border: "#2A2A2A" },
   };
 }
 function paletteById(id) {
-  return PAGE_PALETTES.find((p) => p.id === id) || PAGE_PALETTES[0];
+  if (!id) return PAGE_PALETTES[0];
+  const num = Number(id);
+  return PAGE_PALETTES.find((p) => p.id === id || p.id === num) || PAGE_PALETTES[0];
 }
 /* fallback used only where a leaf/palette context isn't available */
 const PLATE_KINDS = plateKindsFor(PAGE_PALETTES[0]);
@@ -5079,7 +6087,12 @@ function BlockRow({ block, t, theme, skin, kinds, bookId, onUpdate, onDelete, on
         <div className="flex items-center gap-1 shrink-0">
           <button
             type="button"
-            onClick={onMove(-1)}
+            onClick={(e) => {
+              e.stopPropagation();
+              if (typeof onMove !== "function") return;
+              const res = onMove(-1);
+              if (typeof res === "function") res();
+            }}
             className="educraft-btn w-7 h-7 rounded-lg grid place-items-center cursor-pointer border shadow-2xs hover:bg-black/5"
             style={{ background: theme.surfaceSoft, borderColor: theme.hairline, color: theme.ink }}
             title={t.moveUp}
@@ -5088,7 +6101,12 @@ function BlockRow({ block, t, theme, skin, kinds, bookId, onUpdate, onDelete, on
           </button>
           <button
             type="button"
-            onClick={onMove(1)}
+            onClick={(e) => {
+              e.stopPropagation();
+              if (typeof onMove !== "function") return;
+              const res = onMove(1);
+              if (typeof res === "function") res();
+            }}
             className="educraft-btn w-7 h-7 rounded-lg grid place-items-center cursor-pointer border shadow-2xs hover:bg-black/5"
             style={{ background: theme.surfaceSoft, borderColor: theme.hairline, color: theme.ink }}
             title={t.moveDown}
@@ -5359,7 +6377,10 @@ function BlockRow({ block, t, theme, skin, kinds, bookId, onUpdate, onDelete, on
 function PlateBlock({ block, style, kinds, bookId = null, theme = null, skin = null }) {
   if (!block) return null;
   const K = kinds || PLATE_KINDS;
-  const kind = K[block.kind];
+  const safeSectionBorder = K.sectionTitle?.border || "#cbd5e1";
+  const safeSectionBg = K.sectionTitle?.bg || "#f1f5f9";
+  const safeSectionFg = K.sectionTitle?.fg || "#0f172a";
+  const kind = K[block.kind] || K.note || { bg: "#f8fafc", fg: "#0f172a", border: "#cbd5e1" };
   if (block.kind === "pagebreak") return null;
 
   if (block.kind === "text") {
@@ -5382,9 +6403,9 @@ function PlateBlock({ block, style, kinds, bookId = null, theme = null, skin = n
   if (block.kind === "table") {
     const headers = Array.isArray(block.headers) ? block.headers : [];
     const rows = Array.isArray(block.rows) ? block.rows : [];
-    const borderColor = (K.sectionTitle && K.sectionTitle.border) || "#cbd5e1";
-    const headerBg = (K.sectionTitle && K.sectionTitle.bg) || "#f1f5f9";
-    const headerFg = (K.sectionTitle && K.sectionTitle.fg) || "#0f172a";
+    const borderColor = safeSectionBorder;
+    const headerBg = safeSectionBg;
+    const headerFg = safeSectionFg;
 
     return (
       <div
@@ -5494,7 +6515,7 @@ function PlateBlock({ block, style, kinds, bookId = null, theme = null, skin = n
           background: "#fff",
           borderRadius: 14,
           overflow: "hidden",
-          border: `1.5px solid ${K.sectionTitle.border}`,
+          border: `1.5px solid ${safeSectionBorder}`,
           boxShadow: "0 3px 12px rgba(0,0,0,0.08)",
           ...alignStyle,
           ...style,
@@ -5550,7 +6571,7 @@ function PlateBlock({ block, style, kinds, bookId = null, theme = null, skin = n
         )}
         {(block.title || block.caption || block.meta) && (
           <div style={{ padding: "8px 12px 10px", background: "#fff" }}>
-            {block.title && <p style={{ fontWeight: 800, color: K.sectionTitle.border, margin: "0 0 3px", fontSize: 12.5 }}>{block.title}</p>}
+            {block.title && <p style={{ fontWeight: 800, color: safeSectionBorder, margin: "0 0 3px", fontSize: 12.5 }}>{block.title}</p>}
             {block.caption && (
               <p style={{ margin: 0, fontSize: 11.5, lineHeight: 1.6, color: "#241B13" }} dir="auto">
                 {block.caption}
@@ -5579,7 +6600,7 @@ function PlateBlock({ block, style, kinds, bookId = null, theme = null, skin = n
   }
   if (block.kind === "sectionTitle") {
     return (
-      <div style={{ background: kind.bg, color: kind.fg, borderRadius: 10, padding: "10px 16px", margin: "14px 0 10px", fontWeight: 800, fontSize: 15, ...style }}>
+      <div style={{ background: kind?.bg || safeSectionBg, color: kind?.fg || safeSectionFg, borderRadius: 10, padding: "10px 16px", margin: "14px 0 10px", fontWeight: 800, fontSize: 15, ...style }}>
         {block.text}
       </div>
     );
@@ -5606,41 +6627,73 @@ function PlateBlock({ block, style, kinds, bookId = null, theme = null, skin = n
   );
 }
 
-/* Measures each block's real rendered height, then buckets blocks
-   into A4 pages — a manual "page break" block always forces a new
-   page, like Word. */
+/* Measures and partitions blocks into A4 pages with zero lag.
+   Pre-calculates pages synchronously in useMemo so that the page
+   mounts instantaneously (< 15ms) without layout thrashing. */
 const A4_CONTENT_HEIGHT_MM = 265; // 297mm - 2*16mm margin approx
+
+function estimateBlockHeight(b) {
+  if (!b) return 0;
+  if (b.kind === "pagebreak") return 0;
+  if (b.kind === "sectionTitle") return 55;
+  if (b.kind === "table") {
+    const rows = Array.isArray(b.rows) ? b.rows.length : 1;
+    return 65 + rows * 28;
+  }
+  if (b.kind === "image") {
+    return b.isPlaceholder || !b.imageUrl ? 150 : 280;
+  }
+  if (b.kind === "code") {
+    const lines = (b.text || "").split("\n").length;
+    return 55 + lines * 18;
+  }
+  if (b.kind === "text") {
+    const len = (b.text || "").length;
+    return Math.max(45, Math.ceil(len / 75) * 26 + 18);
+  }
+  // note, warning, important, keyterm
+  const textLen = (b.text || "").length;
+  return Math.max(70, Math.ceil(textLen / 65) * 24 + 40);
+}
+
+function partitionBlocksEstimated(blocks) {
+  if (!blocks || !blocks.length) return [];
+  const capacityPx = A4_CONTENT_HEIGHT_MM * 3.7795;
+  let acc = 0;
+  let cur = [];
+  const result = [];
+  blocks.forEach((b) => {
+    if (b.kind === "pagebreak") {
+      result.push(cur);
+      cur = [];
+      acc = 0;
+      return;
+    }
+    const h = estimateBlockHeight(b);
+    if (acc + h > capacityPx && cur.length) {
+      result.push(cur);
+      cur = [];
+      acc = 0;
+    }
+    cur.push(b);
+    acc += h;
+  });
+  if (cur.length || result.length === 0) {
+    result.push(cur);
+  }
+  return result;
+}
+
 function usePagedBlocks(blocks) {
   const measureRef = useRef(null);
-  const [pages, setPages] = useState([]);
+  const estimated = useMemo(() => partitionBlocksEstimated(blocks), [blocks]);
+  const [pages, setPages] = useState(estimated);
+
   useEffect(() => {
-    const node = measureRef.current;
-    if (!node) return;
-    const capacityPx = A4_CONTENT_HEIGHT_MM * 3.7795;
-    const children = Array.from(node.children);
-    let acc = 0;
-    let cur = [];
-    const result = [];
-    blocks.forEach((b, i) => {
-      if (b.kind === "pagebreak") {
-        result.push(cur);
-        cur = [];
-        acc = 0;
-        return;
-      }
-      const h = children[i] ? children[i].getBoundingClientRect().height + 4 : 40;
-      if (acc + h > capacityPx && cur.length) {
-        result.push(cur);
-        cur = [];
-        acc = 0;
-      }
-      cur.push(b);
-      acc += h;
-    });
-    result.push(cur);
-    setPages(result.filter((p, i) => p.length || i === 0));
+    setPages(partitionBlocksEstimated(blocks));
   }, [blocks]);
-  return { pages: pages.length ? pages : [blocks], measureRef };
+
+  return { pages: pages.length ? pages : (estimated.length ? estimated : []), measureRef };
 }
 
 /* =================================================================
@@ -5662,9 +6715,11 @@ function useFitScale() {
     const el = containerRef.current;
     if (!el) return;
     let rafId = null;
+    const safeRaf = typeof window !== "undefined" && typeof window.requestAnimationFrame === "function" ? window.requestAnimationFrame : (fn) => setTimeout(fn, 16);
+    const safeCaf = typeof window !== "undefined" && typeof window.cancelAnimationFrame === "function" ? window.cancelAnimationFrame : (id) => clearTimeout(id);
     const compute = () => {
-      if (rafId) cancelAnimationFrame(rafId);
-      rafId = requestAnimationFrame(() => {
+      if (rafId) safeCaf(rafId);
+      rafId = safeRaf(() => {
         if (!el) return;
         const available = el.clientWidth - 24;
         if (available <= 0) return;
@@ -5677,13 +6732,13 @@ function useFitScale() {
       const ro = new ResizeObserver(compute);
       ro.observe(el);
       return () => {
-        if (rafId) cancelAnimationFrame(rafId);
+        if (rafId) safeCaf(rafId);
         ro.disconnect();
       };
     } else if (typeof window !== "undefined") {
       window.addEventListener("resize", compute);
       return () => {
-        if (rafId) cancelAnimationFrame(rafId);
+        if (rafId) safeCaf(rafId);
         window.removeEventListener("resize", compute);
       };
     }
@@ -5809,7 +6864,7 @@ function buildFullBookBlocks(book, lang) {
         first = false;
         const leafTitle = lang === "ar" ? leaf.ar : leaf.en;
         const branchTitle = lang === "ar" ? br.ar : br.en;
-        const paletteId = leaf.pagePaletteId || 1;
+        const paletteId = leaf.pagePaletteId || book?.defaultPagePaletteId || 1;
         blocks.forEach((b, i) => {
           out.push({
             ...b,
@@ -5849,7 +6904,7 @@ function CanvasBlockWrapper({
   const fileInputRef = useRef(null);
 
   const kind = block.kind;
-  const K = kinds[kind] || kinds.note || {};
+  const K = (kinds && (kinds[kind] || kinds.note)) || {};
 
   const handleFileUpload = async (file) => {
     if (!file || !file.type.startsWith("image/")) return;
@@ -5865,7 +6920,8 @@ function CanvasBlockWrapper({
           }
           onUpdate({ imageUrl: savedRelPath, isPlaceholder: false });
         } catch (err) {
-          console.error("Image upload failed:", err);
+          console.warn("Filesystem image save fallback to dataUrl:", err);
+          onUpdate({ imageUrl: dataUrl, isPlaceholder: false });
         }
       };
       reader.readAsDataURL(file);
@@ -6096,9 +7152,9 @@ function CanvasBlockWrapper({
                   {lang === "ar" ? "المحاذاة:" : "Align:"}
                 </span>
                 {[
-                  ["left", "Left"],
-                  ["center", "Center"],
-                  ["right", "Right"],
+                  ["center", lang === "ar" ? "وسط" : "Center"],
+                  ["left", lang === "ar" ? "يسار" : "Left"],
+                  ["right", lang === "ar" ? "يمين" : "Right"],
                 ].map(([al, lbl]) => (
                   <button
                     key={al}
@@ -6201,9 +7257,97 @@ function CanvasBlockWrapper({
             </div>
           )}
         </div>
+      ) : kind === "image" && (block.isPlaceholder || !block.imageUrl) ? (
+        <div
+          className="p-6 rounded-2xl border-2 border-dashed transition-all flex flex-col items-center justify-center gap-3 cursor-pointer group/uploader hover:shadow-sm my-1"
+          style={{
+            background: isHovered ? `${theme.accent}0d` : theme.surfaceSoft,
+            borderColor: isHovered ? theme.accent : theme.hairlineStrong,
+          }}
+          onClick={() => fileInputRef.current?.click()}
+          onDragOver={(e) => { e.preventDefault(); }}
+          onDrop={(e) => {
+            e.preventDefault();
+            if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+              handleFileUpload(e.dataTransfer.files[0]);
+            }
+          }}
+        >
+          <input
+            type="file"
+            ref={fileInputRef}
+            accept="image/*"
+            className="hidden"
+            onChange={(e) => {
+              if (e.target.files && e.target.files[0]) handleFileUpload(e.target.files[0]);
+            }}
+          />
+          <div
+            className="w-12 h-12 rounded-2xl grid place-items-center shadow-2xs transition-transform group-hover/uploader:scale-110"
+            style={{ background: theme.surface, color: theme.accent }}
+          >
+            <ImagePlus size={24} />
+          </div>
+          <div className="text-center">
+            <p className="text-xs font-black mb-1" style={{ color: theme.ink }}>
+              {lang === "ar" ? "اضغط لرفع صورة من الجهاز أو اسحبها إلى هنا" : "Click to upload an image from device or drop it here"}
+            </p>
+            <p className="text-[10px] font-semibold opacity-70" style={{ color: theme.inkSoft }}>
+              {lang === "ar" ? "يدعم ملفات PNG, JPG, WebP, SVG بأعلى جودة" : "Supports PNG, JPG, WebP, SVG in full resolution"}
+            </p>
+          </div>
+          <button
+            type="button"
+            className="educraft-btn text-[11px] font-bold px-3.5 py-1.5 rounded-xl border shadow-2xs cursor-pointer hover:scale-105 transition-all flex items-center gap-1.5"
+            style={{ background: theme.accent, color: theme.accentInk, borderColor: "transparent" }}
+            onClick={(e) => {
+              e.stopPropagation();
+              fileInputRef.current?.click();
+            }}
+          >
+            <Upload size={12} />
+            <span>{lang === "ar" ? "اختيار صورة من الجهاز" : "Choose File from Device"}</span>
+          </button>
+        </div>
       ) : (
-        <div onDoubleClick={() => setIsEditing(true)}>
+        <div onDoubleClick={() => setIsEditing(true)} className="relative group/canvasImg">
           <PlateBlock block={block} kinds={kinds} theme={theme} skin={skin} bookId={bookId} />
+          {kind === "image" && block.imageUrl && (
+            <div
+              className="absolute top-2 end-2 opacity-0 group-hover/canvasImg:opacity-100 transition-opacity flex items-center gap-1.5 p-1 rounded-xl shadow-md border backdrop-blur-md z-20"
+              style={{ background: `${theme.surface}f0`, borderColor: theme.hairlineStrong }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <input
+                type="file"
+                ref={fileInputRef}
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => {
+                  if (e.target.files && e.target.files[0]) handleFileUpload(e.target.files[0]);
+                }}
+              />
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="educraft-btn flex items-center gap-1 text-[10px] font-black px-2 py-1 rounded-lg border cursor-pointer hover:bg-black/5"
+                style={{ background: theme.surfaceSoft, borderColor: theme.hairline, color: theme.ink }}
+                title={lang === "ar" ? "استبدال الصورة من الجهاز" : "Replace image"}
+              >
+                <Upload size={10} />
+                <span>{lang === "ar" ? "استبدال" : "Replace"}</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => onUpdate({ imageUrl: "", isPlaceholder: true })}
+                className="educraft-btn text-[10px] font-black px-2 py-1 rounded-lg border cursor-pointer hover:bg-red-50 text-red-600"
+                style={{ background: theme.surfaceSoft, borderColor: theme.hairline }}
+                title={lang === "ar" ? "حذف الصورة" : "Remove image"}
+              >
+                <Trash2 size={10} />
+              </button>
+            </div>
+          )}
         </div>
       )}
     </div>
@@ -6221,15 +7365,18 @@ function FullBookA4Preview({
   bookId,
   onUpdateBook,
   onUpdateLeaf,
+  readOnly = false,
 }) {
   const blocks = useMemo(() => buildFullBookBlocks(book, lang), [book, lang]);
   const allLeaves = useMemo(() => book.nodes.filter((n) => n.level === "leaf"), [book]);
   const [targetLeafId, setTargetLeafId] = useState(allLeaves[0]?.id || null);
   const [palettePickerOpen, setPalettePickerOpen] = useState(false);
   const [focusMode, setFocusMode] = useState(false);
+  const [pdfModalOpen, setPdfModalOpen] = useState(false);
+  const [readerMode, setReaderMode] = useState(() => (typeof window !== "undefined" && window.innerWidth < 768 ? "flow" : "paged"));
 
   const activeLeaf = allLeaves.find((l) => l.id === targetLeafId) || allLeaves[0];
-  const activePalette = paletteById(activeLeaf?.pagePaletteId || 1);
+  const activePalette = paletteById(activeLeaf?.pagePaletteId || book?.defaultPagePaletteId || 1);
   const activeKinds = plateKindsFor(activePalette);
 
   const { pages, measureRef } = usePagedBlocks(blocks);
@@ -6260,8 +7407,12 @@ function FullBookA4Preview({
     if (onUpdateLeaf) {
       onUpdateLeaf(activeLeaf.id, { pageBlocks: nextBlocks });
     } else if (onUpdateBook) {
-      onUpdateBook({
-        nodes: book.nodes.map((n) => (n.id === activeLeaf.id ? { ...n, pageBlocks: nextBlocks } : n)),
+      onUpdateBook((prev) => {
+        const base = prev || book;
+        return {
+          ...base,
+          nodes: (base?.nodes || []).map((n) => (n.id === activeLeaf.id ? { ...n, pageBlocks: nextBlocks } : n)),
+        };
       });
     }
   };
@@ -6273,8 +7424,12 @@ function FullBookA4Preview({
     const next = current.map((b, idx) => (idx === blockIdx ? { ...b, ...patch } : b));
     if (onUpdateLeaf) onUpdateLeaf(leafId, { pageBlocks: next });
     else if (onUpdateBook) {
-      onUpdateBook({
-        nodes: book.nodes.map((n) => (n.id === leafId ? { ...n, pageBlocks: next } : n)),
+      onUpdateBook((prev) => {
+        const base = prev || book;
+        return {
+          ...base,
+          nodes: (base?.nodes || []).map((n) => (n.id === leafId ? { ...n, pageBlocks: next } : n)),
+        };
       });
     }
   };
@@ -6286,8 +7441,12 @@ function FullBookA4Preview({
     const next = current.filter((_, idx) => idx !== blockIdx);
     if (onUpdateLeaf) onUpdateLeaf(leafId, { pageBlocks: next });
     else if (onUpdateBook) {
-      onUpdateBook({
-        nodes: book.nodes.map((n) => (n.id === leafId ? { ...n, pageBlocks: next } : n)),
+      onUpdateBook((prev) => {
+        const base = prev || book;
+        return {
+          ...base,
+          nodes: (base?.nodes || []).map((n) => (n.id === leafId ? { ...n, pageBlocks: next } : n)),
+        };
       });
     }
   };
@@ -6301,8 +7460,12 @@ function FullBookA4Preview({
     [current[blockIdx], current[j]] = [current[j], current[blockIdx]];
     if (onUpdateLeaf) onUpdateLeaf(leafId, { pageBlocks: current });
     else if (onUpdateBook) {
-      onUpdateBook({
-        nodes: book.nodes.map((n) => (n.id === leafId ? { ...n, pageBlocks: current } : n)),
+      onUpdateBook((prev) => {
+        const base = prev || book;
+        return {
+          ...base,
+          nodes: (base?.nodes || []).map((n) => (n.id === leafId ? { ...n, pageBlocks: current } : n)),
+        };
       });
     }
   };
@@ -6332,8 +7495,12 @@ function FullBookA4Preview({
     current.splice(blockIdx + 1, 0, newBlock);
     if (onUpdateLeaf) onUpdateLeaf(leafId, { pageBlocks: current });
     else if (onUpdateBook) {
-      onUpdateBook({
-        nodes: book.nodes.map((n) => (n.id === leafId ? { ...n, pageBlocks: current } : n)),
+      onUpdateBook((prev) => {
+        const base = prev || book;
+        return {
+          ...base,
+          nodes: (base?.nodes || []).map((n) => (n.id === leafId ? { ...n, pageBlocks: current } : n)),
+        };
       });
     }
   };
@@ -6353,27 +7520,51 @@ function FullBookA4Preview({
 
   return (
     <div className="flex flex-col gap-3 min-w-0 w-full">
-      {/* Floating 60 Palettes Modal for Active Leaf */}
+      {/* Floating 60 Palettes Modal for All Book Pages */}
       <PlatePaletteModal
         isOpen={palettePickerOpen}
         onClose={() => setPalettePickerOpen(false)}
         selectedId={activePalette.id}
         onSelect={(id) => {
+          if (onUpdateBook) {
+            onUpdateBook((prev) => {
+              const base = prev || book;
+              const updatedNodes = (base?.nodes || []).map((n) =>
+                n.level === "leaf" || n.pagePaletteId !== undefined ? { ...n, pagePaletteId: id } : n
+              );
+              return {
+                ...base,
+                defaultPagePaletteId: id,
+                nodes: updatedNodes,
+              };
+            });
+          }
           if (activeLeaf && onUpdateLeaf) {
             onUpdateLeaf(activeLeaf.id, { pagePaletteId: id });
-          } else if (activeLeaf && onUpdateBook) {
-            onUpdateBook({
-              nodes: book.nodes.map((n) => (n.id === activeLeaf.id ? { ...n, pagePaletteId: id } : n)),
-            });
           }
         }}
         lang={lang}
         theme={theme}
         skin={skin}
+        isFullBook={true}
+        scopeLabel={lang === "ar" ? "تطبيق على كامل صفحات الكتاب" : "Apply to All Book Pages"}
       />
 
-      {/* RIBBON TOOLBAR — Active Across All Book Pages */}
-      <div className="overflow-x-auto educraft-glass shadow-xs mb-3" style={{ borderRadius: skin.radiusLg, border: `1px solid ${theme.hairline}` }}>
+      {/* High-Definition Multi-Page PDF Exporter Modal */}
+      <PdfExportModal
+        isOpen={pdfModalOpen}
+        onClose={() => setPdfModalOpen(false)}
+        totalPages={pages.length}
+        currentPageIndex={0}
+        docTitle={docTitle || (book ? (lang === "ar" ? book.ar : book.en) : "EDUcraft_Book")}
+        lang={lang}
+        theme={theme}
+        skin={skin}
+      />
+
+      {/* RIBBON TOOLBAR — Active Across All Book Pages (Editor mode only) */}
+      {!readOnly && (
+        <div className="overflow-x-auto educraft-glass shadow-xs mb-3" style={{ borderRadius: skin.radiusLg, border: `1px solid ${theme.hairline}` }}>
         <div className="flex items-center gap-2 p-2 w-max min-w-full">
           {/* Target Leaf Selector */}
           <RibbonGroup label={lang === "ar" ? "الصفحة المستهدفة" : "Target Page"}>
@@ -6454,26 +7645,199 @@ function FullBookA4Preview({
               {focusMode ? <Minimize2 size={13} /> : <Maximize2 size={13} />}
               <span>{focusMode ? (lang === "ar" ? "إظهار الهامش" : "Restore Margin") : (lang === "ar" ? "صفحة كاملة (Focus)" : "Focus Canvas")}</span>
             </button>
+            <button
+              type="button"
+              onClick={() => setReaderMode((m) => (m === "flow" ? "paged" : "flow"))}
+              className="educraft-btn flex items-center gap-1.5 px-3 py-1.5 rounded-xl border cursor-pointer shadow-2xs text-xs font-bold transition-all"
+              style={{
+                background: readerMode === "flow" ? theme.accent : theme.surfaceSoft,
+                color: readerMode === "flow" ? (theme.accentInk || "#ffffff") : theme.ink,
+                borderColor: readerMode === "flow" ? theme.accent : theme.hairline,
+              }}
+              title={lang === "ar" ? "معاينة القراءة الانسيابية للجوال" : "Preview Mobile Flow"}
+            >
+              <span>{readerMode === "flow" ? (lang === "ar" ? "📄 شيتات A4" : "📄 A4 Pages") : (lang === "ar" ? "📱 عرض الجوال" : "📱 Mobile Flow")}</span>
+            </button>
+          </RibbonGroup>
+
+          <RibbonDivider theme={theme} />
+
+          {/* Export / Print RibbonGroup */}
+          <RibbonGroup label={lang === "ar" ? "تصدير وطباعة" : "Export & Print"}>
+            <button
+              type="button"
+              onClick={() => setPdfModalOpen(true)}
+              className="educraft-btn flex items-center gap-1.5 px-3 py-1.5 rounded-xl border cursor-pointer shadow-2xs text-xs font-black transition-all hover:scale-[1.02] hover:brightness-105"
+              style={{
+                background: "linear-gradient(135deg, #ef4444 0%, #b91c1c 100%)",
+                color: "#ffffff",
+                borderColor: "#dc2626",
+              }}
+              title={lang === "ar" ? "تصدير جميع الصفحات إلى PDF بدقة حتى 1200 DPI" : "Export all pages to PDF up to 1200 DPI"}
+            >
+              <FileDown size={14} />
+              <span>{lang === "ar" ? "تصدير PDF (حتى 1200 DPI)" : "Export PDF (1200 DPI)"}</span>
+            </button>
           </RibbonGroup>
         </div>
       </div>
+      )}
 
-      {/* Hidden measuring pass */}
-      <div ref={measureRef} style={{ position: "absolute", visibility: "hidden", pointerEvents: "none", width: "182mm", top: -99999, fontFamily: PAGE_FONT, fontSize: 15, lineHeight: 1.9 }}>
-        {blocks.map((b, i) => (
-          <PlateBlock key={b.id || i} block={b} kinds={plateKindsFor(paletteById(b._paletteId || 1))} theme={theme} skin={skin} />
-        ))}
+      {/* Clean Distraction-Free Reader Header (Read-Through View) */}
+      {readOnly && (
+        <div
+          className="flex items-center justify-between gap-3 px-4 py-2.5 rounded-2xl border mb-3 educraft-glass shadow-xs flex-wrap"
+          style={{ borderColor: theme.hairline, background: theme.surfaceSoft }}
+        >
+          <div className="flex items-center gap-2.5 min-w-0">
+            <BookOpen size={17} style={{ color: theme.accent }} />
+            <span className="text-xs sm:text-sm font-black truncate" style={{ color: theme.ink }}>
+              {docTitle}
+            </span>
+            <span
+              className="text-[10px] font-black px-2.5 py-0.5 rounded-full shrink-0"
+              style={{ background: theme.accentSoft, color: theme.accent }}
+            >
+              {lang === "ar" ? "وضع القراءة" : "Reader"}
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2 shrink-0 ms-auto flex-wrap">
+            {/* Flow vs Paged switcher */}
+            <div className="flex items-center p-0.5 rounded-xl border" style={{ borderColor: theme.hairlineStrong, background: theme.surface }}>
+              <button
+                type="button"
+                onClick={() => setReaderMode("flow")}
+                className={`px-2.5 py-1 text-xs font-bold rounded-lg transition-all cursor-pointer ${readerMode === "flow" ? "shadow-2xs" : "opacity-70 hover:opacity-100"}`}
+                style={{
+                  background: readerMode === "flow" ? theme.accent : "transparent",
+                  color: readerMode === "flow" ? (theme.accentInk || "#ffffff") : theme.ink,
+                }}
+              >
+                {lang === "ar" ? "📱 انسيابي (موبايل)" : "📱 Mobile Flow"}
+              </button>
+              <button
+                type="button"
+                onClick={() => setReaderMode("paged")}
+                className={`px-2.5 py-1 text-xs font-bold rounded-lg transition-all cursor-pointer ${readerMode === "paged" ? "shadow-2xs" : "opacity-70 hover:opacity-100"}`}
+                style={{
+                  background: readerMode === "paged" ? theme.accent : "transparent",
+                  color: readerMode === "paged" ? (theme.accentInk || "#ffffff") : theme.ink,
+                }}
+              >
+                {lang === "ar" ? "📄 شيتات A4" : "📄 A4 Pages"}
+              </button>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setPdfModalOpen(true)}
+              className="educraft-btn flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-xl border transition-all cursor-pointer"
+              style={{
+                background: "linear-gradient(135deg, #ef4444 0%, #b91c1c 100%)",
+                color: "#ffffff",
+                borderColor: "#dc2626",
+              }}
+              title={lang === "ar" ? "تصدير PDF" : "Export PDF"}
+            >
+              <FileDown size={13} />
+              <span className="hidden sm:inline">{lang === "ar" ? "تصدير PDF" : "Export PDF"}</span>
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Hidden measuring pass enclosed in zero-size clipped container */}
+      <div style={{ position: "fixed", top: 0, left: 0, width: 0, height: 0, overflow: "hidden", visibility: "hidden", pointerEvents: "none", zIndex: -9999 }}>
+        <div ref={measureRef} style={{ width: "182mm", fontFamily: PAGE_FONT, fontSize: 15, lineHeight: 1.9 }}>
+          {blocks.map((b, i) => (
+            <div key={b.id || i}>
+              <PlateBlock block={b} kinds={plateKindsFor(paletteById(b._paletteId || 1))} theme={theme} skin={skin} />
+            </div>
+          ))}
+        </div>
       </div>
 
-      <div className={`grid ${focusMode ? "grid-cols-1" : "xl:grid-cols-[minmax(0,1fr)_260px] 2xl:grid-cols-[minmax(0,1fr)_280px] grid-cols-1"} gap-4 items-start min-w-0 w-full`}>
-        {/* CANVAS */}
-        <div className="order-1 min-w-0 overflow-hidden">
-          <ZoomBar t={t} theme={theme} skin={skin} scale={scale} onZoomOut={zoomOut} onZoomIn={zoomIn} onFit={zoomFit} isFit={isFit} />
+      <div className={`grid ${focusMode || readOnly ? "grid-cols-1" : "xl:grid-cols-[minmax(0,1fr)_260px] 2xl:grid-cols-[minmax(0,1fr)_280px] grid-cols-1"} gap-4 items-start min-w-0 w-full`}>
+        {/* CANVAS OR CONTINUOUS FLOW READER */}
+        {readerMode === "flow" ? (
+          <div className="order-1 min-w-0 w-full max-w-3xl mx-auto flex flex-col gap-6 py-2 px-1 sm:px-4">
+            {allLeaves.length === 0 ? (
+              <div className="p-8 text-center rounded-2xl border" style={{ background: theme.surface, borderColor: theme.hairline }}>
+                <p className="text-sm font-semibold" style={{ color: theme.inkSoft }}>
+                  {t.emptyBook}
+                </p>
+              </div>
+            ) : (
+              allLeaves.map((leaf) => {
+                const leafBlocks = leaf.pageBlocks || [];
+                if (!leafBlocks.length) return null;
+                const palette = paletteById(leaf.pagePaletteId || book?.defaultPagePaletteId || 1);
+                const kinds = plateKindsFor(palette);
+                const leafTitle = lang === "ar" ? leaf.ar : leaf.en;
+                const branch = (book?.nodes || []).find((n) => n.id === leaf.parent);
+                const branchTitle = branch ? (lang === "ar" ? branch.ar : branch.en) : "";
+
+                return (
+                  <article
+                    key={leaf.id}
+                    dir="rtl"
+                    className="rounded-2xl border p-4 sm:p-7 transition-all shadow-xs"
+                    style={{
+                      background: palette.PageBG || theme.surface,
+                      borderColor: theme.hairlineStrong,
+                      color: palette.BodyText || theme.ink,
+                      fontFamily: PAGE_FONT,
+                    }}
+                  >
+                    <div
+                      className="flex items-center justify-between pb-3 mb-4 border-b gap-3 flex-wrap"
+                      style={{ borderColor: palette.HeaderColor ? `${palette.HeaderColor}33` : theme.hairline }}
+                    >
+                      <div className="flex items-center gap-2 flex-wrap min-w-0">
+                        {branchTitle && (
+                          <span
+                            className="text-[11px] font-bold px-2.5 py-0.5 rounded-full shrink-0"
+                            style={{ background: theme.accentSoft, color: theme.accent }}
+                          >
+                            {branchTitle}
+                          </span>
+                        )}
+                        <h2
+                          className="text-base sm:text-lg font-black m-0 leading-tight"
+                          style={{ color: palette.HeaderColor || theme.ink }}
+                        >
+                          {leafTitle}
+                        </h2>
+                      </div>
+                      <span
+                        className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-md opacity-60"
+                        style={{ background: `${palette.HeaderColor || theme.accent}15`, color: palette.HeaderColor || theme.ink }}
+                      >
+                        {lang === "ar" ? `${leafBlocks.length} كتلة` : `${leafBlocks.length} blocks`}
+                      </span>
+                    </div>
+
+                    <div className="flex flex-col gap-3.5">
+                      {leafBlocks.map((b, bi) => (
+                        <div key={b.id || bi} className="w-full min-w-0">
+                          <PlateBlock block={b} kinds={kinds} bookId={bookId || book?.id} theme={theme} skin={skin} />
+                        </div>
+                      ))}
+                    </div>
+                  </article>
+                );
+              })
+            )}
+          </div>
+        ) : (
+          <div className="order-1 min-w-0 overflow-hidden">
+            <ZoomBar t={t} theme={theme} skin={skin} scale={scale} onZoomOut={zoomOut} onZoomIn={zoomIn} onFit={zoomFit} isFit={isFit} />
 
           <div ref={containerRef} className="overflow-x-auto overflow-y-visible flex justify-center py-2">
             <div style={{ zoom: scale, transition: "zoom 0.22s cubic-bezier(0.16, 1, 0.3, 1)" }}>
               <div className="flex flex-col gap-8 items-center py-2">
-                {pages.length === 0 ? (
+                {pages.length === 0 || (pages.length === 1 && pages[0].length === 0) ? (
                   activeLeaf ? (
                     <div
                       dir="rtl"
@@ -6547,18 +7911,18 @@ function FullBookA4Preview({
                         key={pi}
                         dir="rtl"
                         onClick={() => {
-                          if (leafId && leafId !== targetLeafId) setTargetLeafId(leafId);
+                          if (!readOnly && leafId && leafId !== targetLeafId) setTargetLeafId(leafId);
                         }}
-                        className="educraft-paper-sheet transition-all relative cursor-pointer"
+                        className={`educraft-paper-sheet transition-all relative ${readOnly ? "" : "cursor-pointer"}`}
                         style={{
                           width: "210mm",
                           minHeight: "297mm",
                           background: palette.PageBG,
                           color: palette.BodyText,
                           padding: "16mm 14mm",
-                          boxShadow: isTargetPage
+                          boxShadow: !readOnly && isTargetPage
                             ? `0 0 0 3px ${theme.accent}, 0 12px 36px -4px rgba(0,0,0,0.18)`
-                            : undefined,
+                            : "0 4px 24px rgba(0,0,0,0.12)",
                           borderRadius: 6,
                           fontFamily: PAGE_FONT,
                           fontSize: 15,
@@ -6581,7 +7945,7 @@ function FullBookA4Preview({
                         >
                           <span>{docTitle}</span>
                           <div className="flex items-center gap-2">
-                            {isTargetPage && (
+                            {!readOnly && isTargetPage && (
                               <span
                                 className="text-[10px] font-black px-2 py-0.5 rounded-md shadow-2xs"
                                 style={{ background: theme.accent, color: theme.accentInk }}
@@ -6593,10 +7957,22 @@ function FullBookA4Preview({
                           </div>
                         </div>
 
-                        {/* Render page blocks with direct CanvasBlockWrapper */}
+                        {/* Render page blocks */}
                         {pageBlocks.map((b, i) => {
                           const blockLeafId = b._leafId;
                           const blockIdx = typeof b._blockIndex === "number" ? b._blockIndex : i;
+
+                          if (readOnly) {
+                            return (
+                              <PlateBlock
+                                key={b.id || i}
+                                block={b}
+                                kinds={kinds}
+                                theme={theme}
+                                skin={skin}
+                              />
+                            );
+                          }
 
                           return (
                             <CanvasBlockWrapper
@@ -6616,8 +7992,8 @@ function FullBookA4Preview({
                           );
                         })}
 
-                        {/* Add Block to this leaf quick button */}
-                        {leafId && (
+                        {/* Add Block to this leaf quick button (Editor mode only) */}
+                        {!readOnly && leafId && (
                           <div className="mt-4 flex justify-center">
                             <button
                               type="button"
@@ -6650,9 +8026,10 @@ function FullBookA4Preview({
             </div>
           </div>
         </div>
+        )}
 
-        {/* TASK PANE (Inspector for active target leaf in All Book Pages) */}
-        {!focusMode && activeLeaf && (
+        {/* TASK PANE (Inspector for active target leaf in All Book Pages - Editor mode only) */}
+        {!readOnly && !focusMode && activeLeaf && (
           <div className="order-2 p-3 min-w-0 w-full" style={{ borderRadius: skin.radiusLg, border: `1px solid ${theme.hairline}`, background: theme.surface, alignSelf: "start" }}>
             <div className="flex items-center justify-between gap-1 mb-2 pb-1 border-b" style={{ borderColor: theme.hairline }}>
               <p className="text-[10px] font-bold uppercase tracking-wide truncate" style={{ color: theme.inkSoft }}>
@@ -6708,6 +8085,7 @@ function SingleLeafA4Preview({ leaf, book, lang, theme, skin }) {
   const kinds = plateKindsFor(palette);
   const { pages, measureRef } = usePagedBlocks(blocks);
   const { containerRef, scale, zoomIn, zoomOut, zoomFit, isFit } = useFitScale();
+  const [readerMode, setReaderMode] = useState(() => (typeof window !== "undefined" && window.innerWidth < 768 ? "flow" : "paged"));
   const t = EDITOR_STR[lang] || EDITOR_STR.ar;
   const docTitle = lang === "ar" ? book?.ar?.title : book?.en?.title;
   const leafTitle = leaf ? (lang === "ar" ? (leaf.ar || leaf.en) : (leaf.en || leaf.ar)) : "";
@@ -6723,91 +8101,171 @@ function SingleLeafA4Preview({ leaf, book, lang, theme, skin }) {
   }
 
   return (
-    <div>
-      <div
-        ref={measureRef}
-        style={{
-          position: "absolute",
-          visibility: "hidden",
-          pointerEvents: "none",
-          width: "182mm",
-          top: -99999,
-          fontFamily: PAGE_FONT,
-          fontSize: 15,
-          lineHeight: 1.9,
-        }}
-      >
-        {blocks.map((b, i) => (
-          <PlateBlock key={b.id || i} block={b} kinds={kinds} theme={theme} skin={skin} />
-        ))}
-      </div>
-
-      <ZoomBar t={t} theme={theme} skin={skin} scale={scale} onZoomOut={zoomOut} onZoomIn={zoomIn} onFit={zoomFit} isFit={isFit} />
-
-      <div ref={containerRef} className="overflow-x-auto overflow-y-visible flex justify-center py-2">
-        <div style={{ zoom: scale, transition: "zoom 0.22s cubic-bezier(0.16, 1, 0.3, 1)" }}>
-          <div className="flex flex-col gap-6 items-center py-2">
-            {pages.map((pageBlocks, pi) => (
-              <div
-                key={pi}
-                dir={lang === "ar" ? "rtl" : "ltr"}
-                style={{
-                  width: "210mm",
-                  minHeight: "297mm",
-                  background: palette.PageBG,
-                  color: palette.BodyText,
-                  padding: "16mm 14mm",
-                  boxShadow: "0 4px 24px rgba(0,0,0,0.15)",
-                  borderRadius: 4,
-                  fontFamily: PAGE_FONT,
-                  fontSize: 15,
-                  lineHeight: 1.9,
-                }}
-              >
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    paddingBottom: "0.6rem",
-                    marginBottom: "1rem",
-                    borderBottom: `2px solid ${palette.HeaderColor}`,
-                    color: palette.HeaderColor,
-                    fontWeight: 700,
-                    fontSize: 12,
-                  }}
-                >
-                  <span>{docTitle}</span>
-                  <span>{leafTitle}</span>
-                </div>
-
-                {pageBlocks.map((b, i) => (
-                  <PlateBlock key={b.id || i} block={b} kinds={kinds} theme={theme} skin={skin} />
-                ))}
-                <p style={{ position: "relative", top: "8mm", textAlign: "center", fontSize: 10, color: "#b3a692" }}>
-                  {t.pageOf(pi + 1, pages.length)}
-                </p>
-              </div>
-            ))}
-          </div>
+    <div className="w-full min-w-0">
+      {/* Hidden measuring pass enclosed in zero-size clipped container so it never expands document width */}
+      <div style={{ position: "fixed", top: 0, left: 0, width: 0, height: 0, overflow: "hidden", visibility: "hidden", pointerEvents: "none", zIndex: -9999 }}>
+        <div ref={measureRef} style={{ width: "182mm", fontFamily: PAGE_FONT, fontSize: 15, lineHeight: 1.9 }}>
+          {blocks.map((b, i) => (
+            <PlateBlock key={b.id || i} block={b} kinds={kinds} theme={theme} skin={skin} />
+          ))}
         </div>
       </div>
+
+      {/* Reader mode toggle bar */}
+      <div
+        className="flex items-center justify-between gap-2 px-3.5 py-2.5 rounded-2xl border mb-4 flex-wrap educraft-glass shadow-2xs"
+        style={{ borderColor: theme.hairline, background: theme.surfaceSoft }}
+      >
+        <div className="flex items-center gap-2 min-w-0">
+          <BookOpen size={16} style={{ color: theme.accent }} />
+          <span className="text-xs sm:text-sm font-black truncate" style={{ color: theme.ink }}>
+            {leafTitle}
+          </span>
+          <span
+            className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full shrink-0"
+            style={{ background: theme.accentSoft, color: theme.accent }}
+          >
+            {lang === "ar" ? `${blocks.length} كتلة` : `${blocks.length} blocks`}
+          </span>
+        </div>
+
+        <div className="flex items-center p-0.5 rounded-xl border ms-auto" style={{ borderColor: theme.hairlineStrong, background: theme.surface }}>
+          <button
+            type="button"
+            onClick={() => setReaderMode("flow")}
+            className={`px-2.5 py-1 text-xs font-bold rounded-lg transition-all cursor-pointer ${readerMode === "flow" ? "shadow-2xs" : "opacity-70 hover:opacity-100"}`}
+            style={{
+              background: readerMode === "flow" ? theme.accent : "transparent",
+              color: readerMode === "flow" ? (theme.accentInk || "#ffffff") : theme.ink,
+            }}
+          >
+            {lang === "ar" ? "📱 قراءة انسيابية" : "📱 Mobile Flow"}
+          </button>
+          <button
+            type="button"
+            onClick={() => setReaderMode("paged")}
+            className={`px-2.5 py-1 text-xs font-bold rounded-lg transition-all cursor-pointer ${readerMode === "paged" ? "shadow-2xs" : "opacity-70 hover:opacity-100"}`}
+            style={{
+              background: readerMode === "paged" ? theme.accent : "transparent",
+              color: readerMode === "paged" ? (theme.accentInk || "#ffffff") : theme.ink,
+            }}
+          >
+            {lang === "ar" ? "📄 شيتات A4" : "📄 A4 Pages"}
+          </button>
+        </div>
+      </div>
+
+      {readerMode === "flow" ? (
+        <div className="w-full max-w-3xl mx-auto flex flex-col gap-4 py-1 min-w-0">
+          <article
+            dir={lang === "ar" ? "rtl" : "ltr"}
+            className="rounded-2xl border p-4 sm:p-7 transition-all shadow-xs"
+            style={{
+              background: palette.PageBG || theme.surface,
+              borderColor: theme.hairlineStrong,
+              color: palette.BodyText || theme.ink,
+              fontFamily: PAGE_FONT,
+            }}
+          >
+            <div
+              className="pb-3 mb-4 border-b flex items-center justify-between gap-2"
+              style={{ borderColor: palette.HeaderColor ? `${palette.HeaderColor}33` : theme.hairline }}
+            >
+              <div>
+                <span className="text-[11px] font-bold opacity-70 block mb-0.5" style={{ color: palette.HeaderColor || theme.inkSoft }}>
+                  {docTitle}
+                </span>
+                <h2 className="text-base sm:text-lg font-black m-0 leading-snug" style={{ color: palette.HeaderColor || theme.ink }}>
+                  {leafTitle}
+                </h2>
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-3.5">
+              {blocks.map((b, i) => (
+                <div key={b.id || i} className="w-full min-w-0">
+                  <PlateBlock block={b} kinds={kinds} bookId={book?.id} theme={theme} skin={skin} />
+                </div>
+              ))}
+            </div>
+          </article>
+        </div>
+      ) : (
+        <>
+          <ZoomBar t={t} theme={theme} skin={skin} scale={scale} onZoomOut={zoomOut} onZoomIn={zoomIn} onFit={zoomFit} isFit={isFit} />
+
+          <div ref={containerRef} className="overflow-x-auto overflow-y-visible flex justify-center py-2">
+            <div style={{ zoom: scale, transition: "zoom 0.22s cubic-bezier(0.16, 1, 0.3, 1)" }}>
+              <div className="flex flex-col gap-6 items-center py-2">
+                {pages.map((pageBlocks, pi) => (
+                  <div
+                    key={pi}
+                    dir={lang === "ar" ? "rtl" : "ltr"}
+                    className="educraft-paper-sheet"
+                    style={{
+                      width: "210mm",
+                      minHeight: "297mm",
+                      background: palette.PageBG,
+                      color: palette.BodyText,
+                      padding: "16mm 14mm",
+                      boxShadow: "0 4px 24px rgba(0,0,0,0.15)",
+                      borderRadius: 4,
+                      fontFamily: PAGE_FONT,
+                      fontSize: 15,
+                      lineHeight: 1.9,
+                    }}
+                  >
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        paddingBottom: "0.6rem",
+                        marginBottom: "1rem",
+                        borderBottom: `2px solid ${palette.HeaderColor}`,
+                        color: palette.HeaderColor,
+                        fontWeight: 700,
+                        fontSize: 12,
+                      }}
+                    >
+                      <span>{docTitle}</span>
+                      <span>{leafTitle}</span>
+                    </div>
+
+                    {pageBlocks.map((b, i) => (
+                      <PlateBlock key={b.id || i} block={b} kinds={kinds} theme={theme} skin={skin} />
+                    ))}
+                    <p style={{ position: "relative", top: "8mm", textAlign: "center", fontSize: 10, color: "#b3a692" }}>
+                      {t.pageOf(pi + 1, pages.length)}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }
 
 /* Floating modal for selecting from all 60 Thiqa A4 Plate Palettes */
-function PlatePaletteModal({ isOpen, onClose, selectedId, onSelect, lang, theme, skin }) {
+function PlatePaletteModal({ isOpen, onClose, selectedId, onSelect, lang, theme, skin, isFullBook = false, scopeLabel }) {
   const [search, setSearch] = useState("");
   const [filterCat, setFilterCat] = useState("all");
 
   useEffect(() => {
     if (!isOpen) return;
+    const origOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
     const handleKeyDown = (e) => {
       if (e.key === "Escape") onClose();
     };
     window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
+    return () => {
+      document.body.style.overflow = origOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+    };
   }, [isOpen, onClose]);
 
   if (!isOpen) return null;
@@ -6836,9 +8294,10 @@ function PlatePaletteModal({ isOpen, onClose, selectedId, onSelect, lang, theme,
     return true;
   });
 
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/60 backdrop-blur-md"
+      className="fixed inset-0 z-[99999] flex items-center justify-center p-3 sm:p-6 bg-slate-950/75 transition-opacity"
+      style={{ animation: "educraftFadeIn 0.18s ease-out forwards" }}
       onClick={onClose}
     >
       <div
@@ -6863,16 +8322,18 @@ function PlatePaletteModal({ isOpen, onClose, selectedId, onSelect, lang, theme,
               <Palette size={20} />
             </div>
             <div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-wrap">
                 <h3 className="text-base font-black tracking-tight" style={{ color: theme.ink }}>
                   60 Document & Print Plates
                 </h3>
-                <span className="text-[11px] font-bold px-2 py-0.5 rounded-full" style={{ background: theme.accentSoft, color: theme.accent }}>
-                  Curated Presets
+                <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full" style={{ background: theme.accentSoft, color: theme.accent }}>
+                  {scopeLabel || (isFullBook ? (lang === "ar" ? "تطبيق على كامل الكتاب" : "Full Book") : (lang === "ar" ? "هذه الصفحة" : "This Page"))}
                 </span>
               </div>
               <p className="text-xs font-medium" style={{ color: theme.inkSoft }}>
-                Click any plate to preview instantly on the A4 page canvas
+                {isFullBook
+                  ? (lang === "ar" ? "اختر قالباً لونياً ليتم تطبيقه وتوحيده فوراً على جميع صفحات الكتاب" : "Choose any plate to apply immediately across all pages of the book")
+                  : (lang === "ar" ? "اختر قالباً لونياً لتطبيقه على صفحة A4 الحالية" : "Click any plate to preview instantly on the A4 page canvas")}
               </p>
             </div>
           </div>
@@ -7065,13 +8526,746 @@ function PlatePaletteModal({ isOpen, onClose, selectedId, onSelect, lang, theme,
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
+  );
+}
+
+/* =========================================================================
+   MODAL: High-Definition A4 Multi-Page PDF Exporter (Customizable up to 1200 DPI)
+   ========================================================================= */
+function parsePageRange(rangeStr, totalPages) {
+  if (!rangeStr || !rangeStr.trim()) {
+    return Array.from({ length: totalPages }, (_, i) => i);
+  }
+  const parts = rangeStr.split(/[,،]/);
+  const indices = new Set();
+  for (const part of parts) {
+    const trimmed = part.trim();
+    if (!trimmed) continue;
+    if (trimmed.includes("-") || trimmed.includes("—")) {
+      const [startStr, endStr] = trimmed.split(/[-—]/);
+      const start = parseInt(startStr.trim(), 10);
+      const end = parseInt(endStr.trim(), 10);
+      if (!isNaN(start) && !isNaN(end)) {
+        const s = Math.max(1, Math.min(start, end));
+        const e = Math.min(totalPages, Math.max(start, end));
+        for (let i = s; i <= e; i++) {
+          indices.add(i - 1);
+        }
+      }
+    } else {
+      const p = parseInt(trimmed, 10);
+      if (!isNaN(p) && p >= 1 && p <= totalPages) {
+        indices.add(p - 1);
+      }
+    }
+  }
+  const result = Array.from(indices).sort((a, b) => a - b);
+  return result.length > 0 ? result : Array.from({ length: totalPages }, (_, i) => i);
+}
+
+function PdfExportModal({
+  isOpen,
+  onClose,
+  totalPages = 1,
+  currentPageIndex = 0,
+  docTitle = "EDUcraft_Document",
+  lang = "ar",
+  theme,
+  skin,
+}) {
+  const [dpiPreset, setDpiPreset] = useState(300);
+  const [customDpi, setCustomDpi] = useState(300);
+  const [isCustom, setIsCustom] = useState(false);
+  const [scope, setScope] = useState("all");
+  const [pageRangeStr, setPageRangeStr] = useState(`1-${Math.max(1, totalPages)}`);
+  const [showRasterSection, setShowRasterSection] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
+  const [progress, setProgress] = useState({ current: 0, total: 0, pct: 0, text: "" });
+  const [errorMsg, setErrorMsg] = useState(null);
+  const cancelRef = useRef(false);
+
+  useEffect(() => {
+    if (totalPages) {
+      setPageRangeStr(`1-${totalPages}`);
+    }
+  }, [totalPages]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const origOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape" && !isExporting) onClose();
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.body.style.overflow = origOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isOpen, isExporting, onClose]);
+
+  if (!isOpen) return null;
+
+  const activeDpi = isCustom ? Math.min(1200, Math.max(72, Number(customDpi) || 300)) : dpiPreset;
+
+  const presets = [
+    {
+      dpi: 150,
+      title: lang === "ar" ? "150 DPI — مسودة سريعة" : "150 DPI — Fast Draft",
+      desc: lang === "ar" ? "معالجة فائقة السرعة وحجم ملف خفيف للمشاركة السريعة" : "Ultra-fast generation & light file size for quick sharing",
+      tag: lang === "ar" ? "مسودة" : "Draft",
+      tagColor: "#64748b",
+    },
+    {
+      dpi: 300,
+      title: lang === "ar" ? "300 DPI — جودة قياسية (مُوصى به)" : "300 DPI — Standard Print (Recommended)",
+      desc: lang === "ar" ? "الدقة المعيارية المعتمدة للكتب والمطبوعات الورقية" : "Industry standard print quality with optimal crispness",
+      tag: lang === "ar" ? "مُوصى به" : "Recommended",
+      tagColor: theme.accent,
+      recommended: true,
+    },
+    {
+      dpi: 600,
+      title: lang === "ar" ? "600 DPI — فائقة الدقة (Ultra HD)" : "600 DPI — Ultra HD Resolution",
+      desc: lang === "ar" ? "حدة استثنائية لخطوط النسخ والرقعة والجداول الدقيقة" : "Super-sharp typography, tables and fine equations",
+      tag: "Ultra HD",
+      tagColor: "#8b5cf6",
+    },
+    {
+      dpi: 1200,
+      title: lang === "ar" ? "1200 DPI — مطابع دور النشر (Master Press)" : "1200 DPI — Master Press Grade",
+      desc: lang === "ar" ? "أقصى دقة مطبعية ممكنة حتى 1200 DPI لطباعة الأوفست الفاخرة" : "Maximum possible fidelity up to 1200 DPI for commercial offset presses",
+      tag: "Pro 1200 DPI",
+      tagColor: "#ef4444",
+    },
+  ];
+
+  const handleStartExport = async () => {
+    try {
+      setIsExporting(true);
+      setErrorMsg(null);
+      cancelRef.current = false;
+
+      // 1. Find all paper sheets in DOM
+      const sheets = Array.from(document.querySelectorAll(".educraft-paper-sheet"));
+      if (!sheets.length) {
+        throw new Error(
+          lang === "ar"
+            ? "لم يتم العثور على صفحات لعرضها. يرجى التأكد من أن الصفحات معروضة على الشاشة."
+            : "No printable pages found. Please ensure pages are rendered."
+        );
+      }
+
+      // 2. Filter target pages
+      let targetIndices = [];
+      if (scope === "current") {
+        targetIndices = [Math.min(currentPageIndex, sheets.length - 1)];
+      } else if (scope === "range") {
+        targetIndices = parsePageRange(pageRangeStr, sheets.length);
+      } else {
+        targetIndices = sheets.map((_, i) => i);
+      }
+
+      if (!targetIndices.length) {
+        throw new Error(
+          lang === "ar" ? "نطاق الصفحات المحدد غير صالح أو فارغ." : "Selected page range is invalid or empty."
+        );
+      }
+
+      const totalToExport = targetIndices.length;
+      setProgress({
+        current: 0,
+        total: totalToExport,
+        pct: 0,
+        text: lang === "ar" ? "جاري تهيئة محرّك التصدير..." : "Initializing export engine...",
+      });
+
+      // 3. Initialize jsPDF
+      const pdf = new jsPDF({
+        orientation: "portrait",
+        unit: "mm",
+        format: "a4",
+        compress: true,
+      });
+
+      const targetDpi = isCustom ? Math.min(1200, Math.max(72, Number(customDpi) || 300)) : dpiPreset;
+      const canvasScale = targetDpi / 96;
+
+      // 4. Sequential render loop
+      for (let i = 0; i < targetIndices.length; i++) {
+        if (cancelRef.current) {
+          setIsExporting(false);
+          setProgress({ current: 0, total: 0, pct: 0, text: "" });
+          return;
+        }
+
+        const pageIdx = targetIndices[i];
+        const sheetEl = sheets[pageIdx];
+
+        setProgress({
+          current: i + 1,
+          total: totalToExport,
+          pct: Math.round(((i + 0.2) / totalToExport) * 100),
+          text:
+            lang === "ar"
+              ? `معالجة الصفحة ${i + 1} من ${totalToExport} (دقة ${targetDpi} DPI)...`
+              : `Processing page ${i + 1} of ${totalToExport} (${targetDpi} DPI)...`,
+        });
+
+        // Small yield so browser draws progress
+        await new Promise((r) => setTimeout(r, 50));
+
+        let canvas = null;
+        try {
+          canvas = await html2canvas(sheetEl, {
+            scale: canvasScale,
+            useCORS: true,
+            logging: false,
+            allowTaint: true,
+            backgroundColor: null,
+            onclone: (clonedDoc, clonedEl) => {
+              // Reset zoom & transform on all parents
+              let cur = clonedEl;
+              while (cur && cur !== clonedDoc.body) {
+                if (cur.style) {
+                  cur.style.zoom = "1";
+                  cur.style.transform = "none";
+                }
+                cur = cur.parentElement;
+              }
+              // Clean up borders, shadows and editor buttons
+              clonedEl.style.boxShadow = "none";
+              clonedEl.style.outline = "none";
+              clonedEl.style.margin = "0";
+              clonedEl.style.borderRadius = "0";
+              clonedEl.querySelectorAll("button, .educraft-block-toolbar, [data-editor-controls]").forEach((btn) => {
+                btn.style.display = "none";
+              });
+            },
+          });
+        } catch (captureErr) {
+          console.error("Page capture error:", captureErr);
+          throw new Error(
+            lang === "ar"
+              ? `فشلت معالجة الصفحة ${pageIdx + 1}: ${captureErr.message || captureErr}`
+              : `Error capturing page ${pageIdx + 1}: ${captureErr.message || captureErr}`
+          );
+        }
+
+        if (cancelRef.current) {
+          if (canvas) {
+            canvas.width = 1;
+            canvas.height = 1;
+          }
+          setIsExporting(false);
+          return;
+        }
+
+        const imgData = canvas.toDataURL("image/jpeg", 0.94);
+
+        if (i > 0) {
+          pdf.addPage("a4", "portrait");
+        }
+        pdf.addImage(imgData, "JPEG", 0, 0, 210, 297, undefined, "FAST");
+
+        // Immediate memory release
+        canvas.width = 1;
+        canvas.height = 1;
+        canvas = null;
+
+        setProgress({
+          current: i + 1,
+          total: totalToExport,
+          pct: Math.round(((i + 1) / totalToExport) * 100),
+          text:
+            lang === "ar"
+              ? `اكتملت الصفحة ${i + 1} من ${totalToExport}`
+              : `Page ${i + 1} of ${totalToExport} completed`,
+        });
+
+        await new Promise((r) => setTimeout(r, 40));
+      }
+
+      // 5. Download file
+      const safeDocName = (docTitle || "EDUcraft_Book")
+        .replace(/[/\\?%*:|"<>]/g, "_")
+        .trim();
+      pdf.save(`${safeDocName}_${targetDpi}dpi.pdf`);
+
+      setIsExporting(false);
+      setProgress({
+        current: totalToExport,
+        total: totalToExport,
+        pct: 100,
+        text: lang === "ar" ? "✅ تم تصدير وتحميل ملف PDF بنجاح!" : "✅ PDF exported and downloaded successfully!",
+      });
+
+      setTimeout(() => {
+        onClose();
+      }, 1200);
+    } catch (err) {
+      console.error("PDF Export failed:", err);
+      setIsExporting(false);
+      setErrorMsg(err?.message || (lang === "ar" ? "فشل تصدير ملف PDF" : "Failed to export PDF"));
+    }
+  };
+
+  const handleInstantVectorPrint = () => {
+    // 1. Filter sheets according to selected scope
+    const sheets = Array.from(document.querySelectorAll(".educraft-paper-sheet"));
+    let targetIndices = [];
+    if (scope === "current") {
+      targetIndices = [Math.min(currentPageIndex, sheets.length - 1)];
+    } else if (scope === "range") {
+      targetIndices = parsePageRange(pageRangeStr, sheets.length);
+    } else {
+      targetIndices = sheets.map((_, i) => i);
+    }
+
+    const targetSet = new Set(targetIndices);
+    const hiddenSheets = [];
+    sheets.forEach((sheet, idx) => {
+      if (!targetSet.has(idx)) {
+        sheet.classList.add("print-hidden-sheet");
+        hiddenSheets.push(sheet);
+      }
+    });
+
+    onClose();
+    setTimeout(() => {
+      window.print();
+      setTimeout(() => {
+        hiddenSheets.forEach((el) => el.classList.remove("print-hidden-sheet"));
+      }, 1500);
+    }, 200);
+  };
+
+  const handleBrowserPrint = () => {
+    onClose();
+    setTimeout(() => {
+      window.print();
+    }, 300);
+  };
+
+  return createPortal(
+    <div
+      className="fixed inset-0 z-[99999] flex items-center justify-center p-3 sm:p-6 bg-slate-950/75 transition-opacity"
+      style={{ animation: "educraftFadeIn 0.18s ease-out forwards" }}
+      onClick={() => {
+        if (!isExporting) onClose();
+      }}
+    >
+      <div
+        className="w-full max-w-2xl max-h-[92vh] rounded-3xl border shadow-2xl flex flex-col overflow-hidden educraft-modal-in"
+        style={{
+          background: theme.surface,
+          borderColor: theme.hairlineStrong,
+          color: theme.ink,
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div
+          className="flex items-center justify-between px-6 py-4 border-b gap-3"
+          style={{ borderColor: theme.hairline, background: theme.surfaceSoft }}
+        >
+          <div className="flex items-center gap-3">
+            <div
+              className="w-10 h-10 rounded-2xl grid place-items-center shadow-xs text-white"
+              style={{ background: "linear-gradient(135deg, #ef4444 0%, #b91c1c 100%)" }}
+            >
+              <FileDown size={20} />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="text-base font-black tracking-tight" style={{ color: theme.ink }}>
+                  {lang === "ar" ? "تصدير صفحات A4 إلى PDF فائق الدقة" : "Export A4 Pages to High-Definition PDF"}
+                </h3>
+                <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-red-100 text-red-700">
+                  {lang === "ar" ? "حتى 1200 DPI" : "Up to 1200 DPI"}
+                </span>
+              </div>
+              <p className="text-xs font-medium opacity-75" style={{ color: theme.inkSoft }}>
+                {lang === "ar"
+                  ? "تصدير عالي النقاء بدقة مطابع دور النشر للكتب والمستندات التعليمية"
+                  : "Studio-grade multi-page document export for publishing and offset printing"}
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            disabled={isExporting}
+            onClick={onClose}
+            className="educraft-btn w-9 h-9 rounded-xl grid place-items-center cursor-pointer border shadow-2xs disabled:opacity-40"
+            style={{ background: theme.surface, borderColor: theme.hairline, color: theme.inkSoft }}
+            title="Close (Esc)"
+          >
+            <X size={16} />
+          </button>
+        </div>
+
+        {/* Modal Body */}
+        <div className="p-6 overflow-y-auto flex flex-col gap-5 flex-1">
+          {/* 1. Page Scope Selection */}
+          <div className="flex flex-col gap-2">
+            <label className="text-xs font-black flex items-center gap-1.5" style={{ color: theme.ink }}>
+              <Layers size={14} style={{ color: theme.accent }} />
+              <span>{lang === "ar" ? "الصفحات المطلوب تصديرها:" : "Page Selection Scope:"}</span>
+            </label>
+            <div className="grid grid-cols-3 gap-2">
+              <button
+                type="button"
+                disabled={isExporting}
+                onClick={() => setScope("all")}
+                className="educraft-btn p-2.5 rounded-xl border text-xs font-bold text-center cursor-pointer transition-all"
+                style={{
+                  background: scope === "all" ? theme.accentSoft : theme.surfaceSoft,
+                  borderColor: scope === "all" ? theme.accent : theme.hairline,
+                  color: scope === "all" ? theme.accent : theme.ink,
+                }}
+              >
+                {lang === "ar" ? `جميع الصفحات (${totalPages})` : `All Pages (${totalPages})`}
+              </button>
+              <button
+                type="button"
+                disabled={isExporting}
+                onClick={() => setScope("current")}
+                className="educraft-btn p-2.5 rounded-xl border text-xs font-bold text-center cursor-pointer transition-all"
+                style={{
+                  background: scope === "current" ? theme.accentSoft : theme.surfaceSoft,
+                  borderColor: scope === "current" ? theme.accent : theme.hairline,
+                  color: scope === "current" ? theme.accent : theme.ink,
+                }}
+              >
+                {lang === "ar" ? `الصفحة الحالية (${currentPageIndex + 1})` : `Current Page (${currentPageIndex + 1})`}
+              </button>
+              <button
+                type="button"
+                disabled={isExporting}
+                onClick={() => setScope("range")}
+                className="educraft-btn p-2.5 rounded-xl border text-xs font-bold text-center cursor-pointer transition-all"
+                style={{
+                  background: scope === "range" ? theme.accentSoft : theme.surfaceSoft,
+                  borderColor: scope === "range" ? theme.accent : theme.hairline,
+                  color: scope === "range" ? theme.accent : theme.ink,
+                }}
+              >
+                {lang === "ar" ? "نطاق محدد" : "Custom Range"}
+              </button>
+            </div>
+
+            {scope === "range" && (
+              <div className="flex items-center gap-2 mt-1 p-2 rounded-xl border" style={{ background: theme.surfaceSoft, borderColor: theme.hairline }}>
+                <span className="text-xs font-semibold shrink-0" style={{ color: theme.inkSoft }}>
+                  {lang === "ar" ? "أرقام الصفحات:" : "Page numbers:"}
+                </span>
+                <input
+                  type="text"
+                  disabled={isExporting}
+                  value={pageRangeStr}
+                  onChange={(e) => setPageRangeStr(e.target.value)}
+                  placeholder="مثال: 1-3 أو 1, 3, 5"
+                  className="flex-1 text-xs font-mono font-bold px-2.5 py-1 rounded-lg border outline-none"
+                  style={{ background: theme.surface, borderColor: theme.hairline, color: theme.ink }}
+                />
+              </div>
+            )}
+          </div>
+
+          {/* 2. Instant High-Speed Vector PDF Hero Banner */}
+          <div
+            className="p-4 rounded-2xl border flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm"
+            style={{
+              background: "linear-gradient(135deg, rgba(16, 185, 129, 0.09) 0%, rgba(5, 150, 105, 0.16) 100%)",
+              borderColor: "rgba(16, 185, 129, 0.45)",
+            }}
+          >
+            <div className="flex items-start gap-3 min-w-0">
+              <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white grid place-items-center shrink-0 shadow-sm">
+                <Sparkles size={20} />
+              </div>
+              <div>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h4 className="text-xs font-black text-emerald-950 dark:text-emerald-100">
+                    {lang === "ar" ? "⚡ تصدير فوري فائق السرعة (Vector PDF — ثانيتان فقط)" : "⚡ Instant Ultra-Fast Vector PDF (2 Seconds)"}
+                  </h4>
+                  <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-600 text-white shadow-2xs">
+                    {lang === "ar" ? "مُوصى به (فائق السرعة)" : "Recommended (Fast)"}
+                  </span>
+                </div>
+                <p className="text-[11px] font-medium text-emerald-900/90 dark:text-emerald-200 mt-1 leading-relaxed">
+                  {lang === "ar"
+                    ? "تصدير شعاعي كامل عبر محرك النظام C++/WebKit في ثانيتين فقط! نصوص واضحة 100% وقابلة للبحث مع أبعاد A4 دقيقة وحجم ملف خفيف جداً."
+                    : "Instant C++/WebKit native vector export in ~2 seconds. 100% sharp searchable typography, exact A4 pagination, ultra-compact size."}
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={handleInstantVectorPrint}
+              className="educraft-btn shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs shadow-md cursor-pointer transition-all hover:scale-[1.02]"
+            >
+              <Printer size={15} />
+              <span>{lang === "ar" ? "تصدير فوري الآن" : "Export Instant Vector"}</span>
+            </button>
+          </div>
+
+          {/* 3. Collapsible Legacy Raster / Canvas Export Section */}
+          <div className="rounded-2xl border overflow-hidden" style={{ borderColor: theme.hairline, background: theme.surfaceSoft }}>
+            <button
+              type="button"
+              onClick={() => setShowRasterSection(!showRasterSection)}
+              className="w-full flex items-center justify-between p-3.5 text-start cursor-pointer hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+            >
+              <div className="flex items-center gap-2">
+                <SlidersHorizontal size={14} style={{ color: theme.inkSoft }} />
+                <span className="text-xs font-bold" style={{ color: theme.ink }}>
+                  {lang === "ar"
+                    ? "خيارات متقدمة: تصدير نقطي بصور عالية الدقة (Legacy Canvas Raster — بطيء)"
+                    : "Advanced: Custom Raster Image Export (Legacy Canvas — Slow)"}
+                </span>
+              </div>
+              <span className="text-xs font-mono font-bold" style={{ color: theme.accent }}>
+                {showRasterSection ? "▲" : "▼"}
+              </span>
+            </button>
+
+            {showRasterSection && (
+              <div className="p-4 pt-1 flex flex-col gap-4 border-t" style={{ borderColor: theme.hairline }}>
+                <div
+                  className="p-3 rounded-xl border flex items-start gap-2.5 text-xs"
+                  style={{ background: "#fff7ed", borderColor: "#fed7aa", color: "#9a3412" }}
+                >
+                  <AlertCircle size={16} className="shrink-0 mt-0.5 text-amber-600" />
+                  <p className="leading-relaxed text-[11px]">
+                    {lang === "ar"
+                      ? "⚠️ تنبيه: المعالجة النقطية تحوّل كل صفحة لصورة عالية الدقة بكسل-بكسل، مما قد يستغرق دقيقة إلى 3 دقائق. للحصول على تصدير فوري فائق الدقة في ثانيتين، استخدم التصدير الشعاعي بالأعلى."
+                      : "⚠️ Note: Raster export renders each page into high-DPI canvas bitmaps, taking 1-3 minutes. Use the Instant Vector Export above for ~2s export."}
+                  </p>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-bold" style={{ color: theme.ink }}>
+                    <span>{lang === "ar" ? "دقة وضوح الطباعة (DPI):" : "Print Resolution (DPI):"}</span>
+                  </label>
+                  <button
+                    type="button"
+                    disabled={isExporting}
+                    onClick={() => setIsCustom(!isCustom)}
+                    className="text-xs font-bold cursor-pointer underline hover:opacity-80"
+                    style={{ color: theme.accent }}
+                  >
+                    {isCustom
+                      ? lang === "ar" ? "العودة للخيارات الجاهزة" : "Back to presets"
+                      : lang === "ar" ? "تحديد DPI مخصص يدوياً" : "Custom DPI input"}
+                  </button>
+                </div>
+
+                {!isCustom ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    {presets.map((p) => {
+                      const isSelected = dpiPreset === p.dpi;
+                      return (
+                        <div
+                          key={p.dpi}
+                          onClick={() => !isExporting && setDpiPreset(p.dpi)}
+                          className={`relative p-3 rounded-xl border-2 cursor-pointer transition-all flex flex-col gap-1 ${
+                            isSelected ? "shadow-md" : "hover:border-black/20 opacity-85 hover:opacity-100"
+                          }`}
+                          style={{
+                            background: isSelected ? theme.accentSoft : theme.surface,
+                            borderColor: isSelected ? theme.accent : theme.hairline,
+                          }}
+                        >
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs font-black" style={{ color: isSelected ? theme.accent : theme.ink }}>
+                              {p.title}
+                            </span>
+                            <span
+                              className="text-[10px] font-bold px-2 py-0.5 rounded-full"
+                              style={{
+                                background: isSelected ? theme.accent : theme.surfaceSoft,
+                                color: isSelected ? theme.accentInk : p.tagColor,
+                                border: `1px solid ${theme.hairline}`,
+                              }}
+                            >
+                              {p.tag}
+                            </span>
+                          </div>
+                          <p className="text-[10px] font-medium leading-normal" style={{ color: theme.inkSoft }}>
+                            {p.desc}
+                          </p>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="p-3.5 rounded-xl border flex flex-col gap-2.5" style={{ background: theme.surface, borderColor: theme.hairline }}>
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold" style={{ color: theme.ink }}>
+                        {lang === "ar" ? "اختر قيمة DPI من 72 حتى 1200:" : "Enter DPI between 72 and 1200:"}
+                      </span>
+                      <div className="flex items-center gap-1.5">
+                        <input
+                          type="number"
+                          min={72}
+                          max={1200}
+                          step={25}
+                          disabled={isExporting}
+                          value={customDpi}
+                          onChange={(e) => setCustomDpi(e.target.value)}
+                          className="w-20 text-center font-mono font-black text-xs px-2 py-1 rounded-lg border outline-none"
+                          style={{ background: theme.surface, borderColor: theme.accent, color: theme.accent }}
+                        />
+                        <span className="text-xs font-black" style={{ color: theme.accent }}>
+                          DPI
+                        </span>
+                      </div>
+                    </div>
+                    <input
+                      type="range"
+                      min={72}
+                      max={1200}
+                      step={25}
+                      disabled={isExporting}
+                      value={customDpi}
+                      onChange={(e) => setCustomDpi(Number(e.target.value))}
+                      className="w-full cursor-pointer accent-red-600"
+                    />
+                  </div>
+                )}
+
+                {/* Start raster export button inside this section */}
+                <div className="flex justify-end pt-1">
+                  <button
+                    type="button"
+                    disabled={isExporting}
+                    onClick={handleStartExport}
+                    className="educraft-btn flex items-center gap-2 text-xs font-black px-5 py-2.5 rounded-xl border shadow-sm cursor-pointer disabled:opacity-60 transition-all text-white"
+                    style={{
+                      background: "linear-gradient(135deg, #64748b 0%, #475569 100%)",
+                      borderColor: "#475569",
+                    }}
+                  >
+                    <FileDown size={14} />
+                    <span>
+                      {isExporting
+                        ? lang === "ar" ? "جاري التصدير النقطي..." : "Exporting Raster..."
+                        : lang === "ar" ? `بدء التصدير النقطي (${activeDpi} DPI)` : `Start Raster Export (${activeDpi} DPI)`}
+                    </span>
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Progress Bar (Visible during export) */}
+          {isExporting && (
+            <div
+              className="p-4 rounded-2xl border flex flex-col gap-2.5 educraft-modal-in shadow-inner"
+              style={{ background: theme.surfaceSoft, borderColor: theme.hairlineStrong }}
+            >
+              <div className="flex items-center justify-between text-xs font-black">
+                <span style={{ color: theme.accent }}>{progress.text}</span>
+                <span className="font-mono" style={{ color: theme.ink }}>
+                  {progress.pct}%
+                </span>
+              </div>
+              <div className="w-full h-3 rounded-full overflow-hidden bg-black/10 relative">
+                <div
+                  className="h-full rounded-full transition-all duration-300"
+                  style={{
+                    width: `${progress.pct}%`,
+                    background: "linear-gradient(90deg, #ef4444 0%, #f97316 100%)",
+                  }}
+                />
+              </div>
+              <div className="flex items-center justify-between mt-1">
+                <span className="text-[11px] font-semibold" style={{ color: theme.inkSoft }}>
+                  {lang === "ar"
+                    ? `صفحة ${progress.current} من ${progress.total}`
+                    : `Page ${progress.current} of ${progress.total}`}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    cancelRef.current = true;
+                  }}
+                  className="text-xs text-red-600 font-black cursor-pointer hover:underline"
+                >
+                  {lang === "ar" ? "إلغاء التصدير" : "Cancel"}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Error Message */}
+          {errorMsg && (
+            <div className="p-3 rounded-xl border bg-red-50 border-red-200 text-red-700 text-xs font-bold flex items-center gap-2">
+              <AlertCircle size={15} className="shrink-0" />
+              <span>{errorMsg}</span>
+            </div>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div
+          className="flex items-center justify-between px-6 py-4 border-t gap-3 flex-wrap"
+          style={{ borderColor: theme.hairline, background: theme.surfaceSoft }}
+        >
+          <button
+            type="button"
+            disabled={isExporting}
+            onClick={onClose}
+            className="educraft-btn text-xs font-bold px-4 py-2 rounded-xl border cursor-pointer disabled:opacity-40"
+            style={{ background: theme.surface, borderColor: theme.hairline, color: theme.inkSoft }}
+          >
+            {lang === "ar" ? "إلغاء" : "Cancel"}
+          </button>
+
+          <div className="flex items-center gap-2.5 ms-auto">
+            <button
+              type="button"
+              disabled={isExporting}
+              onClick={handleBrowserPrint}
+              className="educraft-btn flex items-center gap-1.5 px-3.5 py-2 rounded-xl border text-xs font-bold cursor-pointer disabled:opacity-40"
+              style={{ background: theme.surface, borderColor: theme.hairline, color: theme.ink }}
+              title={lang === "ar" ? "طباعة المتصفح السريعة المباشرة" : "Direct browser print"}
+            >
+              <Printer size={14} />
+              <span>{lang === "ar" ? "طباعة المتصفح المباشرة" : "Browser Print"}</span>
+            </button>
+
+            <button
+              type="button"
+              disabled={isExporting}
+              onClick={handleInstantVectorPrint}
+              className="educraft-btn flex items-center gap-2 text-xs font-black px-6 py-2.5 rounded-xl border shadow-lg cursor-pointer disabled:opacity-60 transition-all hover:scale-[1.02] text-white"
+              style={{
+                background: "linear-gradient(135deg, #10b981 0%, #059669 100%)",
+                borderColor: "#059669",
+                boxShadow: "0 4px 14px rgba(16, 185, 129, 0.35)",
+              }}
+            >
+              <Sparkles size={15} />
+              <span>
+                {lang === "ar" ? "⚡ بدء التصدير الفوري (Vector PDF — ثانيتان)" : "⚡ Export Instant Vector PDF (2s)"}
+              </span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>,
+    document.body
   );
 }
 
 function A4PageBuilder({ leaf, lang, theme, skin, t, onUpdateLeaf, allLeavesCards, docTitle, pageTitle, bookId }) {
   const [palettePickerOpen, setPalettePickerOpen] = useState(false);
   const [focusMode, setFocusMode] = useState(false);
+  const [pdfModalOpen, setPdfModalOpen] = useState(false);
   const blocks = leaf.pageBlocks || [];
   const palette = paletteById(leaf.pagePaletteId || 1);
   const kinds = plateKindsFor(palette);
@@ -7117,6 +9311,7 @@ function A4PageBuilder({ leaf, lang, theme, skin, t, onUpdateLeaf, allLeavesCard
   };
 
   const { pages, measureRef } = usePagedBlocks(blocks);
+  const displayPages = pages.length > 0 ? pages : [[]];
   const { containerRef, scale, zoomIn, zoomOut, zoomFit, isFit } = useFitScale();
 
   const BLOCK_KINDS = [
@@ -7140,6 +9335,20 @@ function A4PageBuilder({ leaf, lang, theme, skin, t, onUpdateLeaf, allLeavesCard
         onClose={() => setPalettePickerOpen(false)}
         selectedId={palette.id}
         onSelect={(id) => onUpdateLeaf({ pagePaletteId: id })}
+        lang={lang}
+        theme={theme}
+        skin={skin}
+        isFullBook={false}
+        scopeLabel={lang === "ar" ? "الصفحة المحددة" : "This Page"}
+      />
+
+      {/* High-Definition Multi-Page PDF Exporter Modal */}
+      <PdfExportModal
+        isOpen={pdfModalOpen}
+        onClose={() => setPdfModalOpen(false)}
+        totalPages={pages.length}
+        currentPageIndex={0}
+        docTitle={`${docTitle || "EDUcraft"} - ${pageTitle || (lang === "ar" ? leaf.ar : leaf.en) || "Page"}`}
         lang={lang}
         theme={theme}
         skin={skin}
@@ -7206,6 +9415,26 @@ function A4PageBuilder({ leaf, lang, theme, skin, t, onUpdateLeaf, allLeavesCard
               </span>
             </button>
           </RibbonGroup>
+
+          <RibbonDivider theme={theme} />
+
+          {/* Export / Print RibbonGroup */}
+          <RibbonGroup label={lang === "ar" ? "تصدير وطباعة" : "Export & Print"}>
+            <button
+              type="button"
+              onClick={() => setPdfModalOpen(true)}
+              className="educraft-btn flex items-center gap-1.5 px-3 py-1.5 rounded-xl border cursor-pointer shadow-2xs text-xs font-black transition-all hover:scale-[1.02] hover:brightness-105"
+              style={{
+                background: "linear-gradient(135deg, #ef4444 0%, #b91c1c 100%)",
+                color: "#ffffff",
+                borderColor: "#dc2626",
+              }}
+              title={lang === "ar" ? "تصدير الصفحة إلى PDF بدقة حتى 1200 DPI" : "Export page to PDF up to 1200 DPI"}
+            >
+              <FileDown size={14} />
+              <span>{lang === "ar" ? "تصدير PDF (حتى 1200 DPI)" : "Export PDF (1200 DPI)"}</span>
+            </button>
+          </RibbonGroup>
         </div>
       </div>
 
@@ -7214,17 +9443,19 @@ function A4PageBuilder({ leaf, lang, theme, skin, t, onUpdateLeaf, allLeavesCard
         <div className="order-1 min-w-0">
           <ZoomBar t={t} theme={theme} skin={skin} scale={scale} onZoomOut={zoomOut} onZoomIn={zoomIn} onFit={zoomFit} isFit={isFit} />
 
-          {/* hidden measuring pass */}
-          <div ref={measureRef} style={{ position: "absolute", visibility: "hidden", pointerEvents: "none", width: "182mm", top: -99999, fontFamily: PAGE_FONT, fontSize: 15, lineHeight: 1.9 }}>
-            {blocks.map((b, i) => (
-              <PlateBlock key={b.id || i} block={b} kinds={kinds} theme={theme} skin={skin} />
-            ))}
+          {/* hidden measuring pass enclosed in zero-size clipped container */}
+          <div style={{ position: "fixed", top: 0, left: 0, width: 0, height: 0, overflow: "hidden", visibility: "hidden", pointerEvents: "none", zIndex: -9999 }}>
+            <div ref={measureRef} style={{ width: "182mm", fontFamily: PAGE_FONT, fontSize: 15, lineHeight: 1.9 }}>
+              {blocks.map((b, i) => (
+                <PlateBlock key={b.id || i} block={b} kinds={kinds} theme={theme} skin={skin} />
+              ))}
+            </div>
           </div>
 
           <div ref={containerRef} className="overflow-x-auto overflow-y-visible flex justify-center py-2">
             <div style={{ zoom: scale, transition: "zoom 0.22s cubic-bezier(0.16, 1, 0.3, 1)" }}>
               <div className="flex flex-col gap-6 items-center py-2">
-                {pages.map((pageBlocks, pi) => (
+                {displayPages.map((pageBlocks, pi) => (
                   <div
                     key={pi}
                     dir="rtl"
@@ -7311,7 +9542,7 @@ function A4PageBuilder({ leaf, lang, theme, skin, t, onUpdateLeaf, allLeavesCard
                       </button>
                     </div>
 
-                    <p style={{ position: "relative", top: "8mm", textAlign: "center", fontSize: 10, color: "#b3a692" }}>{t.pageOf(pi + 1, pages.length)}</p>
+                    <p style={{ position: "relative", top: "8mm", textAlign: "center", fontSize: 10, color: "#b3a692" }}>{t.pageOf(pi + 1, displayPages.length)}</p>
                   </div>
                 ))}
               </div>
@@ -7737,7 +9968,13 @@ function EditorView({ book, lang, theme, skin, voiceEnabled, onVoiceEnabledChang
   }, [allLeaves, selectedLeafId]);
 
   const patchLeaf = (patchFn) => {
-    onUpdateBook((prev) => ({ ...prev, nodes: prev.nodes.map((n) => (n.id === selectedLeafId ? patchFn(n) : n)) }));
+    onUpdateBook((prev) => {
+      const base = prev || book;
+      return {
+        ...base,
+        nodes: (base?.nodes || []).map((n) => (n.id === selectedLeafId ? patchFn(n) : n)),
+      };
+    });
   };
   const setCards = (nextCards) => patchLeaf((n) => ({ ...n, cards: nextCards, questions: nextCards.flatMap((c) => c.questions) }));
   const updateCard = (idx, patch) => setCards(cards.map((c, i) => (i === idx ? { ...c, ...patch } : c)));
@@ -7958,10 +10195,13 @@ function EditorView({ book, lang, theme, skin, voiceEnabled, onVoiceEnabledChang
                 bookId={book.id}
                 onUpdateBook={onUpdateBook}
                 onUpdateLeaf={(targetId, patch) => {
-                  onUpdateBook((prev) => ({
-                    ...prev,
-                    nodes: prev.nodes.map((n) => (n.id === targetId ? { ...n, ...patch } : n)),
-                  }));
+                  onUpdateBook((prev) => {
+                    const base = prev || book;
+                    return {
+                      ...base,
+                      nodes: (base?.nodes || []).map((n) => (n.id === targetId ? { ...n, ...patch } : n)),
+                    };
+                  });
                 }}
               />
             </div>
@@ -8884,10 +11124,25 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
   const [flavorId, setFlavorId] = useState(saved.flavorId || (EXPORT && EXPORT.flavorId) || "normal");
   const [cardMode, setCardMode] = useState(saved.cardMode || "paged");
   const [scrollDir, setScrollDir] = useState(saved.scrollDir || "vertical");
-  const [covers, setCovers] = useState(saved.covers || (EXPORT && EXPORT.covers) || {});
-  const [plans, setPlans] = useState(saved.plans || (EXPORT && EXPORT.plans) || {});
-  const [bookFlavors, setBookFlavors] = useState(saved.bookFlavors || (EXPORT && EXPORT.bookFlavors) || {});
-  const [collections, setCollections] = useState(saved.collections || (EXPORT && EXPORT.collections) || []);
+  const [covers, setCovers] = useState(() => {
+    const exportCovers = (EXPORT && EXPORT.covers) || {};
+    const savedCovers = (saved && saved.covers) || {};
+    return { ...exportCovers, ...savedCovers };
+  });
+  const [plans, setPlans] = useState(() => {
+    const exportPlans = (EXPORT && EXPORT.plans) || {};
+    const savedPlans = (saved && saved.plans) || {};
+    return { ...exportPlans, ...savedPlans };
+  });
+  const [bookFlavors, setBookFlavors] = useState(() => {
+    const exportFlavors = (EXPORT && EXPORT.bookFlavors) || {};
+    const savedFlavors = (saved && saved.bookFlavors) || {};
+    return { ...exportFlavors, ...savedFlavors };
+  });
+  const [collections, setCollections] = useState(() => {
+    if (EXPORT && EXPORT.collections && EXPORT.collections.length > 0) return EXPORT.collections;
+    return (saved && saved.collections) || [];
+  });
   const [libraryPath, setLibraryPath] = useState([]);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [importModalOpen, setImportModalOpen] = useState(false);
@@ -8901,6 +11156,22 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
   const [isRestoringDb, setIsRestoringDb] = useState(false);
   const [isExportingDb, setIsExportingDb] = useState(false);
   const dbFileInputRef = useRef(null);
+
+  const isEditorDisabled = Boolean(EXPORT && EXPORT.disableEditor);
+  const isStandalone = Boolean(EXPORT);
+  const [disableEditorInExport, setDisableEditorInExport] = useState(() => Boolean(saved.disableEditorInExport));
+
+  const handleDisableEditorInExportChange = (val) => {
+    setDisableEditorInExport(val);
+    const current = loadAppState();
+    saveAppState({ ...current, disableEditorInExport: val });
+  };
+
+  useEffect(() => {
+    if (isEditorDisabled && view === "editor") {
+      setView("tree");
+    }
+  }, [isEditorDisabled, view]);
 
   const handleExportFullDatabase = async () => {
     if (isExportingDb) return;
@@ -9114,7 +11385,7 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
       message: exportLang === "ar" ? `جارٍ استخراج وتصدير "${bTitle}" عبر محرك Rust...` : `Exporting "${bTitle}" via Rust engine...`,
     });
     try {
-      const res = await onExportBook(bookToExport, exportLang, exportTheme, exportUi, exportSkin, exportCovers);
+      const res = await onExportBook(bookToExport, exportLang, exportTheme, exportUi, exportSkin, exportCovers, disableEditorInExport);
       if (res) {
         setExportToast({
           type: "success",
@@ -9192,7 +11463,7 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
       message: exportLang === "ar" ? `جارٍ استخراج وتصدير المجموعة "${colToExport.title}" عبر محرك Rust...` : `Exporting collection "${colToExport.title}" via Rust engine...`,
     });
     try {
-      const res = await onExportCollection(colToExport, allBooks, allCols, exportLang, exportTheme, exportUi, exportSkin, exportCovers);
+      const res = await onExportCollection(colToExport, allBooks, allCols, exportLang, exportTheme, exportUi, exportSkin, exportCovers, disableEditorInExport);
       if (res) {
         setExportToast({
           type: "success",
@@ -9364,13 +11635,31 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
     }
   };
 
-  const handleCreateNewBook = async (titleOverride) => {
-    const defaultTitle = lang === "ar" ? "كتاب جديد" : "New Book";
-    const title = (titleOverride || window.prompt(ui.newBookPrompt, defaultTitle))?.trim();
-    if (!title) return;
+  const handleCreateNewBook = async (options) => {
+    let title = "";
+    let arTitle = "";
+    let enTitle = "";
+    let tagline = "";
+    let parentId = null;
+    let cover = null;
+
+    if (typeof options === "string") {
+      title = options.trim();
+    } else if (options && typeof options === "object") {
+      title = (options.title || options.arTitle || options.enTitle || "").trim();
+      arTitle = (options.arTitle || title).trim();
+      enTitle = (options.enTitle || title).trim();
+      tagline = (options.tagline || "").trim();
+      parentId = options.parentId || null;
+      cover = options.cover || null;
+    }
+
+    if (!title) {
+      title = lang === "ar" ? "كتاب جديد" : "New Book";
+    }
 
     // Generate safe slug id
-    const baseSlug = title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+    const baseSlug = (enTitle || title).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
     const safeId = baseSlug || `book-${Date.now().toString(36)}`;
     let finalId = safeId;
     let counter = 1;
@@ -9380,18 +11669,18 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
 
     const newBook = {
       id: finalId,
-      cover: {
+      cover: cover || {
         from: "#3B82F6",
         to: "#1D4ED8",
         icon: "book",
       },
       en: {
-        title: title,
-        tagline: "Manual curriculum",
+        title: enTitle || title,
+        tagline: tagline || (lang === "en" ? "Interactive learning book" : "Manual curriculum"),
       },
       ar: {
-        title: title,
-        tagline: "منهج تعليمي يدوي",
+        title: arTitle || title,
+        tagline: tagline || (lang === "ar" ? "كتاب تعليمي تفاعلي" : "منهج تعليمي يدوي"),
       },
       flavorId: flavorId || "nord",
       nodes: [],
@@ -9413,27 +11702,54 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
       saveAppState(currentSaved);
     }
 
-    // 3. Update React state, set active bookId, and switch view to editor
+    // 3. Update React state, file into parentId if given, set active bookId, and switch view to editor
     setBooks((prev) => [...prev.filter((b) => b.id !== newBook.id), newBook]);
+    if (parentId && parentId !== "root") {
+      setCollections((prev) =>
+        prev.map((c) =>
+          c.id === parentId
+            ? { ...c, itemIds: Array.from(new Set([...(c.itemIds || []), finalId])) }
+            : c
+        )
+      );
+    }
     setBookId(newBook.id);
     setView("editor");
   };
 
-  const ui = UI[lang];
-  const theme = FLAVORS[flavorId][mode];
+  const ui = UI[lang] || UI.ar || UI.en;
+  const flavor = FLAVORS[flavorId] || FLAVORS.normal;
+  const theme = (flavor && flavor[mode]) || (FLAVORS.normal && FLAVORS.normal[mode]) || FLAVORS.normal.light;
   const currentBook = books.find((b) => b.id === bookId) || books[0] || BOOKS[0] || null;
   const currentBookFlavorId = (currentBook && bookFlavors[currentBook.id]) || flavorId;
-  const bookTheme = FLAVORS[currentBookFlavorId] ? FLAVORS[currentBookFlavorId][mode] : theme;
-  const skin = SKINS[skinId];
-  const dir = ui.dir;
+  const bFlavor = FLAVORS[currentBookFlavorId] || flavor;
+  const bookTheme = (bFlavor && bFlavor[mode]) || theme;
+  const skin = SKINS[skinId] || SKINS.normal;
+  const dir = ui.dir || "rtl";
+  const saveBookTimeoutRef = useRef(null);
+  const persistBookDebounced = (bookToSave) => {
+    if (!bookToSave) return;
+    if (saveBookTimeoutRef.current) clearTimeout(saveBookTimeoutRef.current);
+    saveBookTimeoutRef.current = setTimeout(() => {
+      try {
+        saveImportedBookFs(bookToSave.id, JSON.stringify(bookToSave, null, 2)).catch((err) => {
+          console.warn("[EDUcraft Save] Disk sync warning:", err);
+        });
+      } catch (err) {
+        console.warn("[EDUcraft Save] JSON stringify warning:", err);
+      }
+    }, 350);
+  };
+
   const updateCurrentBook = (fn) => {
     setBooks((prev) => {
-      const updated = prev.map((b) => (currentBook && b.id === currentBook.id ? fn(b) : b));
+      const updated = prev.map((b) => {
+        if (!currentBook || b.id !== currentBook.id) return b;
+        return typeof fn === "function" ? fn(b) : { ...b, ...fn };
+      });
       const target = updated.find((b) => b.id === currentBook?.id);
       if (target) {
-        saveImportedBookFs(target.id, JSON.stringify(target, null, 2)).catch((err) => {
-          console.error("[EDUcraft Save] Failed to persist book to disk:", err);
-        });
+        persistBookDebounced(target);
       }
       return updated;
     });
@@ -9535,21 +11851,71 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
       return next;
     });
 
-  const createCollection = (kind) => {
-    const name = window.prompt(kind === "encyclopedia" ? ui.collectionNamePromptEncyclopedia : ui.collectionNamePromptFolder);
-    if (!name || !name.trim()) return;
-    setCollections((prev) => [...prev, { id: uid(kind), kind, title: name.trim(), itemIds: [] }]);
+  const createCollection = (options) => {
+    let kind = "folder";
+    let title = "";
+    let parentId = null;
+    if (typeof options === "string") {
+      kind = options;
+      title = kind === "encyclopedia" ? (lang === "ar" ? "موسوعة جديدة" : "New Encyclopedia") : (lang === "ar" ? "مجلد جديد" : "New Folder");
+    } else if (options && typeof options === "object") {
+      kind = options.kind || "folder";
+      title = (options.title || "").trim();
+      parentId = options.parentId || null;
+    }
+    if (!title) return;
+    const newCol = { id: uid(kind), kind, title, itemIds: [] };
+    setCollections((prev) => {
+      let next = [...prev, newCol];
+      if (parentId && parentId !== "root") {
+        next = next.map((c) =>
+          c.id === parentId
+            ? { ...c, itemIds: Array.from(new Set([...(c.itemIds || []), newCol.id])) }
+            : c
+        );
+      }
+      return next;
+    });
   };
+
   const deleteCollection = (id) => {
-    if (!window.confirm(ui.libraryDeleteCollectionConfirm)) return;
-    setCollections((prev) => prev.filter((c) => c.id !== id));
-    setLibraryPath((prev) => prev.filter((x) => x !== id));
+    setCollections((prev) =>
+      prev
+        .filter((c) => c.id !== id)
+        .map((c) => ({
+          ...c,
+          itemIds: (c.itemIds || []).filter((x) => x !== id),
+        }))
+    );
+    setLibraryPath((prev) => {
+      const idx = prev.indexOf(id);
+      if (idx !== -1) return prev.slice(0, idx);
+      return prev.filter((x) => x !== id);
+    });
   };
+
+  const moveToCollection = (itemId, targetCollectionId) => {
+    setCollections((prev) => {
+      const cleaned = prev.map((c) => ({
+        ...c,
+        itemIds: (c.itemIds || []).filter((id) => id !== itemId),
+      }));
+      if (targetCollectionId && targetCollectionId !== "root") {
+        return cleaned.map((c) =>
+          c.id === targetCollectionId
+            ? { ...c, itemIds: Array.from(new Set([...(c.itemIds || []), itemId])) }
+            : c
+        );
+      }
+      return cleaned;
+    });
+  };
+
   const assignToCollection = (itemId, collectionId) => {
-    setCollections((prev) => prev.map((c) => (c.id === collectionId ? { ...c, itemIds: Array.from(new Set([...c.itemIds, itemId])) } : c)));
+    moveToCollection(itemId, collectionId);
   };
   const removeFromCollection = (itemId) => {
-    setCollections((prev) => prev.map((c) => (c.itemIds.includes(itemId) ? { ...c, itemIds: c.itemIds.filter((x) => x !== itemId) } : c)));
+    moveToCollection(itemId, "root");
   };
   const enterCollection = (id) => setLibraryPath((prev) => [...prev, id]);
   const crumbTo = (depth) => setLibraryPath((prev) => prev.slice(0, depth));
@@ -9568,8 +11934,9 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
         /* Fixes the stray white/default strip that used to show above the
            header: the browser's default body margin let the page's own
            white background peek through before our canvas color painted. */
-        html, body { margin: 0; padding: 0; background: ${theme.canvas}; }
-        #root, #__next { background: ${theme.canvas}; }
+        html, body { margin: 0; padding: 0; max-width: 100vw; overflow-x: clip; background: ${theme.canvas}; }
+        #root, #__next { background: ${theme.canvas}; max-width: 100vw; overflow-x: clip; width: 100%; min-width: 0; }
+        .educraft-root { width: 100%; max-width: 100vw; box-sizing: border-box; }
         .educraft-root * { box-sizing: border-box; }
         .educraft-root button { font: inherit; cursor: pointer; }
         .educraft-root button:disabled { cursor: not-allowed; }
@@ -9613,10 +11980,10 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
         }
       `}</style>
 
-      <div className={`educraft-root ${view === "editor" ? "max-w-[1560px]" : "max-w-5xl"} mx-auto px-4 sm:px-8 pb-16 transition-all duration-300`}>
+      <div className={`educraft-root w-full ${view === "editor" ? "max-w-[1560px]" : "max-w-5xl"} mx-auto px-2.5 sm:px-8 pb-28 md:pb-16 transition-all duration-300 min-w-0`}>
         {/* header */}
         <header
-          className="flex items-center justify-between gap-4 mt-6 px-5 py-3.5 flex-wrap"
+          className="flex items-center justify-between gap-2 sm:gap-4 mt-3 sm:mt-6 px-3.5 sm:px-5 py-2.5 sm:py-3.5"
           style={{
             background: skin.surfaceAlpha >= 1 ? theme.header : hexToRgba(theme.header, skin.surfaceAlpha),
             borderRadius: skin.radiusLg,
@@ -9626,9 +11993,9 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
             WebkitBackdropFilter: skin.blur,
           }}
         >
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 shrink-0">
             <BookOpen size={20} color={theme.ink} strokeWidth={2} />
-            <span className="text-lg font-bold" style={{ fontFamily: displayFont, color: theme.ink, letterSpacing: skin.letterSpacing }}>
+            <span className="text-base sm:text-lg font-bold" style={{ fontFamily: displayFont, color: theme.ink, letterSpacing: skin.letterSpacing }}>
               {ui.brand}
             </span>
           </div>
@@ -9664,21 +12031,23 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
               <GitBranch size={14} style={{ color: view === "tree" ? theme.accent : theme.inkSoft }} />
               {ui.navTree}
             </button>
-            <button
-              type="button"
-              onClick={() => setView("editor")}
-              className="educraft-btn flex items-center gap-1.5 text-sm font-semibold px-3.5 py-2 cursor-pointer"
-              style={{
-                borderRadius: skin.radiusSm,
-                color: view === "editor" ? theme.accent : theme.inkSoft,
-                background: view === "editor" ? theme.accentSoft : "transparent",
-                border: view === "editor" ? `1px solid ${theme.accent}33` : "1px solid transparent",
-                fontWeight: view === "editor" ? 700 : 500,
-              }}
-            >
-              <Settings size={14} style={{ color: view === "editor" ? theme.accent : theme.inkSoft }} />
-              {ui.navEditor}
-            </button>
+            {!isEditorDisabled && (
+              <button
+                type="button"
+                onClick={() => setView("editor")}
+                className="educraft-btn flex items-center gap-1.5 text-sm font-semibold px-3.5 py-2 cursor-pointer"
+                style={{
+                  borderRadius: skin.radiusSm,
+                  color: view === "editor" ? theme.accent : theme.inkSoft,
+                  background: view === "editor" ? theme.accentSoft : "transparent",
+                  border: view === "editor" ? `1px solid ${theme.accent}33` : "1px solid transparent",
+                  fontWeight: view === "editor" ? 700 : 500,
+                }}
+              >
+                <Settings size={14} style={{ color: view === "editor" ? theme.accent : theme.inkSoft }} />
+                {ui.navEditor}
+              </button>
+            )}
             <button
               type="button"
               onClick={() => setView("planner")}
@@ -9696,101 +12065,37 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
             </button>
           </nav>
 
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
             <button
               type="button"
               onClick={() => setLang((l) => (l === "en" ? "ar" : "en"))}
-              className="educraft-btn flex items-center gap-1.5 text-xs font-semibold px-2.5 py-2 cursor-pointer"
-              style={{ borderRadius: skin.radiusSm, color: theme.ink, minHeight: 40 }}
+              className="educraft-btn flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1.5 sm:py-2 cursor-pointer"
+              style={{ borderRadius: skin.radiusSm, color: theme.ink, minHeight: 36 }}
               aria-label="Toggle language"
             >
-              <Languages size={16} />
-              {ui.langToggle}
+              <Languages size={15} />
+              <span>{ui.langToggle}</span>
             </button>
             <button
               type="button"
               onClick={() => setMode((m) => (m === "light" ? "dark" : "light"))}
-              className="educraft-btn p-2 cursor-pointer"
-              style={{ borderRadius: skin.radiusSm, color: theme.ink, minHeight: 40, minWidth: 40 }}
+              className="educraft-btn p-2 cursor-pointer flex items-center justify-center"
+              style={{ borderRadius: skin.radiusSm, color: theme.ink, minHeight: 36, minWidth: 36 }}
               aria-label="Toggle theme"
             >
-              {mode === "light" ? <Moon size={16} /> : <Sun size={16} />}
+              {mode === "light" ? <Moon size={15} /> : <Sun size={15} />}
             </button>
             <button
               type="button"
               onClick={() => setSettingsOpen(true)}
-              className="educraft-btn p-2 cursor-pointer"
-              style={{ borderRadius: skin.radiusSm, color: theme.ink, minHeight: 40, minWidth: 40 }}
+              className="educraft-btn p-2 cursor-pointer flex items-center justify-center"
+              style={{ borderRadius: skin.radiusSm, color: theme.ink, minHeight: 36, minWidth: 36 }}
               aria-label={ui.navSettings}
               title={ui.navSettings}
             >
-              <Settings size={16} />
+              <Settings size={15} />
             </button>
           </div>
-
-          {/* mobile nav row */}
-          <nav className="flex md:hidden items-center gap-1 w-full justify-center pt-1">
-            <button
-              type="button"
-              onClick={() => setView("library")}
-              className="educraft-btn flex items-center gap-1.5 text-xs font-semibold px-3 py-2 cursor-pointer"
-              style={{
-                borderRadius: skin.radiusSm,
-                color: view === "library" ? theme.accent : theme.inkSoft,
-                background: view === "library" ? theme.accentSoft : "transparent",
-                border: view === "library" ? `1px solid ${theme.accent}33` : "1px solid transparent",
-                fontWeight: view === "library" ? 700 : 500,
-              }}
-            >
-              <Library size={13} style={{ color: view === "library" ? theme.accent : theme.inkSoft }} />
-              {ui.navLibrary}
-            </button>
-            <button
-              type="button"
-              onClick={() => setView("tree")}
-              className="educraft-btn flex items-center gap-1.5 text-xs font-semibold px-3 py-2 cursor-pointer"
-              style={{
-                borderRadius: skin.radiusSm,
-                color: view === "tree" ? theme.accent : theme.inkSoft,
-                background: view === "tree" ? theme.accentSoft : "transparent",
-                border: view === "tree" ? `1px solid ${theme.accent}33` : "1px solid transparent",
-                fontWeight: view === "tree" ? 700 : 500,
-              }}
-            >
-              <GitBranch size={13} style={{ color: view === "tree" ? theme.accent : theme.inkSoft }} />
-              {ui.navTree}
-            </button>
-            <button
-              type="button"
-              onClick={() => setView("editor")}
-              className="educraft-btn flex items-center gap-1.5 text-xs font-semibold px-3 py-2 cursor-pointer"
-              style={{
-                borderRadius: skin.radiusSm,
-                color: view === "editor" ? theme.accent : theme.inkSoft,
-                background: view === "editor" ? theme.accentSoft : "transparent",
-                border: view === "editor" ? `1px solid ${theme.accent}33` : "1px solid transparent",
-                fontWeight: view === "editor" ? 700 : 500,
-              }}
-            >
-              <Settings size={13} style={{ color: view === "editor" ? theme.accent : theme.inkSoft }} />
-              {ui.navEditor}
-            </button>
-            <button
-              type="button"
-              onClick={() => setView("planner")}
-              className="educraft-btn flex items-center gap-1.5 text-xs font-semibold px-3 py-2 cursor-pointer"
-              style={{
-                borderRadius: skin.radiusSm,
-                color: view === "planner" ? theme.accent : theme.inkSoft,
-                background: view === "planner" ? theme.accentSoft : "transparent",
-                border: view === "planner" ? `1px solid ${theme.accent}33` : "1px solid transparent",
-                fontWeight: view === "planner" ? 700 : 500,
-              }}
-            >
-              <CalendarDays size={13} style={{ color: view === "planner" ? theme.accent : theme.inkSoft }} />
-              {ui.navPlanner}
-            </button>
-          </nav>
         </header>
 
         <ErrorBoundary theme={theme} skin={skin} ui={ui} lang={lang} onReset={() => setView("library")}>
@@ -9815,8 +12120,9 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
               onDeleteCollection={deleteCollection}
               onAssignToCollection={assignToCollection}
               onRemoveFromCollection={removeFromCollection}
+              onMoveItem={moveToCollection}
               onCreateNewBook={handleCreateNewBook}
-              onExportBook={onExportBook ? (book, format = "html") => {
+              onExportBook={!isStandalone && onExportBook ? (book, format = "html") => {
                 if (format === "json") {
                   handleExportSingleBookJson(book);
                 } else {
@@ -9825,12 +12131,12 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
                   handleExportBook(book, lang, bTheme, ui, skin, covers);
                 }
               } : undefined}
-              onExportCollection={onExportCollection ? (col) => handleExportCollection(col, books, collections, lang, theme, ui, skin, covers) : undefined}
+              onExportCollection={!isStandalone && onExportCollection ? (col) => handleExportCollection(col, books, collections, lang, theme, ui, skin, covers) : undefined}
               isExporting={isExporting}
               onRescan={() => rescanBooks(false)}
               isScanning={isScanning}
               onOpenImportModal={() => setImportModalOpen(true)}
-              onDeleteBook={requestDeleteBook}
+              onDeleteBook={isStandalone ? undefined : requestDeleteBook}
               plans={plans}
               onExportDatabase={handleExportFullDatabase}
               onRestoreDatabase={() => dbFileInputRef.current?.click()}
@@ -9851,14 +12157,14 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
                 onBrowse={() => setView("browse")}
                 onReadThrough={() => setView("readthrough")}
                 onPlanner={() => setView("planner")}
-                onEditor={() => setView("editor")}
-                onExport={onExportBook ? () => handleExportBook(currentBook, lang, bookTheme, ui, skin, covers) : undefined}
+                onEditor={isEditorDisabled ? undefined : () => setView("editor")}
+                onExport={!isStandalone && onExportBook ? () => handleExportBook(currentBook, lang, bookTheme, ui, skin, covers) : undefined}
                 covers={covers}
                 onChangeCover={setCover}
                 onClearCover={clearCover}
                 bookFlavorId={currentBookFlavorId}
                 onChangeBookFlavor={(fid) => setBookFlavor(currentBook.id, fid)}
-                onDeleteBook={requestDeleteBook}
+                onDeleteBook={isStandalone ? undefined : requestDeleteBook}
                 plan={currentPlan}
               />
             ) : (
@@ -9878,7 +12184,7 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
                 onCreateBook={() => handleCreateNewBook()}
               />
             )
-          ) : view === "editor" ? (
+          ) : view === "editor" && !isEditorDisabled ? (
             currentBook ? (
               <div key={currentBook.id} className="flex flex-col gap-5">
                 <div className="flex items-center justify-between gap-3 flex-wrap">
@@ -10023,7 +12329,7 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
             )
           ) : view === "readthrough" ? (
             currentBook ? (
-              <section key={currentBook.id}>
+              <section key={currentBook.id} className="w-full min-w-0">
                 <div className="flex items-center justify-between gap-3 mb-5 flex-wrap">
                   <button
                     onClick={() => setView("tree")}
@@ -10073,6 +12379,7 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
                   theme={bookTheme}
                   skin={skin}
                   docTitle={lang === "ar" ? currentBook.ar?.title : currentBook.en?.title}
+                  readOnly={true}
                 />
               </section>
             ) : (
@@ -10124,14 +12431,14 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
               onBrowse={() => setView("browse")}
               onReadThrough={() => setView("readthrough")}
               onPlanner={() => setView("planner")}
-              onEditor={() => setView("editor")}
-              onExport={onExportBook ? () => handleExportBook(currentBook, lang, bookTheme, ui, skin, covers) : undefined}
+              onEditor={isEditorDisabled ? undefined : () => setView("editor")}
+              onExport={!isStandalone && onExportBook ? () => handleExportBook(currentBook, lang, bookTheme, ui, skin, covers) : undefined}
               covers={covers}
               onChangeCover={setCover}
               onClearCover={clearCover}
               bookFlavorId={currentBookFlavorId}
               onChangeBookFlavor={(fid) => setBookFlavor(currentBook.id, fid)}
-              onDeleteBook={requestDeleteBook}
+              onDeleteBook={isStandalone ? undefined : requestDeleteBook}
               plan={currentPlan}
             />
           ) : (
@@ -10154,8 +12461,9 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
               onDeleteCollection={deleteCollection}
               onAssignToCollection={assignToCollection}
               onRemoveFromCollection={removeFromCollection}
+              onMoveItem={moveToCollection}
               onCreateNewBook={handleCreateNewBook}
-              onExportBook={onExportBook ? (book, format = "html") => {
+              onExportBook={!isStandalone && onExportBook ? (book, format = "html") => {
                 if (format === "json") {
                   handleExportSingleBookJson(book);
                 } else {
@@ -10164,12 +12472,12 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
                   handleExportBook(book, lang, bTheme, ui, skin, covers);
                 }
               } : undefined}
-              onExportCollection={onExportCollection ? (col) => handleExportCollection(col, books, collections, lang, theme, ui, skin, covers) : undefined}
+              onExportCollection={!isStandalone && onExportCollection ? (col) => handleExportCollection(col, books, collections, lang, theme, ui, skin, covers) : undefined}
               isExporting={isExporting}
               onRescan={() => rescanBooks(false)}
               isScanning={isScanning}
               onOpenImportModal={() => setImportModalOpen(true)}
-              onDeleteBook={requestDeleteBook}
+              onDeleteBook={isStandalone ? undefined : requestDeleteBook}
               plans={plans}
               onExportDatabase={handleExportFullDatabase}
               onRestoreDatabase={() => dbFileInputRef.current?.click()}
@@ -10195,6 +12503,9 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
           onScrollDirChange={setScrollDir}
           voiceEnabled={voiceEnabled}
           onVoiceEnabledChange={setVoiceEnabled}
+          disableEditorInExport={disableEditorInExport}
+          onDisableEditorInExportChange={handleDisableEditorInExportChange}
+          isExportSeed={Boolean(EXPORT)}
           onClose={() => setSettingsOpen(false)}
           onReset={resetAll}
           onExportDatabase={handleExportFullDatabase}
@@ -10347,6 +12658,101 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
           </div>
         </div>
       )}
+
+      {/* Mobile App Bottom Navigation Bar */}
+      <nav
+        className="fixed bottom-0 inset-x-0 z-40 md:hidden flex items-center justify-around px-2 py-1 educraft-glass border-t shadow-lg"
+        style={{
+          background: skin.surfaceAlpha >= 1 ? theme.header : hexToRgba(theme.header, Math.max(skin.surfaceAlpha, 0.92)),
+          borderColor: skinBorderColor(skin, theme),
+          backdropFilter: "blur(16px)",
+          WebkitBackdropFilter: "blur(16px)",
+          paddingBottom: "max(0.4rem, env(safe-area-inset-bottom, 0.4rem))",
+        }}
+        aria-label="Mobile Navigation"
+      >
+        <button
+          type="button"
+          onClick={() => setView("library")}
+          className="flex flex-col items-center justify-center gap-0.5 flex-1 py-1 px-1 rounded-xl transition-all cursor-pointer min-w-0"
+          style={{
+            color: view === "library" ? theme.accent : theme.inkSoft,
+            fontWeight: view === "library" ? 700 : 500,
+          }}
+        >
+          <div
+            className="p-1 rounded-lg transition-all"
+            style={{
+              background: view === "library" ? theme.accentSoft : "transparent",
+            }}
+          >
+            <Library size={18} style={{ color: view === "library" ? theme.accent : theme.inkSoft }} />
+          </div>
+          <span className="text-[10px] leading-none truncate max-w-full">{ui.navLibrary}</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setView("tree")}
+          className="flex flex-col items-center justify-center gap-0.5 flex-1 py-1 px-1 rounded-xl transition-all cursor-pointer min-w-0"
+          style={{
+            color: view === "tree" ? theme.accent : theme.inkSoft,
+            fontWeight: view === "tree" ? 700 : 500,
+          }}
+        >
+          <div
+            className="p-1 rounded-lg transition-all"
+            style={{
+              background: view === "tree" ? theme.accentSoft : "transparent",
+            }}
+          >
+            <GitBranch size={18} style={{ color: view === "tree" ? theme.accent : theme.inkSoft }} />
+          </div>
+          <span className="text-[10px] leading-none truncate max-w-full">{ui.navTree}</span>
+        </button>
+
+        {!isEditorDisabled && (
+          <button
+            type="button"
+            onClick={() => setView("editor")}
+            className="flex flex-col items-center justify-center gap-0.5 flex-1 py-1 px-1 rounded-xl transition-all cursor-pointer min-w-0"
+            style={{
+              color: view === "editor" ? theme.accent : theme.inkSoft,
+              fontWeight: view === "editor" ? 700 : 500,
+            }}
+          >
+            <div
+              className="p-1 rounded-lg transition-all"
+              style={{
+                background: view === "editor" ? theme.accentSoft : "transparent",
+              }}
+            >
+              <Settings size={18} style={{ color: view === "editor" ? theme.accent : theme.inkSoft }} />
+            </div>
+            <span className="text-[10px] leading-none truncate max-w-full">{ui.navEditor}</span>
+          </button>
+        )}
+
+        <button
+          type="button"
+          onClick={() => setView("planner")}
+          className="flex flex-col items-center justify-center gap-0.5 flex-1 py-1 px-1 rounded-xl transition-all cursor-pointer min-w-0"
+          style={{
+            color: view === "planner" ? theme.accent : theme.inkSoft,
+            fontWeight: view === "planner" ? 700 : 500,
+          }}
+        >
+          <div
+            className="p-1 rounded-lg transition-all"
+            style={{
+              background: view === "planner" ? theme.accentSoft : "transparent",
+            }}
+          >
+            <CalendarDays size={18} style={{ color: view === "planner" ? theme.accent : theme.inkSoft }} />
+          </div>
+          <span className="text-[10px] leading-none truncate max-w-full">{ui.navPlanner}</span>
+        </button>
+      </nav>
     </div>
   );
 }
@@ -10435,7 +12841,7 @@ async function importFullDatabaseViaRust(dumpData, mode = "merge") {
 }
 
 /* ─── Rust-Powered Book Export ─────────────────────────────────────────────── */
-async function exportBookViaRust(book, lang, theme, ui, skin, covers) {
+async function exportBookViaRust(book, lang, theme, ui, skin, covers, disableEditorInExport) {
   covers = covers || {};
   const currentFlavor = flavorIdOf(theme);
   const title = book?.[lang]?.title || book?.id;
@@ -10450,6 +12856,7 @@ async function exportBookViaRust(book, lang, theme, ui, skin, covers) {
     flavorId: currentFlavor,
     bookFlavors: { [book.id]: currentFlavor },
     covers: covers[book.id] ? { [book.id]: covers[book.id] } : {},
+    disableEditor: Boolean(disableEditorInExport),
   };
 
   // 1. Tauri desktop application path
@@ -10487,7 +12894,7 @@ async function exportBookViaRust(book, lang, theme, ui, skin, covers) {
 }
 
 /* ─── Rust-Powered Collection Export ───────────────────────────────────────── */
-async function exportCollectionViaRust(collection, books, collections, lang, theme, ui, skin, covers) {
+async function exportCollectionViaRust(collection, books, collections, lang, theme, ui, skin, covers, disableEditorInExport) {
   covers = covers || {};
   const currentFlavor = flavorIdOf(theme);
   const subtree = resolveCollectionSubtree(collection, collections || []);
@@ -10509,6 +12916,7 @@ async function exportCollectionViaRust(collection, books, collections, lang, the
     flavorId: currentFlavor,
     bookFlavors: seedFlavors,
     covers: seedCovers,
+    disableEditor: Boolean(disableEditorInExport),
   };
 
   // 1. Tauri desktop application path
@@ -10550,5 +12958,9 @@ async function exportCollectionViaRust(collection, books, collections, lang, the
 }
 
 export default function EDUcraft() {
-  return <EDUcraftApp onExportBook={exportBookViaRust} onExportCollection={exportCollectionViaRust} />;
+  return (
+    <ErrorBoundary onReset={() => window.location.reload()}>
+      <EDUcraftApp onExportBook={exportBookViaRust} onExportCollection={exportCollectionViaRust} />
+    </ErrorBoundary>
+  );
 }

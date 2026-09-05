@@ -259,13 +259,13 @@ function CurriculumOutlineView({
     <div className="flex flex-col gap-4">
       {/* Progress & Quick Actions Bar */}
       <div
-        className="flex items-center justify-between gap-4 p-4 rounded-2xl border flex-wrap"
+        className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 p-3.5 sm:p-4 rounded-2xl border w-full"
         style={{
           background: theme.surface,
           borderColor: theme.hairline,
         }}
       >
-        <div className="flex flex-col gap-1.5 min-w-[220px] flex-1">
+        <div className="flex flex-col gap-1.5 min-w-0 w-full sm:flex-1">
           <div className="flex items-center justify-between text-xs font-bold" style={{ color: theme.ink }}>
             <span>
               {lang === "ar" ? "نسبة إنجاز المنهج" : "Curriculum Progress"}
@@ -285,10 +285,10 @@ function CurriculumOutlineView({
           </div>
         </div>
 
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex items-center gap-2 self-end sm:self-auto shrink-0">
           <button
             onClick={expandAll}
-            className="text-xs font-bold px-3 py-1.5 rounded-xl border transition-all hover:opacity-80"
+            className="text-xs font-bold px-3 py-1.5 rounded-xl border transition-all hover:opacity-80 cursor-pointer"
             style={{
               background: theme.surfaceSoft,
               borderColor: theme.hairline,
@@ -299,7 +299,7 @@ function CurriculumOutlineView({
           </button>
           <button
             onClick={collapseAll}
-            className="text-xs font-bold px-3 py-1.5 rounded-xl border transition-all hover:opacity-80"
+            className="text-xs font-bold px-3 py-1.5 rounded-xl border transition-all hover:opacity-80 cursor-pointer"
             style={{
               background: theme.surfaceSoft,
               borderColor: theme.hairline,
@@ -464,14 +464,14 @@ function LeafCardItem({ leaf, lang, theme, skin, selected, isDone, onSelect, lea
   return (
     <button
       onClick={() => onSelect?.(leaf.id)}
-      className="flex items-center justify-between gap-2.5 p-3 rounded-xl border text-start transition-all hover:scale-[1.01] hover:shadow-sm"
+      className="flex items-center justify-between gap-2 p-2.5 sm:p-3 rounded-xl border text-start transition-all hover:scale-[1.01] hover:shadow-sm min-h-[48px] cursor-pointer"
       style={{
         background: selected ? theme.accentSoft || "rgba(79,70,229,0.12)" : theme.surface,
         borderColor: selected ? theme.accent : isDone ? "#10B981" : theme.hairline,
         borderWidth: selected ? 2 : 1.5,
       }}
     >
-      <div className="flex items-center gap-2.5 min-w-0">
+      <div className="flex items-center gap-2.5 min-w-0 flex-1">
         <div
           className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
           style={{
@@ -481,21 +481,21 @@ function LeafCardItem({ leaf, lang, theme, skin, selected, isDone, onSelect, lea
         >
           {isDone ? <CheckCircle2 size={15} /> : <FileText size={14} />}
         </div>
-        <div className="flex flex-col min-w-0">
+        <div className="flex flex-col min-w-0 flex-1">
           <span
-            className="text-xs font-bold truncate"
+            className="text-xs font-bold line-clamp-2 leading-snug break-words"
             style={{ color: selected ? theme.accent : theme.ink }}
           >
             {leaf[lang] || leaf.ar || leaf.en || leaf.id}
           </span>
-          <div className="flex items-center gap-1.5 mt-0.5">
+          <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
             {hasPages && (
-              <span className="text-[9px] font-bold px-1.5 py-0.2 rounded" style={{ background: theme.canvas, color: theme.inkSoft }}>
+              <span className="text-[9px] font-bold px-1.5 py-0.5 rounded" style={{ background: theme.canvas, color: theme.inkSoft }}>
                 📄 A4
               </span>
             )}
             {qCount > 0 && (
-              <span className="text-[9px] font-bold px-1.5 py-0.2 rounded" style={{ background: theme.canvas, color: theme.inkSoft }}>
+              <span className="text-[9px] font-bold px-1.5 py-0.5 rounded" style={{ background: theme.canvas, color: theme.inkSoft }}>
                 🎯 {qCount}
               </span>
             )}
@@ -508,7 +508,7 @@ function LeafCardItem({ leaf, lang, theme, skin, selected, isDone, onSelect, lea
         </div>
       </div>
 
-      <span className="text-[11px] font-bold shrink-0 text-emerald-500 opacity-80 group-hover:opacity-100">
+      <span className="text-[11px] font-bold shrink-0 text-emerald-500 opacity-80 group-hover:opacity-100 ms-1">
         ➜
       </span>
     </button>
@@ -723,15 +723,15 @@ export function KnowledgeTreeEnhanced({
   return (
     <div className="flex flex-col gap-3.5 select-none">
       {/* Top Controls Header */}
-      <div className="flex items-center justify-between gap-3 flex-wrap">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 sm:gap-3 w-full">
         {/* View Mode Switcher: Outline vs Mindmap */}
         <div
-          className="flex items-center p-1 rounded-xl border shadow-xs"
+          className="flex items-center p-1 rounded-xl border shadow-xs w-full sm:w-auto"
           style={{ background: theme.surface, borderColor: theme.hairline }}
         >
           <button
             onClick={() => setViewMode("outline")}
-            className="educraft-btn flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold rounded-lg cursor-pointer"
+            className="educraft-btn flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3.5 py-2 sm:py-1.5 text-xs font-bold rounded-lg cursor-pointer"
             style={{
               background: viewMode === "outline" ? theme.accentSoft : "transparent",
               color: viewMode === "outline" ? theme.accent : theme.inkSoft,
@@ -743,7 +743,7 @@ export function KnowledgeTreeEnhanced({
           </button>
           <button
             onClick={() => setViewMode("graph")}
-            className="educraft-btn flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold rounded-lg cursor-pointer"
+            className="educraft-btn flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3.5 py-2 sm:py-1.5 text-xs font-bold rounded-lg cursor-pointer"
             style={{
               background: viewMode === "graph" ? theme.accentSoft : "transparent",
               color: viewMode === "graph" ? theme.accent : theme.inkSoft,
@@ -756,7 +756,7 @@ export function KnowledgeTreeEnhanced({
         </div>
 
         {/* Search Bar */}
-        <div className="relative flex-1 min-w-[220px] max-w-sm">
+        <div className="relative w-full sm:flex-1 sm:max-w-sm">
           <Search
             size={14}
             className="absolute top-1/2 -translate-y-1/2 pointer-events-none"

@@ -2,7 +2,10 @@
 //! Accepts an ExportSeed JSON via stdin and streams the self-contained HTML to stdout.
 
 use educraft_lib::export_engine::{
-    html_builder::{build_export_html, lang_to_dir, seed_to_safe_json, ExportHtmlOptions},
+    html_builder::{
+        build_export_html, lang_to_dir, resolve_seed_cover_favicon, seed_to_safe_json,
+        ExportHtmlOptions,
+    },
     types::ExportSeed,
     validator::validate_and_sanitize_seed,
 };
@@ -38,14 +41,16 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     };
 
     let seed_json = seed_to_safe_json(&seed)?;
+    let target_bid = if seed.start_book_id.is_empty() { None } else { Some(seed.start_book_id.as_str()) };
+    let cover_favicon = resolve_seed_cover_favicon(&seed, target_bid);
 
-    let html = build_export_html(&ExportHtmlOptions {
-        title: &title,
-        favicon: "data:,",
-        lang: &seed.lang,
-        dir: lang_to_dir(&seed.lang),
-        seed_json: &seed_json,
-    });
+    let html = build_export_html(&ExportHtmlOptions::new(
+        &title,
+        &cover_favicon,
+        &seed.lang,
+        lang_to_dir(&seed.lang),
+        &seed_json,
+    ));
 
     let stdout = io::stdout();
     let mut handle = stdout.lock();

@@ -1,20 +1,23 @@
 {
   "name": "educraft",
   "private": true,
-  "version": "0.8.0",
+  "version": "0.0.9.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build:export": "node scripts/build-export-bundle.js",
-    "build:cli": "cd src-tauri && LIBRARY_PATH=\"$PWD/.pkgconfig/lib\" PKG_CONFIG_PATH=\"$PWD/.pkgconfig\" cargo build --bin export_cli --bin books_cli",
+    "build:cli": "node scripts/build-export-bundle.js && cd src-tauri && LIBRARY_PATH=\"$PWD/.pkgconfig/lib\" PKG_CONFIG_PATH=\"$PWD/.pkgconfig\" cargo build --bin export_cli --bin books_cli",
     "prebuild": "node scripts/build-export-bundle.js",
     "build": "vite build",
+    "postbuild": "node scripts/build-export-bundle.js",
     "preview": "vite preview",
     "tauri": "tauri"
   },
   "dependencies": {
     "@tauri-apps/api": "^2.2.0",
     "@tauri-apps/plugin-opener": "^2.2.0",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^4.2.1",
     "lucide-react": "^1.16.0",
     "prismjs": "^1.30.0",
     "react": "^18.3.1",
