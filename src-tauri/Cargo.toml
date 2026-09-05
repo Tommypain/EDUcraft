@@ -24,4 +24,6 @@ rayon = "1.10"
 sha2 = "0.10"
 zip = { version = "8.6.0", default-features = false, features = ["deflate-flate2"] }
 lopdf = { version = "0.44.0", default-features = false }
+toml = "0.8"
+
 

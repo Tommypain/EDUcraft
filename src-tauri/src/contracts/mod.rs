@@ -367,6 +367,8 @@ pub struct PluginManifest {
     pub target_engine: String,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub capabilities: Vec<String>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub permissions: Vec<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub contributions: Option<PluginContributions>,
     #[serde(flatten)]

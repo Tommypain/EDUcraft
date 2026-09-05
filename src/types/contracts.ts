@@ -248,6 +248,7 @@ export interface PluginManifestContract {
   entry_point: string;
   target_engine?: string;
   capabilities?: string[];
+  permissions?: string[];
   contributions?: {
     views?: Array<{ id: string; title: string; icon?: string }>;
     themes?: Array<{ id: string; name: string; file: string }>;
