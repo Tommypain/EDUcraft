@@ -15,6 +15,7 @@ pub mod book_manager;
 pub mod contracts;
 pub mod export_engine;
 pub mod knowledge_graph;
+pub mod migration;
 pub mod runtime;
 pub mod titanium;
 
