@@ -249,6 +249,7 @@ export interface PluginManifestContract {
   target_engine?: string;
   capabilities?: string[];
   permissions?: string[];
+  dependencies?: Record<string, string>;
   contributions?: {
     views?: Array<{ id: string; title: string; icon?: string }>;
     themes?: Array<{ id: string; name: string; file: string }>;

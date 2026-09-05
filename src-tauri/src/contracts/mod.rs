@@ -369,6 +369,8 @@ pub struct PluginManifest {
     pub capabilities: Vec<String>,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub permissions: Vec<String>,
+    #[serde(default, skip_serializing_if = "HashMap::is_empty")]
+    pub dependencies: HashMap<String, String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub contributions: Option<PluginContributions>,
     #[serde(flatten)]
@@ -390,5 +392,24 @@ impl PluginManifest {
             return Err("Plugin entry_point cannot be empty".to_string());
         }
         Ok(())
+    }
+}
+
+impl Default for PluginManifest {
+    fn default() -> Self {
+        Self {
+            id: String::new(),
+            name: String::new(),
+            version: "0.1.0".to_string(),
+            author: None,
+            description: None,
+            entry_point: "index.js".to_string(),
+            target_engine: default_target_engine(),
+            capabilities: Vec::new(),
+            permissions: Vec::new(),
+            dependencies: HashMap::new(),
+            contributions: None,
+            extra: HashMap::new(),
+        }
     }
 }

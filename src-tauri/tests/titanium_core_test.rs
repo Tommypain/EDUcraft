@@ -33,7 +33,7 @@ fn create_valid_plugin_manifest() -> PluginManifest {
             }],
             question_types: vec![],
         }),
-        extra: Default::default(),
+        ..Default::default()
     }
 }
 

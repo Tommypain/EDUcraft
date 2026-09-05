@@ -4,6 +4,7 @@
 //! capability registration, sandbox permissions, and contribution aggregation.
 
 pub mod blocks;
+pub mod composition;
 pub mod declarative;
 pub mod registry;
 pub mod slots;
@@ -12,6 +13,7 @@ pub mod types;
 pub mod validator;
 
 pub use blocks::*;
+pub use composition::*;
 pub use declarative::*;
 pub use registry::*;
 pub use slots::*;
