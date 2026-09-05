@@ -37,6 +37,11 @@ pub fn run() {
             commands::import_book_commit_cmd,
             commands::export_full_database,
             commands::import_full_database,
+            commands::titanium_list_plugins,
+            commands::titanium_activate_plugin,
+            commands::titanium_deactivate_plugin,
+            commands::titanium_get_contributions,
+            commands::titanium_resolve_asset,
         ])
         .run(tauri::generate_context!())
         .expect("error while running EDUcraft application");
