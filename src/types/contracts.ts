@@ -189,7 +189,36 @@ export interface KnowledgeAsset {
   caption?: LocalizedString;
   alt?: LocalizedString;
   tags?: string[];
+  intelligence?: AssetIntelligence;
   extra?: Record<string, unknown>;
+}
+
+export type ConfidenceLevel = "high" | "medium" | "low";
+
+export interface ConfidenceScore {
+  score: number;
+  level: ConfidenceLevel;
+  basis: string[];
+}
+
+export interface AssetProvenance {
+  source_file?: string;
+  page_number?: number;
+  slide_number?: number;
+  container_tag?: string;
+}
+
+export interface AssetIntelligence {
+  title?: LocalizedString;
+  caption?: LocalizedString;
+  description?: LocalizedString;
+  ocr_text?: string;
+  topics: string[];
+  concepts: string[];
+  pedagogical_role: AssetRole;
+  provenance: AssetProvenance;
+  confidence: ConfidenceScore;
+  perceptual_hash?: string;
 }
 
 export interface KnowledgeAssetManifest {

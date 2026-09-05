@@ -130,6 +130,7 @@ fn test_knowledge_asset_manifest_validation() {
         }),
         alt: None,
         tags: vec!["biology".to_string(), "cell".to_string()],
+        intelligence: None,
         extra: HashMap::new(),
     };
 

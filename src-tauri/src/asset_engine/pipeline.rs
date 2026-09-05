@@ -77,6 +77,11 @@ pub fn process_raw_assets(
         }
 
         // 5. MANIFEST
+        let intelligence = crate::asset_intelligence::enrich_asset_intelligence(
+            &raw,
+            classification.role.clone(),
+        );
+
         let asset = KnowledgeAsset {
             id: asset_id.clone(),
             asset_type: classification.asset_type,
@@ -94,6 +99,7 @@ pub fn process_raw_assets(
             caption: raw.caption,
             alt: raw.alt,
             tags: raw.provenance_tags,
+            intelligence: Some(intelligence),
             extra: HashMap::new(),
         };
 

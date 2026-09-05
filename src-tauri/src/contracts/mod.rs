@@ -123,6 +123,85 @@ pub struct KnowledgeAsset {
     pub alt: Option<LocalizedText>,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub tags: Vec<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub intelligence: Option<AssetIntelligence>,
+    #[serde(flatten)]
+    pub extra: HashMap<String, serde_json::Value>,
+}
+
+impl Default for KnowledgeAsset {
+    fn default() -> Self {
+        Self {
+            id: String::new(),
+            asset_type: AssetType::Unknown,
+            role: AssetRole::Unknown,
+            original_filename: String::new(),
+            storage_path: String::new(),
+            mime_type: "application/octet-stream".to_string(),
+            byte_size: 0,
+            sha256: String::new(),
+            width: None,
+            height: None,
+            aspect_ratio: None,
+            duration_seconds: None,
+            is_decorative: false,
+            caption: None,
+            alt: None,
+            tags: Vec::new(),
+            intelligence: None,
+            extra: HashMap::new(),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum ConfidenceLevel {
+    High,
+    Medium,
+    Low,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct ConfidenceScore {
+    pub score: f32,
+    pub level: ConfidenceLevel,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub basis: Vec<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, Default)]
+pub struct AssetProvenance {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub source_file: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub page_number: Option<u32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub slide_number: Option<u32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub container_tag: Option<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct AssetIntelligence {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub title: Option<LocalizedText>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub caption: Option<LocalizedText>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub description: Option<LocalizedText>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub ocr_text: Option<String>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub topics: Vec<String>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub concepts: Vec<String>,
+    pub pedagogical_role: AssetRole,
+    #[serde(default)]
+    pub provenance: AssetProvenance,
+    pub confidence: ConfidenceScore,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub perceptual_hash: Option<String>,
     #[serde(flatten)]
     pub extra: HashMap<String, serde_json::Value>,
 }

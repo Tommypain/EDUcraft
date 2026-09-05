@@ -72,7 +72,7 @@ fn test_single_asset_lifecycle() {
         }),
         alt: None,
         tags: vec!["anatomy".to_string()],
-        extra: HashMap::new(),
+        ..KnowledgeAsset::default()
     };
 
     manifest.add_asset(asset);
@@ -117,7 +117,7 @@ fn test_many_multimodal_assets() {
             caption: None,
             alt: None,
             tags: vec![],
-            extra: HashMap::new(),
+            ..KnowledgeAsset::default()
         };
         manifest.add_asset(asset);
     }
@@ -157,7 +157,7 @@ fn test_duplicate_assets_sha256_deduplication() {
         caption: None,
         alt: None,
         tags: vec![],
-        extra: HashMap::new(),
+        ..KnowledgeAsset::default()
     };
 
     let first_id = manifest.add_or_deduplicate(canonical_asset);
@@ -182,7 +182,7 @@ fn test_duplicate_assets_sha256_deduplication() {
         caption: None,
         alt: None,
         tags: vec![],
-        extra: HashMap::new(),
+        ..KnowledgeAsset::default()
     };
 
     let resolved_id = manifest.add_or_deduplicate(duplicate_asset);
@@ -213,7 +213,7 @@ fn test_unused_assets_and_missing_references_detection() {
             caption: None,
             alt: None,
             tags: vec![],
-            extra: HashMap::new(),
+            ..KnowledgeAsset::default()
         });
     }
 
@@ -250,7 +250,7 @@ fn test_invalid_metadata_rejection() {
         caption: None,
         alt: None,
         tags: vec![],
-        extra: HashMap::new(),
+        ..KnowledgeAsset::default()
     };
     manifest.add_asset(bad_bytes_asset);
     assert!(manifest.validate().is_err());
@@ -274,7 +274,7 @@ fn test_invalid_metadata_rejection() {
         caption: None,
         alt: None,
         tags: vec![],
-        extra: HashMap::new(),
+        ..KnowledgeAsset::default()
     };
     manifest2.add_asset(bad_sha_asset);
     assert!(manifest2.validate().is_err());
