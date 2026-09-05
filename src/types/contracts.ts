@@ -280,3 +280,69 @@ export interface AssetResolutionResult {
   candidates: ScoredCandidate[];
   reason?: string;
 }
+
+// ============================================================================
+// Knowledge Graph Contract
+// ============================================================================
+
+export type GraphNodeKind =
+  | "book"
+  | "branch"
+  | "subbranch"
+  | "leaf"
+  | "contentblock"
+  | "concept"
+  | "question"
+  | "asset"
+  | "studyrecord";
+
+export type EdgeKind =
+  | "contains"
+  | "prerequisiteof"
+  | "illustrates"
+  | "tests"
+  | "coversconcept"
+  | "recordedstudy";
+
+export interface GraphNodeContract {
+  id: string;
+  kind: GraphNodeKind;
+  label: string;
+  attributes?: Record<string, unknown>;
+}
+
+export interface GraphEdgeContract {
+  source: string;
+  target: string;
+  kind: EdgeKind;
+  weight?: number;
+  metadata?: Record<string, unknown>;
+}
+
+export interface StudyAttemptContract {
+  id: string;
+  leaf_id: string;
+  question_id: string;
+  is_correct: boolean;
+  score: number;
+  timestamp?: string;
+}
+
+export interface ConceptTraceContract {
+  concept_id: string;
+  label: string;
+  leaves: string[];
+  content_blocks: string[];
+  assets: string[];
+  questions: string[];
+  mastery: number;
+}
+
+export interface KnowledgeGraphContract {
+  nodes: Record<string, GraphNodeContract>;
+  outgoing: Record<string, GraphEdgeContract[]>;
+  incoming: Record<string, GraphEdgeContract[]>;
+  concept_mastery: Record<string, number>;
+  study_records: StudyAttemptContract[];
+}
+
