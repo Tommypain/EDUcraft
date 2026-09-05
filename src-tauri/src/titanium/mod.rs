@@ -3,10 +3,12 @@
 //! Provides plugin discovery, manifest validation, lifecycle transitions,
 //! capability registration, sandbox permissions, and contribution aggregation.
 
+pub mod declarative;
 pub mod registry;
 pub mod types;
 pub mod validator;
 
+pub use declarative::*;
 pub use registry::*;
 pub use types::*;
 pub use validator::*;

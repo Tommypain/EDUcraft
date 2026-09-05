@@ -347,3 +347,55 @@ export interface KnowledgeGraphContract {
   study_records: StudyAttemptContract[];
 }
 
+// ============================================================================
+// Declarative Plugin Contract
+// ============================================================================
+
+export interface DeclarativeBlockDefContract {
+  kind: string;
+  title: string;
+  icon?: string;
+  default_fields?: Record<string, unknown>;
+  required_fields?: string[];
+  render_template: string;
+}
+
+export interface DeclarativeThemeDefContract {
+  id: string;
+  name: string;
+  is_dark?: boolean;
+  variables: Record<string, string>;
+}
+
+export interface DeclarativeViewDefContract {
+  id: string;
+  title: string;
+  icon?: string;
+  target_pane: "sidebar" | "editor_toolbar" | "footer_tray" | "modal" | string;
+  component_type: "markdown_preview" | "inspector" | "glossary" | "asset_gallery" | string;
+  settings?: Record<string, unknown>;
+}
+
+export interface DeclarativeQuestionDefContract {
+  type: string;
+  title: string;
+  default_points?: number;
+  scoring_mode: "exact" | "partial" | "boolean" | string;
+  schema?: Record<string, unknown>;
+}
+
+export interface DeclarativeMacroDefContract {
+  tag: string;
+  template: string;
+}
+
+export interface DeclarativePluginContract {
+  manifest: PluginManifestContract;
+  content_blocks?: DeclarativeBlockDefContract[];
+  themes?: DeclarativeThemeDefContract[];
+  views?: DeclarativeViewDefContract[];
+  question_types?: DeclarativeQuestionDefContract[];
+  macros?: DeclarativeMacroDefContract[];
+}
+
+
