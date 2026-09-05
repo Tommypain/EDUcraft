@@ -1,0 +1,6 @@
+[build]
+rustflags = ["-C", "link-arg=-Wl,--no-as-needed", "-C", "link-arg=/usr/lib64/ld-linux-x86-64.so.2"]
+
+[env]
+LIBRARY_PATH = { value = ".pkgconfig/lib", relative = true }
+PKG_CONFIG_PATH = { value = ".pkgconfig", relative = true }
