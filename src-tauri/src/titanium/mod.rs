@@ -12,6 +12,7 @@ pub mod slots;
 pub mod theme_tokens;
 pub mod types;
 pub mod validator;
+pub mod wasm;
 
 pub use blocks::*;
 pub use composition::*;
@@ -22,3 +23,4 @@ pub use slots::*;
 pub use theme_tokens::*;
 pub use types::*;
 pub use validator::*;
+pub use wasm::*;
