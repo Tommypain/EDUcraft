@@ -8,6 +8,7 @@
 //! ```
 
 mod commands;
+pub mod asset_engine;
 pub mod book_manager;
 pub mod contracts;
 pub mod export_engine;
