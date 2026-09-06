@@ -26,4 +26,8 @@ zip = { version = "8.6.0", default-features = false, features = ["deflate-flate2
 lopdf = { version = "0.44.0", default-features = false }
 toml = "0.8"
 
+[profile.dev]
+debug = 1
 
+[profile.test]
+debug = 1
