@@ -46,6 +46,10 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf libgtk-3-dev
 
+      - name: Clean local dev cargo config for standard CI environments
+        run: rm -f src-tauri/.cargo/config.toml
+        shell: bash
+
       - name: Install Node dependencies
         run: npm ci
 
