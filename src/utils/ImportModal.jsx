@@ -8,13 +8,17 @@ import {
   X,
   BookOpen,
   FolderOpen,
+  Folder,
   BookCopy,
   Layers,
   Sparkles,
   ArrowRight,
   ArrowLeft,
   Copy,
-  Check
+  Check,
+  Image as ImageIcon,
+  UploadCloud,
+  HelpCircle
 } from "lucide-react";
 import { parseJSONSafely, validatePayload } from "./importer.js";
 
@@ -35,10 +39,15 @@ export function ImportModal({
   const [fileName, setFileName] = useState("");
   const [validationResult, setValidationResult] = useState(null);
   const [parseError, setParseError] = useState(null);
-  const [step, setStep] = useState("input"); // "input" | "preview" | "success"
+  const [step, setStep] = useState("input"); // "input" | "images" | "preview" | "success"
   const [conflictChoices, setConflictChoices] = useState({}); // { [bookId]: "replace" | "rename" }
   const [copied, setCopied] = useState(false);
+  const [detectedImages, setDetectedImages] = useState([]);
+  const [folderPathInput, setFolderPathInput] = useState("");
+
   const fileInputRef = useRef(null);
+  const folderInputRef = useRef(null);
+  const filesInputRef = useRef(null);
 
   if (!isOpen) return null;
 
@@ -79,8 +88,15 @@ export function ImportModal({
     });
     setConflictChoices(initialChoices);
 
+    const imgs = res.referencedImages || [];
+    setDetectedImages(imgs);
+
     if (res.valid) {
-      setStep("preview");
+      if (imgs.length > 0) {
+        setStep("images");
+      } else {
+        setStep("preview");
+      }
     } else {
       setStep("input");
     }
@@ -91,8 +107,100 @@ export function ImportModal({
     processValidation(jsonText);
   };
 
+  // Handle folder or multiple image files selection
+  const handleImageFilesLoaded = (fileList) => {
+    const files = Array.from(fileList || []);
+    if (files.length === 0) return;
+
+    const fileMap = new Map();
+    files.forEach((f) => {
+      fileMap.set(f.name.toLowerCase(), f);
+    });
+
+    const promises = detectedImages.map((img) => {
+      const file = fileMap.get(img.filename.toLowerCase());
+      if (file) {
+        return new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            resolve({ id: img.id, url: e.target?.result });
+          };
+          reader.onerror = () => resolve({ id: img.id, url: null });
+          reader.readAsDataURL(file);
+        });
+      }
+      return Promise.resolve({ id: img.id, url: img.resolvedUrl });
+    });
+
+    Promise.all(promises).then((results) => {
+      const resMap = new Map(results.map((r) => [r.id, r.url]));
+      setDetectedImages((prev) =>
+        prev.map((item) => ({
+          ...item,
+          resolvedUrl: resMap.get(item.id) || item.resolvedUrl,
+        }))
+      );
+    });
+  };
+
+  const applyResolvedImagesToBooks = () => {
+    const urlMap = new Map();
+    detectedImages.forEach((img) => {
+      if (img.resolvedUrl) {
+        urlMap.set(img.filename.toLowerCase(), img.resolvedUrl);
+        urlMap.set(img.path, img.resolvedUrl);
+      }
+    });
+
+    if (urlMap.size > 0 && validationResult?.parsedBooks) {
+      validationResult.parsedBooks.forEach((book) => {
+        (book.nodes || []).forEach((node) => {
+          // 1. PageBlocks
+          (node.extra?.pageBlocks || []).forEach((block) => {
+            if (block.imageUrl) {
+              const fname = block.imageUrl.split("/").pop().split("\\").pop().toLowerCase();
+              if (urlMap.has(fname)) block.imageUrl = urlMap.get(fname);
+              else if (urlMap.has(block.imageUrl)) block.imageUrl = urlMap.get(block.imageUrl);
+            }
+            if (block.src && block.kind === "image") {
+              const fname = block.src.split("/").pop().split("\\").pop().toLowerCase();
+              if (urlMap.has(fname)) block.src = urlMap.get(fname);
+              else if (urlMap.has(block.src)) block.src = urlMap.get(block.src);
+            }
+          });
+          // 2. Cards
+          (node.extra?.cards || []).forEach((card) => {
+            if (card.image) {
+              const fname = card.image.split("/").pop().split("\\").pop().toLowerCase();
+              if (urlMap.has(fname)) card.image = urlMap.get(fname);
+              else if (urlMap.has(card.image)) card.image = urlMap.get(card.image);
+            }
+          });
+          // 3. Questions
+          (node.extra?.questions || []).forEach((q) => {
+            if (q.image) {
+              const fname = q.image.split("/").pop().split("\\").pop().toLowerCase();
+              if (urlMap.has(fname)) q.image = urlMap.get(fname);
+            }
+            if (q.ar?.image) {
+              const fname = q.ar.image.split("/").pop().split("\\").pop().toLowerCase();
+              if (urlMap.has(fname)) q.ar.image = urlMap.get(fname);
+            }
+            if (q.en?.image) {
+              const fname = q.en.image.split("/").pop().split("\\").pop().toLowerCase();
+              if (urlMap.has(fname)) q.en.image = urlMap.get(fname);
+            }
+          });
+        });
+      });
+    }
+  };
+
   const handleExecuteImport = () => {
     if (!validationResult || !validationResult.valid) return;
+
+    // Apply any resolved images
+    applyResolvedImagesToBooks();
 
     let finalBooks = [...existingBooks];
     let finalCollections = [...existingCollections];
@@ -140,9 +248,8 @@ export function ImportModal({
     onImportSuccess({
       books: finalBooks,
       collections: finalCollections,
-      plans: validationResult.parsedPlans || {},
-      targetBookId,
-      newlyImportedBooks
+      plans: validationResult.parsedPlans || null,
+      targetBookId
     });
 
     setStep("success");
@@ -160,10 +267,13 @@ export function ImportModal({
     setFileName("");
     setValidationResult(null);
     setParseError(null);
+    setDetectedImages([]);
+    setFolderPathInput("");
     setStep("input");
   };
 
   const ArrowIcon = dir === "rtl" ? ArrowLeft : ArrowRight;
+  const resolvedImagesCount = detectedImages.filter((img) => img.resolvedUrl).length;
 
   return (
     <div
@@ -205,7 +315,7 @@ export function ImportModal({
           </div>
           <button
             onClick={onClose}
-            className="grid place-items-center rounded-lg shrink-0 transition-opacity hover:opacity-75"
+            className="grid place-items-center rounded-lg shrink-0 transition-opacity hover:opacity-75 cursor-pointer"
             style={{ width: 32, height: 32, border: `1px solid ${theme.hairline}`, color: theme.ink }}
           >
             <X size={16} />
@@ -219,7 +329,7 @@ export function ImportModal({
             <div className="flex items-center gap-2 p-1 rounded-xl" style={{ background: theme.canvas, border: `1px solid ${theme.hairline}` }}>
               <button
                 onClick={() => setTab("upload")}
-                className="flex-1 flex items-center justify-center gap-2 py-2 text-xs font-bold transition-all rounded-lg"
+                className="flex-1 flex items-center justify-center gap-2 py-2 text-xs font-bold transition-all rounded-lg cursor-pointer"
                 style={{
                   background: tab === "upload" ? theme.surface : "transparent",
                   color: tab === "upload" ? theme.accent : theme.inkSoft,
@@ -231,7 +341,7 @@ export function ImportModal({
               </button>
               <button
                 onClick={() => setTab("paste")}
-                className="flex-1 flex items-center justify-center gap-2 py-2 text-xs font-bold transition-all rounded-lg"
+                className="flex-1 flex items-center justify-center gap-2 py-2 text-xs font-bold transition-all rounded-lg cursor-pointer"
                 style={{
                   background: tab === "paste" ? theme.surface : "transparent",
                   color: tab === "paste" ? theme.accent : theme.inkSoft,
@@ -289,7 +399,7 @@ export function ImportModal({
                 <button
                   onClick={handleManualValidate}
                   disabled={!jsonText.trim()}
-                  className="self-end px-5 py-2.5 text-xs font-bold text-white rounded-lg disabled:opacity-40"
+                  className="self-end px-5 py-2.5 text-xs font-bold text-white rounded-lg disabled:opacity-40 cursor-pointer"
                   style={{ background: theme.accent }}
                 >
                   {ui.importValidateBtn || (lang === "ar" ? "فحص ومعاينة" : "Validate & Preview")}
@@ -323,7 +433,7 @@ export function ImportModal({
                   </div>
                   <button
                     onClick={copyErrors}
-                    className="flex items-center gap-1 text-[11px] font-bold px-2 py-1 rounded border border-red-500/30 hover:bg-red-500/20"
+                    className="flex items-center gap-1 text-[11px] font-bold px-2 py-1 rounded border border-red-500/30 hover:bg-red-500/20 cursor-pointer"
                   >
                     {copied ? <Check size={12} /> : <Copy size={12} />}
                     {copied ? (lang === "ar" ? "تم النسخ" : "Copied") : (lang === "ar" ? "نسخ الأخطاء" : "Copy Errors")}
@@ -342,7 +452,153 @@ export function ImportModal({
           </div>
         )}
 
-        {/* STEP 2: PREVIEW & CONFLICT RESOLUTION */}
+        {/* STEP 2 (OPTIONAL): IMAGES & ASSET FOLDER LINKING */}
+        {step === "images" && (
+          <div className="flex flex-col gap-4 animate-in fade-in">
+            <div className="flex items-center justify-between p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-700 dark:text-amber-300">
+              <div className="flex items-center gap-2.5 font-bold text-xs sm:text-sm">
+                <ImageIcon size={18} className="shrink-0" />
+                <span>
+                  {lang === "ar"
+                    ? `تم اكتشاف ${detectedImages.length} صورة مشار إليها داخل هذا الكتاب`
+                    : `Detected ${detectedImages.length} image references in this book`}
+                </span>
+              </div>
+              <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-amber-500/20">
+                {resolvedImagesCount}/{detectedImages.length} {lang === "ar" ? "تم الربط" : "linked"}
+              </span>
+            </div>
+
+            <p className="text-xs leading-relaxed" style={{ color: theme.inkSoft }}>
+              {lang === "ar"
+                ? "حدد مجلد الصور على جهازك أو اختر ملفات الصور مباشرة لمطابقة وتضمين الصور فورياً دون روابط مكسورة:"
+                : "Select the images directory on your device or pick image files to match and embed them immediately:"}
+            </p>
+
+            {/* Folder & Files Picker Buttons */}
+            <div className="flex items-center gap-2.5 flex-wrap">
+              <input
+                ref={folderInputRef}
+                type="file"
+                webkitdirectory=""
+                directory=""
+                multiple
+                onChange={(e) => handleImageFilesLoaded(e.target.files)}
+                className="hidden"
+              />
+              <button
+                type="button"
+                onClick={() => folderInputRef.current?.click()}
+                className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold text-white shadow-xs cursor-pointer transition-transform hover:scale-[1.02]"
+                style={{ background: theme.accent }}
+              >
+                <FolderOpen size={15} />
+                <span>{lang === "ar" ? "تحديد مجلد الصور (Folder)" : "Select Images Folder"}</span>
+              </button>
+
+              <input
+                ref={filesInputRef}
+                type="file"
+                multiple
+                accept="image/*,.svg"
+                onChange={(e) => handleImageFilesLoaded(e.target.files)}
+                className="hidden"
+              />
+              <button
+                type="button"
+                onClick={() => filesInputRef.current?.click()}
+                className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold border cursor-pointer transition-colors hover:bg-black/5 dark:hover:bg-white/5"
+                style={{ borderColor: theme.hairline, color: theme.ink }}
+              >
+                <UploadCloud size={15} />
+                <span>{lang === "ar" ? "اختيار ملفات الصور يدوياً" : "Select Image Files"}</span>
+              </button>
+            </div>
+
+            {/* Images Table / List */}
+            <div className="flex flex-col gap-2 max-h-56 overflow-y-auto border rounded-xl p-2" style={{ background: theme.canvas, borderColor: theme.hairline }}>
+              {detectedImages.map((img) => (
+                <div
+                  key={img.id}
+                  className="flex items-center justify-between gap-3 p-2.5 rounded-lg border text-xs"
+                  style={{
+                    background: theme.surface,
+                    borderColor: img.resolvedUrl ? "rgba(16,185,129,0.3)" : theme.hairline,
+                  }}
+                >
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    {img.resolvedUrl ? (
+                      <img
+                        src={img.resolvedUrl}
+                        alt={img.filename}
+                        className="w-8 h-8 rounded object-cover border shrink-0"
+                        style={{ borderColor: theme.hairline }}
+                      />
+                    ) : (
+                      <div className="w-8 h-8 rounded grid place-items-center bg-black/5 dark:bg-white/5 shrink-0 opacity-60">
+                        <ImageIcon size={14} />
+                      </div>
+                    )}
+                    <div className="min-w-0">
+                      <span className="font-bold block truncate" style={{ color: theme.ink }}>
+                        {img.filename}
+                      </span>
+                      <span className="text-[10px] block truncate" style={{ color: theme.inkSoft }}>
+                        {img.location} • <span className="font-mono">{img.path}</span>
+                      </span>
+                    </div>
+                  </div>
+
+                  <span
+                    className={`text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0 ${
+                      img.resolvedUrl
+                        ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"
+                        : "bg-amber-500/15 text-amber-600 dark:text-amber-400"
+                    }`}
+                  >
+                    {img.resolvedUrl ? (lang === "ar" ? "✅ تم الربط" : "Linked") : (lang === "ar" ? "⏳ بانتظار الملف" : "Pending")}
+                  </span>
+                </div>
+              ))}
+            </div>
+
+            {/* Image step navigation */}
+            <div className="flex items-center justify-between gap-3 pt-3 border-t" style={{ borderColor: theme.hairline }}>
+              <button
+                type="button"
+                onClick={() => setStep("input")}
+                className="px-4 py-2 text-xs font-bold rounded-lg border cursor-pointer"
+                style={{ borderColor: theme.hairline, color: theme.ink }}
+              >
+                {lang === "ar" ? "رجوع" : "Back"}
+              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setStep("preview")}
+                  className="px-4 py-2 text-xs font-bold rounded-lg opacity-70 hover:opacity-100 cursor-pointer"
+                  style={{ color: theme.inkSoft }}
+                >
+                  {lang === "ar" ? "تخطي بدون صور" : "Skip without images"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    applyResolvedImagesToBooks();
+                    setStep("preview");
+                  }}
+                  className="flex items-center gap-1.5 px-5 py-2 text-xs font-bold text-white rounded-lg cursor-pointer"
+                  style={{ background: theme.accent }}
+                >
+                  <span>{lang === "ar" ? "متابعة للمعاينة" : "Continue to Preview"}</span>
+                  <ArrowIcon size={14} />
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* STEP 3: PREVIEW & CONFLICT RESOLUTION */}
         {step === "preview" && validationResult && (
           <div className="flex flex-col gap-4">
             {/* Header Badge */}
@@ -431,25 +687,25 @@ export function ImportModal({
             {/* Action Buttons */}
             <div className="flex items-center justify-between gap-3 pt-3 border-t" style={{ borderColor: theme.hairline }}>
               <button
-                onClick={() => setStep("input")}
-                className="px-4 py-2 text-xs font-bold rounded-lg border"
+                onClick={() => setStep(detectedImages.length > 0 ? "images" : "input")}
+                className="px-4 py-2 text-xs font-bold rounded-lg border cursor-pointer"
                 style={{ borderColor: theme.hairline, color: theme.ink }}
               >
                 {lang === "ar" ? "رجوع" : "Back"}
               </button>
               <button
                 onClick={handleExecuteImport}
-                className="flex items-center gap-2 px-6 py-2.5 text-xs font-bold text-white rounded-lg shadow-md"
+                className="flex items-center gap-2 px-6 py-2.5 text-xs font-bold text-white rounded-lg shadow-md cursor-pointer"
                 style={{ background: theme.accent }}
               >
                 <CheckCircle2 size={14} />
-                {ui.importConfirmBtn || (lang === "ar" ? "تأكيد واستيراد إلى المكتبة" : "Confirm & Import to Library")}
+                <span>{ui.importConfirmBtn || (lang === "ar" ? "تأكيد واستيراد إلى المكتبة" : "Confirm & Import to Library")}</span>
               </button>
             </div>
           </div>
         )}
 
-        {/* STEP 3: SUCCESS */}
+        {/* STEP 4: SUCCESS */}
         {step === "success" && (
           <div className="flex flex-col items-center justify-center gap-4 py-6 text-center">
             <div className="grid place-items-center w-14 h-14 rounded-full" style={{ background: theme.accentSoft, color: theme.accent }}>
@@ -466,10 +722,10 @@ export function ImportModal({
                 resetAll();
                 onClose();
               }}
-              className="flex items-center gap-2 px-6 py-2.5 text-xs font-bold text-white rounded-lg mt-2"
+              className="flex items-center gap-2 px-6 py-2.5 text-xs font-bold text-white rounded-lg mt-2 cursor-pointer"
               style={{ background: theme.accent }}
             >
-              {ui.importDoneBtn || (lang === "ar" ? "عرض المكتبة الآن" : "Open Library Now")}
+              <span>{ui.importDoneBtn || (lang === "ar" ? "عرض المكتبة الآن" : "Open Library Now")}</span>
               <ArrowIcon size={14} />
             </button>
           </div>

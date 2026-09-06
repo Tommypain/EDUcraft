@@ -89,6 +89,7 @@ import {
 import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
 import { ImportModal } from "./utils/ImportModal.jsx";
+import { TitaniumPluginsModal } from "./utils/TitaniumPluginsModal.jsx";
 import { SyntaxCodeBlock, LiveCodeEditor } from "./utils/syntax.jsx";
 import { KnowledgeTreeEnhanced } from "./utils/KnowledgeTree.jsx";
 import masterLibraryData from "./data/educraft_master_library.json";
@@ -2840,6 +2841,8 @@ function LibraryView({
   onExportDatabase,
   onRestoreDatabase,
   onCreateNewBook,
+  onOpenPluginsModal,
+  disableHtmlExport = false,
 }) {
   const ArrowIcon = dir === "rtl" ? ArrowLeft : ArrowRight;
   const atRoot = libraryPath.length === 0;
@@ -3164,6 +3167,25 @@ function LibraryView({
             <span className="hidden sm:inline">{ui.libraryImportJson}</span>
           </button>
 
+          {onOpenPluginsModal && (
+            <button
+              type="button"
+              onClick={onOpenPluginsModal}
+              className="educraft-btn flex items-center gap-1.5 text-xs font-bold px-3 py-2 cursor-pointer"
+              style={{
+                borderRadius: skin.radiusSm,
+                border: `1.5px solid ${skinBorderColor(skin, theme)}`,
+                background: theme.surface,
+                color: theme.ink,
+                minHeight: 38,
+              }}
+              title={lang === "ar" ? "إضافات تيتانيوم (Titanium Plugins)" : "Titanium Plugins"}
+            >
+              <Blocks size={13} className="text-amber-500" />
+              <span className="hidden sm:inline">{lang === "ar" ? "الإضافات" : "Plugins"}</span>
+            </button>
+          )}
+
           <div className="relative">
             <button
               type="button"
@@ -3241,6 +3263,21 @@ function LibraryView({
                   >
                     <FileUp size={13} />
                     <span>{ui.restoreDatabaseBackupLabel}</span>
+                  </button>
+                )}
+
+                {onOpenPluginsModal && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setToolsMenuOpen(false);
+                      onOpenPluginsModal();
+                    }}
+                    className="flex items-center gap-2 w-full px-2.5 py-2 text-xs font-semibold rounded-xl text-start transition-colors hover:bg-black/5 dark:hover:bg-white/5 cursor-pointer border-t pt-2"
+                    style={{ color: theme.ink, borderColor: theme.hairline }}
+                  >
+                    <Blocks size={13} className="text-amber-500" />
+                    <span>{lang === "ar" ? "إضافات تيتانيوم (Plugins)" : "Titanium Plugins"}</span>
                   </button>
                 )}
               </div>
@@ -3353,7 +3390,7 @@ function LibraryView({
                     {childCount} {ui.booksCountLabel}
                   </span>
                   <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
-                    {onExportCollection && (
+                    {!disableHtmlExport && onExportCollection && (
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
@@ -3490,18 +3527,20 @@ function LibraryView({
                               color: theme.ink,
                             }}
                           >
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setExportMenuBookId(null);
-                                onExportBook(book, "html");
-                              }}
-                              className="flex items-center gap-2 w-full text-start px-2.5 py-1.5 text-xs font-bold rounded-lg transition-colors hover:bg-black/5 dark:hover:bg-white/5 cursor-pointer"
-                              style={{ color: theme.ink }}
-                            >
-                              <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
-                              <span className="flex-1 truncate">{ui.exportOptionHtml}</span>
-                            </button>
+                            {!disableHtmlExport && (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setExportMenuBookId(null);
+                                  onExportBook(book, "html");
+                                }}
+                                className="flex items-center gap-2 w-full text-start px-2.5 py-1.5 text-xs font-bold rounded-lg transition-colors hover:bg-black/5 dark:hover:bg-white/5 cursor-pointer"
+                                style={{ color: theme.ink }}
+                              >
+                                <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
+                                <span className="flex-1 truncate">{ui.exportOptionHtml}</span>
+                              </button>
+                            )}
 
                             <button
                               type="button"
@@ -4210,7 +4249,7 @@ function BrowseView({ book, lang, ui, theme, dir, skin, onBack, bookFlavorId, on
    Liquid glass / Pixel art) and how the question deck moves (Paged
    vs Scroll, with a direction sub-choice once Scroll is picked).
 ================================================================== */
-function SettingsPanel({ ui, theme, dir, skinId, onSkinChange, flavorId, onFlavorChange, mode, cardMode, onCardModeChange, scrollDir, onScrollDirChange, voiceEnabled, onVoiceEnabledChange, disableEditorInExport, onDisableEditorInExportChange, isExportSeed, onClose, onReset, onExportDatabase, onRestoreDatabase }) {
+function SettingsPanel({ ui, theme, dir, skinId, onSkinChange, flavorId, onFlavorChange, mode, cardMode, onCardModeChange, scrollDir, onScrollDirChange, voiceEnabled, onVoiceEnabledChange, disableEditorInExport, onDisableEditorInExportChange, disableHtmlExport, onDisableHtmlExportChange, isExportSeed, onClose, onReset, onExportDatabase, onRestoreDatabase }) {
   const skin = SKINS[skinId] || SKINS.normal;
   const themeOptions = [
     { id: "normal", label: ui.themeNormal, desc: ui.themeNormalDesc, Icon: Sun },
@@ -4450,6 +4489,32 @@ function SettingsPanel({ ui, theme, dir, skinId, onSkinChange, flavorId, onFlavo
                   {dir === "rtl"
                     ? "عند التفعيل، يتم تصدير الكتاب كنسخة قراءة واختبارات فقط، ويتم إخفاء المحرر وأزرار التعديل بالكامل لحماية محتوى الكتاب من التعديل أو العبث."
                     : "When enabled, exported HTML files are strictly locked to reader mode, hiding the editor and all modification tools to protect the curriculum."}
+                </span>
+              </span>
+            </label>
+
+            {/* Complete HTML Export Prevention Setting */}
+            <label
+              className="flex items-start gap-3 cursor-pointer p-3 rounded-xl border transition-all hover:bg-black/5 dark:hover:bg-white/5 mt-2.5"
+              style={{
+                borderColor: disableHtmlExport ? theme.accent : skinBorderColor(skin, theme),
+                background: disableHtmlExport ? theme.accentSoft : "transparent",
+              }}
+            >
+              <input
+                type="checkbox"
+                checked={!!disableHtmlExport}
+                onChange={(e) => onDisableHtmlExportChange && onDisableHtmlExportChange(e.target.checked)}
+                className="mt-0.5 accent-amber-600 rounded"
+              />
+              <span className="flex-1 min-w-0">
+                <span className="block text-sm font-bold" style={{ color: theme.ink }}>
+                  {dir === "rtl" ? "منع وتجميد تصدير الكتب كـ HTML بالكامل" : "Disable & Block HTML Export Completely"}
+                </span>
+                <span className="block text-xs mt-0.5" style={{ color: theme.inkSoft, lineHeight: 1.4 }}>
+                  {dir === "rtl"
+                    ? "عند التفعيل، يتم إخفاء وقفل خيارات تصدير HTML من جميع بطاقات الكتب وشجرة المنهج لحماية المحتوى ومنع توليد ملفات خارجية."
+                    : "When enabled, hides and disables HTML export options across all book cards and tree views to protect content from external single-file generation."}
                 </span>
               </span>
             </label>
@@ -11160,11 +11225,19 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
   const isEditorDisabled = Boolean(EXPORT && EXPORT.disableEditor);
   const isStandalone = Boolean(EXPORT);
   const [disableEditorInExport, setDisableEditorInExport] = useState(() => Boolean(saved.disableEditorInExport));
+  const [disableHtmlExport, setDisableHtmlExport] = useState(() => Boolean(saved.disableHtmlExport));
+  const [pluginsModalOpen, setPluginsModalOpen] = useState(false);
 
   const handleDisableEditorInExportChange = (val) => {
     setDisableEditorInExport(val);
     const current = loadAppState();
     saveAppState({ ...current, disableEditorInExport: val });
+  };
+
+  const handleDisableHtmlExportChange = (val) => {
+    setDisableHtmlExport(val);
+    const current = loadAppState();
+    saveAppState({ ...current, disableHtmlExport: val });
   };
 
   useEffect(() => {
@@ -11377,6 +11450,14 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
   }, []);
 
   const handleExportBook = async (bookToExport, exportLang, exportTheme, exportUi, exportSkin, exportCovers) => {
+    if (disableHtmlExport) {
+      setExportToast({
+        type: "error",
+        message: exportLang === "ar" ? "تم منع تصدير HTML: هذا الخيار معطل في إعدادات التطبيق." : "HTML Export is disabled in application settings.",
+      });
+      setTimeout(() => setExportToast(null), 4000);
+      return;
+    }
     if (isExporting || !onExportBook) return;
     setIsExporting(true);
     const bTitle = bookToExport?.[exportLang]?.title || bookToExport?.id || "Book";
@@ -11456,6 +11537,14 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
   };
 
   const handleExportCollection = async (colToExport, allBooks, allCols, exportLang, exportTheme, exportUi, exportSkin, exportCovers) => {
+    if (disableHtmlExport) {
+      setExportToast({
+        type: "error",
+        message: exportLang === "ar" ? "تم منع تصدير HTML: هذا الخيار معطل في إعدادات التطبيق." : "HTML Export is disabled in application settings.",
+      });
+      setTimeout(() => setExportToast(null), 4000);
+      return;
+    }
     if (isExporting || !onExportCollection) return;
     setIsExporting(true);
     setExportToast({
@@ -12087,6 +12176,16 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
             </button>
             <button
               type="button"
+              onClick={() => setPluginsModalOpen(true)}
+              className="educraft-btn p-2 cursor-pointer flex items-center justify-center relative"
+              style={{ borderRadius: skin.radiusSm, color: theme.ink, minHeight: 36, minWidth: 36 }}
+              aria-label={lang === "ar" ? "إضافات تيتانيوم (Titanium Plugins)" : "Titanium Plugins"}
+              title={lang === "ar" ? "إضافات تيتانيوم (Titanium Plugins)" : "Titanium Plugins"}
+            >
+              <Blocks size={15} />
+            </button>
+            <button
+              type="button"
               onClick={() => setSettingsOpen(true)}
               className="educraft-btn p-2 cursor-pointer flex items-center justify-center"
               style={{ borderRadius: skin.radiusSm, color: theme.ink, minHeight: 36, minWidth: 36 }}
@@ -12136,6 +12235,8 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
               onRescan={() => rescanBooks(false)}
               isScanning={isScanning}
               onOpenImportModal={() => setImportModalOpen(true)}
+              onOpenPluginsModal={() => setPluginsModalOpen(true)}
+              disableHtmlExport={disableHtmlExport}
               onDeleteBook={isStandalone ? undefined : requestDeleteBook}
               plans={plans}
               onExportDatabase={handleExportFullDatabase}
@@ -12158,7 +12259,7 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
                 onReadThrough={() => setView("readthrough")}
                 onPlanner={() => setView("planner")}
                 onEditor={isEditorDisabled ? undefined : () => setView("editor")}
-                onExport={!isStandalone && onExportBook ? () => handleExportBook(currentBook, lang, bookTheme, ui, skin, covers) : undefined}
+                onExport={!isStandalone && !disableHtmlExport && onExportBook ? () => handleExportBook(currentBook, lang, bookTheme, ui, skin, covers) : undefined}
                 covers={covers}
                 onChangeCover={setCover}
                 onClearCover={clearCover}
@@ -12432,7 +12533,7 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
               onReadThrough={() => setView("readthrough")}
               onPlanner={() => setView("planner")}
               onEditor={isEditorDisabled ? undefined : () => setView("editor")}
-              onExport={!isStandalone && onExportBook ? () => handleExportBook(currentBook, lang, bookTheme, ui, skin, covers) : undefined}
+              onExport={!isStandalone && !disableHtmlExport && onExportBook ? () => handleExportBook(currentBook, lang, bookTheme, ui, skin, covers) : undefined}
               covers={covers}
               onChangeCover={setCover}
               onClearCover={clearCover}
@@ -12477,6 +12578,8 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
               onRescan={() => rescanBooks(false)}
               isScanning={isScanning}
               onOpenImportModal={() => setImportModalOpen(true)}
+              onOpenPluginsModal={() => setPluginsModalOpen(true)}
+              disableHtmlExport={disableHtmlExport}
               onDeleteBook={isStandalone ? undefined : requestDeleteBook}
               plans={plans}
               onExportDatabase={handleExportFullDatabase}
@@ -12505,6 +12608,8 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
           onVoiceEnabledChange={setVoiceEnabled}
           disableEditorInExport={disableEditorInExport}
           onDisableEditorInExportChange={handleDisableEditorInExportChange}
+          disableHtmlExport={disableHtmlExport}
+          onDisableHtmlExportChange={handleDisableHtmlExportChange}
           isExportSeed={Boolean(EXPORT)}
           onClose={() => setSettingsOpen(false)}
           onReset={resetAll}
@@ -12544,6 +12649,17 @@ function EDUcraftApp({ onExportBook, onExportCollection } = {}) {
           existingBooks={books}
           existingCollections={collections}
           ui={ui}
+          lang={lang}
+          dir={dir}
+          theme={theme}
+          skin={skin}
+        />
+      )}
+
+      {pluginsModalOpen && (
+        <TitaniumPluginsModal
+          isOpen={pluginsModalOpen}
+          onClose={() => setPluginsModalOpen(false)}
           lang={lang}
           dir={dir}
           theme={theme}

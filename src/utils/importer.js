@@ -497,6 +497,7 @@ export function validatePayload(data, existingBooks = [], existingCollections = 
     warnings.push(...cRes.warnings);
   });
 
+  const referencedImages = extractReferencedImages(parsedBooks);
   const valid = errors.length === 0;
   return {
     valid,
@@ -507,6 +508,72 @@ export function validatePayload(data, existingBooks = [], existingCollections = 
     totalStats,
     parsedBooks,
     parsedCollections,
-    parsedPlans
+    parsedPlans,
+    referencedImages
   };
 }
+
+export function extractReferencedImages(parsedBooks = []) {
+  const images = [];
+  const seenPaths = new Set();
+
+  parsedBooks.forEach((book) => {
+    (book.nodes || []).forEach((node) => {
+      // 1. Check pageBlocks
+      const blocks = node.extra?.pageBlocks || [];
+      blocks.forEach((block, bIdx) => {
+        const rawPath = block.imageUrl || block.src || (block.kind === "image" ? block.asset_id : null);
+        if (rawPath && typeof rawPath === "string" && !seenPaths.has(rawPath)) {
+          seenPaths.add(rawPath);
+          const filename = rawPath.split("/").pop().split("\\").pop();
+          images.push({
+            id: `img_${images.length + 1}`,
+            path: rawPath,
+            filename,
+            location: `${node.ar || node.en || node.id} (PageBlock ${bIdx + 1})`,
+            type: "pageBlock",
+            resolvedUrl: null,
+          });
+        }
+      });
+
+      // 2. Check cards
+      const cards = node.extra?.cards || [];
+      cards.forEach((card, cIdx) => {
+        if (card.image && typeof card.image === "string" && !seenPaths.has(card.image)) {
+          seenPaths.add(card.image);
+          const filename = card.image.split("/").pop().split("\\").pop();
+          images.push({
+            id: `img_${images.length + 1}`,
+            path: card.image,
+            filename,
+            location: `${node.ar || node.en || node.id} (Card ${cIdx + 1})`,
+            type: "card",
+            resolvedUrl: null,
+          });
+        }
+      });
+
+      // 3. Check questions
+      const questions = node.extra?.questions || [];
+      questions.forEach((q, qIdx) => {
+        const qImg = q.image || q.ar?.image || q.en?.image;
+        if (qImg && typeof qImg === "string" && !seenPaths.has(qImg)) {
+          seenPaths.add(qImg);
+          const filename = qImg.split("/").pop().split("\\").pop();
+          images.push({
+            id: `img_${images.length + 1}`,
+            path: qImg,
+            filename,
+            location: `${node.ar || node.en || node.id} (Question ${qIdx + 1})`,
+            type: "question",
+            resolvedUrl: null,
+          });
+        }
+      });
+    });
+  });
+
+  return images;
+}
+
