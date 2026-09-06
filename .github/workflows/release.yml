@@ -14,15 +14,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - platform: 'macos-latest'
-            args: '--target aarch64-apple-darwin'
-          - platform: 'macos-latest'
-            args: '--target x86_64-apple-darwin'
-          - platform: 'ubuntu-22.04'
-            args: ''
-          - platform: 'windows-latest'
-            args: ''
+        platform: [macos-latest, ubuntu-22.04, windows-latest]
 
     runs-on: ${{ matrix.platform }}
     steps:
@@ -37,8 +29,6 @@ jobs:
 
       - name: Install Rust stable
         uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
 
       - name: Install Linux dependencies (Ubuntu)
         if: matrix.platform == 'ubuntu-22.04'
@@ -66,4 +56,3 @@ jobs:
           releaseBody: 'See changelog and release notes for EDUcraft v__VERSION__.'
           releaseDraft: false
           prerelease: false
-          args: ${{ matrix.args }}
