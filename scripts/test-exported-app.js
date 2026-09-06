@@ -4,7 +4,17 @@ import { fileURLToPath } from "url";
 import { JSDOM, VirtualConsole } from "jsdom";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const htmlPath = path.join(__dirname, "../src-tauri/tests/output/exported_html_book.html");
+const htmlArg = process.argv[2];
+let htmlPath = htmlArg
+  ? path.resolve(process.cwd(), htmlArg)
+  : path.join(__dirname, "../src-tauri/tests/output/exported_html_book.html");
+
+if (!fs.existsSync(htmlPath)) {
+  const fallbackPath = path.join(__dirname, "../output/html-master-curriculum.html");
+  if (fs.existsSync(fallbackPath)) {
+    htmlPath = fallbackPath;
+  }
+}
 
 if (!fs.existsSync(htmlPath)) {
   console.error("❌ Exported HTML file not found at:", htmlPath);
