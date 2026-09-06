@@ -3,6 +3,7 @@
   "productName": "EDUcraft",
   "version": "0.5.0",
   "identifier": "com.educraft.app",
+  "mainBinaryName": "educraft",
   "build": {
     "beforeDevCommand": "npm run dev",
     "devUrl": "http://localhost:5173",
