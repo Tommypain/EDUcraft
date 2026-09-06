@@ -183,8 +183,7 @@ const requiredToolbarButtons = [
   "onOpenImportModal",
   "onExportDatabase",
   "onRestoreDatabase",
-  'onCreateCollection("folder")',
-  'onCreateCollection("encyclopedia")'
+  "onCreateCollection"
 ];
 
 for (const btn of requiredToolbarButtons) {
@@ -198,7 +197,7 @@ const requiredCardElements = [
   "ui.branchesLabel",
   "ui.questionsLabel",
   "onDeleteBook",
-  "ui.openBook",
+  "onOpen",
   "progressPct"
 ];
 

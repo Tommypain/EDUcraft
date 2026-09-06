@@ -18,10 +18,20 @@ fn resolve_default_books_dir() -> PathBuf {
         }
     }
 
-    // 2. Absolute fallback for this workspace
-    let fallback = PathBuf::from("/home/tommypain/Projects/EDUcraft/BOOKS");
-    if fallback.exists() {
-        return fallback;
+    // 2. Check executable directory hierarchy
+    if let Ok(exe) = env::current_exe() {
+        let mut cur = exe.parent();
+        for _ in 0..5 {
+            if let Some(dir) = cur {
+                let p = dir.join("BOOKS");
+                if p.exists() {
+                    return p;
+                }
+                cur = dir.parent();
+            } else {
+                break;
+            }
+        }
     }
 
     PathBuf::from("BOOKS")

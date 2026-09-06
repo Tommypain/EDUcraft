@@ -12,7 +12,21 @@ fn resolve_default_books_dir() -> PathBuf {
             return p.join("BOOKS");
         }
     }
-    PathBuf::from("/home/tommypain/Projects/EDUcraft/BOOKS")
+    if let Ok(exe) = env::current_exe() {
+        let mut cur = exe.parent();
+        for _ in 0..5 {
+            if let Some(dir) = cur {
+                let p = dir.join("BOOKS");
+                if p.exists() {
+                    return p;
+                }
+                cur = dir.parent();
+            } else {
+                break;
+            }
+        }
+    }
+    cwd.join("BOOKS")
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {

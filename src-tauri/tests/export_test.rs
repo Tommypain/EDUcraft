@@ -59,7 +59,9 @@ fn test_real_book_export_pipeline() {
     assert!(html.len() > 1_000_000, "Exported HTML should be a full standalone bundle (>1MB)");
 
     // Write to disk for manual & browser verification
-    let out_path = root.join("src-tauri/tests/output/exported_html_book.html");
+    let out_dir = root.join("src-tauri/tests/output");
+    let _ = fs::create_dir_all(&out_dir);
+    let out_path = out_dir.join("exported_html_book.html");
     fs::write(&out_path, &html).expect("Write exported HTML to disk");
     println!("✅ Standalone HTML book written to: {:?}", out_path);
 }

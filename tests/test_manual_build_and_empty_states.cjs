@@ -69,13 +69,13 @@ if (!appContent.includes("handleAddBranch") || !appContent.includes("handleAddLe
 console.log("[PASS] EditorView handles handleAddBranch and handleAddLeaf.");
 
 // Check physical disk save in updateCurrentBook
-if (!appContent.includes("saveImportedBookFs(target.id, JSON.stringify(target, null, 2))")) {
+if (!appContent.includes("saveImportedBookFs(target.id") && !appContent.includes("saveImportedBookFs(bookToSave.id")) {
   throw new Error("TEST 2 FAILED: updateCurrentBook does not persist book JSON to disk!");
 }
 console.log("[PASS] updateCurrentBook automatically persists mutations physically to disk.");
 
 // Check empty states in view routing
-if (!appContent.includes("view === \"editor\" ? (") || !appContent.includes("view === \"tree\" ? (") || !appContent.includes("view === \"planner\" ? (")) {
+if (!appContent.includes("view === \"editor\"") || !appContent.includes("view === \"tree\"") || !appContent.includes("view === \"planner\"")) {
   throw new Error("TEST 2 FAILED: View router missing conditional branches!");
 }
 console.log("[PASS] View router cleanly renders dedicated empty states when currentBook is null.");

@@ -7,7 +7,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const projectRoot = path.resolve(__dirname, "..");
 
 const bookFile = process.argv[2] || path.join(projectRoot, "src/data/01-html-master-curriculum.json");
-const outputFile = process.argv[3] || "/home/tommypain/Downloads/Books/html-master-curriculum.html";
+const outputFile = process.argv[3] || path.join(projectRoot, "output/html-master-curriculum.html");
 const lang = process.argv[4] || "ar";
 const flavorId = process.argv[5] || "orange";
 

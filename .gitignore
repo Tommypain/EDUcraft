@@ -23,6 +23,7 @@ src-tauri/target/
 src-tauri/gen/
 src-tauri/.pkgconfig/
 src-tauri/tests/output/
+output/
 .export_temp/
 
 # Editor / OS files
